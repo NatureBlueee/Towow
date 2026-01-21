@@ -603,3 +603,5 @@ interface SSEEvent {
 **创建时间**: 2026-01-21
 **来源**: supplement-03-frontend.md
 **关键路径**: YES - 前后端实时通信核心
+
+> Beads 任务ID：`towow-kdy`

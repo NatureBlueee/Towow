@@ -361,3 +361,5 @@ async def test_smart_filter():
 ---
 
 **创建时间**: 2026-01-21
+
+> Beads 任务ID：`towow-ahl`

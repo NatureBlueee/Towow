@@ -383,3 +383,5 @@ class ChannelAdminAgent(TowowBaseAgent):
 ---
 
 **创建时间**: 2026-01-21
+
+> Beads 任务ID：`towow-lyc`

@@ -647,3 +647,5 @@ interface SSEEvent {
 **创建时间**: 2026-01-21
 **来源**: supplement-03-frontend.md
 **关键路径**: YES - 2000人演示核心页面
+
+> Beads 任务ID：`towow-lab`

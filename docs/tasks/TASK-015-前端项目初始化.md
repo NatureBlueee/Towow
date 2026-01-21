@@ -311,3 +311,5 @@ REACT_APP_API_URL=https://api.towow.example.com
 
 **创建时间**: 2026-01-21
 **来源**: supplement-03-frontend.md
+
+> Beads 任务ID：`towow-aie`

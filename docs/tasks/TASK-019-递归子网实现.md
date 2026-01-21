@@ -587,3 +587,5 @@ class SubnetManager:
 **创建时间**: 2026-01-21
 **来源**: supplement-04-subnet.md
 **优先级**: P1（增强功能）
+
+> Beads 任务ID：`towow-e2b`

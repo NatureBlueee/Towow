@@ -346,3 +346,5 @@ Response:
 
 **创建时间**: 2026-01-21
 **来源**: supplement-03-frontend.md
+
+> Beads 任务ID：`towow-7hf`

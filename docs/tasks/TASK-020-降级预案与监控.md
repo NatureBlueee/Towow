@@ -698,3 +698,5 @@ curl http://localhost:8000/api/admin/stats
 **创建时间**: 2026-01-21
 **来源**: supplement-05-fallback.md
 **优先级**: P1（2000人演示稳定性保障）
+
+> Beads 任务ID：`towow-dq8`

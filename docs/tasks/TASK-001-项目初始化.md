@@ -143,3 +143,5 @@ target-version = "py310"
 ---
 
 **创建时间**: 2026-01-21
+
+> Beads 任务ID：`towow-9do`
