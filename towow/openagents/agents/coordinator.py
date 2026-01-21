@@ -1,44 +1,511 @@
-"""Coordinator Agent - orchestrates multi-agent workflows."""
+"""
+Coordinator Agent - ToWow调度中枢
 
-from typing import Any
+职责：
+1. 接收新需求，调用SecondMe理解需求
+2. 决定创建Channel并指派ChannelAdmin
+3. 调用LLM进行智能筛选
+4. 将筛选结果发送给ChannelAdmin
+"""
+from __future__ import annotations
 
-from openagents.agents.base import BaseAgent
+import json
+import logging
+import re
+from datetime import datetime
+from typing import Any, Dict, List, Optional
+from uuid import uuid4
+
+from .base import TowowBaseAgent, ChannelMessageContext, EventContext
+
+logger = logging.getLogger(__name__)
 
 
-class CoordinatorAgent(BaseAgent):
-    """Coordinator agent for orchestrating multi-agent workflows."""
+class CoordinatorAgent(TowowBaseAgent):
+    """
+    Coordinator Agent
 
-    def __init__(self, agent_id: str = "coordinator", name: str = "Coordinator"):
-        """Initialize the coordinator agent."""
-        super().__init__(agent_id, name)
-        self.registered_agents: dict[str, BaseAgent] = {}
+    ToWow系统的调度中枢，负责：
+    - 需求接收与理解
+    - 智能筛选候选Agent
+    - 创建协商Channel
+    """
 
-    def register_agent(self, agent: BaseAgent) -> None:
-        """Register an agent with the coordinator.
+    AGENT_TYPE = "coordinator"
 
-        Args:
-            agent: The agent to register.
+    def __init__(self, secondme_service=None, **kwargs):
         """
-        self.registered_agents[agent.agent_id] = agent
-
-    async def process_message(self, message: dict[str, Any]) -> dict[str, Any]:
-        """Process and route messages to appropriate agents.
+        初始化Coordinator Agent
 
         Args:
-            message: The message to process.
+            secondme_service: SecondMe服务实例（用于需求理解）
+            **kwargs: 传递给父类的参数
+        """
+        super().__init__(**kwargs)
+        self.secondme = secondme_service
+        self.active_demands: Dict[str, Dict] = {}
+
+    async def on_channel_message(self, ctx: ChannelMessageContext):
+        """
+        处理Channel消息
+
+        根据消息类型分发到对应处理器
+        """
+        data = ctx.message.get("data", {})
+        msg_type = data.get("type")
+
+        if msg_type == "new_demand":
+            await self._handle_new_demand(ctx, data)
+        elif msg_type == "subnet_demand":
+            await self._handle_subnet_demand(ctx, data)
+        elif msg_type == "channel_completed":
+            await self._handle_channel_completed(ctx, data)
+        else:
+            self._logger.debug(f"Unknown message type: {msg_type}")
+
+    async def on_direct(self, ctx: EventContext):
+        """
+        处理直接消息
+
+        支持通过直接消息发起新需求
+        """
+        payload = ctx.incoming_event.payload
+        content = payload.get("content", {})
+        msg_type = content.get("type")
+
+        if msg_type == "new_demand":
+            # 将直接消息转换为需求处理
+            await self._process_direct_demand(content)
+        else:
+            self._logger.debug(f"Received direct message: {content}")
+
+    async def _process_direct_demand(self, content: Dict):
+        """处理通过直接消息发送的需求"""
+        raw_input = content.get("raw_input", "")
+        user_id = content.get("user_id", "anonymous")
+        demand_id = content.get("demand_id") or f"d-{uuid4().hex[:8]}"
+
+        # 复用新需求处理逻辑
+        understanding = await self._understand_demand(raw_input, user_id)
+
+        self.active_demands[demand_id] = {
+            "demand_id": demand_id,
+            "raw_input": raw_input,
+            "understanding": understanding,
+            "status": "filtering",
+            "created_at": datetime.utcnow().isoformat()
+        }
+
+        await self._publish_event("towow.demand.understood", {
+            "demand_id": demand_id,
+            "surface_demand": understanding.get("surface_demand"),
+            "deep_understanding": understanding.get("deep_understanding"),
+            "confidence": understanding.get("confidence", "medium")
+        })
+
+        candidates = await self._smart_filter(demand_id, understanding)
+
+        if not candidates:
+            self._logger.warning(f"No candidates found for demand {demand_id}")
+            await self._publish_event("towow.filter.failed", {
+                "demand_id": demand_id,
+                "reason": "no_candidates"
+            })
+            return
+
+        channel_id = f"collab-{demand_id[2:]}"
+        await self._create_channel(demand_id, channel_id, understanding, candidates)
+
+    async def _handle_new_demand(self, ctx: ChannelMessageContext, data: Dict):
+        """
+        处理新需求
+
+        流程：
+        1. 调用SecondMe理解需求
+        2. 存储需求状态
+        3. 发布需求理解事件
+        4. 智能筛选候选Agent
+        5. 创建协商Channel
+        """
+        raw_input = data.get("raw_input", "")
+        user_id = data.get("user_id", "anonymous")
+        demand_id = data.get("demand_id") or f"d-{uuid4().hex[:8]}"
+
+        self._logger.info(f"Processing new demand: {demand_id}")
+
+        # 1. 调用SecondMe理解需求
+        understanding = await self._understand_demand(raw_input, user_id)
+
+        # 2. 存储需求
+        self.active_demands[demand_id] = {
+            "demand_id": demand_id,
+            "raw_input": raw_input,
+            "understanding": understanding,
+            "status": "filtering",
+            "created_at": datetime.utcnow().isoformat()
+        }
+
+        # 3. 发布需求理解事件
+        await self._publish_event("towow.demand.understood", {
+            "demand_id": demand_id,
+            "surface_demand": understanding.get("surface_demand"),
+            "deep_understanding": understanding.get("deep_understanding"),
+            "confidence": understanding.get("confidence", "medium")
+        })
+
+        # 4. 智能筛选候选Agent
+        candidates = await self._smart_filter(demand_id, understanding)
+
+        if not candidates:
+            self._logger.warning(f"No candidates found for demand {demand_id}")
+            await self._publish_event("towow.filter.failed", {
+                "demand_id": demand_id,
+                "reason": "no_candidates"
+            })
+            return
+
+        # 5. 创建协商Channel
+        channel_id = f"collab-{demand_id[2:]}"
+        await self._create_channel(demand_id, channel_id, understanding, candidates)
+
+    async def _understand_demand(
+        self, raw_input: str, user_id: str
+    ) -> Dict[str, Any]:
+        """
+        调用SecondMe理解需求
+
+        Args:
+            raw_input: 用户原始输入
+            user_id: 用户ID
 
         Returns:
-            The response from the target agent.
+            理解结果字典，包含：
+            - surface_demand: 表面需求
+            - deep_understanding: 深层理解
+            - uncertainties: 不确定点
+            - confidence: 置信度
         """
-        # TODO: Implement message routing logic
-        return {"status": "received", "message": message}
+        if self.secondme:
+            try:
+                result = await self.secondme.understand_demand(raw_input, user_id)
+                return result
+            except Exception as e:
+                self._logger.error(f"SecondMe error: {e}")
 
-    async def start(self) -> None:
-        """Start the coordinator and all registered agents."""
-        for agent in self.registered_agents.values():
-            await agent.start()
+        # 降级：直接返回原始输入
+        return {
+            "surface_demand": raw_input,
+            "deep_understanding": {"motivation": "unknown"},
+            "uncertainties": [],
+            "confidence": "low"
+        }
 
-    async def stop(self) -> None:
-        """Stop all registered agents and the coordinator."""
-        for agent in self.registered_agents.values():
-            await agent.stop()
+    async def _smart_filter(
+        self, demand_id: str, understanding: Dict
+    ) -> List[Dict]:
+        """
+        智能筛选候选Agent
+
+        Args:
+            demand_id: 需求ID
+            understanding: 需求理解结果
+
+        Returns:
+            候选Agent列表，每个包含：
+            - agent_id: Agent ID
+            - reason: 筛选理由
+            - relevance_score: 相关性分数
+        """
+        if not self.llm:
+            self._logger.warning("No LLM service, using mock filter")
+            return self._mock_filter(understanding)
+
+        # 获取所有可用Agent的能力（从数据库）
+        available_agents = await self._get_available_agents()
+
+        if not available_agents:
+            self._logger.info("No available agents in database, using mock filter")
+            return self._mock_filter(understanding)
+
+        # 构建筛选提示词
+        prompt = self._build_filter_prompt(understanding, available_agents)
+
+        try:
+            response = await self.llm.complete(
+                prompt=prompt,
+                system="你是ToWow的智能筛选系统，负责为需求匹配最合适的Agent。",
+                fallback_key="smart_filter"
+            )
+            return self._parse_filter_response(response, available_agents)
+        except Exception as e:
+            self._logger.error(f"LLM filter error: {e}")
+            return self._mock_filter(understanding)
+
+    def _build_filter_prompt(
+        self, understanding: Dict, agents: List[Dict]
+    ) -> str:
+        """
+        构建筛选提示词
+
+        Args:
+            understanding: 需求理解结果
+            agents: 可用Agent列表
+
+        Returns:
+            提示词字符串
+        """
+        return f"""
+## 需求信息
+- 表面需求: {understanding.get('surface_demand', '')}
+- 深层理解: {json.dumps(understanding.get('deep_understanding', {}), ensure_ascii=False)}
+- 不确定点: {understanding.get('uncertainties', [])}
+
+## 可用Agent列表
+{json.dumps(agents, ensure_ascii=False, indent=2)}
+
+## 任务
+从上述Agent中筛选出最适合参与此需求协商的候选人（3-10人）。
+
+## 输出格式
+```json
+{{
+  "candidates": [
+    {{"agent_id": "xxx", "reason": "筛选理由", "relevance_score": 85}}
+  ],
+  "filtering_logic": "筛选逻辑说明"
+}}
+```
+"""
+
+    def _parse_filter_response(
+        self, response: str, agents: List[Dict]
+    ) -> List[Dict]:
+        """
+        解析筛选响应
+
+        Args:
+            response: LLM响应文本
+            agents: 可用Agent列表（用于验证）
+
+        Returns:
+            有效的候选Agent列表
+        """
+        try:
+            json_match = re.search(r'\{[\s\S]*\}', response)
+            if json_match:
+                data = json.loads(json_match.group())
+                candidates = data.get("candidates", [])
+                # 验证agent_id存在
+                valid_ids = {a["agent_id"] for a in agents}
+                return [c for c in candidates if c.get("agent_id") in valid_ids]
+        except Exception as e:
+            self._logger.error(f"Parse filter response error: {e}")
+        return []
+
+    def _mock_filter(self, understanding: Dict) -> List[Dict]:
+        """
+        Mock筛选（演示用）
+
+        当没有LLM服务或数据库时使用
+
+        Args:
+            understanding: 需求理解结果
+
+        Returns:
+            模拟的候选Agent列表
+        """
+        return [
+            {
+                "agent_id": "user_agent_bob",
+                "reason": "场地资源",
+                "relevance_score": 90
+            },
+            {
+                "agent_id": "user_agent_alice",
+                "reason": "技术分享能力",
+                "relevance_score": 85
+            },
+            {
+                "agent_id": "user_agent_charlie",
+                "reason": "活动策划经验",
+                "relevance_score": 80
+            }
+        ]
+
+    async def _get_available_agents(self) -> List[Dict]:
+        """
+        获取可用Agent列表
+
+        从数据库获取所有活跃的Agent Profile
+
+        Returns:
+            Agent信息列表
+        """
+        if self.db:
+            try:
+                from database.services import AgentProfileService
+                service = AgentProfileService(self.db)
+                profiles = await service.list_active()
+                return [
+                    {
+                        "agent_id": p.id,
+                        "display_name": p.name,
+                        "capabilities": p.capabilities,
+                        "description": p.description
+                    }
+                    for p in profiles
+                ]
+            except Exception as e:
+                self._logger.error(f"DB error: {e}")
+        return []
+
+    async def _create_channel(
+        self,
+        demand_id: str,
+        channel_id: str,
+        understanding: Dict,
+        candidates: List[Dict]
+    ):
+        """
+        创建协商Channel
+
+        Args:
+            demand_id: 需求ID
+            channel_id: Channel ID
+            understanding: 需求理解结果
+            candidates: 候选Agent列表
+        """
+        self._logger.info(
+            f"Creating channel {channel_id} with {len(candidates)} candidates"
+        )
+
+        # 发布筛选完成事件
+        await self._publish_event("towow.filter.completed", {
+            "demand_id": demand_id,
+            "channel_id": channel_id,
+            "candidates": candidates
+        })
+
+        # 通知ChannelAdmin
+        await self.send_to_agent("channel_admin", {
+            "type": "create_channel",
+            "demand_id": demand_id,
+            "channel_id": channel_id,
+            "demand": understanding,
+            "candidates": candidates
+        })
+
+        # 更新需求状态
+        if demand_id in self.active_demands:
+            self.active_demands[demand_id]["status"] = "negotiating"
+            self.active_demands[demand_id]["channel_id"] = channel_id
+
+    async def _handle_subnet_demand(
+        self, ctx: ChannelMessageContext, data: Dict
+    ):
+        """
+        处理子网需求
+
+        子网需求用于递归协商场景
+
+        Args:
+            ctx: Channel消息上下文
+            data: 消息数据
+        """
+        sub_demand = data.get("demand", {})
+        parent_channel_id = data.get("parent_channel_id")
+        recursion_depth = data.get("recursion_depth", 1)
+
+        self._logger.info(f"Processing subnet demand, depth={recursion_depth}")
+
+        # 简化处理：直接筛选并创建子Channel
+        candidates = await self._smart_filter(
+            data.get("sub_channel_id", ""),
+            sub_demand
+        )
+
+        if candidates:
+            await self.send_to_agent("channel_admin", {
+                "type": "create_channel",
+                "demand_id": data.get("sub_channel_id"),
+                "channel_id": data.get("sub_channel_id"),
+                "demand": sub_demand,
+                "candidates": candidates,
+                "is_subnet": True,
+                "parent_channel_id": parent_channel_id,
+                "recursion_depth": recursion_depth
+            })
+
+    async def _handle_channel_completed(
+        self, ctx: ChannelMessageContext, data: Dict
+    ):
+        """
+        处理Channel完成
+
+        Args:
+            ctx: Channel消息上下文
+            data: 消息数据
+        """
+        demand_id = data.get("demand_id")
+        success = data.get("success", False)
+        proposal = data.get("proposal")
+
+        if demand_id in self.active_demands:
+            self.active_demands[demand_id]["status"] = (
+                "completed" if success else "failed"
+            )
+            self.active_demands[demand_id]["final_proposal"] = proposal
+
+        self._logger.info(f"Demand {demand_id} completed, success={success}")
+
+        # 发布完成事件
+        await self._publish_event("towow.demand.completed", {
+            "demand_id": demand_id,
+            "success": success,
+            "proposal": proposal
+        })
+
+    async def _publish_event(self, event_type: str, payload: Dict):
+        """
+        发布事件到事件总线
+
+        Args:
+            event_type: 事件类型
+            payload: 事件负载
+        """
+        try:
+            from events.bus import event_bus
+            await event_bus.publish({
+                "event_id": f"evt-{uuid4().hex[:8]}",
+                "event_type": event_type,
+                "timestamp": datetime.utcnow().isoformat(),
+                "payload": payload
+            })
+        except ImportError:
+            self._logger.debug("Event bus not available")
+        except Exception as e:
+            self._logger.error(f"Failed to publish event: {e}")
+
+    def get_demand_status(self, demand_id: str) -> Optional[Dict]:
+        """
+        获取需求状态
+
+        Args:
+            demand_id: 需求ID
+
+        Returns:
+            需求状态字典，如果不存在返回None
+        """
+        return self.active_demands.get(demand_id)
+
+    def list_active_demands(self) -> List[Dict]:
+        """
+        列出所有活跃需求
+
+        Returns:
+            活跃需求列表
+        """
+        return [
+            demand for demand in self.active_demands.values()
+            if demand.get("status") in ["filtering", "negotiating"]
+        ]
