@@ -23,6 +23,9 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# 导入真实的ChannelStatus用于后面的测试
+from openagents.agents.channel_admin import ChannelStatus as RealChannelStatus
+
 
 # Mock OpenAgents SDK 依赖
 class MockEventContext:
@@ -294,10 +297,13 @@ class TestFeedbackEvaluation:
 
     def test_majority_accept(self):
         """测试多数接受"""
+        # 4/5 = 80% 接受率，满足阈值
         feedback = {
             "agent-1": {"feedback_type": "accept"},
             "agent-2": {"feedback_type": "accept"},
-            "agent-3": {"feedback_type": "negotiate"},
+            "agent-3": {"feedback_type": "accept"},
+            "agent-4": {"feedback_type": "accept"},
+            "agent-5": {"feedback_type": "negotiate"},
         }
 
         accepts = sum(1 for f in feedback.values() if f.get("feedback_type") == "accept")
@@ -429,6 +435,154 @@ class TestProposalGeneration:
         assert "summary" in proposal
         assert len(proposal["assignments"]) == 2
         assert proposal["assignments"][0]["agent_id"] == "agent-1"
+
+
+class TestChannelAdminAgent:
+    """测试ChannelAdminAgent类"""
+
+    @pytest.fixture
+    def agent(self):
+        """创建测试用Agent实例"""
+        # 直接导入真实的ChannelAdminAgent
+        from openagents.agents.channel_admin import ChannelAdminAgent
+        return ChannelAdminAgent()
+
+    def test_agent_creation(self, agent):
+        """测试Agent创建"""
+        assert agent.AGENT_TYPE == "channel_admin"
+        assert agent.MAX_NEGOTIATION_ROUNDS == 5
+        assert agent.RESPONSE_TIMEOUT == 300
+        assert agent.FEEDBACK_TIMEOUT == 120
+
+    def test_agent_has_channels_dict(self, agent):
+        """测试Agent有channels字典"""
+        assert hasattr(agent, "channels")
+        assert isinstance(agent.channels, dict)
+        assert len(agent.channels) == 0
+
+    def test_get_channel_status_not_found(self, agent):
+        """测试获取不存在的Channel状态"""
+        status = agent.get_channel_status("non-existent")
+        assert status is None
+
+    def test_get_all_channels_empty(self, agent):
+        """测试获取所有Channel（空）"""
+        all_channels = agent.get_all_channels()
+        assert all_channels == {}
+
+    def test_get_active_channels_empty(self, agent):
+        """测试获取活跃Channel（空）"""
+        active = agent.get_active_channels()
+        assert active == []
+
+
+class TestChannelAdminPublicAPI:
+    """测试ChannelAdminAgent公共API"""
+
+    @pytest.fixture
+    def agent(self):
+        """创建测试用Agent实例"""
+        from openagents.agents.channel_admin import ChannelAdminAgent
+        return ChannelAdminAgent()
+
+    @pytest.mark.asyncio
+    async def test_start_managing(self, agent):
+        """测试start_managing方法"""
+        channel_id = await agent.start_managing(
+            channel_name="test-channel",
+            demand_id="demand-001",
+            demand={"surface_demand": "测试需求"},
+            invited_agents=[
+                {"agent_id": "agent-1"},
+                {"agent_id": "agent-2"}
+            ]
+        )
+
+        assert channel_id == "test-channel"
+        assert "test-channel" in agent.channels
+        state = agent.channels["test-channel"]
+        assert state.demand_id == "demand-001"
+        assert len(state.candidates) == 2
+        assert state.max_rounds == 5
+
+    @pytest.mark.asyncio
+    async def test_start_managing_auto_id(self, agent):
+        """测试start_managing自动生成ID"""
+        channel_id = await agent.start_managing(
+            channel_name="",  # 空名称，自动生成
+            demand_id="demand-002",
+            demand={},
+            invited_agents=[]
+        )
+
+        assert channel_id.startswith("ch-")
+        assert channel_id in agent.channels
+
+    @pytest.mark.asyncio
+    async def test_start_managing_custom_max_rounds(self, agent):
+        """测试start_managing自定义最大轮次"""
+        channel_id = await agent.start_managing(
+            channel_name="custom-rounds",
+            demand_id="demand-003",
+            demand={},
+            invited_agents=[],
+            max_rounds=3
+        )
+
+        state = agent.channels[channel_id]
+        assert state.max_rounds == 3
+
+    @pytest.mark.asyncio
+    async def test_handle_response(self, agent):
+        """测试handle_response方法"""
+        # 先创建channel
+        await agent.start_managing(
+            channel_name="response-test",
+            demand_id="demand-004",
+            demand={},
+            invited_agents=[{"agent_id": "agent-1"}]
+        )
+
+        # 处理响应
+        result = await agent.handle_response(
+            channel_id="response-test",
+            agent_id="agent-1",
+            decision="participate",
+            contribution="我可以帮忙",
+            conditions=["需要资源支持"]
+        )
+
+        assert result is True
+        state = agent.channels["response-test"]
+        assert "agent-1" in state.responses
+        assert state.responses["agent-1"]["decision"] == "participate"
+
+    @pytest.mark.asyncio
+    async def test_handle_feedback(self, agent):
+        """测试handle_feedback方法"""
+        # 创建channel并模拟进入NEGOTIATING状态
+        await agent.start_managing(
+            channel_name="feedback-test",
+            demand_id="demand-005",
+            demand={},
+            invited_agents=[{"agent_id": "agent-1"}]
+        )
+
+        # 模拟响应和进入协商状态
+        state = agent.channels["feedback-test"]
+        state.responses["agent-1"] = {"decision": "participate"}
+        state.status = RealChannelStatus.NEGOTIATING
+        state.current_proposal = {"summary": "测试方案"}
+
+        # 处理反馈
+        result = await agent.handle_feedback(
+            channel_id="feedback-test",
+            agent_id="agent-1",
+            feedback_type="accept"
+        )
+
+        assert result is True
+        assert "agent-1" in state.proposal_feedback
 
 
 if __name__ == "__main__":

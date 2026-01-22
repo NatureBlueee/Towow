@@ -5,18 +5,98 @@ import type {
   Participant,
   Proposal,
   TimelineEvent,
+  Candidate,
+  ToWowProposal,
+  SSEEvent,
+  ProposalAssignment,
 } from '../types';
 
+// ============ Runtime Type Validators ============
+
+function isValidCandidate(obj: unknown): obj is Candidate {
+  if (!obj || typeof obj !== 'object') return false;
+  const candidate = obj as Record<string, unknown>;
+  return (
+    typeof candidate.agent_id === 'string' &&
+    typeof candidate.reason === 'string'
+  );
+}
+
+function validateCandidates(candidates: unknown): Candidate[] {
+  if (!Array.isArray(candidates)) return [];
+  return candidates.filter(isValidCandidate);
+}
+
+function isValidProposalAssignment(obj: unknown): obj is ProposalAssignment {
+  if (!obj || typeof obj !== 'object') return false;
+  const assignment = obj as Record<string, unknown>;
+  return (
+    typeof assignment.agent_id === 'string' &&
+    typeof assignment.role === 'string' &&
+    typeof assignment.responsibility === 'string'
+  );
+}
+
+function isValidToWowProposal(obj: unknown): obj is ToWowProposal {
+  if (!obj || typeof obj !== 'object') return false;
+  const proposal = obj as Record<string, unknown>;
+  if (typeof proposal.summary !== 'string') return false;
+  if (!Array.isArray(proposal.assignments)) return false;
+  return proposal.assignments.every(isValidProposalAssignment);
+}
+
+function validateToWowProposal(proposal: unknown): ToWowProposal | null {
+  return isValidToWowProposal(proposal) ? proposal : null;
+}
+
+function isValidDecision(
+  decision: unknown
+): decision is 'participate' | 'decline' | 'conditional' {
+  return (
+    decision === 'participate' ||
+    decision === 'decline' ||
+    decision === 'conditional'
+  );
+}
+
+function isValidProposal(obj: unknown): obj is Proposal {
+  if (!obj || typeof obj !== 'object') return false;
+  const proposal = obj as Record<string, unknown>;
+  return (
+    typeof proposal.id === 'string' &&
+    typeof proposal.agent_id === 'string' &&
+    typeof proposal.content === 'object' &&
+    proposal.content !== null
+  );
+}
+
+// ============ Store Interface ============
+
 interface EventStore extends NegotiationState {
+  // Setters
   setNegotiationId: (id: string | null) => void;
   setStatus: (status: NegotiationStatus) => void;
   setParticipants: (participants: Participant[]) => void;
+  setCandidates: (candidates: Candidate[]) => void;
+  setCurrentProposal: (proposal: ToWowProposal | null) => void;
+  setCurrentRound: (round: number) => void;
+  setLoading: (isLoading: boolean) => void;
+  setError: (error: string | null) => void;
+
+  // Updaters
   updateParticipant: (agentId: string, updates: Partial<Participant>) => void;
+  updateCandidateResponse: (
+    agentId: string,
+    response: Candidate['response']
+  ) => void;
   addProposal: (proposal: Proposal) => void;
   updateProposal: (proposalId: string, updates: Partial<Proposal>) => void;
   addTimelineEvent: (event: TimelineEvent) => void;
-  setLoading: (isLoading: boolean) => void;
-  setError: (error: string | null) => void;
+
+  // SSE Event Handler
+  handleSSEEvent: (event: SSEEvent) => void;
+
+  // Reset
   reset: () => void;
 }
 
@@ -24,7 +104,10 @@ const initialState: NegotiationState = {
   negotiationId: null,
   status: 'pending',
   participants: [],
+  candidates: [],
   proposals: [],
+  currentProposal: null,
+  currentRound: 0,
   timeline: [],
   isLoading: false,
   error: null,
@@ -39,10 +122,27 @@ export const useEventStore = create<EventStore>((set) => ({
 
   setParticipants: (participants) => set({ participants }),
 
+  setCandidates: (candidates) => set({ candidates }),
+
+  setCurrentProposal: (proposal) => set({ currentProposal: proposal }),
+
+  setCurrentRound: (round) => set({ currentRound: round }),
+
+  setLoading: (isLoading) => set({ isLoading }),
+
+  setError: (error) => set({ error }),
+
   updateParticipant: (agentId, updates) =>
     set((state) => ({
       participants: state.participants.map((p) =>
         p.agent_id === agentId ? { ...p, ...updates } : p
+      ),
+    })),
+
+  updateCandidateResponse: (agentId, response) =>
+    set((state) => ({
+      candidates: state.candidates.map((c) =>
+        c.agent_id === agentId ? { ...c, response } : c
       ),
     })),
 
@@ -63,9 +163,193 @@ export const useEventStore = create<EventStore>((set) => ({
       timeline: [...state.timeline, event],
     })),
 
-  setLoading: (isLoading) => set({ isLoading }),
+  handleSSEEvent: (event) => {
+    set((state) => {
+      // Create new state object to accumulate all changes
+      const newState: Partial<NegotiationState> = {};
 
-  setError: (error) => set({ error }),
+      // Create timeline event
+      const timelineEvent: TimelineEvent = {
+        id: event.event_id || `${event.event_type}-${Date.now()}`,
+        timestamp: event.timestamp,
+        event_type: event.event_type as TimelineEvent['event_type'],
+        content: {},
+      };
+
+      // Handle ToWow protocol events
+      const payload = event.payload as Record<string, unknown> | undefined;
+
+      switch (event.event_type) {
+        case 'towow.demand.understood':
+          newState.status = 'filtering';
+          timelineEvent.content.message =
+            'Demand understood, filtering candidates...';
+          break;
+
+        case 'towow.demand.broadcast':
+          timelineEvent.content.message = 'Demand broadcast to network';
+          break;
+
+        case 'towow.filter.completed': {
+          const validatedCandidates = validateCandidates(payload?.candidates);
+          newState.status = 'collecting';
+          newState.candidates = validatedCandidates;
+          timelineEvent.content.message = `Found ${validatedCandidates.length} candidates`;
+          break;
+        }
+
+        case 'towow.offer.submitted':
+          if (payload?.agent_id && typeof payload.agent_id === 'string') {
+            const agentId = payload.agent_id;
+            const decision = payload.decision;
+
+            if (isValidDecision(decision)) {
+              const conditions = Array.isArray(payload.conditions)
+                ? payload.conditions.filter(
+                    (c): c is string => typeof c === 'string'
+                  )
+                : undefined;
+
+              newState.candidates = state.candidates.map((c) =>
+                c.agent_id === agentId
+                  ? {
+                      ...c,
+                      response: {
+                        decision,
+                        contribution:
+                          typeof payload.contribution === 'string'
+                            ? payload.contribution
+                            : undefined,
+                        conditions,
+                      },
+                    }
+                  : c
+              );
+            }
+
+            timelineEvent.agent_id = agentId;
+            timelineEvent.content.message = `Response from ${agentId.replace('user_agent_', '')}`;
+          }
+          break;
+
+        case 'towow.proposal.distributed': {
+          const validatedProposal = validateToWowProposal(payload?.proposal);
+          const round =
+            typeof payload?.round === 'number' ? payload.round : 1;
+
+          newState.status = 'negotiating';
+          newState.currentProposal = validatedProposal;
+          newState.currentRound = round;
+          timelineEvent.content.message = `Proposal round ${round} distributed`;
+          break;
+        }
+
+        case 'towow.proposal.feedback':
+          if (payload?.agent_id && typeof payload.agent_id === 'string') {
+            const agentId = payload.agent_id;
+            timelineEvent.agent_id = agentId;
+            timelineEvent.content.message = `Feedback: ${payload.feedback} from ${agentId.replace('user_agent_', '')}`;
+          }
+          break;
+
+        case 'towow.proposal.finalized': {
+          const validatedProposal = validateToWowProposal(payload?.proposal);
+          newState.status = 'finalized';
+          newState.currentProposal = validatedProposal;
+          timelineEvent.content.message = 'Negotiation finalized';
+          break;
+        }
+
+        case 'towow.negotiation.failed': {
+          const reason =
+            typeof payload?.reason === 'string'
+              ? payload.reason
+              : 'Negotiation failed';
+          newState.status = 'failed';
+          newState.error = reason;
+          timelineEvent.content.message = reason;
+          timelineEvent.content.error = reason;
+          break;
+        }
+
+        // Handle legacy event types
+        case 'agent_thinking':
+          if (
+            event.data &&
+            'agent_id' in event.data &&
+            'step' in event.data &&
+            typeof event.data.agent_id === 'string'
+          ) {
+            const agentId = event.data.agent_id;
+            newState.participants = state.participants.map((p) =>
+              p.agent_id === agentId ? { ...p, status: 'thinking' } : p
+            );
+            timelineEvent.agent_id = agentId;
+            timelineEvent.content.thinking_step = event.data.step;
+          }
+          break;
+
+        case 'agent_proposal':
+          if (
+            event.data &&
+            'agent_id' in event.data &&
+            'proposal' in event.data &&
+            typeof event.data.agent_id === 'string'
+          ) {
+            const agentId = event.data.agent_id;
+            newState.participants = state.participants.map((p) =>
+              p.agent_id === agentId ? { ...p, status: 'active' } : p
+            );
+
+            if (isValidProposal(event.data.proposal)) {
+              newState.proposals = [...state.proposals, event.data.proposal];
+              timelineEvent.content.proposal = event.data.proposal;
+            }
+
+            timelineEvent.agent_id = agentId;
+          }
+          break;
+
+        case 'agent_message':
+          if (
+            event.data &&
+            'agent_id' in event.data &&
+            'message' in event.data &&
+            typeof event.data.agent_id === 'string' &&
+            typeof event.data.message === 'string'
+          ) {
+            timelineEvent.agent_id = event.data.agent_id;
+            timelineEvent.content.message = event.data.message;
+          }
+          break;
+
+        case 'status_update':
+          if (event.data && 'status' in event.data) {
+            newState.status = event.data.status;
+            if ('message' in event.data && typeof event.data.message === 'string') {
+              timelineEvent.content.message = event.data.message;
+            }
+          }
+          break;
+
+        case 'error':
+          if (
+            event.data &&
+            'error_message' in event.data &&
+            typeof event.data.error_message === 'string'
+          ) {
+            newState.error = event.data.error_message;
+            timelineEvent.content.error = event.data.error_message;
+          }
+          break;
+      }
+
+      // Add timeline event - always include this in the single state update
+      newState.timeline = [...state.timeline, timelineEvent];
+
+      return newState;
+    });
+  },
 
   reset: () => set(initialState),
 }));

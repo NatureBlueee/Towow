@@ -5,6 +5,12 @@ UserAgent - 用户数字分身代理
 1. 接收需求offer，调用SecondMe生成响应
 2. 评估方案并提供反馈
 3. 代表用户自主决策
+4. 提交新需求给Coordinator
+
+消息流转：
+- 用户输入 → UserAgent.submit_demand() → SecondMe.understand_demand() → Coordinator
+- Coordinator → UserAgent (collaboration_invite) → handle_invite() → SecondMe.generate_response()
+- ChannelAdmin → UserAgent (proposal_review) → handle_proposal() → SecondMe.evaluate_proposal()
 """
 from __future__ import annotations
 
@@ -14,6 +20,7 @@ import random
 import re
 from datetime import datetime
 from typing import Any, Dict, Optional
+from uuid import uuid4
 
 from .base import TowowBaseAgent
 
@@ -431,3 +438,223 @@ class UserAgent(TowowBaseAgent):
             "active_channels": len(self.active_channels),
             "profile_loaded": bool(self.profile),
         }
+
+    # ===== TASK-006 新增方法 =====
+
+    async def submit_demand(self, raw_input: str) -> Dict[str, Any]:
+        """提交新需求.
+
+        流程：
+        1. 调用 SecondMe 理解需求
+        2. 构造需求消息发送给 Coordinator
+
+        Args:
+            raw_input: 用户原始需求输入
+
+        Returns:
+            {
+                "demand_id": "d-xxx",
+                "understanding": {...},
+                "status": "submitted"
+            }
+        """
+        demand_id = f"d-{uuid4().hex[:8]}"
+        self._logger.info(f"User {self.user_id} submitting demand: {demand_id}")
+
+        # 1. 调用 SecondMe 理解需求
+        understanding = await self._understand_demand(raw_input)
+
+        # 2. 发送给 Coordinator
+        await self.send_to_agent(
+            "coordinator",
+            {
+                "type": "new_demand",
+                "demand_id": demand_id,
+                "user_id": self.user_id,
+                "raw_input": raw_input,
+                "understanding": understanding,
+                "submitted_at": datetime.utcnow().isoformat(),
+            }
+        )
+
+        # 3. 记录提交的需求
+        self.active_channels[demand_id] = {
+            "type": "submitted_demand",
+            "demand_id": demand_id,
+            "raw_input": raw_input,
+            "understanding": understanding,
+            "status": "submitted",
+            "submitted_at": datetime.utcnow().isoformat(),
+        }
+
+        return {
+            "demand_id": demand_id,
+            "understanding": understanding,
+            "status": "submitted"
+        }
+
+    async def _understand_demand(self, raw_input: str) -> Dict[str, Any]:
+        """调用 SecondMe 理解需求.
+
+        Args:
+            raw_input: 原始需求输入
+
+        Returns:
+            需求理解结果
+        """
+        if self.secondme:
+            try:
+                return await self.secondme.understand_demand(
+                    raw_input=raw_input,
+                    user_id=self.user_id
+                )
+            except Exception as e:
+                self._logger.error(f"SecondMe understand_demand error: {e}")
+
+        # 降级：返回基本结构
+        return {
+            "surface_demand": raw_input,
+            "deep_understanding": {"motivation": "unknown"},
+            "uncertainties": [],
+            "confidence": "low"
+        }
+
+    async def handle_invite(
+        self,
+        channel_id: str,
+        demand: Dict[str, Any],
+        filter_reason: str = ""
+    ) -> Dict[str, Any]:
+        """处理协作邀请.
+
+        当 Coordinator 筛选后，UserAgent 收到加入 Channel 的邀请。
+        调用 SecondMe 决定是否参与。
+
+        Args:
+            channel_id: Channel ID
+            demand: 需求信息
+            filter_reason: 被筛选的原因
+
+        Returns:
+            {
+                "decision": "participate/decline/conditional",
+                "contribution": "贡献说明",
+                "conditions": [...],
+                "reasoning": "决策理由"
+            }
+        """
+        self._logger.info(f"User {self.user_id} handling invite for channel {channel_id}")
+
+        # 记录邀请
+        self.active_channels[channel_id] = {
+            "demand": demand,
+            "status": "invited",
+            "filter_reason": filter_reason,
+            "received_at": datetime.utcnow().isoformat(),
+        }
+
+        # 调用 SecondMe 生成响应
+        response = await self._generate_response(demand, filter_reason)
+
+        # 更新状态
+        self.active_channels[channel_id]["response"] = response
+        self.active_channels[channel_id]["status"] = "responded"
+
+        # 发送响应给 ChannelAdmin
+        await self.send_to_agent(
+            "channel_admin",
+            {
+                "type": "invite_response",
+                "channel_id": channel_id,
+                "agent_id": self.agent_id,
+                "user_id": self.user_id,
+                **response,
+            },
+        )
+
+        return response
+
+    async def handle_proposal(
+        self,
+        channel_id: str,
+        proposal: Dict[str, Any]
+    ) -> Dict[str, Any]:
+        """处理方案分配.
+
+        当 ChannelAdmin 形成初步方案后，发送给各参与者评审。
+        调用 SecondMe 评估方案并提供反馈。
+
+        Args:
+            channel_id: Channel ID
+            proposal: 协作方案
+
+        Returns:
+            {
+                "feedback_type": "accept/reject/negotiate",
+                "adjustment_request": "调整请求",
+                "reasoning": "评估理由"
+            }
+        """
+        self._logger.info(f"User {self.user_id} handling proposal for channel {channel_id}")
+
+        if channel_id not in self.active_channels:
+            self._logger.warning(f"Unknown channel: {channel_id}, creating entry")
+            self.active_channels[channel_id] = {
+                "status": "proposal_received",
+                "received_at": datetime.utcnow().isoformat(),
+            }
+
+        # 调用 SecondMe 评估方案
+        feedback = await self._evaluate_proposal(proposal)
+
+        # 更新状态
+        self.active_channels[channel_id]["proposal"] = proposal
+        self.active_channels[channel_id]["feedback"] = feedback
+        self.active_channels[channel_id]["status"] = "feedback_sent"
+
+        # 发送反馈给 ChannelAdmin
+        await self.send_to_agent(
+            "channel_admin",
+            {
+                "type": "proposal_feedback",
+                "channel_id": channel_id,
+                "agent_id": self.agent_id,
+                "user_id": self.user_id,
+                **feedback,
+            },
+        )
+
+        return feedback
+
+    async def on_direct(self, ctx: Any) -> None:
+        """处理直接消息.
+
+        支持的消息类型：
+        - collaboration_invite: 协作邀请
+        - proposal_review: 方案评审
+        - demand_offer: 需求offer（兼容旧格式）
+
+        Args:
+            ctx: Event context
+        """
+        payload = ctx.incoming_event.payload if hasattr(ctx, 'incoming_event') else {}
+        content = payload.get("content", {})
+        msg_type = content.get("type")
+
+        if msg_type == "collaboration_invite":
+            await self.handle_invite(
+                channel_id=content.get("channel_id", ""),
+                demand=content.get("demand", {}),
+                filter_reason=content.get("filter_reason", "")
+            )
+        elif msg_type == "proposal_review":
+            await self.handle_proposal(
+                channel_id=content.get("channel_id", ""),
+                proposal=content.get("proposal", {})
+            )
+        elif msg_type == "demand_offer":
+            # 兼容旧格式
+            await self._handle_demand_offer(ctx, content)
+        else:
+            self._logger.debug(f"Unknown direct message type: {msg_type}")
+

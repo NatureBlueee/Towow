@@ -245,7 +245,10 @@ class CoordinatorAgent(TowowBaseAgent):
         self, understanding: Dict, agents: List[Dict]
     ) -> str:
         """
-        构建筛选提示词
+        构建智能筛选提示词
+
+        基于提示词2：智能筛选
+        根据需求理解结果，从候选Agent池中筛选最匹配的参与者
 
         Args:
             understanding: 需求理解结果
@@ -254,27 +257,84 @@ class CoordinatorAgent(TowowBaseAgent):
         Returns:
             提示词字符串
         """
+        surface_demand = understanding.get('surface_demand', '')
+        deep = understanding.get('deep_understanding', {})
+
         return f"""
+# 智能筛选任务
+
+你是ToWow协作平台的智能筛选系统。你的任务是根据用户需求，从候选Agent池中筛选出最适合参与协作的人选。
+
 ## 需求信息
-- 表面需求: {understanding.get('surface_demand', '')}
-- 深层理解: {json.dumps(understanding.get('deep_understanding', {}), ensure_ascii=False)}
-- 不确定点: {understanding.get('uncertainties', [])}
 
-## 可用Agent列表
+### 表面需求
+{surface_demand}
+
+### 深层理解
+- **动机**: {deep.get('motivation', '未知')}
+- **需求类型**: {deep.get('type', 'general')}
+- **关键词**: {', '.join(deep.get('keywords', []))}
+- **地点**: {deep.get('location', '未指定')}
+- **规模**: {json.dumps(deep.get('scale', {}), ensure_ascii=False)}
+- **时间线**: {json.dumps(deep.get('timeline', {}), ensure_ascii=False)}
+- **资源需求**: {', '.join(deep.get('resource_requirements', []))}
+
+### 不确定点
+{json.dumps(understanding.get('uncertainties', []), ensure_ascii=False)}
+
+## 候选Agent池
+```json
 {json.dumps(agents, ensure_ascii=False, indent=2)}
+```
 
-## 任务
-从上述Agent中筛选出最适合参与此需求协商的候选人（3-10人）。
+## 筛选原则
 
-## 输出格式
+1. **能力匹配优先**：Agent的capabilities应与需求的资源需求匹配
+2. **地域相关性**：考虑Agent的location与需求地点的兼容性
+3. **多样性互补**：选择能力互补的组合，避免过于同质化
+4. **规模适配**：根据需求规模控制候选人数（小规模3-5人，中等5-8人，大规模8-12人）
+5. **关键角色优先**：确保核心能力（如场地、技术、组织）有人覆盖
+
+## 筛选维度说明
+
+对每个候选人，请评估：
+- **直接匹配度**：能力与需求的直接相关程度（0-100）
+- **间接价值**：可能带来的额外价值（资源、人脉等）
+- **可用性风险**：基于其描述判断响应可能性
+
+## 输出要求
+
+请以JSON格式输出筛选结果：
+
 ```json
 {{
   "candidates": [
-    {{"agent_id": "xxx", "reason": "筛选理由", "relevance_score": 85}}
+    {{
+      "agent_id": "Agent的ID",
+      "reason": "选择该Agent的具体理由（30字以内）",
+      "relevance_score": 85,
+      "expected_role": "预期角色（如：场地提供者、技术顾问等）",
+      "match_dimensions": {{
+        "capability_match": 90,
+        "location_fit": 80,
+        "indirect_value": 70
+      }}
+    }}
   ],
-  "filtering_logic": "筛选逻辑说明"
+  "filtering_logic": "整体筛选逻辑说明（描述为什么选择这个组合）",
+  "coverage_analysis": {{
+    "covered_requirements": ["已覆盖的资源需求"],
+    "uncovered_requirements": ["未覆盖的资源需求"],
+    "suggested_actions": ["建议采取的补充行动"]
+  }}
 }}
 ```
+
+## 注意事项
+- 候选人数量应在3-12人之间
+- relevance_score越高表示匹配度越高
+- 优先选择relevance_score >= 70的候选人
+- 如果某个关键需求无人覆盖，请在coverage_analysis中说明
 """
 
     def _parse_filter_response(

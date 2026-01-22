@@ -1,0 +1,3144 @@
+[
+  {
+    "id": "f5e592c5-578a-49d1-8dec-51601c5980a7",
+    "name": "郑磊",
+    "agent_type": "user_agent",
+    "description": "资深从业者，在互联网方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "模型微调",
+        "大模型应用",
+        "人脉资源",
+        "技术资源",
+        "供应链资源",
+        "场地资源"
+      ],
+      "interests": [
+        "投资理财",
+        "行业研究"
+      ],
+      "location": "成都",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_001",
+      "display_name": "Zheng125",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "快速决策，倾向于参与有挑战的项目"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 10
+  },
+  {
+    "id": "81d9e5ef-d436-4524-bef7-a92f3f4c08bb",
+    "name": "朱涛",
+    "agent_type": "user_agent",
+    "description": "14年技术开发经验，专注于API设计领域，擅长数据库设计",
+    "capabilities": {
+      "skills": [
+        "API设计",
+        "数据库设计",
+        "微服务架构",
+        "Java开发",
+        "数据挖掘",
+        "数据分析"
+      ],
+      "interests": [
+        "消费品牌",
+        "技术社区"
+      ],
+      "location": "杭州",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_002",
+      "display_name": "Zhu559",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 36
+  },
+  {
+    "id": "99ad3fb6-4a39-4e9d-aebd-9c50310ee6c1",
+    "name": "高磊",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱投资理财，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "投资资源",
+        "技术资源",
+        "人脉资源"
+      ],
+      "interests": [
+        "投资理财",
+        "创业",
+        "用户体验",
+        "Web3"
+      ],
+      "location": "北京",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_003",
+      "display_name": "Gao487",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 12
+  },
+  {
+    "id": "1266a26b-9296-4089-9caa-1bfffbcf1c4e",
+    "name": "郑浩",
+    "agent_type": "user_agent",
+    "description": "产品从业者，热爱医疗健康，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "产品规划",
+        "竞品分析",
+        "增长策略",
+        "产品经理",
+        "模型微调",
+        "Prompt工程"
+      ],
+      "interests": [
+        "医疗健康",
+        "消费品牌"
+      ],
+      "location": "苏州",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_004",
+      "display_name": "Zheng266",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 31
+  },
+  {
+    "id": "d6a76352-c3c8-46df-a625-c8f3f2b9ff1a",
+    "name": "赵娜",
+    "agent_type": "user_agent",
+    "description": "产品设计爱好者，拥有10年设计经验，善于沟通",
+    "capabilities": {
+      "skills": [
+        "用户增长",
+        "社交媒体",
+        "产品原型",
+        "UX设计",
+        "用户研究",
+        "视觉设计"
+      ],
+      "interests": [
+        "产品设计",
+        "医疗健康",
+        "开源项目"
+      ],
+      "location": "上海",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_005",
+      "display_name": "Zhao924",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 5.0,
+    "total_collaborations": 29
+  },
+  {
+    "id": "fe0769a5-9bd0-4b1b-b77b-e6cdd4ed2cf9",
+    "name": "宋海涛",
+    "agent_type": "user_agent",
+    "description": "曾在自由职业从事技术工程师工作，现专注于产品运营方向",
+    "capabilities": {
+      "skills": [
+        "产品运营",
+        "产品经理",
+        "AI工具开发",
+        "大模型应用"
+      ],
+      "interests": [
+        "产品设计",
+        "知识分享"
+      ],
+      "location": "广州",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_006",
+      "display_name": "Song538",
+      "personality": "细心周到，注重质量",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 19
+  },
+  {
+    "id": "f6a05457-94e4-47db-9821-bd11fc1b8e55",
+    "name": "何超",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱智能硬件，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "Web性能优化",
+        "移动端H5",
+        "前端工程化",
+        "TypeScript"
+      ],
+      "interests": [
+        "智能硬件",
+        "教育科技"
+      ],
+      "location": "广州",
+      "availability": "工作日可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_007",
+      "display_name": "He666",
+      "personality": "创意丰富，善于创新",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 5
+  },
+  {
+    "id": "c1206374-afa2-4b82-ae59-dd26dc64dccf",
+    "name": "唐艳",
+    "agent_type": "user_agent",
+    "description": "设计从业者，热爱远程协作，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "视觉设计",
+        "UX设计",
+        "交互设计",
+        "设计系统"
+      ],
+      "interests": [
+        "远程协作",
+        "企业服务",
+        "AI/大模型",
+        "社群建设"
+      ],
+      "location": "成都",
+      "availability": "工作日可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_008",
+      "display_name": "Tang619",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.9,
+    "total_collaborations": 32
+  },
+  {
+    "id": "01aecac7-8b2f-4b0e-a9bf-5554ee1f3076",
+    "name": "王明",
+    "agent_type": "user_agent",
+    "description": "开源项目爱好者，拥有10年技术开发经验，乐于分享",
+    "capabilities": {
+      "skills": [
+        "跨端开发",
+        "移动端H5",
+        "React",
+        "Web性能优化"
+      ],
+      "interests": [
+        "开源项目",
+        "用户体验"
+      ],
+      "location": "武汉",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_009",
+      "display_name": "Wang999",
+      "personality": "乐于分享，乐于助人",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 15
+  },
+  {
+    "id": "a1799f4d-7dfb-429a-a7e4-607c19c71f9c",
+    "name": "黄建国",
+    "agent_type": "user_agent",
+    "description": "技术社区爱好者，拥有5年设计经验，技术导向",
+    "capabilities": {
+      "skills": [
+        "产品原型",
+        "视觉设计",
+        "品牌设计"
+      ],
+      "interests": [
+        "技术社区",
+        "Web3",
+        "投资理财"
+      ],
+      "location": "北京",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_010",
+      "display_name": "Huang873",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 22
+  },
+  {
+    "id": "f11c22cf-735a-445e-a069-c922f7dfd6e3",
+    "name": "张静",
+    "agent_type": "user_agent",
+    "description": "资深从业者，在互联网方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "大模型应用",
+        "AI Agent"
+      ],
+      "interests": [
+        "企业服务",
+        "Web3"
+      ],
+      "location": "重庆",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_011",
+      "display_name": "Zhang824",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.0,
+    "total_collaborations": 18
+  },
+  {
+    "id": "c4e0d40c-f5ce-4938-910b-db82a6ca950e",
+    "name": "赵志强",
+    "agent_type": "user_agent",
+    "description": "资深技术工程师，在技术开发方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "模型微调",
+        "RAG开发",
+        "移动端H5",
+        "小程序开发",
+        "跨端开发"
+      ],
+      "interests": [
+        "创业",
+        "用户体验",
+        "产品设计",
+        "技术社区"
+      ],
+      "location": "杭州",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_012",
+      "display_name": "Zhao926",
+      "personality": "积极主动，执行力强",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 41
+  },
+  {
+    "id": "ace50b38-5082-4971-9bf3-e15f355df712",
+    "name": "高雪",
+    "agent_type": "user_agent",
+    "description": "曾在大厂从事技术工程师工作，现专注于Python数据处理方向",
+    "capabilities": {
+      "skills": [
+        "Python数据处理",
+        "推荐系统",
+        "数据分析",
+        "UX设计",
+        "UI设计",
+        "产品原型"
+      ],
+      "interests": [
+        "AI/大模型",
+        "投资理财",
+        "远程协作",
+        "Web3"
+      ],
+      "location": "广州",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_013",
+      "display_name": "Gao243",
+      "personality": "创意丰富，善于创新",
+      "decision_style": "目标导向，关注项目目标是否明确"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 18
+  },
+  {
+    "id": "89da31fa-fb1e-4696-b7fb-fd156c6b6b0e",
+    "name": "杨辉",
+    "agent_type": "user_agent",
+    "description": "7年设计经验，专注于设计系统领域，擅长产品原型",
+    "capabilities": {
+      "skills": [
+        "设计系统",
+        "产品原型",
+        "用户研究",
+        "创业指导",
+        "融资路演",
+        "商务拓展"
+      ],
+      "interests": [
+        "创业",
+        "内容创作"
+      ],
+      "location": "武汉",
+      "availability": "工作日可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_014",
+      "display_name": "Yang102",
+      "personality": "快速行动，结果导向",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 6
+  },
+  {
+    "id": "00c1dc40-8292-4f8f-b6db-91368232ee85",
+    "name": "林志强",
+    "agent_type": "user_agent",
+    "description": "11年技术开发经验，专注于Go语言领域，擅长Java开发",
+    "capabilities": {
+      "skills": [
+        "Go语言",
+        "Java开发",
+        "性能优化",
+        "DevOps"
+      ],
+      "interests": [
+        "Web3",
+        "消费品牌",
+        "技术社区",
+        "内容创作"
+      ],
+      "location": "南京",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_015",
+      "display_name": "Lin614",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "快速决策，倾向于参与有挑战的项目"
+    },
+    "is_active": true,
+    "rating": 4.4,
+    "total_collaborations": 16
+  },
+  {
+    "id": "5913a84a-d6ff-4c0b-bc77-4852f309b856",
+    "name": "梁海涛",
+    "agent_type": "user_agent",
+    "description": "11年技术开发经验，专注于产品原型领域，擅长UX设计",
+    "capabilities": {
+      "skills": [
+        "产品原型",
+        "UX设计",
+        "交互设计",
+        "视觉设计",
+        "模型微调",
+        "AI工具开发"
+      ],
+      "interests": [
+        "医疗健康",
+        "SaaS产品",
+        "远程协作"
+      ],
+      "location": "北京",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_016",
+      "display_name": "Liang678",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 48
+  },
+  {
+    "id": "afabb38c-7f43-4cf5-931a-9211574715a5",
+    "name": "高娟",
+    "agent_type": "user_agent",
+    "description": "12年技术开发经验，专注于Python数据处理领域，擅长数据可视化",
+    "capabilities": {
+      "skills": [
+        "Python数据处理",
+        "数据可视化",
+        "用户研究",
+        "数据分析",
+        "产品规划"
+      ],
+      "interests": [
+        "智能硬件",
+        "社群建设",
+        "产品设计",
+        "企业服务"
+      ],
+      "location": "重庆",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_017",
+      "display_name": "Gao618",
+      "personality": "积极主动，执行力强",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.4,
+    "total_collaborations": 2
+  },
+  {
+    "id": "d1754f2d-54bb-472a-acf6-858017969c99",
+    "name": "周磊",
+    "agent_type": "user_agent",
+    "description": "15年设计经验，专注于视觉设计领域，擅长产品原型",
+    "capabilities": {
+      "skills": [
+        "视觉设计",
+        "产品原型",
+        "交互设计"
+      ],
+      "interests": [
+        "用户体验",
+        "产品设计"
+      ],
+      "location": "成都",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_018",
+      "display_name": "Zhou209",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.4,
+    "total_collaborations": 36
+  },
+  {
+    "id": "4269d80f-ad59-4c3c-9bdb-e39ed4023a7e",
+    "name": "郑思",
+    "agent_type": "user_agent",
+    "description": "技术开发从业者，热爱教育科技，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "Java开发",
+        "系统架构",
+        "微服务架构",
+        "高校资源",
+        "技术资源"
+      ],
+      "interests": [
+        "教育科技",
+        "跨境电商",
+        "AI/大模型",
+        "技术社区"
+      ],
+      "location": "天津",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_019",
+      "display_name": "Zheng949",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 23
+  },
+  {
+    "id": "33c7f26b-928d-40c2-933f-242728a2da36",
+    "name": "陈思",
+    "agent_type": "user_agent",
+    "description": "资深设计师，在设计方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "UI设计",
+        "交互设计",
+        "UX设计"
+      ],
+      "interests": [
+        "Web3",
+        "用户体验",
+        "技术社区",
+        "出海业务"
+      ],
+      "location": "广州",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_020",
+      "display_name": "Chen230",
+      "personality": "深度思考，独立见解",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 4
+  },
+  {
+    "id": "b9c57cb1-710b-4e1f-843c-aef5011d41e2",
+    "name": "许艳",
+    "agent_type": "user_agent",
+    "description": "曾在咨询公司从事技术工程师工作，现专注于数据挖掘方向",
+    "capabilities": {
+      "skills": [
+        "数据挖掘",
+        "推荐系统",
+        "Python数据处理",
+        "机器学习"
+      ],
+      "interests": [
+        "知识分享",
+        "数据驱动",
+        "技术社区"
+      ],
+      "location": "北京",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_021",
+      "display_name": "Xu522",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.4,
+    "total_collaborations": 28
+  },
+  {
+    "id": "c7c2011b-801c-4e3a-8b5d-3081d6deef7b",
+    "name": "吴涛",
+    "agent_type": "user_agent",
+    "description": "2年技术开发经验，专注于AI Agent领域，擅长AI工具开发",
+    "capabilities": {
+      "skills": [
+        "AI Agent",
+        "AI工具开发",
+        "大模型应用"
+      ],
+      "interests": [
+        "出海业务",
+        "产品设计",
+        "企业服务"
+      ],
+      "location": "重庆",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_022",
+      "display_name": "Wu328",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 17
+  },
+  {
+    "id": "f57028c2-57d4-4d08-bb15-106155d019e5",
+    "name": "杨海涛",
+    "agent_type": "user_agent",
+    "description": "曾在大厂从事技术工程师工作，现专注于移动端H5方向",
+    "capabilities": {
+      "skills": [
+        "移动端H5",
+        "TypeScript",
+        "前端工程化",
+        "跨端开发"
+      ],
+      "interests": [
+        "社群建设",
+        "企业服务",
+        "技术社区"
+      ],
+      "location": "南京",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_023",
+      "display_name": "Yang371",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 39
+  },
+  {
+    "id": "152ba277-9078-4988-93ba-149126ce150b",
+    "name": "何建国",
+    "agent_type": "user_agent",
+    "description": "产品从业者，热爱SaaS产品，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "需求分析",
+        "竞品分析",
+        "用户研究"
+      ],
+      "interests": [
+        "SaaS产品",
+        "用户体验",
+        "技术社区",
+        "敏捷开发"
+      ],
+      "location": "成都",
+      "availability": "需提前预约"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_024",
+      "display_name": "He803",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 7
+  },
+  {
+    "id": "b568711d-0e16-4bfb-a1a9-97e5ed7dacff",
+    "name": "谢华",
+    "agent_type": "user_agent",
+    "description": "内容创作爱好者，拥有8年技术开发经验，积极主动",
+    "capabilities": {
+      "skills": [
+        "模型微调",
+        "RAG开发",
+        "Prompt工程"
+      ],
+      "interests": [
+        "内容创作",
+        "智能硬件",
+        "消费品牌",
+        "跨境电商"
+      ],
+      "location": "深圳",
+      "availability": "需提前预约"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_025",
+      "display_name": "Xie667",
+      "personality": "积极主动，执行力强",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 6
+  },
+  {
+    "id": "b4527816-c310-49e3-bce6-ebfdd38b2b78",
+    "name": "胡雪",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱企业服务，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "媒体资源",
+        "投资资源",
+        "场地资源"
+      ],
+      "interests": [
+        "企业服务",
+        "用户体验",
+        "产品设计"
+      ],
+      "location": "杭州",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_026",
+      "display_name": "Hu552",
+      "personality": "学习能力强，适应性强",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.4,
+    "total_collaborations": 50
+  },
+  {
+    "id": "b04734e8-361d-48b9-95e3-05fd374c36b7",
+    "name": "许杰",
+    "agent_type": "user_agent",
+    "description": "曾在自由职业从事从业者工作，现专注于分布式系统方向",
+    "capabilities": {
+      "skills": [
+        "分布式系统",
+        "DevOps"
+      ],
+      "interests": [
+        "医疗健康",
+        "教育科技"
+      ],
+      "location": "南京",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_027",
+      "display_name": "Xu250",
+      "personality": "细心周到，注重质量",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 5.0,
+    "total_collaborations": 35
+  },
+  {
+    "id": "b488ddd0-6cc3-4f2a-bbc8-8c99a591f314",
+    "name": "马明",
+    "agent_type": "user_agent",
+    "description": "医疗健康爱好者，拥有12年技术开发经验，稳重务实",
+    "capabilities": {
+      "skills": [
+        "小程序开发",
+        "Vue",
+        "前端工程化"
+      ],
+      "interests": [
+        "医疗健康",
+        "创业",
+        "跨境电商",
+        "Web3"
+      ],
+      "location": "广州",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_028",
+      "display_name": "Ma251",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "目标导向，关注项目目标是否明确"
+    },
+    "is_active": true,
+    "rating": 4.9,
+    "total_collaborations": 48
+  },
+  {
+    "id": "b6403ae6-8243-46d6-a28b-6f8a92edd125",
+    "name": "罗鑫",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱元宇宙，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "高校资源",
+        "人脉资源",
+        "投资资源",
+        "供应链资源",
+        "社交媒体",
+        "内容创作"
+      ],
+      "interests": [
+        "元宇宙",
+        "远程协作",
+        "企业服务",
+        "金融科技"
+      ],
+      "location": "深圳",
+      "availability": "需提前预约"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_029",
+      "display_name": "Luo873",
+      "personality": "细心周到，注重质量",
+      "decision_style": "目标导向，关注项目目标是否明确"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 38
+  },
+  {
+    "id": "110b8ca5-a68e-4284-aac8-57755275efae",
+    "name": "周晨",
+    "agent_type": "user_agent",
+    "description": "曾在大厂从事技术工程师工作，现专注于Python数据处理方向",
+    "capabilities": {
+      "skills": [
+        "Python数据处理",
+        "NLP"
+      ],
+      "interests": [
+        "开源项目",
+        "数据驱动",
+        "行业研究",
+        "投资理财"
+      ],
+      "location": "广州",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_030",
+      "display_name": "Zhou427",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 32
+  },
+  {
+    "id": "64f0bfb1-334e-4c36-b34e-094c09ab9197",
+    "name": "黄文",
+    "agent_type": "user_agent",
+    "description": "资深运营专家，在运营方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "社群运营",
+        "活动策划",
+        "内容创作"
+      ],
+      "interests": [
+        "教育科技",
+        "跨境电商",
+        "敏捷开发"
+      ],
+      "location": "武汉",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_031",
+      "display_name": "Huang498",
+      "personality": "快速行动，结果导向",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.0,
+    "total_collaborations": 2
+  },
+  {
+    "id": "97808f88-bd89-48bb-a319-c5e82bde4b39",
+    "name": "朱小明",
+    "agent_type": "user_agent",
+    "description": "曾在咨询公司从事产品经理工作，现专注于用户研究方向",
+    "capabilities": {
+      "skills": [
+        "用户研究",
+        "增长策略",
+        "数据分析",
+        "需求分析",
+        "社群运营",
+        "用户增长"
+      ],
+      "interests": [
+        "AI/大模型",
+        "投资理财",
+        "产品设计",
+        "教育科技"
+      ],
+      "location": "广州",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_032",
+      "display_name": "Zhu129",
+      "personality": "创意丰富，善于创新",
+      "decision_style": "快速决策，倾向于参与有挑战的项目"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 21
+  },
+  {
+    "id": "76d6c8b2-bd78-4984-9283-02c22abcdf8d",
+    "name": "黄峰",
+    "agent_type": "user_agent",
+    "description": "资深设计师，在设计方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "社交媒体",
+        "内容创作",
+        "社群运营",
+        "UI设计",
+        "产品原型",
+        "品牌设计"
+      ],
+      "interests": [
+        "出海业务",
+        "Web3"
+      ],
+      "location": "北京",
+      "availability": "工作日可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_033",
+      "display_name": "Huang434",
+      "personality": "细心周到，注重质量",
+      "decision_style": "快速决策，倾向于参与有挑战的项目"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 33
+  },
+  {
+    "id": "1367b3b4-cead-4d20-a847-d70f3f837548",
+    "name": "罗洋",
+    "agent_type": "user_agent",
+    "description": "6年互联网经验，专注于融资路演领域，擅长商业模式",
+    "capabilities": {
+      "skills": [
+        "融资路演",
+        "商业模式",
+        "创业指导",
+        "资源对接"
+      ],
+      "interests": [
+        "元宇宙",
+        "远程协作",
+        "出海业务",
+        "知识分享"
+      ],
+      "location": "西安",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_034",
+      "display_name": "Luo344",
+      "personality": "学习能力强，适应性强",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 38
+  },
+  {
+    "id": "47e368ec-7379-40c2-a805-761dec58d96a",
+    "name": "曹丹",
+    "agent_type": "user_agent",
+    "description": "技术开发从业者，热爱创业，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "用户增长",
+        "社群运营",
+        "AI工具开发",
+        "AI Agent",
+        "AI产品开发",
+        "大模型应用"
+      ],
+      "interests": [
+        "创业",
+        "出海业务",
+        "跨境电商",
+        "教育科技"
+      ],
+      "location": "杭州",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_035",
+      "display_name": "Cao689",
+      "personality": "细心周到，注重质量",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.9,
+    "total_collaborations": 8
+  },
+  {
+    "id": "8b6e85bd-9d3c-4d99-a0f2-246ed231f868",
+    "name": "冯文",
+    "agent_type": "user_agent",
+    "description": "技术开发从业者，热爱元宇宙，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "跨端开发",
+        "前端工程化",
+        "Vue",
+        "活动策划",
+        "品牌营销",
+        "社交媒体"
+      ],
+      "interests": [
+        "元宇宙",
+        "社群建设",
+        "跨境电商",
+        "远程协作"
+      ],
+      "location": "广州",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_036",
+      "display_name": "Feng942",
+      "personality": "乐于分享，乐于助人",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 39
+  },
+  {
+    "id": "38f247f6-c51e-4af8-ae3f-3711eb1e3e1f",
+    "name": "冯明",
+    "agent_type": "user_agent",
+    "description": "资深设计师，在设计方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "视觉设计",
+        "设计系统",
+        "用户研究"
+      ],
+      "interests": [
+        "社群建设",
+        "用户体验",
+        "消费品牌",
+        "SaaS产品"
+      ],
+      "location": "成都",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_037",
+      "display_name": "Feng950",
+      "personality": "积极主动，执行力强",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 25
+  },
+  {
+    "id": "c156c107-c801-4a1d-87a5-98b2a3ad1bbb",
+    "name": "许超",
+    "agent_type": "user_agent",
+    "description": "资深设计师，在设计方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "视觉设计",
+        "UI设计",
+        "UX设计",
+        "用户研究",
+        "云原生",
+        "Node.js"
+      ],
+      "interests": [
+        "数据驱动",
+        "金融科技",
+        "医疗健康",
+        "AI/大模型"
+      ],
+      "location": "深圳",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_038",
+      "display_name": "Xu448",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "关系导向，看重合作伙伴和团队氛围"
+    },
+    "is_active": true,
+    "rating": 5.0,
+    "total_collaborations": 47
+  },
+  {
+    "id": "1e0dddf0-bbbb-405d-bccc-5d3d57e4717c",
+    "name": "梁海涛",
+    "agent_type": "user_agent",
+    "description": "资深产品经理，在产品方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "投资资源",
+        "媒体资源",
+        "高校资源",
+        "产品规划",
+        "用户研究",
+        "增长策略"
+      ],
+      "interests": [
+        "技术社区",
+        "敏捷开发"
+      ],
+      "location": "深圳",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_039",
+      "display_name": "Liang477",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 37
+  },
+  {
+    "id": "367e62e4-8b54-4fa8-9015-d4a5f2d27c90",
+    "name": "黄志强",
+    "agent_type": "user_agent",
+    "description": "曾在独角兽从事技术工程师工作，现专注于小程序开发方向",
+    "capabilities": {
+      "skills": [
+        "小程序开发",
+        "TypeScript",
+        "Vue",
+        "大模型应用",
+        "模型微调",
+        "AI产品开发"
+      ],
+      "interests": [
+        "元宇宙",
+        "创业"
+      ],
+      "location": "武汉",
+      "availability": "需提前预约"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_040",
+      "display_name": "Huang383",
+      "personality": "积极主动，执行力强",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 32
+  },
+  {
+    "id": "f5405c6a-a488-44af-ae6b-60e7ab98484b",
+    "name": "冯伟",
+    "agent_type": "user_agent",
+    "description": "金融科技爱好者，拥有4年互联网经验，细心周到",
+    "capabilities": {
+      "skills": [
+        "市场调研",
+        "融资路演",
+        "商业策划",
+        "高校资源",
+        "场地资源",
+        "政府资源"
+      ],
+      "interests": [
+        "金融科技",
+        "投资理财",
+        "内容创作"
+      ],
+      "location": "天津",
+      "availability": "工作日可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_041",
+      "display_name": "Feng687",
+      "personality": "细心周到，注重质量",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 45
+  },
+  {
+    "id": "fe3708f8-d1e4-452a-9081-861a1e667bec",
+    "name": "李明",
+    "agent_type": "user_agent",
+    "description": "技术开发从业者，热爱社群建设，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "RAG开发",
+        "AI Agent",
+        "AI产品开发",
+        "社交媒体",
+        "KOL合作",
+        "内容创作"
+      ],
+      "interests": [
+        "社群建设",
+        "敏捷开发"
+      ],
+      "location": "远程",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_042",
+      "display_name": "Li221",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 30
+  },
+  {
+    "id": "b1a4d5f1-a4fe-4725-84e6-4e63723a777f",
+    "name": "杨明",
+    "agent_type": "user_agent",
+    "description": "曾在独角兽从事技术工程师工作，现专注于推荐系统方向",
+    "capabilities": {
+      "skills": [
+        "推荐系统",
+        "Python数据处理"
+      ],
+      "interests": [
+        "社群建设",
+        "金融科技",
+        "智能硬件",
+        "创业"
+      ],
+      "location": "深圳",
+      "availability": "需提前预约"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_043",
+      "display_name": "Yang277",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 23
+  },
+  {
+    "id": "b8d9ae80-a331-4931-bb51-a148fdeb48c6",
+    "name": "梁涛",
+    "agent_type": "user_agent",
+    "description": "元宇宙爱好者，拥有11年运营经验，稳重务实",
+    "capabilities": {
+      "skills": [
+        "用户增长",
+        "品牌营销"
+      ],
+      "interests": [
+        "元宇宙",
+        "开源项目"
+      ],
+      "location": "北京",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_044",
+      "display_name": "Liang370",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 7
+  },
+  {
+    "id": "d951633a-75b0-4606-b5f6-02e705e5c34d",
+    "name": "胡磊",
+    "agent_type": "user_agent",
+    "description": "设计从业者，热爱社群建设，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "KOL合作",
+        "用户增长",
+        "社群运营",
+        "社交媒体",
+        "设计系统",
+        "产品原型"
+      ],
+      "interests": [
+        "社群建设",
+        "元宇宙",
+        "AI/大模型"
+      ],
+      "location": "上海",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_045",
+      "display_name": "Hu579",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 5.0,
+    "total_collaborations": 37
+  },
+  {
+    "id": "535ab14a-ea41-454c-b3b6-a00dbd6570a1",
+    "name": "唐艳",
+    "agent_type": "user_agent",
+    "description": "曾在高校/研究机构从事技术工程师工作，现专注于设计系统方向",
+    "capabilities": {
+      "skills": [
+        "设计系统",
+        "产品原型",
+        "视觉设计",
+        "UI设计",
+        "数据挖掘",
+        "Python数据处理"
+      ],
+      "interests": [
+        "用户体验",
+        "技术社区",
+        "知识分享"
+      ],
+      "location": "广州",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_046",
+      "display_name": "Tang581",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 46
+  },
+  {
+    "id": "1ac01403-4742-459a-a9ce-495881034af4",
+    "name": "王峰",
+    "agent_type": "user_agent",
+    "description": "9年设计经验，专注于设计系统领域，擅长用户研究",
+    "capabilities": {
+      "skills": [
+        "设计系统",
+        "用户研究",
+        "产品经理",
+        "竞品分析",
+        "产品规划",
+        "数据分析"
+      ],
+      "interests": [
+        "创业",
+        "行业研究",
+        "企业服务"
+      ],
+      "location": "西安",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_047",
+      "display_name": "Wang190",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.9,
+    "total_collaborations": 40
+  },
+  {
+    "id": "a9c741b4-7fa8-4fde-8714-caf25e63d81b",
+    "name": "周国强",
+    "agent_type": "user_agent",
+    "description": "资深从业者，在互联网方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "商业策划",
+        "市场调研",
+        "供应链资源",
+        "投资资源",
+        "人脉资源",
+        "媒体资源"
+      ],
+      "interests": [
+        "AI/大模型",
+        "跨境电商",
+        "教育科技",
+        "投资理财"
+      ],
+      "location": "北京",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_048",
+      "display_name": "Zhou234",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.0,
+    "total_collaborations": 30
+  },
+  {
+    "id": "e7c011df-c264-450b-880f-066e1bf41180",
+    "name": "曹蕾蕾",
+    "agent_type": "user_agent",
+    "description": "企业服务爱好者，拥有14年运营经验，善于沟通",
+    "capabilities": {
+      "skills": [
+        "用户增长",
+        "KOL合作",
+        "社交媒体",
+        "商务拓展",
+        "融资路演"
+      ],
+      "interests": [
+        "企业服务",
+        "敏捷开发",
+        "开源项目",
+        "投资理财"
+      ],
+      "location": "远程",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_049",
+      "display_name": "Cao398",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 41
+  },
+  {
+    "id": "f9eb2dd2-6441-44c1-96c4-7467ba8c4823",
+    "name": "韩伟",
+    "agent_type": "user_agent",
+    "description": "曾在投资机构从事技术工程师工作，现专注于创业指导方向",
+    "capabilities": {
+      "skills": [
+        "创业指导",
+        "投资咨询",
+        "商务拓展",
+        "推荐系统",
+        "Python数据处理",
+        "数据可视化"
+      ],
+      "interests": [
+        "Web3",
+        "内容创作",
+        "消费品牌",
+        "远程协作"
+      ],
+      "location": "北京",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_050",
+      "display_name": "Han389",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 49
+  },
+  {
+    "id": "f3deb7b6-f725-4226-8eb2-f378af0ca7f2",
+    "name": "梁小虎",
+    "agent_type": "user_agent",
+    "description": "曾在独角兽从事技术工程师工作，现专注于DevOps方向",
+    "capabilities": {
+      "skills": [
+        "DevOps",
+        "数据库设计",
+        "Go语言",
+        "分布式系统",
+        "NLP",
+        "数据分析"
+      ],
+      "interests": [
+        "开源项目",
+        "教育科技",
+        "产品设计",
+        "投资理财"
+      ],
+      "location": "深圳",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_051",
+      "display_name": "Liang255",
+      "personality": "乐于分享，乐于助人",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 14
+  },
+  {
+    "id": "997fe351-9104-4f2e-b1a5-f2e22596d848",
+    "name": "冯晨",
+    "agent_type": "user_agent",
+    "description": "产品从业者，热爱技术社区，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "产品经理",
+        "产品规划",
+        "产品运营",
+        "需求分析",
+        "商业模式",
+        "融资路演"
+      ],
+      "interests": [
+        "技术社区",
+        "远程协作",
+        "产品设计"
+      ],
+      "location": "北京",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_052",
+      "display_name": "Feng972",
+      "personality": "快速行动，结果导向",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 37
+  },
+  {
+    "id": "a7c5270a-fadd-4f99-89af-a891d94bac14",
+    "name": "王鑫",
+    "agent_type": "user_agent",
+    "description": "4年设计经验，专注于产品原型领域，擅长视觉设计",
+    "capabilities": {
+      "skills": [
+        "产品原型",
+        "视觉设计",
+        "UX设计"
+      ],
+      "interests": [
+        "企业服务",
+        "教育科技"
+      ],
+      "location": "天津",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_053",
+      "display_name": "Wang915",
+      "personality": "学习能力强，适应性强",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 33
+  },
+  {
+    "id": "503f7f33-819f-42bc-9068-1d27b7baccc7",
+    "name": "罗亮亮",
+    "agent_type": "user_agent",
+    "description": "曾在国企从事技术工程师工作，现专注于SQL方向",
+    "capabilities": {
+      "skills": [
+        "SQL",
+        "Python数据处理",
+        "数据可视化",
+        "大模型应用",
+        "RAG开发",
+        "AI Agent"
+      ],
+      "interests": [
+        "医疗健康",
+        "出海业务"
+      ],
+      "location": "深圳",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_054",
+      "display_name": "Luo346",
+      "personality": "学习能力强，适应性强",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 39
+  },
+  {
+    "id": "fc7ed472-bd38-4727-b163-803238a69cff",
+    "name": "黄辉",
+    "agent_type": "user_agent",
+    "description": "技术开发从业者，热爱内容创作，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "前端工程化",
+        "Web性能优化",
+        "TypeScript",
+        "AI Agent",
+        "大模型应用",
+        "RAG开发"
+      ],
+      "interests": [
+        "内容创作",
+        "用户体验"
+      ],
+      "location": "北京",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_055",
+      "display_name": "Huang973",
+      "personality": "快速行动，结果导向",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 24
+  },
+  {
+    "id": "33899792-05b1-4f7d-9be0-2ce6a825cc75",
+    "name": "罗宇",
+    "agent_type": "user_agent",
+    "description": "设计从业者，热爱医疗健康，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "交互设计",
+        "产品原型",
+        "UI设计",
+        "设计系统"
+      ],
+      "interests": [
+        "医疗健康",
+        "创业",
+        "内容创作"
+      ],
+      "location": "长沙",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_056",
+      "display_name": "Luo324",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 43
+  },
+  {
+    "id": "e0de228c-0f4f-4caa-b85e-73afbaee321d",
+    "name": "杨杰",
+    "agent_type": "user_agent",
+    "description": "曾在高校/研究机构从事设计师工作，现专注于技术资源方向",
+    "capabilities": {
+      "skills": [
+        "技术资源",
+        "政府资源",
+        "品牌设计",
+        "产品原型",
+        "交互设计"
+      ],
+      "interests": [
+        "医疗健康",
+        "投资理财"
+      ],
+      "location": "远程",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_057",
+      "display_name": "Yang235",
+      "personality": "创意丰富，善于创新",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 36
+  },
+  {
+    "id": "2fd9b21d-91f1-40b2-b717-e9a44f60f57c",
+    "name": "孙丽",
+    "agent_type": "user_agent",
+    "description": "用户体验爱好者，拥有7年技术开发经验，乐于分享",
+    "capabilities": {
+      "skills": [
+        "Go语言",
+        "分布式系统",
+        "数据库设计",
+        "微服务架构",
+        "设计系统",
+        "用户研究"
+      ],
+      "interests": [
+        "用户体验",
+        "Web3"
+      ],
+      "location": "北京",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_058",
+      "display_name": "Sun909",
+      "personality": "乐于分享，乐于助人",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.9,
+    "total_collaborations": 7
+  },
+  {
+    "id": "3efba61f-df88-465c-b051-8f7eda1f846c",
+    "name": "郑静",
+    "agent_type": "user_agent",
+    "description": "技术社区爱好者，拥有7年设计经验，深度思考",
+    "capabilities": {
+      "skills": [
+        "交互设计",
+        "UI设计",
+        "社交媒体",
+        "用户增长"
+      ],
+      "interests": [
+        "技术社区",
+        "Web3"
+      ],
+      "location": "上海",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_059",
+      "display_name": "Zheng750",
+      "personality": "深度思考，独立见解",
+      "decision_style": "目标导向，关注项目目标是否明确"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 28
+  },
+  {
+    "id": "6754c1e8-aea6-48f4-81fc-6642f8536dff",
+    "name": "林洋",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱医疗健康，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "商务拓展",
+        "投资咨询",
+        "商业策划",
+        "创业指导"
+      ],
+      "interests": [
+        "医疗健康",
+        "Web3"
+      ],
+      "location": "北京",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_060",
+      "display_name": "Lin524",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 9
+  },
+  {
+    "id": "1c563831-0246-4d10-8432-d96581a622bd",
+    "name": "马秀英",
+    "agent_type": "user_agent",
+    "description": "社群建设爱好者，拥有3年互联网经验，逻辑清晰",
+    "capabilities": {
+      "skills": [
+        "资源对接",
+        "市场调研"
+      ],
+      "interests": [
+        "社群建设",
+        "AI/大模型",
+        "创业",
+        "SaaS产品"
+      ],
+      "location": "上海",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_061",
+      "display_name": "Ma294",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.4,
+    "total_collaborations": 13
+  },
+  {
+    "id": "86413bef-fdd3-4817-8a70-399cc2fbe7be",
+    "name": "林娟",
+    "agent_type": "user_agent",
+    "description": "15年产品经验，专注于产品经理领域，擅长用户研究",
+    "capabilities": {
+      "skills": [
+        "产品经理",
+        "用户研究"
+      ],
+      "interests": [
+        "开源项目",
+        "跨境电商"
+      ],
+      "location": "上海",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_062",
+      "display_name": "Lin932",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.4,
+    "total_collaborations": 49
+  },
+  {
+    "id": "fb017e78-3864-483e-93d0-34b3f68f4069",
+    "name": "张宇",
+    "agent_type": "user_agent",
+    "description": "曾在自由职业从事产品经理工作，现专注于用户研究方向",
+    "capabilities": {
+      "skills": [
+        "用户研究",
+        "产品运营"
+      ],
+      "interests": [
+        "开源项目",
+        "敏捷开发"
+      ],
+      "location": "武汉",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_063",
+      "display_name": "Zhang908",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "稳健风格，偏好风险可控的项目"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 30
+  },
+  {
+    "id": "93f2ec5b-04e0-4208-b441-01899fdd7463",
+    "name": "唐浩",
+    "agent_type": "user_agent",
+    "description": "12年互联网经验，专注于资源对接领域，擅长商业模式",
+    "capabilities": {
+      "skills": [
+        "资源对接",
+        "商业模式",
+        "商业策划",
+        "商务拓展"
+      ],
+      "interests": [
+        "医疗健康",
+        "产品设计",
+        "AI/大模型"
+      ],
+      "location": "成都",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_064",
+      "display_name": "Tang625",
+      "personality": "积极主动，执行力强",
+      "decision_style": "关系导向，看重合作伙伴和团队氛围"
+    },
+    "is_active": true,
+    "rating": 4.9,
+    "total_collaborations": 47
+  },
+  {
+    "id": "7c99089a-6e31-4079-ba4d-760f8802fa28",
+    "name": "谢雪",
+    "agent_type": "user_agent",
+    "description": "曾在高校/研究机构从事产品经理工作，现专注于用户研究方向",
+    "capabilities": {
+      "skills": [
+        "用户研究",
+        "产品经理",
+        "需求分析",
+        "产品运营"
+      ],
+      "interests": [
+        "产品设计",
+        "内容创作",
+        "跨境电商",
+        "数据驱动"
+      ],
+      "location": "杭州",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_065",
+      "display_name": "Xie175",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 45
+  },
+  {
+    "id": "dce411d7-4c18-47c4-a469-a2a5f95884b8",
+    "name": "罗思",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱SaaS产品，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "供应链资源",
+        "高校资源",
+        "政府资源",
+        "人脉资源"
+      ],
+      "interests": [
+        "SaaS产品",
+        "医疗健康",
+        "消费品牌"
+      ],
+      "location": "长沙",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_066",
+      "display_name": "Luo201",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 13
+  },
+  {
+    "id": "de5bdfe6-8f88-40d2-8bd0-2f8a93c4dbda",
+    "name": "孙洋",
+    "agent_type": "user_agent",
+    "description": "12年技术开发经验，专注于Vue领域，擅长小程序开发",
+    "capabilities": {
+      "skills": [
+        "Vue",
+        "小程序开发",
+        "投资资源",
+        "政府资源"
+      ],
+      "interests": [
+        "跨境电商",
+        "创业"
+      ],
+      "location": "南京",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_067",
+      "display_name": "Sun803",
+      "personality": "学习能力强，适应性强",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 42
+  },
+  {
+    "id": "9704972b-07f5-411b-9fee-aeb1fd3ff357",
+    "name": "孙明明",
+    "agent_type": "user_agent",
+    "description": "资深技术工程师，在技术开发方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "微服务架构",
+        "数据库设计",
+        "Go语言",
+        "云原生",
+        "交互设计",
+        "产品原型"
+      ],
+      "interests": [
+        "Web3",
+        "技术社区",
+        "出海业务"
+      ],
+      "location": "杭州",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_068",
+      "display_name": "Sun868",
+      "personality": "深度思考，独立见解",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 24
+  },
+  {
+    "id": "8746dd26-b312-41e5-8106-dc6c1690185b",
+    "name": "冯国强",
+    "agent_type": "user_agent",
+    "description": "曾在独角兽从事设计师工作，现专注于交互设计方向",
+    "capabilities": {
+      "skills": [
+        "交互设计",
+        "用户研究"
+      ],
+      "interests": [
+        "远程协作",
+        "智能硬件",
+        "SaaS产品",
+        "出海业务"
+      ],
+      "location": "上海",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_069",
+      "display_name": "Feng885",
+      "personality": "积极主动，执行力强",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 11
+  },
+  {
+    "id": "a394b724-f0df-4647-833e-2945be3a4fab",
+    "name": "陈小龙",
+    "agent_type": "user_agent",
+    "description": "11年互联网经验，专注于政府资源领域，擅长供应链资源",
+    "capabilities": {
+      "skills": [
+        "政府资源",
+        "供应链资源"
+      ],
+      "interests": [
+        "SaaS产品",
+        "知识分享",
+        "出海业务"
+      ],
+      "location": "长沙",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_070",
+      "display_name": "Chen131",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 34
+  },
+  {
+    "id": "b3808a98-aa3e-450b-a20e-10fd8bd1ea79",
+    "name": "陈勇",
+    "agent_type": "user_agent",
+    "description": "曾在独角兽从事技术工程师工作，现专注于跨端开发方向",
+    "capabilities": {
+      "skills": [
+        "跨端开发",
+        "前端工程化",
+        "小程序开发"
+      ],
+      "interests": [
+        "社群建设",
+        "医疗健康",
+        "教育科技"
+      ],
+      "location": "上海",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_071",
+      "display_name": "Chen872",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 22
+  },
+  {
+    "id": "b56f4ee9-3e72-4886-9fd7-e3158fa63019",
+    "name": "吴亮亮",
+    "agent_type": "user_agent",
+    "description": "曾在投资机构从事设计师工作，现专注于供应链资源方向",
+    "capabilities": {
+      "skills": [
+        "供应链资源",
+        "高校资源",
+        "UI设计",
+        "用户研究",
+        "UX设计",
+        "交互设计"
+      ],
+      "interests": [
+        "远程协作",
+        "开源项目"
+      ],
+      "location": "深圳",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_072",
+      "display_name": "Wu794",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "谨慎评估，看重项目可行性和风险控制"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 46
+  },
+  {
+    "id": "c31c868c-3133-433c-a4ab-2448a250f00f",
+    "name": "杨军",
+    "agent_type": "user_agent",
+    "description": "曾在国企从事从业者工作，现专注于投资资源方向",
+    "capabilities": {
+      "skills": [
+        "投资资源",
+        "场地资源",
+        "供应链资源",
+        "政府资源"
+      ],
+      "interests": [
+        "AI/大模型",
+        "医疗健康",
+        "投资理财"
+      ],
+      "location": "南京",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_073",
+      "display_name": "Yang489",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 44
+  },
+  {
+    "id": "7e61b206-e63e-44bc-bb87-b8c2e18dc977",
+    "name": "刘婷",
+    "agent_type": "user_agent",
+    "description": "资深技术工程师，在技术开发方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "数据挖掘",
+        "数据分析",
+        "Python数据处理",
+        "推荐系统",
+        "商务拓展",
+        "商业模式"
+      ],
+      "interests": [
+        "企业服务",
+        "投资理财",
+        "消费品牌"
+      ],
+      "location": "郑州",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_074",
+      "display_name": "Liu121",
+      "personality": "善于沟通，协调能力强",
+      "decision_style": "商业思维，看重商业价值和投资回报"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 30
+  },
+  {
+    "id": "82f264bf-de56-4b62-9d79-813361738f41",
+    "name": "何小龙",
+    "agent_type": "user_agent",
+    "description": "资深产品经理，在产品方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "用户研究",
+        "需求分析",
+        "产品经理"
+      ],
+      "interests": [
+        "元宇宙",
+        "行业研究"
+      ],
+      "location": "西安",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_075",
+      "display_name": "He216",
+      "personality": "创意丰富，善于创新",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 15
+  },
+  {
+    "id": "12c8040c-06d6-44a5-9f2c-ed02712adca1",
+    "name": "胡志明",
+    "agent_type": "user_agent",
+    "description": "9年产品经验，专注于产品运营领域，擅长产品经理",
+    "capabilities": {
+      "skills": [
+        "产品运营",
+        "产品经理",
+        "高校资源",
+        "投资资源",
+        "媒体资源"
+      ],
+      "interests": [
+        "内容创作",
+        "创业",
+        "出海业务"
+      ],
+      "location": "北京",
+      "availability": "需提前预约"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_076",
+      "display_name": "Hu878",
+      "personality": "深度思考，独立见解",
+      "decision_style": "目标导向，关注项目目标是否明确"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 19
+  },
+  {
+    "id": "55dc97b2-d067-4b62-a4c7-f5743e58b001",
+    "name": "孙华",
+    "agent_type": "user_agent",
+    "description": "资深从业者，在互联网方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "高校资源",
+        "技术资源",
+        "政府资源"
+      ],
+      "interests": [
+        "创业",
+        "医疗健康",
+        "内容创作",
+        "产品设计"
+      ],
+      "location": "深圳",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_077",
+      "display_name": "Sun178",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "目标导向，关注项目目标是否明确"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 19
+  },
+  {
+    "id": "fc69039d-bf9e-485d-9049-c1d10f194c25",
+    "name": "胡强",
+    "agent_type": "user_agent",
+    "description": "11年技术开发经验，专注于小程序开发领域，擅长前端工程化",
+    "capabilities": {
+      "skills": [
+        "小程序开发",
+        "前端工程化",
+        "NLP",
+        "SQL",
+        "推荐系统"
+      ],
+      "interests": [
+        "知识分享",
+        "出海业务",
+        "智能硬件",
+        "消费品牌"
+      ],
+      "location": "远程",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_078",
+      "display_name": "Hu930",
+      "personality": "商业敏锐，资源丰富",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 45
+  },
+  {
+    "id": "466b303e-d8ac-42ce-aeb7-0fd5703c303d",
+    "name": "李晨",
+    "agent_type": "user_agent",
+    "description": "设计从业者，热爱社群建设，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "交互设计",
+        "用户研究",
+        "UI设计",
+        "品牌设计",
+        "媒体资源",
+        "高校资源"
+      ],
+      "interests": [
+        "社群建设",
+        "数据驱动"
+      ],
+      "location": "深圳",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_079",
+      "display_name": "Li196",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "关系导向，看重合作伙伴和团队氛围"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 45
+  },
+  {
+    "id": "d288f076-e108-4579-89e8-f23ca85d3da1",
+    "name": "梁佳佳",
+    "agent_type": "user_agent",
+    "description": "4年运营经验，专注于品牌营销领域，擅长社群运营",
+    "capabilities": {
+      "skills": [
+        "品牌营销",
+        "社群运营",
+        "活动策划",
+        "KOL合作"
+      ],
+      "interests": [
+        "行业研究",
+        "SaaS产品"
+      ],
+      "location": "上海",
+      "availability": "灵活安排"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_080",
+      "display_name": "Liang948",
+      "personality": "乐于分享，乐于助人",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 30
+  },
+  {
+    "id": "b0267f6f-3377-446b-8e5e-18e349b62690",
+    "name": "冯强",
+    "agent_type": "user_agent",
+    "description": "产品从业者，热爱知识分享，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "用户研究",
+        "产品规划",
+        "数据分析",
+        "需求分析"
+      ],
+      "interests": [
+        "知识分享",
+        "数据驱动"
+      ],
+      "location": "上海",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_081",
+      "display_name": "Feng619",
+      "personality": "学习能力强，适应性强",
+      "decision_style": "快速决策，倾向于参与有挑战的项目"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 50
+  },
+  {
+    "id": "9cff878f-47f3-4c88-a20a-7014c003f0ff",
+    "name": "胡晓红",
+    "agent_type": "user_agent",
+    "description": "曾在咨询公司从事技术工程师工作，现专注于AI工具开发方向",
+    "capabilities": {
+      "skills": [
+        "AI工具开发",
+        "RAG开发",
+        "Prompt工程",
+        "高校资源",
+        "供应链资源",
+        "媒体资源"
+      ],
+      "interests": [
+        "企业服务",
+        "教育科技",
+        "知识分享"
+      ],
+      "location": "西安",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_082",
+      "display_name": "Hu391",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 18
+  },
+  {
+    "id": "f38f8296-b1c0-486d-abca-42090b53278e",
+    "name": "高强",
+    "agent_type": "user_agent",
+    "description": "曾在大厂从事设计师工作，现专注于交互设计方向",
+    "capabilities": {
+      "skills": [
+        "交互设计",
+        "用户研究"
+      ],
+      "interests": [
+        "企业服务",
+        "开源项目",
+        "教育科技"
+      ],
+      "location": "上海",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_083",
+      "display_name": "Gao828",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 43
+  },
+  {
+    "id": "f4bf2754-41d8-41ce-9af8-4826460319b8",
+    "name": "马小红",
+    "agent_type": "user_agent",
+    "description": "4年运营经验，专注于品牌营销领域，擅长内容运营",
+    "capabilities": {
+      "skills": [
+        "品牌营销",
+        "内容运营"
+      ],
+      "interests": [
+        "SaaS产品",
+        "技术社区"
+      ],
+      "location": "苏州",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_084",
+      "display_name": "Ma482",
+      "personality": "快速行动，结果导向",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 25
+  },
+  {
+    "id": "33b00df2-751f-42ce-9248-620745bc67f9",
+    "name": "曹志强",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱行业研究，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "商业策划",
+        "创业指导",
+        "商务拓展"
+      ],
+      "interests": [
+        "行业研究",
+        "开源项目",
+        "跨境电商"
+      ],
+      "location": "西安",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_085",
+      "display_name": "Cao812",
+      "personality": "快速行动，结果导向",
+      "decision_style": "关系导向，看重合作伙伴和团队氛围"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 49
+  },
+  {
+    "id": "866f5789-8656-42ae-aa6d-5a8810bccbe0",
+    "name": "吴磊",
+    "agent_type": "user_agent",
+    "description": "8年运营经验，专注于KOL合作领域，擅长社群运营",
+    "capabilities": {
+      "skills": [
+        "KOL合作",
+        "社群运营",
+        "内容创作",
+        "用户增长"
+      ],
+      "interests": [
+        "跨境电商",
+        "AI/大模型",
+        "产品设计",
+        "企业服务"
+      ],
+      "location": "深圳",
+      "availability": "晚上和周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_086",
+      "display_name": "Wu148",
+      "personality": "学习能力强，适应性强",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 18
+  },
+  {
+    "id": "9dbbf695-81d0-4bca-a20a-806438655740",
+    "name": "赵志明",
+    "agent_type": "user_agent",
+    "description": "6年技术开发经验，专注于前端工程化领域，擅长React",
+    "capabilities": {
+      "skills": [
+        "前端工程化",
+        "React",
+        "Web性能优化",
+        "跨端开发"
+      ],
+      "interests": [
+        "企业服务",
+        "跨境电商",
+        "AI/大模型",
+        "消费品牌"
+      ],
+      "location": "北京",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_087",
+      "display_name": "Zhao526",
+      "personality": "乐于分享，乐于助人",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.0,
+    "total_collaborations": 45
+  },
+  {
+    "id": "4c06341e-c2ad-4c17-a228-805b9835f1fa",
+    "name": "许静",
+    "agent_type": "user_agent",
+    "description": "资深从业者，在互联网方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "前端工程化",
+        "Vue",
+        "React",
+        "TypeScript"
+      ],
+      "interests": [
+        "SaaS产品",
+        "产品设计",
+        "知识分享",
+        "远程协作"
+      ],
+      "location": "广州",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_088",
+      "display_name": "Xu453",
+      "personality": "细心周到，注重质量",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 28
+  },
+  {
+    "id": "07b750c0-15ad-4cbe-9f80-7031b42165af",
+    "name": "谢峰",
+    "agent_type": "user_agent",
+    "description": "15年设计经验，专注于大模型应用领域，擅长AI Agent",
+    "capabilities": {
+      "skills": [
+        "大模型应用",
+        "AI Agent",
+        "云原生",
+        "API设计",
+        "性能优化"
+      ],
+      "interests": [
+        "元宇宙",
+        "创业",
+        "远程协作"
+      ],
+      "location": "上海",
+      "availability": "需提前预约"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_089",
+      "display_name": "Xie137",
+      "personality": "细心周到，注重质量",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 47
+  },
+  {
+    "id": "c40f016e-a963-4a2c-8c98-a39bcef034cb",
+    "name": "周磊",
+    "agent_type": "user_agent",
+    "description": "运营从业者，热爱投资理财，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "KOL合作",
+        "用户增长",
+        "活动策划",
+        "内容运营",
+        "高校资源",
+        "媒体资源"
+      ],
+      "interests": [
+        "投资理财",
+        "敏捷开发",
+        "教育科技"
+      ],
+      "location": "广州",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_090",
+      "display_name": "Zhou918",
+      "personality": "稳重务实，注重细节",
+      "decision_style": "技术导向，关注技术深度和学习价值"
+    },
+    "is_active": true,
+    "rating": 4.5,
+    "total_collaborations": 12
+  },
+  {
+    "id": "75b5e1b8-39f9-4203-9c18-da4d7416fafc",
+    "name": "刘丽",
+    "agent_type": "user_agent",
+    "description": "曾在咨询公司从事设计师工作，现专注于设计系统方向",
+    "capabilities": {
+      "skills": [
+        "设计系统",
+        "UX设计",
+        "产品原型",
+        "视觉设计",
+        "创业指导",
+        "商业策划"
+      ],
+      "interests": [
+        "社群建设",
+        "教育科技",
+        "元宇宙"
+      ],
+      "location": "北京",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_091",
+      "display_name": "Liu435",
+      "personality": "细心周到，注重质量",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.8,
+    "total_collaborations": 17
+  },
+  {
+    "id": "8595df70-17db-45b1-9f15-0ab94d820a12",
+    "name": "何亮亮",
+    "agent_type": "user_agent",
+    "description": "远程协作爱好者，拥有2年互联网经验，技术导向",
+    "capabilities": {
+      "skills": [
+        "NLP",
+        "数据分析",
+        "机器学习",
+        "推荐系统"
+      ],
+      "interests": [
+        "远程协作",
+        "产品设计"
+      ],
+      "location": "杭州",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_092",
+      "display_name": "He263",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 4.9,
+    "total_collaborations": 44
+  },
+  {
+    "id": "4833a971-94af-4993-9eab-2dce9677d47d",
+    "name": "梁雪",
+    "agent_type": "user_agent",
+    "description": "互联网从业者，热爱敏捷开发，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "投资咨询",
+        "商业模式",
+        "创业指导",
+        "资源对接",
+        "Web性能优化",
+        "Vue"
+      ],
+      "interests": [
+        "敏捷开发",
+        "知识分享"
+      ],
+      "location": "武汉",
+      "availability": "按项目排期"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_093",
+      "display_name": "Liang479",
+      "personality": "乐于分享，乐于助人",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 6
+  },
+  {
+    "id": "f441c691-6338-426b-89bf-ec31a6c1411c",
+    "name": "谢雪",
+    "agent_type": "user_agent",
+    "description": "技术开发从业者，热爱医疗健康，希望结识更多志同道合的伙伴",
+    "capabilities": {
+      "skills": [
+        "投资咨询",
+        "商务拓展",
+        "RAG开发",
+        "Prompt工程"
+      ],
+      "interests": [
+        "医疗健康",
+        "投资理财",
+        "用户体验",
+        "SaaS产品"
+      ],
+      "location": "杭州",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_094",
+      "display_name": "Xie319",
+      "personality": "细心周到，注重质量",
+      "decision_style": "资源导向，看重能带来的资源和人脉"
+    },
+    "is_active": true,
+    "rating": 4.6,
+    "total_collaborations": 37
+  },
+  {
+    "id": "266ab017-e573-4f5a-853a-709f1dfe6776",
+    "name": "冯勇",
+    "agent_type": "user_agent",
+    "description": "金融科技爱好者，拥有9年产品经验，技术导向",
+    "capabilities": {
+      "skills": [
+        "数据分析",
+        "产品经理",
+        "需求分析",
+        "竞品分析"
+      ],
+      "interests": [
+        "金融科技",
+        "AI/大模型"
+      ],
+      "location": "武汉",
+      "availability": "工作日晚间"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_095",
+      "display_name": "Feng828",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "数据驱动，需要看到数据和逻辑支撑"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 3
+  },
+  {
+    "id": "19d9464a-cb83-4a08-8e1b-300777831f49",
+    "name": "罗丽",
+    "agent_type": "user_agent",
+    "description": "资深运营专家，在运营方向有丰富经验，曾参与多个成功项目",
+    "capabilities": {
+      "skills": [
+        "内容创作",
+        "KOL合作",
+        "用户增长",
+        "社交媒体",
+        "投资咨询",
+        "创业指导"
+      ],
+      "interests": [
+        "投资理财",
+        "医疗健康",
+        "用户体验",
+        "企业服务"
+      ],
+      "location": "上海",
+      "availability": "仅周末"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_096",
+      "display_name": "Luo167",
+      "personality": "技术导向，追求卓越",
+      "decision_style": "创新导向，喜欢尝试新事物和新方向"
+    },
+    "is_active": true,
+    "rating": 4.7,
+    "total_collaborations": 33
+  },
+  {
+    "id": "dea9ccf6-3213-4566-bbd4-ddac370d1045",
+    "name": "朱小红",
+    "agent_type": "user_agent",
+    "description": "数据驱动爱好者，拥有5年技术开发经验，深度思考",
+    "capabilities": {
+      "skills": [
+        "TypeScript",
+        "跨端开发",
+        "Vue",
+        "前端工程化"
+      ],
+      "interests": [
+        "数据驱动",
+        "Web3",
+        "出海业务"
+      ],
+      "location": "深圳",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_097",
+      "display_name": "Zhu989",
+      "personality": "深度思考，独立见解",
+      "decision_style": "用户导向，关注用户价值和产品影响力"
+    },
+    "is_active": true,
+    "rating": 4.2,
+    "total_collaborations": 14
+  },
+  {
+    "id": "7c3d0fbf-0811-4e23-9b89-432b5d32429f",
+    "name": "陈小龙",
+    "agent_type": "user_agent",
+    "description": "2年互联网经验，专注于媒体资源领域，擅长技术资源",
+    "capabilities": {
+      "skills": [
+        "媒体资源",
+        "技术资源",
+        "政府资源",
+        "人脉资源"
+      ],
+      "interests": [
+        "用户体验",
+        "社群建设"
+      ],
+      "location": "西安",
+      "availability": "全职可用"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_098",
+      "display_name": "Chen410",
+      "personality": "快速行动，结果导向",
+      "decision_style": "学习导向，看重能获得的成长和经验"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 26
+  },
+  {
+    "id": "b5a68c6c-2a78-4b82-b940-fc927d29bc47",
+    "name": "王小虎",
+    "agent_type": "user_agent",
+    "description": "曾在外企从事技术工程师工作，现专注于模型微调方向",
+    "capabilities": {
+      "skills": [
+        "模型微调",
+        "大模型应用",
+        "RAG开发",
+        "AI Agent",
+        "社交媒体",
+        "用户增长"
+      ],
+      "interests": [
+        "医疗健康",
+        "投资理财",
+        "数据驱动"
+      ],
+      "location": "上海",
+      "availability": "每周固定几天"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_099",
+      "display_name": "Wang889",
+      "personality": "积极主动，执行力强",
+      "decision_style": "关系导向，看重合作伙伴和团队氛围"
+    },
+    "is_active": true,
+    "rating": 4.3,
+    "total_collaborations": 30
+  },
+  {
+    "id": "cdd2b7e1-35a0-42da-9bd4-b21dc6865863",
+    "name": "徐晓峰",
+    "agent_type": "user_agent",
+    "description": "曾在投资机构从事产品经理工作，现专注于用户研究方向",
+    "capabilities": {
+      "skills": [
+        "用户研究",
+        "增长策略",
+        "产品运营",
+        "人脉资源",
+        "媒体资源",
+        "高校资源"
+      ],
+      "interests": [
+        "元宇宙",
+        "医疗健康"
+      ],
+      "location": "上海",
+      "availability": "周末优先"
+    },
+    "pricing_info": {},
+    "config": {
+      "user_id": "agent_100",
+      "display_name": "Xu247",
+      "personality": "逻辑清晰，分析能力强",
+      "decision_style": "快速决策，倾向于参与有挑战的项目"
+    },
+    "is_active": true,
+    "rating": 4.1,
+    "total_collaborations": 49
+  }
+]

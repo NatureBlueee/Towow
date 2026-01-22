@@ -7,8 +7,8 @@ export const demandApi = {
     return response.data;
   },
 
-  getStatus: async (negotiationId: string) => {
-    const response = await apiClient.get(`/api/v1/negotiations/${negotiationId}/status`);
+  getStatus: async (demandId: string) => {
+    const response = await apiClient.get(`/api/v1/demand/${demandId}/status`);
     return response.data;
   },
 

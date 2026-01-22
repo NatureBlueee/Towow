@@ -1,220 +1,331 @@
-import React, { useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useEffect, useCallback } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
   Card,
   Typography,
-  Timeline,
   Space,
-  Avatar,
-  Tag,
-  Empty,
   Button,
   Divider,
+  Row,
+  Col,
+  Alert,
+  Statistic,
+  Progress,
 } from 'antd';
 import {
-  UserOutlined,
-  RobotOutlined,
+  ArrowLeftOutlined,
+  ReloadOutlined,
+  DisconnectOutlined,
   CheckCircleOutlined,
+  TeamOutlined,
+  FileTextOutlined,
   ClockCircleOutlined,
-  ExclamationCircleOutlined,
 } from '@ant-design/icons';
 import { useEventStore } from '../../stores/eventStore';
 import { useSSE } from '../../hooks/useSSE';
-import { formatRelativeTime, getStatusColor } from '../../utils/format';
+import CandidateList from './CandidateList';
+import ProposalCard from './ProposalCard';
+import EventTimeline from './EventTimeline';
+import StatusBadge from './StatusBadge';
 import Loading from '../../components/common/Loading';
+import type { SSEEvent } from '../../types';
 
 const { Title, Text, Paragraph } = Typography;
 
 export const NegotiationPage: React.FC = () => {
   const { negotiationId } = useParams<{ negotiationId: string }>();
+  const navigate = useNavigate();
+
   const {
     status,
-    participants,
-    proposals,
+    candidates,
+    currentProposal,
+    currentRound,
     timeline,
     isLoading,
     error,
     setNegotiationId,
+    handleSSEEvent,
+    reset,
   } = useEventStore();
 
-  const { isConnected, connect, disconnect } = useSSE(negotiationId || null);
+  // Memoize the event handler to prevent unnecessary reconnections
+  const onSSEEvent = useCallback(
+    (event: SSEEvent) => {
+      handleSSEEvent(event);
+    },
+    [handleSSEEvent]
+  );
+
+  const onSSEError = useCallback((err: Error) => {
+    console.error('SSE Error:', err);
+  }, []);
+
+  const { isConnected, connect, disconnect, reconnectAttempts } = useSSE(
+    negotiationId || null,
+    {
+      onEvent: onSSEEvent,
+      onError: onSSEError,
+    }
+  );
 
   useEffect(() => {
     if (negotiationId) {
       setNegotiationId(negotiationId);
     }
-  }, [negotiationId, setNegotiationId]);
 
-  if (isLoading) {
-    return <Loading tip="加载协商进度..." />;
-  }
+    return () => {
+      // Clean up on unmount
+      reset();
+    };
+  }, [negotiationId, setNegotiationId, reset]);
 
-  if (error) {
-    return (
-      <Card>
-        <Empty
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          description={
-            <Space direction="vertical">
-              <Text type="danger">{error}</Text>
-              <Button type="primary" onClick={() => connect()}>
-                重试连接
-              </Button>
-            </Space>
-          }
-        />
-      </Card>
-    );
-  }
+  // Calculate statistics
+  const participatingCount = candidates.filter(
+    (c) => c.response?.decision === 'participate'
+  ).length;
+  const pendingCount = candidates.filter((c) => !c.response).length;
 
-  const getStatusIcon = (s: string) => {
-    switch (s) {
-      case 'completed':
-        return <CheckCircleOutlined style={{ color: '#52c41a' }} />;
-      case 'in_progress':
-        return <ClockCircleOutlined style={{ color: '#1890ff' }} />;
-      case 'failed':
-        return <ExclamationCircleOutlined style={{ color: '#ff4d4f' }} />;
-      default:
-        return <ClockCircleOutlined />;
-    }
+  const getStatusDescription = () => {
+    const descriptions: Record<string, string> = {
+      pending: 'Initializing negotiation...',
+      connecting: 'Connecting to negotiation network...',
+      filtering: 'AI is finding suitable candidates for your request...',
+      collecting: 'Collecting responses from potential collaborators...',
+      aggregating: 'Generating optimal collaboration proposal...',
+      negotiating: `Active negotiation in progress (Round ${currentRound})`,
+      finalized: 'Negotiation completed! Your collaboration plan is ready.',
+      failed: 'Unfortunately, the negotiation could not reach an agreement.',
+      in_progress: 'Negotiation is in progress...',
+      awaiting_user: 'Waiting for your input to continue...',
+      completed: 'Negotiation has been completed.',
+      cancelled: 'Negotiation was cancelled.',
+    };
+    return descriptions[status] || 'Processing...';
   };
 
+  const getProgressPercent = () => {
+    const stages: Record<string, number> = {
+      pending: 0,
+      connecting: 10,
+      filtering: 30,
+      collecting: 50,
+      aggregating: 70,
+      negotiating: 80,
+      finalized: 100,
+      completed: 100,
+      failed: 100,
+      cancelled: 100,
+    };
+    return stages[status] || 0;
+  };
+
+  const getProgressStatus = () => {
+    if (status === 'finalized' || status === 'completed') return 'success';
+    if (status === 'failed') return 'exception';
+    return 'active';
+  };
+
+  if (isLoading) {
+    return <Loading tip="Loading negotiation..." />;
+  }
+
   return (
-    <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-      <Space
-        style={{
-          width: '100%',
-          justifyContent: 'space-between',
-          marginBottom: 24,
-        }}
-      >
-        <Space>
-          <Title level={2} style={{ margin: 0 }}>
-            协商进度
-          </Title>
-          <Tag color={getStatusColor(status)}>{status}</Tag>
+    <div style={{ maxWidth: 1400, margin: '0 auto' }}>
+      {/* Header */}
+      <div style={{ marginBottom: 24 }}>
+        <Space style={{ width: '100%', justifyContent: 'space-between' }}>
+          <Space>
+            <Button
+              icon={<ArrowLeftOutlined />}
+              onClick={() => navigate('/demand')}
+            >
+              Back
+            </Button>
+            <Title level={3} style={{ margin: 0 }}>
+              Negotiation Progress
+            </Title>
+          </Space>
+          <Space>
+            <StatusBadge
+              status={status}
+              isConnected={isConnected}
+              reconnectAttempts={reconnectAttempts}
+            />
+            <Button
+              icon={isConnected ? <DisconnectOutlined /> : <ReloadOutlined />}
+              onClick={isConnected ? disconnect : connect}
+            >
+              {isConnected ? 'Disconnect' : 'Reconnect'}
+            </Button>
+          </Space>
         </Space>
-        <Space>
-          <Tag color={isConnected ? 'green' : 'red'}>
-            {isConnected ? '已连接' : '未连接'}
-          </Tag>
-          <Button onClick={isConnected ? disconnect : connect}>
-            {isConnected ? '断开' : '重连'}
-          </Button>
-        </Space>
-      </Space>
-
-      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 24 }}>
-        {/* 参与者 */}
-        <Card title="参与者" size="small">
-          {participants.length === 0 ? (
-            <Empty description="暂无参与者" />
-          ) : (
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {participants.map((p) => (
-                <Space
-                  key={p.agent_id}
-                  style={{
-                    padding: '8px 12px',
-                    background: '#fafafa',
-                    borderRadius: 8,
-                    width: '100%',
-                  }}
-                >
-                  <Avatar
-                    icon={
-                      p.agent_type === 'user' ? <UserOutlined /> : <RobotOutlined />
-                    }
-                    style={{
-                      backgroundColor:
-                        p.status === 'thinking' ? '#1890ff' : '#87d068',
-                    }}
-                  />
-                  <div>
-                    <Text strong>{p.display_name}</Text>
-                    <br />
-                    <Text type="secondary" style={{ fontSize: 12 }}>
-                      {p.status === 'thinking' ? '思考中...' : p.agent_type}
-                    </Text>
-                  </div>
-                </Space>
-              ))}
-            </Space>
-          )}
-        </Card>
-
-        {/* 方案列表 */}
-        <Card title="提出的方案" size="small">
-          {proposals.length === 0 ? (
-            <Empty description="暂无方案" />
-          ) : (
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {proposals.map((proposal) => (
-                <Card
-                  key={proposal.id}
-                  size="small"
-                  style={{ marginBottom: 8 }}
-                  extra={
-                    <Tag
-                      color={
-                        proposal.status === 'accepted'
-                          ? 'green'
-                          : proposal.status === 'rejected'
-                          ? 'red'
-                          : 'blue'
-                      }
-                    >
-                      {proposal.status}
-                    </Tag>
-                  }
-                >
-                  <Title level={5}>{proposal.content.title}</Title>
-                  <Paragraph ellipsis={{ rows: 2 }}>
-                    {proposal.content.description}
-                  </Paragraph>
-                  {proposal.content.price && (
-                    <Text type="success">
-                      ¥{proposal.content.price.amount}
-                    </Text>
-                  )}
-                </Card>
-              ))}
-            </Space>
-          )}
-        </Card>
       </div>
 
-      <Divider />
+      {/* Error Alert */}
+      {error && (
+        <Alert
+          message="Error"
+          description={error}
+          type="error"
+          showIcon
+          closable
+          style={{ marginBottom: 24 }}
+          action={
+            <Button size="small" type="primary" onClick={connect}>
+              Retry
+            </Button>
+          }
+        />
+      )}
 
-      {/* 时间线 */}
-      <Card title="协商时间线">
-        {timeline.length === 0 ? (
-          <Empty description="协商尚未开始" />
-        ) : (
-          <Timeline
-            items={timeline.map((event) => ({
-              dot: getStatusIcon(event.event_type),
-              children: (
-                <div>
-                  <Text strong>{event.event_type}</Text>
-                  <br />
-                  {event.content.message && (
-                    <Paragraph>{event.content.message}</Paragraph>
-                  )}
-                  {event.content.thinking_step && (
-                    <Text type="secondary">{event.content.thinking_step}</Text>
-                  )}
-                  <br />
-                  <Text type="secondary" style={{ fontSize: 12 }}>
-                    {formatRelativeTime(event.timestamp)}
-                  </Text>
-                </div>
-              ),
-            }))}
-          />
-        )}
+      {/* Status Overview Card */}
+      <Card style={{ marginBottom: 24 }}>
+        <Row gutter={24} align="middle">
+          <Col span={12}>
+            <div style={{ marginBottom: 16 }}>
+              <Text type="secondary" style={{ fontSize: 12 }}>
+                NEGOTIATION ID
+              </Text>
+              <br />
+              <Text code copyable style={{ fontSize: 12 }}>
+                {negotiationId}
+              </Text>
+            </div>
+            <Paragraph style={{ color: '#595959', marginBottom: 0 }}>
+              {getStatusDescription()}
+            </Paragraph>
+          </Col>
+          <Col span={12}>
+            <div style={{ marginBottom: 8 }}>
+              <Text type="secondary">Progress</Text>
+            </div>
+            <Progress
+              percent={getProgressPercent()}
+              status={getProgressStatus()}
+              strokeColor={{
+                '0%': '#108ee9',
+                '100%': '#87d068',
+              }}
+            />
+          </Col>
+        </Row>
       </Card>
+
+      {/* Statistics Row */}
+      <Row gutter={16} style={{ marginBottom: 24 }}>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="Candidates"
+              value={candidates.length}
+              prefix={<TeamOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="Participating"
+              value={participatingCount}
+              valueStyle={{ color: '#52c41a' }}
+              prefix={<CheckCircleOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="Pending Response"
+              value={pendingCount}
+              valueStyle={{ color: '#faad14' }}
+              prefix={<ClockCircleOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col span={6}>
+          <Card size="small">
+            <Statistic
+              title="Current Round"
+              value={currentRound}
+              prefix={<FileTextOutlined />}
+            />
+          </Card>
+        </Col>
+      </Row>
+
+      {/* Main Content Grid */}
+      <Row gutter={24}>
+        {/* Left: Candidates */}
+        <Col xs={24} lg={8}>
+          <CandidateList candidates={candidates} events={timeline} />
+        </Col>
+
+        {/* Center: Proposal */}
+        <Col xs={24} lg={8}>
+          <ProposalCard
+            proposal={currentProposal}
+            status={status}
+            round={currentRound}
+          />
+        </Col>
+
+        {/* Right: Event Timeline */}
+        <Col xs={24} lg={8}>
+          <EventTimeline events={timeline} maxHeight={500} />
+        </Col>
+      </Row>
+
+      {/* Action Buttons for Finalized State */}
+      {status === 'finalized' && currentProposal && (
+        <>
+          <Divider />
+          <Card>
+            <div style={{ textAlign: 'center' }}>
+              <Title level={4} style={{ color: '#52c41a' }}>
+                <CheckCircleOutlined /> Negotiation Complete!
+              </Title>
+              <Paragraph type="secondary">
+                Your collaboration plan has been finalized. You can now proceed
+                with the proposed arrangement.
+              </Paragraph>
+              <Space size="large">
+                <Button type="primary" size="large">
+                  Accept & Proceed
+                </Button>
+                <Button size="large">Save for Later</Button>
+                <Button size="large" onClick={() => navigate('/demand')}>
+                  Start New Negotiation
+                </Button>
+              </Space>
+            </div>
+          </Card>
+        </>
+      )}
+
+      {/* Failed State Actions */}
+      {status === 'failed' && (
+        <>
+          <Divider />
+          <Card>
+            <div style={{ textAlign: 'center' }}>
+              <Title level={4} type="danger">
+                Negotiation Could Not Complete
+              </Title>
+              <Paragraph type="secondary">
+                The negotiation process could not reach a successful agreement.
+                You can try again with adjusted requirements.
+              </Paragraph>
+              <Space size="large">
+                <Button type="primary" size="large" onClick={() => navigate('/demand')}>
+                  Try Again
+                </Button>
+                <Button size="large">Contact Support</Button>
+              </Space>
+            </div>
+          </Card>
+        </>
+      )}
     </div>
   );
 };

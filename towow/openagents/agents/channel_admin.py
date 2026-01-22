@@ -45,7 +45,7 @@ class ChannelState:
     candidates: List[Dict[str, Any]]
     status: ChannelStatus = ChannelStatus.CREATED
     current_round: int = 1
-    max_rounds: int = 3
+    max_rounds: int = 5  # 默认最多5轮协商
     responses: Dict[str, Dict[str, Any]] = field(default_factory=dict)
     current_proposal: Optional[Dict[str, Any]] = None
     proposal_feedback: Dict[str, Dict[str, Any]] = field(default_factory=dict)
@@ -68,9 +68,12 @@ class ChannelAdminAgent(TowowBaseAgent):
 
     AGENT_TYPE = "channel_admin"
 
+    # 最大协商轮次
+    MAX_NEGOTIATION_ROUNDS = 5
+
     # 超时配置（秒）
-    RESPONSE_TIMEOUT = 60  # 等待响应超时
-    FEEDBACK_TIMEOUT = 30  # 等待反馈超时
+    RESPONSE_TIMEOUT = 300  # 5分钟等待响应超时
+    FEEDBACK_TIMEOUT = 120  # 2分钟等待反馈超时
 
     def __init__(self, **kwargs):
         """初始化ChannelAdmin Agent"""
@@ -91,6 +94,150 @@ class ChannelAdminAgent(TowowBaseAgent):
                 task.cancel()
         self._timeout_tasks.clear()
         await super().on_shutdown()
+
+    # ========== 公共 API 方法 ==========
+
+    async def start_managing(
+        self,
+        channel_name: str,
+        demand_id: str,
+        demand: Dict[str, Any],
+        invited_agents: List[Dict[str, Any]],
+        max_rounds: Optional[int] = None
+    ) -> str:
+        """
+        开始管理一个协商Channel
+
+        Args:
+            channel_name: Channel名称（可选，为空则自动生成）
+            demand_id: 需求ID
+            demand: 需求信息
+            invited_agents: 邀请的Agent列表，每项包含 agent_id 和可选的 reason/match_score
+            max_rounds: 最大协商轮次（默认使用 MAX_NEGOTIATION_ROUNDS）
+
+        Returns:
+            channel_id: 创建的Channel ID
+        """
+        channel_id = channel_name or f"ch-{uuid4().hex[:8]}"
+
+        if channel_id in self.channels:
+            self._logger.warning(f"Channel {channel_id} already exists")
+            return channel_id
+
+        self._logger.info(f"Starting to manage channel {channel_id} for demand {demand_id}")
+
+        # 创建Channel状态
+        state = ChannelState(
+            channel_id=channel_id,
+            demand_id=demand_id,
+            demand=demand,
+            candidates=invited_agents,
+            max_rounds=max_rounds or self.MAX_NEGOTIATION_ROUNDS
+        )
+        self.channels[channel_id] = state
+
+        # 发布Channel创建事件
+        await self._publish_event("towow.channel.created", {
+            "channel_id": channel_id,
+            "demand_id": demand_id,
+            "candidates_count": len(invited_agents)
+        })
+
+        # 开始广播需求
+        await self._broadcast_demand(state)
+
+        return channel_id
+
+    async def handle_response(
+        self,
+        channel_id: str,
+        agent_id: str,
+        decision: str,
+        contribution: Optional[str] = None,
+        conditions: Optional[List[str]] = None,
+        reasoning: Optional[str] = None,
+        capabilities: Optional[List[str]] = None,
+        estimated_effort: Optional[str] = None
+    ) -> bool:
+        """
+        处理Agent的回应
+
+        Args:
+            channel_id: Channel ID
+            agent_id: Agent ID
+            decision: 决定 (participate/decline/conditional)
+            contribution: 贡献描述
+            conditions: 条件列表
+            reasoning: 理由
+            capabilities: 能力列表
+            estimated_effort: 预估工作量
+
+        Returns:
+            是否成功处理
+        """
+        data = {
+            "channel_id": channel_id,
+            "agent_id": agent_id,
+            "decision": decision,
+            "contribution": contribution,
+            "conditions": conditions or [],
+            "reasoning": reasoning,
+            "capabilities": capabilities or [],
+            "estimated_effort": estimated_effort
+        }
+        await self._handle_offer_response(data)
+        return True
+
+    async def aggregate_proposal(self, channel_id: str) -> Optional[Dict[str, Any]]:
+        """
+        聚合方案（公共API）
+
+        Args:
+            channel_id: Channel ID
+
+        Returns:
+            生成的方案，如果失败返回 None
+        """
+        if channel_id not in self.channels:
+            self._logger.warning(f"Channel {channel_id} not found")
+            return None
+
+        state = self.channels[channel_id]
+        await self._aggregate_proposals(state)
+        return state.current_proposal
+
+    async def handle_feedback(
+        self,
+        channel_id: str,
+        agent_id: str,
+        feedback_type: str,
+        adjustment_request: Optional[str] = None,
+        concerns: Optional[List[str]] = None
+    ) -> bool:
+        """
+        处理方案反馈
+
+        Args:
+            channel_id: Channel ID
+            agent_id: Agent ID
+            feedback_type: 反馈类型 (accept/reject/negotiate)
+            adjustment_request: 调整请求
+            concerns: 顾虑列表
+
+        Returns:
+            是否成功处理
+        """
+        data = {
+            "channel_id": channel_id,
+            "agent_id": agent_id,
+            "feedback_type": feedback_type,
+            "adjustment_request": adjustment_request,
+            "concerns": concerns or []
+        }
+        await self._handle_proposal_feedback(data)
+        return True
+
+    # ========== 消息处理方法 ==========
 
     async def on_direct(self, context: EventContext):
         """处理直接消息"""
@@ -161,7 +308,7 @@ class ChannelAdminAgent(TowowBaseAgent):
             demand_id=demand_id,
             demand=data.get("demand", {}),
             candidates=data.get("candidates", []),
-            max_rounds=data.get("max_rounds", 3),
+            max_rounds=data.get("max_rounds", self.MAX_NEGOTIATION_ROUNDS),
             is_subnet=data.get("is_subnet", False),
             parent_channel_id=data.get("parent_channel_id"),
             recursion_depth=data.get("recursion_depth", 0)
@@ -373,53 +520,119 @@ class ChannelAdminAgent(TowowBaseAgent):
         state: ChannelState,
         participants: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """生成协作方案"""
+        """
+        生成协作方案
+
+        基于提示词4：方案聚合
+        整合多方贡献，形成结构化的协作方案
+
+        Args:
+            state: Channel状态
+            participants: 参与者列表（包含其贡献和条件）
+
+        Returns:
+            结构化的协作方案
+        """
         if not self.llm:
             self._logger.debug("No LLM service, using mock proposal")
             return self._mock_proposal(state, participants)
 
+        demand = state.demand
+        surface_demand = demand.get('surface_demand', '')
+        deep = demand.get('deep_understanding', {})
+
         prompt = f"""
-## 需求信息
-{json.dumps(state.demand, ensure_ascii=False, indent=2)}
+# 协作方案生成任务
+
+你是ToWow协作平台的方案聚合系统。你的任务是整合各参与者的贡献和条件，生成一个可执行的协作方案。
+
+## 需求背景
+
+### 原始需求
+{surface_demand}
+
+### 需求分析
+- **类型**: {deep.get('type', 'general')}
+- **动机**: {deep.get('motivation', '未知')}
+- **规模**: {json.dumps(deep.get('scale', {}), ensure_ascii=False)}
+- **时间线**: {json.dumps(deep.get('timeline', {}), ensure_ascii=False)}
+- **资源需求**: {json.dumps(deep.get('resource_requirements', []), ensure_ascii=False)}
 
 ## 参与者及其贡献
+
+```json
 {json.dumps(participants, ensure_ascii=False, indent=2)}
+```
 
-## 当前协商轮次
-第 {state.current_round} 轮（最多 {state.max_rounds} 轮）
+## 当前协商状态
+- 当前轮次: 第 {state.current_round} 轮（最多 {state.max_rounds} 轮）
+- 参与者数量: {len(participants)} 人
 
-## 任务
-根据需求和参与者的贡献，生成一个协作方案。方案应该：
-1. 明确每个参与者的角色和职责
-2. 考虑参与者提出的条件
-3. 给出时间安排建议
-4. 列出成功标准和潜在风险
+## 方案设计原则
 
-## 输出格式（JSON）
+1. **角色明确**：每个参与者都应有明确的角色和职责
+2. **条件兼顾**：尽可能满足各参与者提出的条件
+3. **时间合理**：考虑各方可用时间，给出合理的时间安排
+4. **风险可控**：识别潜在风险并提供应对建议
+5. **成功可衡量**：定义清晰的成功标准
+
+## 输出要求
+
+请生成一个结构化的协作方案（JSON格式）：
+
 ```json
 {{
-  "summary": "方案概述（一句话）",
+  "summary": "方案核心摘要（一句话描述这个方案做什么）",
+  "objective": "方案目标（要达成的具体成果）",
   "assignments": [
     {{
-      "agent_id": "agent-xxx",
+      "agent_id": "参与者ID",
       "role": "角色名称",
-      "responsibility": "具体职责描述",
-      "conditions_addressed": ["已处理的条件"]
+      "responsibility": "具体职责描述（包含要做什么、产出什么）",
+      "conditions_addressed": ["已满足的条件列表"],
+      "estimated_effort": "预估投入（如：2小时/周、1天等）"
     }}
   ],
-  "timeline": "时间安排描述",
-  "success_criteria": ["成功标准1", "成功标准2"],
-  "risks": ["风险1", "风险2"],
+  "timeline": {{
+    "start_date": "建议开始时间",
+    "end_date": "预计完成时间",
+    "milestones": [
+      {{"name": "里程碑名称", "date": "时间点", "deliverable": "交付物"}}
+    ]
+  }},
+  "collaboration_model": {{
+    "communication_channel": "主要沟通方式",
+    "meeting_frequency": "会议频率",
+    "decision_mechanism": "决策机制"
+  }},
+  "success_criteria": [
+    "成功标准1（可衡量的）",
+    "成功标准2"
+  ],
+  "risks": [
+    {{
+      "risk": "风险描述",
+      "probability": "high/medium/low",
+      "mitigation": "应对措施"
+    }}
+  ],
+  "dependencies": ["外部依赖项"],
   "confidence": "high/medium/low",
-  "notes": "其他备注"
+  "notes": "其他备注说明"
 }}
 ```
+
+## 注意事项
+- 确保每个参与者都有明确分工
+- 时间安排要考虑各方提出的时间约束
+- 方案应该是可执行的，而非泛泛而谈
+- 如果某些条件无法满足，在notes中说明原因和替代方案
 """
 
         try:
             response = await self.llm.complete(
                 prompt=prompt,
-                system="你是ToWow的方案聚合系统，负责整合多方贡献形成可执行的协作方案。输出必须是有效的JSON格式。",
+                system="你是ToWow的方案聚合系统，负责整合多方贡献形成可执行的协作方案。请始终以有效的JSON格式输出。",
                 fallback_key="proposal_aggregation"
             )
             return self._parse_proposal(response)
@@ -696,32 +909,146 @@ class ChannelAdminAgent(TowowBaseAgent):
         state: ChannelState,
         feedback: Dict[str, Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """根据反馈调整方案"""
+        """
+        根据反馈调整方案
+
+        基于提示词5：方案调整
+        根据参与者反馈优化协作方案
+
+        Args:
+            state: Channel状态
+            feedback: 参与者反馈字典
+
+        Returns:
+            调整后的协作方案
+        """
+        current_proposal = state.current_proposal or {}
+        demand = state.demand
+        surface_demand = demand.get('surface_demand', '')
+
+        # 分析反馈
+        accept_count = sum(1 for f in feedback.values() if f.get('feedback_type') == 'accept')
+        negotiate_count = sum(1 for f in feedback.values() if f.get('feedback_type') == 'negotiate')
+        reject_count = sum(1 for f in feedback.values() if f.get('feedback_type') == 'reject')
+
+        # 提取调整请求
+        adjustment_requests = [
+            {"agent_id": aid, "request": f.get('adjustment_request', ''), "concerns": f.get('concerns', [])}
+            for aid, f in feedback.items()
+            if f.get('adjustment_request') or f.get('concerns')
+        ]
+
         prompt = f"""
+# 方案调整任务
+
+你是ToWow协作平台的方案调整系统。参与者已对当前方案给出反馈，你需要根据反馈优化方案。
+
+## 原始需求
+{surface_demand}
+
 ## 当前方案
-{json.dumps(state.current_proposal, ensure_ascii=False, indent=2)}
+```json
+{json.dumps(current_proposal, ensure_ascii=False, indent=2)}
+```
 
-## 收到的反馈
+## 反馈汇总
+- 接受: {accept_count} 人
+- 希望调整: {negotiate_count} 人
+- 拒绝: {reject_count} 人
+
+## 具体调整请求
+```json
+{json.dumps(adjustment_requests, ensure_ascii=False, indent=2)}
+```
+
+## 完整反馈详情
+```json
 {json.dumps(feedback, ensure_ascii=False, indent=2)}
+```
 
-## 任务
-根据反馈调整方案，解决参与者的顾虑。
+## 调整原则
 
-## 输出格式（JSON）
-与原方案相同格式，但需要体现调整。
+1. **优先解决共性问题**：多人提出的问题优先处理
+2. **平衡各方利益**：调整不应损害已接受方的利益
+3. **保持方案可行**：调整后的方案仍应可执行
+4. **透明说明变更**：清晰说明做了什么调整及原因
+5. **避免过度妥协**：保持方案的核心价值
+
+## 调整策略建议
+
+根据反馈情况，建议采取以下策略：
+{self._get_adjustment_strategy(accept_count, negotiate_count, reject_count, len(feedback))}
+
+## 输出要求
+
+请输出调整后的方案（保持与原方案相同的JSON结构），并在方案末尾添加调整说明：
+
+```json
+{{
+  // ... 调整后的方案内容 ...
+  "adjustment_summary": {{
+    "round": {state.current_round},
+    "changes_made": [
+      {{"aspect": "调整的方面", "before": "调整前", "after": "调整后", "reason": "调整原因"}}
+    ],
+    "requests_addressed": ["已处理的调整请求"],
+    "requests_declined": [
+      {{"request": "未处理的请求", "reason": "未处理原因"}}
+    ]
+  }}
+}}
+```
+
+请确保调整后的方案仍然是完整的、可执行的协作方案。
 """
 
         try:
             response = await self.llm.complete(
                 prompt=prompt,
-                system="你是ToWow的方案调整系统，根据参与者反馈优化协作方案。",
+                system="你是ToWow的方案调整系统，根据参与者反馈优化协作方案。请以有效的JSON格式输出调整后的完整方案。",
                 fallback_key="proposal_adjustment"
             )
             return self._parse_proposal(response)
         except Exception as e:
             self._logger.error(f"Proposal adjustment error: {e}")
-            # 返回原方案
-            return state.current_proposal or {}
+            # 返回原方案并标记调整失败
+            adjusted = dict(current_proposal)
+            adjusted["adjustment_failed"] = True
+            adjusted["adjustment_error"] = str(e)
+            return adjusted
+
+    def _get_adjustment_strategy(
+        self,
+        accept_count: int,
+        negotiate_count: int,
+        reject_count: int,
+        total: int
+    ) -> str:
+        """获取调整策略建议"""
+        if total == 0:
+            return "- 未收到反馈，建议保持方案不变或主动询问参与者意见"
+
+        accept_ratio = accept_count / total
+        negotiate_ratio = negotiate_count / total
+        reject_ratio = reject_count / total
+
+        strategies = []
+
+        if accept_ratio >= 0.7:
+            strategies.append("- 大多数人已接受，仅需微调以满足少数人的合理要求")
+        elif accept_ratio >= 0.5:
+            strategies.append("- 过半接受，重点关注negotiate方的具体诉求")
+        else:
+            strategies.append("- 接受率较低，需要较大幅度调整")
+
+        if negotiate_ratio > 0:
+            strategies.append("- 仔细分析调整请求，找出共性问题优先解决")
+
+        if reject_ratio > 0.3:
+            strategies.append("- 存在较多拒绝，可能需要重新考虑方案核心框架")
+            strategies.append("- 建议主动沟通了解拒绝原因")
+
+        return "\n".join(strategies) if strategies else "- 综合各方反馈，平衡调整"
 
     async def _finalize_channel(self, state: ChannelState):
         """完成协商"""
@@ -894,3 +1221,139 @@ class ChannelAdminAgent(TowowBaseAgent):
             cid for cid, state in self.channels.items()
             if state.status in active_statuses
         ]
+
+    # ========== 兼容性方法 ==========
+
+    async def on_channel_message(self, context: ChannelMessageContext) -> None:
+        """
+        处理Channel内的消息（兼容方法，映射到 on_channel_post）
+
+        Args:
+            context: Channel消息上下文
+        """
+        await self.on_channel_post(context)
+
+    async def _generate_compromise(self, channel_id: str) -> Optional[Dict[str, Any]]:
+        """
+        生成妥协方案（当达到最大协商轮次时使用）
+
+        Args:
+            channel_id: Channel ID
+
+        Returns:
+            妥协方案
+        """
+        if channel_id not in self.channels:
+            return None
+
+        state = self.channels[channel_id]
+
+        if not self.llm:
+            # 没有LLM，返回基于已有信息的简化方案
+            return {
+                "summary": "妥协方案（基于已有共识）",
+                "type": "compromise",
+                "accepted_assignments": [
+                    {
+                        "agent_id": aid,
+                        "accepted": f.get("feedback_type") == "accept"
+                    }
+                    for aid, f in state.proposal_feedback.items()
+                ],
+                "original_proposal": state.current_proposal,
+                "rounds_used": state.current_round,
+                "note": "由于未能达成完全共识，此为妥协方案"
+            }
+
+        prompt = f"""
+## 原始需求
+{json.dumps(state.demand, ensure_ascii=False, indent=2)}
+
+## 当前方案
+{json.dumps(state.current_proposal, ensure_ascii=False, indent=2)}
+
+## 历次反馈
+{json.dumps(state.proposal_feedback, ensure_ascii=False, indent=2)}
+
+## 参与者响应
+{json.dumps(state.responses, ensure_ascii=False, indent=2)}
+
+## 任务
+已经进行了 {state.current_round} 轮协商，达到最大轮次 {state.max_rounds}。
+请生成一个妥协方案，尽可能满足各方核心诉求。
+
+妥协原则：
+1. 优先保证需求方的核心需求
+2. 对于有争议的部分，寻找折中点
+3. 明确标注哪些部分是妥协的结果
+
+## 输出格式（JSON）
+```json
+{{
+  "summary": "妥协方案摘要",
+  "type": "compromise",
+  "assignments": [...],
+  "compromises": [
+    {{
+      "issue": "争议点",
+      "resolution": "妥协方案",
+      "rationale": "理由"
+    }}
+  ],
+  "unresolved": ["无法妥协的问题"],
+  "confidence": "low/medium/high"
+}}
+```
+"""
+
+        try:
+            response = await self.llm.complete(
+                prompt=prompt,
+                system="你是ToWow的协商调解专家，负责在多轮协商未能达成共识时生成妥协方案。",
+                fallback_key="compromise_generation"
+            )
+            return self._parse_proposal(response)
+        except Exception as e:
+            self._logger.error(f"Compromise generation error: {e}")
+            return {
+                "summary": "妥协方案生成失败",
+                "type": "compromise",
+                "error": str(e)
+            }
+
+    async def _handle_withdrawal(self, channel_id: str, agent_id: str) -> None:
+        """
+        处理Agent退出协商
+
+        Args:
+            channel_id: Channel ID
+            agent_id: 退出的Agent ID
+        """
+        if channel_id not in self.channels:
+            return
+
+        state = self.channels[channel_id]
+
+        # 更新响应状态
+        if agent_id in state.responses:
+            state.responses[agent_id]["decision"] = "withdrawn"
+            state.responses[agent_id]["withdrawn_at"] = datetime.utcnow().isoformat()
+
+        self._logger.info(f"Agent {agent_id} withdrew from channel {channel_id}")
+
+        # 发布退出事件
+        await self._publish_event("towow.agent.withdrawn", {
+            "channel_id": channel_id,
+            "agent_id": agent_id,
+            "round": state.current_round
+        })
+
+        # 检查是否还有足够的参与者
+        remaining_participants = [
+            aid for aid, resp in state.responses.items()
+            if resp.get("decision") in ("participate", "conditional")
+        ]
+
+        if len(remaining_participants) == 0:
+            await self._fail_channel(state, "all_participants_withdrawn")
+

@@ -1,0 +1,148 @@
+{
+  "timestamp": "2026-01-21T18:00:40.074009",
+  "total_scenarios": 3,
+  "passed": 3,
+  "failed": 0,
+  "total_duration_ms": 2.5589466094970703,
+  "results": [
+    {
+      "scenario": "场景A-活动组织",
+      "success": true,
+      "duration_ms": 1.0540485382080078,
+      "candidates_count": 12,
+      "participants_count": 11,
+      "proposal_generated": true,
+      "feedback_summary": {
+        "accept": 3,
+        "reject": 0,
+        "negotiate": 8
+      },
+      "error": null,
+      "stages": [
+        {
+          "stage": "需求理解",
+          "success": true,
+          "duration_ms": 0.1380443572998047,
+          "error": null
+        },
+        {
+          "stage": "智能筛选",
+          "success": true,
+          "duration_ms": 0.4417896270751953,
+          "error": null
+        },
+        {
+          "stage": "响应收集",
+          "success": true,
+          "duration_ms": 0.24890899658203125,
+          "error": null
+        },
+        {
+          "stage": "方案聚合",
+          "success": true,
+          "duration_ms": 0.0030994415283203125,
+          "error": null
+        },
+        {
+          "stage": "反馈收集",
+          "success": true,
+          "duration_ms": 0.11277198791503906,
+          "error": null
+        }
+      ]
+    },
+    {
+      "scenario": "场景B-资源对接",
+      "success": true,
+      "duration_ms": 0.9379386901855469,
+      "candidates_count": 12,
+      "participants_count": 12,
+      "proposal_generated": true,
+      "feedback_summary": {
+        "accept": 12,
+        "reject": 0,
+        "negotiate": 0
+      },
+      "error": null,
+      "stages": [
+        {
+          "stage": "需求理解",
+          "success": true,
+          "duration_ms": 0.02002716064453125,
+          "error": null
+        },
+        {
+          "stage": "智能筛选",
+          "success": true,
+          "duration_ms": 0.4038810729980469,
+          "error": null
+        },
+        {
+          "stage": "响应收集",
+          "success": true,
+          "duration_ms": 0.2779960632324219,
+          "error": null
+        },
+        {
+          "stage": "方案聚合",
+          "success": true,
+          "duration_ms": 0.0030994415283203125,
+          "error": null
+        },
+        {
+          "stage": "反馈收集",
+          "success": true,
+          "duration_ms": 0.13184547424316406,
+          "error": null
+        }
+      ]
+    },
+    {
+      "scenario": "场景C-模糊需求",
+      "success": true,
+      "duration_ms": 0.5669593811035156,
+      "candidates_count": 12,
+      "participants_count": 10,
+      "proposal_generated": true,
+      "feedback_summary": {
+        "accept": 2,
+        "reject": 0,
+        "negotiate": 8
+      },
+      "error": null,
+      "stages": [
+        {
+          "stage": "需求理解",
+          "success": true,
+          "duration_ms": 0.025033950805664062,
+          "error": null
+        },
+        {
+          "stage": "智能筛选",
+          "success": true,
+          "duration_ms": 0.2791881561279297,
+          "error": null
+        },
+        {
+          "stage": "响应收集",
+          "success": true,
+          "duration_ms": 0.1659393310546875,
+          "error": null
+        },
+        {
+          "stage": "方案聚合",
+          "success": true,
+          "duration_ms": 0.0021457672119140625,
+          "error": null
+        },
+        {
+          "stage": "反馈收集",
+          "success": true,
+          "duration_ms": 0.08988380432128906,
+          "error": null
+        }
+      ]
+    }
+  ],
+  "summary": "通过 3/3 场景"
+}

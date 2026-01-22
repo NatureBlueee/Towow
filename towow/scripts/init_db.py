@@ -5,16 +5,19 @@ This script initializes the database schema by creating all tables
 defined in the models.
 
 Usage:
-    python scripts/init_db.py [--drop]
+    python scripts/init_db.py [--drop] [--sample-data] [--mock-agents]
 
 Options:
-    --drop  Drop existing tables before creating new ones.
+    --drop          Drop existing tables before creating new ones.
+    --sample-data   Create sample data after initializing tables.
+    --mock-agents   Load mock agent profiles (100 agents).
 """
 
 from __future__ import annotations
 
 import argparse
 import asyncio
+import os
 import sys
 from pathlib import Path
 
@@ -139,6 +142,55 @@ async def create_sample_data() -> None:
         await db.close()
 
 
+async def load_mock_agents(count: int = 100, seed: int = 42) -> None:
+    """Load mock agent profiles into database.
+
+    Args:
+        count: Number of mock agents to generate.
+        seed: Random seed for reproducibility.
+    """
+    from scripts.generate_mock_agents import generate_mock_agents, convert_to_db_format
+
+    print(f"\nLoading {count} mock agent profiles...")
+
+    # Generate mock agents
+    agents = generate_mock_agents(count=count, seed=seed)
+    db_agents = convert_to_db_format(agents)
+
+    db = Database(db_settings.url)
+
+    try:
+        async with db.session() as session:
+            loaded = 0
+            for agent_data in db_agents:
+                agent = AgentProfile(
+                    id=agent_data["id"],
+                    name=agent_data["name"],
+                    agent_type=agent_data["agent_type"],
+                    description=agent_data.get("description"),
+                    capabilities=agent_data.get("capabilities", {}),
+                    pricing_info=agent_data.get("pricing_info", {}),
+                    config=agent_data.get("config", {}),
+                    is_active=agent_data.get("is_active", True),
+                    rating=agent_data.get("rating"),
+                    total_collaborations=agent_data.get("total_collaborations", 0),
+                )
+                session.add(agent)
+                loaded += 1
+
+                # Progress indicator
+                if loaded % 20 == 0:
+                    print(f"  Loaded {loaded}/{count} agents...")
+
+        print(f"Successfully loaded {loaded} mock agent profiles!")
+
+    except Exception as e:
+        print(f"Error loading mock agents: {e}")
+        raise
+    finally:
+        await db.close()
+
+
 def main() -> None:
     """Main entry point."""
     parser = argparse.ArgumentParser(
@@ -154,16 +206,31 @@ def main() -> None:
         action="store_true",
         help="Create sample data after initializing tables.",
     )
+    parser.add_argument(
+        "--mock-agents",
+        action="store_true",
+        help="Load 100 mock agent profiles.",
+    )
+    parser.add_argument(
+        "--mock-agents-count",
+        type=int,
+        default=100,
+        help="Number of mock agents to generate (default: 100).",
+    )
     args = parser.parse_args()
 
     print("=" * 50)
     print("ToWow Database Initialization")
     print("=" * 50)
+    print(f"Database URL: {db_settings.url}")
 
     asyncio.run(init_database(drop_existing=args.drop))
 
     if args.sample_data:
         asyncio.run(create_sample_data())
+
+    if args.mock_agents:
+        asyncio.run(load_mock_agents(count=args.mock_agents_count))
 
     print("\n" + "=" * 50)
     print("Database initialization complete!")

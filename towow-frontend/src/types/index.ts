@@ -47,15 +47,53 @@ export interface Constraint {
   priority: 'must_have' | 'nice_to_have' | 'flexible';
 }
 
-// ============ Negotiation Types ============
+// ============ ToWow Negotiation Status ============
 
 export type NegotiationStatus =
   | 'pending'
+  | 'connecting'
+  | 'filtering'
+  | 'collecting'
+  | 'aggregating'
+  | 'negotiating'
+  | 'finalized'
+  | 'failed'
   | 'in_progress'
   | 'awaiting_user'
   | 'completed'
-  | 'failed'
   | 'cancelled';
+
+// ============ ToWow Candidate Types ============
+
+export interface Candidate {
+  agent_id: string;
+  reason: string;
+  capabilities?: string[];
+  response?: CandidateResponse;
+}
+
+export interface CandidateResponse {
+  decision: 'participate' | 'decline' | 'conditional';
+  contribution?: string;
+  conditions?: string[];
+}
+
+// ============ ToWow Proposal Types ============
+
+export interface ToWowProposal {
+  summary: string;
+  assignments: ProposalAssignment[];
+  timeline?: string;
+  confidence?: 'high' | 'medium' | 'low';
+}
+
+export interface ProposalAssignment {
+  agent_id: string;
+  role: string;
+  responsibility: string;
+}
+
+// ============ Participant Types ============
 
 export interface Participant {
   agent_id: string;
@@ -65,6 +103,8 @@ export interface Participant {
   status: 'active' | 'thinking' | 'waiting' | 'done';
   capabilities: string[];
 }
+
+// ============ Legacy Proposal Types (kept for compatibility) ============
 
 export interface Proposal {
   id: string;
@@ -109,7 +149,16 @@ export type TimelineEventType =
   | 'proposal_accepted'
   | 'proposal_rejected'
   | 'negotiation_completed'
-  | 'error';
+  | 'error'
+  // ToWow specific event types
+  | 'towow.demand.understood'
+  | 'towow.demand.broadcast'
+  | 'towow.filter.completed'
+  | 'towow.offer.submitted'
+  | 'towow.proposal.distributed'
+  | 'towow.proposal.feedback'
+  | 'towow.proposal.finalized'
+  | 'towow.negotiation.failed';
 
 export interface TimelineContent {
   message?: string;
@@ -121,10 +170,12 @@ export interface TimelineContent {
 // ============ SSE Event Types ============
 
 export interface SSEEvent {
+  event_id?: string;
   event_type: string;
   negotiation_id: string;
   timestamp: string;
-  data: SSEEventData;
+  data?: SSEEventData;
+  payload?: ToWowEventPayload;
 }
 
 export type SSEEventData =
@@ -160,13 +211,66 @@ export interface ErrorData {
   error_message: string;
 }
 
+// ============ ToWow Event Payload Types ============
+
+export type ToWowEventPayload =
+  | DemandUnderstoodPayload
+  | FilterCompletedPayload
+  | OfferSubmittedPayload
+  | ProposalDistributedPayload
+  | ProposalFeedbackPayload
+  | ProposalFinalizedPayload
+  | NegotiationFailedPayload;
+
+export interface DemandUnderstoodPayload {
+  parsed_intent: string;
+  entities: Entity[];
+}
+
+export interface FilterCompletedPayload {
+  candidates: Candidate[];
+  total_found: number;
+}
+
+export interface OfferSubmittedPayload {
+  agent_id: string;
+  decision: 'participate' | 'decline' | 'conditional';
+  contribution?: string;
+  conditions?: string[];
+}
+
+export interface ProposalDistributedPayload {
+  proposal: ToWowProposal;
+  round: number;
+}
+
+export interface ProposalFeedbackPayload {
+  agent_id: string;
+  feedback: 'accept' | 'reject' | 'counter';
+  reason?: string;
+  counter_proposal?: Partial<ToWowProposal>;
+}
+
+export interface ProposalFinalizedPayload {
+  proposal: ToWowProposal;
+  accepted_by: string[];
+}
+
+export interface NegotiationFailedPayload {
+  reason: string;
+  last_proposal?: ToWowProposal;
+}
+
 // ============ UI State Types ============
 
 export interface NegotiationState {
   negotiationId: string | null;
   status: NegotiationStatus;
   participants: Participant[];
+  candidates: Candidate[];
   proposals: Proposal[];
+  currentProposal: ToWowProposal | null;
+  currentRound: number;
   timeline: TimelineEvent[];
   isLoading: boolean;
   error: string | null;

@@ -1,5 +1,14 @@
-"""Events module for ToWow event bus."""
+"""Events module for ToWow event bus and recording."""
 
-from .bus import EventBus, event_bus
+from .bus import Event, EventBus, event_bus
+from .integration import setup_event_recording
+from .recorder import EventRecorder, event_recorder
 
-__all__ = ["EventBus", "event_bus"]
+__all__ = [
+    "Event",
+    "EventBus",
+    "event_bus",
+    "EventRecorder",
+    "event_recorder",
+    "setup_event_recording",
+]
