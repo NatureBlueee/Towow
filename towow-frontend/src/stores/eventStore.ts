@@ -16,6 +16,11 @@ import type {
 
 // Module-level event ID tracking for deduplication
 const processedEventIds = new Set<string>();
+/**
+ * Maximum number of event IDs to track for deduplication.
+ * Set to 1000 to balance memory usage (~50KB for UUIDs)
+ * with deduplication coverage (typical negotiation has <100 events).
+ */
 const MAX_PROCESSED_IDS = 1000;
 
 // ============ Runtime Type Validators ============
@@ -548,5 +553,8 @@ export const useEventStore = create<EventStore>((set) => ({
     });
   },
 
-  reset: () => set(initialState),
+  reset: () => {
+    processedEventIds.clear();
+    set(initialState);
+  },
 }));

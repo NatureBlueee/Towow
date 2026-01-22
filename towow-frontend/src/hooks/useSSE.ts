@@ -188,6 +188,7 @@ export const useSSE = (
 
     return () => {
       clearReconnectTimeout();
+      isConnectingRef.current = false;
       if (eventSourceRef.current) {
         eventSourceRef.current.close();
         eventSourceRef.current = null;
