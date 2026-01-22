@@ -123,7 +123,8 @@ class TestSmartFilter:
         understanding = {"surface_demand": "Test demand"}
         result = coordinator._mock_filter(understanding)
 
-        assert len(result) == 3
+        # FIX: Changed from 3 to 10 after MOCK_CANDIDATES was expanded
+        assert len(result) == 10
         assert all("agent_id" in c for c in result)
         assert all("reason" in c for c in result)
         assert all("relevance_score" in c for c in result)
@@ -196,8 +197,8 @@ class TestSmartFilter:
 
         result = await coordinator._smart_filter("d-123", understanding)
 
-        # Should return mock results
-        assert len(result) == 3
+        # Should return mock results (10 after MOCK_CANDIDATES expansion)
+        assert len(result) == 10
 
 
 class TestDemandHandling:
@@ -529,8 +530,8 @@ class TestMockFilterWithKeywords:
 
         result = coordinator._mock_filter(understanding)
 
-        # Should return default 3 agents
-        assert len(result) == 3
+        # Should return default 10 agents (after MOCK_CANDIDATES expansion)
+        assert len(result) == 10
 
     def test_mock_filter_response_structure(self, coordinator):
         """Test mock filter returns complete structure."""

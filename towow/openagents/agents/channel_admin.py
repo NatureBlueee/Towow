@@ -53,6 +53,11 @@ class ChannelState:
     is_subnet: bool = False
     parent_channel_id: Optional[str] = None
     recursion_depth: int = 0
+    # 幂等性控制字段
+    proposal_distributed: bool = False  # 方案是否已分发
+    gaps_identified: bool = False  # 缺口是否已识别
+    subnet_triggered: bool = False  # 子网是否已触发
+    finalized_notified: bool = False  # 完成通知是否已发送
 
 
 class ChannelAdminAgent(TowowBaseAgent):
@@ -465,6 +470,13 @@ class ChannelAdminAgent(TowowBaseAgent):
             )
             return
 
+        # 幂等性检查：检查是否已收到该 agent 的响应
+        if agent_id in state.responses:
+            self._logger.warning(
+                f"已收到 {agent_id} 对 {channel_id} 的响应，忽略重复响应"
+            )
+            return
+
         # 记录响应
         decision = data.get("decision", "decline")
         state.responses[agent_id] = {
@@ -520,12 +532,16 @@ class ChannelAdminAgent(TowowBaseAgent):
 
     async def _aggregate_proposals(self, state: ChannelState):
         """聚合响应，生成协作方案"""
-        logger.info("[CHANNEL_ADMIN] _aggregate_proposals START channel_id=%s", state.channel_id)
+        logger.info("[CHANNEL_ADMIN] _aggregate_proposals START channel_id=%s, status=%s",
+                    state.channel_id, state.status.value)
 
+        # 幂等性检查：只允许从 COLLECTING 或 BROADCASTING 状态进入
         if state.status not in (ChannelStatus.COLLECTING, ChannelStatus.BROADCASTING):
-            logger.debug("[CHANNEL_ADMIN] Skipping aggregation, channel status=%s", state.status.value)
+            logger.warning("[CHANNEL_ADMIN] Skipping aggregation, channel status=%s (not COLLECTING/BROADCASTING)",
+                           state.status.value)
             return
 
+        # 立即更新状态，防止并发调用
         state.status = ChannelStatus.AGGREGATING
         logger.info("[CHANNEL_ADMIN] Channel status changed to AGGREGATING")
 
@@ -900,7 +916,14 @@ class ChannelAdminAgent(TowowBaseAgent):
 
     async def _distribute_proposal(self, state: ChannelState):
         """分发方案给参与者"""
+        # 幂等性检查：检查是否已分发过本轮方案
+        if state.proposal_distributed and state.status == ChannelStatus.NEGOTIATING:
+            logger.warning("[CHANNEL_ADMIN] Proposal already distributed for channel=%s round=%d, skipping",
+                           state.channel_id, state.current_round)
+            return
+
         state.status = ChannelStatus.PROPOSAL_SENT
+        state.proposal_distributed = True  # 标记本轮已分发
 
         # 获取参与者列表
         participant_ids = [
@@ -971,9 +994,17 @@ class ChannelAdminAgent(TowowBaseAgent):
 
         state = self.channels[channel_id]
 
+        # 严格状态检查：只接受 NEGOTIATING 状态的反馈
         if state.status != ChannelStatus.NEGOTIATING:
             self._logger.warning(
-                f"Channel {channel_id} 当前状态 {state.status.value} 不接受反馈"
+                f"Channel {channel_id} 当前状态 {state.status.value} 不接受反馈 (需要 NEGOTIATING)"
+            )
+            return
+
+        # 幂等性检查：检查是否已收到该 agent 的反馈
+        if agent_id in state.proposal_feedback:
+            self._logger.warning(
+                f"已收到 {agent_id} 对 {channel_id} 的反馈，忽略重复反馈"
             )
             return
 
@@ -1018,13 +1049,14 @@ class ChannelAdminAgent(TowowBaseAgent):
         评估反馈，决定下一步
 
         决策逻辑：
-        - 80%+ 接受 → 完成
-        - 50%+ 拒绝/退出 → 失败
-        - 有 negotiate 且轮次 < 3 → 下一轮
-        - 轮次 >= 3 → 生成妥协方案或失败
+        - 80%+ 接受 -> 完成
+        - 50%+ 拒绝/退出 -> 失败
+        - 有 negotiate 且轮次 < 3 -> 下一轮
+        - 轮次 >= 3 -> 生成妥协方案或失败
         """
+        # 严格状态检查：防止重复评估
         if state.status != ChannelStatus.NEGOTIATING:
-            self._logger.debug(f"跳过评估，Channel 状态: {state.status.value}")
+            self._logger.warning(f"跳过评估，Channel 状态: {state.status.value} (需要 NEGOTIATING)")
             return
 
         # 统计反馈（支持 withdraw 类型）
@@ -1115,6 +1147,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         state.current_round += 1
         old_feedback = state.proposal_feedback.copy()
         state.proposal_feedback.clear()
+        state.proposal_distributed = False  # 重置分发标记，允许新一轮分发
 
         self._logger.info(
             f"Channel {state.channel_id} 进入第 {state.current_round} 轮协商"
@@ -1276,7 +1309,17 @@ class ChannelAdminAgent(TowowBaseAgent):
 
     async def _finalize_channel(self, state: ChannelState):
         """完成协商，并进行缺口识别"""
+        # 幂等性检查：防止重复完成
+        if state.status == ChannelStatus.FINALIZED:
+            self._logger.warning(f"Channel {state.channel_id} 已完成，跳过重复 finalize")
+            return
+
+        if state.finalized_notified:
+            self._logger.warning(f"Channel {state.channel_id} 已发送完成通知，跳过")
+            return
+
         state.status = ChannelStatus.FINALIZED
+        state.finalized_notified = True  # 标记已发送完成通知
 
         # 统计各类参与者数量
         confirmed_participants = [
@@ -1999,6 +2042,13 @@ class ChannelAdminAgent(TowowBaseAgent):
         Args:
             state: Channel 状态
         """
+        # 幂等性检查：防止重复识别缺口
+        if state.gaps_identified:
+            self._logger.warning(f"Channel {state.channel_id} 缺口已识别，跳过")
+            return
+
+        state.gaps_identified = True  # 标记已识别
+
         try:
             from services.gap_identification import GapIdentificationService
             from services.subnet_manager import SubnetManager
@@ -2071,6 +2121,11 @@ class ChannelAdminAgent(TowowBaseAgent):
             gap_result: 缺口分析结果
             subnet_manager: 子网管理器
         """
+        # 幂等性检查：防止重复触发子网
+        if state.subnet_triggered:
+            self._logger.warning(f"Channel {state.channel_id} 子网已触发，跳过")
+            return
+
         # 检查递归深度限制
         if state.recursion_depth >= subnet_manager.max_depth:
             self._logger.info(
@@ -2083,6 +2138,9 @@ class ChannelAdminAgent(TowowBaseAgent):
         if not subnet_triggers:
             self._logger.info("没有需要触发子网的缺口")
             return
+
+        # 标记已触发子网（在实际触发前标记，防止并发）
+        state.subnet_triggered = True
 
         # MVP: 只触发一个子网（最关键的缺口）
         gap = subnet_triggers[0]

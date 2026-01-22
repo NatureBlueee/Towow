@@ -70,6 +70,7 @@ export const useSSE = (
   }, []);
 
   const disconnect = useCallback(() => {
+    console.log('[useSSE] disconnect called');
     isManualDisconnectRef.current = true;
     clearReconnectTimeout();
 
@@ -84,13 +85,19 @@ export const useSSE = (
   }, [clearReconnectTimeout]);
 
   const connect = useCallback(() => {
-    if (!negotiationId) return;
+    if (!negotiationId) {
+      console.log('[useSSE] connect called but no negotiationId');
+      return;
+    }
+
+    console.log('[useSSE] Connecting to SSE for negotiationId:', negotiationId);
 
     // Reset manual disconnect flag
     isManualDisconnectRef.current = false;
 
     // Close existing connection
     if (eventSourceRef.current) {
+      console.log('[useSSE] Closing existing connection');
       eventSourceRef.current.close();
       eventSourceRef.current = null;
     }
@@ -101,10 +108,12 @@ export const useSSE = (
       url.searchParams.set('last_event_id', lastEventIdRef.current);
     }
 
+    console.log('[useSSE] Opening EventSource to:', url.toString());
     const eventSource = new EventSource(url.toString());
     eventSourceRef.current = eventSource;
 
     eventSource.onopen = () => {
+      console.log('[useSSE] Connection opened for negotiationId:', negotiationId);
       setIsConnected(true);
       setError(null);
       setReconnectAttempts(0);
@@ -114,6 +123,7 @@ export const useSSE = (
     eventSource.onmessage = (event) => {
       try {
         const data: SSEEvent = JSON.parse(event.data);
+        console.log('[useSSE] Event received:', data.event_type, 'event_id:', data.event_id);
 
         // Track last event ID for resume
         if (data.event_id) {
@@ -122,36 +132,38 @@ export const useSSE = (
 
         onEventRef.current?.(data);
       } catch (err) {
-        console.error('Failed to parse SSE event:', err);
+        console.error('[useSSE] Failed to parse SSE event:', err, 'raw data:', event.data);
       }
     };
 
-    eventSource.onerror = () => {
+    eventSource.onerror = (err) => {
+      console.error('[useSSE] Connection error for negotiationId:', negotiationId, err);
       setIsConnected(false);
       eventSource.close();
       eventSourceRef.current = null;
 
       // Don't reconnect if manually disconnected
       if (isManualDisconnectRef.current) {
+        console.log('[useSSE] Manual disconnect, not reconnecting');
         return;
       }
 
-      const err = new Error('SSE connection error');
-      setError(err);
-      onErrorRef.current?.(err);
+      const error = new Error('SSE connection error');
+      setError(error);
+      onErrorRef.current?.(error);
 
       // Attempt reconnect with exponential backoff
       setReconnectAttempts((prev) => {
         const nextAttempts = prev + 1;
         if (nextAttempts <= maxReconnectAttemptsRef.current) {
           const delay = reconnectDelayRef.current * Math.min(Math.pow(2, prev), 10);
-          console.log(`Reconnecting in ${delay}ms (attempt ${nextAttempts}/${maxReconnectAttemptsRef.current})`);
+          console.log(`[useSSE] Reconnecting in ${delay}ms (attempt ${nextAttempts}/${maxReconnectAttemptsRef.current})`);
 
           reconnectTimeoutRef.current = setTimeout(() => {
             connect();
           }, delay);
         } else {
-          console.error('Max reconnect attempts reached');
+          console.error('[useSSE] Max reconnect attempts reached');
         }
         return nextAttempts;
       });

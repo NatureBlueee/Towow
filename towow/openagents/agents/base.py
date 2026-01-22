@@ -18,6 +18,10 @@ class EventContext:
         """
         self.incoming_event = incoming_event or _MockEvent()
 
+    async def reply(self, data: Dict[str, Any]) -> None:
+        """Reply to the event (no-op in base implementation)."""
+        logger.debug(f"[EventContext] reply called with: {data}")
+
 
 class ChannelMessageContext(EventContext):
     """Context for channel messages."""
@@ -97,14 +101,23 @@ class _MockAgentHandle:
     async def send(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Send a message to the agent.
 
+        Uses AgentRouter to actually deliver the message.
+
         Args:
             data: The message data.
 
         Returns:
             Response from the agent.
         """
-        logger.debug(f"[Mock] Sending to {self._agent_id}: {data}")
-        return {"status": "mock_sent", "to": self._agent_id}
+        # FIX: Use AgentRouter to actually deliver the message
+        from .router import agent_router
+
+        result = await agent_router.route_message(
+            from_agent=getattr(self._source, 'agent_id', 'unknown'),
+            to_agent=self._agent_id,
+            data=data
+        )
+        return result
 
 
 class _MockChannelHandle:
@@ -146,18 +159,27 @@ class TowowBaseAgent(ABC):
     提供独立的基类实现，不依赖外部openagents包的特定类。
     """
 
-    def __init__(self, db: Any = None, llm_service: Any = None, **kwargs: Any):
+    def __init__(self, db: Any = None, llm_service: Any = None, agent_id: str = None, **kwargs: Any):
         """Initialize the base agent.
 
         Args:
             db: Database session or connection.
             llm_service: LLM service for AI completions.
+            agent_id: Agent identifier. If not provided, defaults to class name.
             **kwargs: Additional arguments.
         """
         self.db = db
         self.llm = llm_service
+        self._agent_id = agent_id  # Store the provided agent_id
         self._logger = logging.getLogger(f"agent.{self.__class__.__name__}")
         self._workspace = _MockWorkspace(self)
+
+    @property
+    def agent_id(self) -> str:
+        """Agent ID - returns stored ID or falls back to class name."""
+        if self._agent_id:
+            return self._agent_id
+        return self.__class__.__name__.lower()
 
     def workspace(self) -> _MockWorkspace:
         """Get the workspace for this agent.

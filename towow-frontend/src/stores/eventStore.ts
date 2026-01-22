@@ -167,6 +167,7 @@ export const useEventStore = create<EventStore>((set) => ({
     })),
 
   handleSSEEvent: (event) => {
+    console.log('[EventStore] handleSSEEvent called, event_type:', event.event_type);
     set((state) => {
       // Create new state object to accumulate all changes
       const newState: Partial<NegotiationState> = {};
@@ -181,20 +182,24 @@ export const useEventStore = create<EventStore>((set) => ({
 
       // Handle ToWow protocol events
       const payload = event.payload as Record<string, unknown> | undefined;
+      console.log('[EventStore] Processing event:', event.event_type, 'payload:', payload);
 
       switch (event.event_type) {
         case 'towow.demand.understood':
+          console.log('[EventStore] Demand understood, setting status to filtering');
           newState.status = 'filtering';
           timelineEvent.content.message =
             'Demand understood, filtering candidates...';
           break;
 
         case 'towow.demand.broadcast':
+          console.log('[EventStore] Demand broadcast');
           timelineEvent.content.message = 'Demand broadcast to network';
           break;
 
         case 'towow.filter.completed': {
           const validatedCandidates = validateCandidates(payload?.candidates);
+          console.log('[EventStore] Filter completed, candidates:', validatedCandidates.length);
           newState.status = 'collecting';
           newState.candidates = validatedCandidates;
           timelineEvent.content.message = `Found ${validatedCandidates.length} candidates`;
@@ -265,6 +270,7 @@ export const useEventStore = create<EventStore>((set) => ({
           const round =
             typeof payload?.round === 'number' ? payload.round : 1;
 
+          console.log('[EventStore] Proposal distributed, round:', round, 'proposal valid:', !!validatedProposal);
           newState.status = 'negotiating';
           newState.currentProposal = validatedProposal;
           newState.currentRound = round;
@@ -275,6 +281,7 @@ export const useEventStore = create<EventStore>((set) => ({
         case 'towow.proposal.feedback':
           if (payload?.agent_id && typeof payload.agent_id === 'string') {
             const agentId = payload.agent_id;
+            console.log('[EventStore] Proposal feedback from:', agentId, 'type:', payload.feedback);
             timelineEvent.agent_id = agentId;
             timelineEvent.content.message = `Feedback: ${payload.feedback} from ${agentId.replace('user_agent_', '')}`;
           }
@@ -282,6 +289,7 @@ export const useEventStore = create<EventStore>((set) => ({
 
         case 'towow.proposal.finalized': {
           const validatedProposal = validateToWowProposal(payload?.proposal);
+          console.log('[EventStore] Proposal finalized, setting status to finalized');
           newState.status = 'finalized';
           newState.currentProposal = validatedProposal;
           timelineEvent.content.message = 'Negotiation finalized';
@@ -293,6 +301,7 @@ export const useEventStore = create<EventStore>((set) => ({
             typeof payload?.reason === 'string'
               ? payload.reason
               : 'Negotiation failed';
+          console.log('[EventStore] Negotiation failed:', reason);
           newState.status = 'failed';
           newState.error = reason;
           timelineEvent.content.message = reason;
@@ -497,6 +506,13 @@ export const useEventStore = create<EventStore>((set) => ({
 
       // Add timeline event - always include this in the single state update
       newState.timeline = [...state.timeline, timelineEvent];
+
+      console.log('[EventStore] State update:', {
+        event_type: event.event_type,
+        newStatus: newState.status,
+        candidatesCount: newState.candidates?.length,
+        timelineLength: newState.timeline?.length
+      });
 
       return newState;
     });

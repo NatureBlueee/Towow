@@ -56,6 +56,9 @@ class UserAgent(TowowBaseAgent):
         self.profile = profile or {}
         self.secondme = secondme_service
         self.active_channels: Dict[str, Dict[str, Any]] = {}  # channel_id -> participation info
+        # 幂等性控制：已处理的消息
+        self._processed_messages: Dict[str, float] = {}  # message_key -> timestamp
+        self._max_processed_messages = 500
 
     @property
     def agent_id(self) -> str:
@@ -793,29 +796,118 @@ class UserAgent(TowowBaseAgent):
         支持的消息类型：
         - collaboration_invite: 协作邀请
         - proposal_review: 方案评审
-        - demand_offer: 需求offer（兼容旧格式）
+        - demand_offer: 需求offer（ChannelAdmin 广播）
+        - negotiation_completed: 协商完成通知
 
         Args:
             ctx: Event context
         """
+        import time
+
         payload = ctx.incoming_event.payload if hasattr(ctx, 'incoming_event') else {}
         content = payload.get("content", {})
-        msg_type = content.get("type")
+
+        # 支持直接在 payload 中的消息格式
+        data = content if isinstance(content, dict) else payload
+        msg_type = data.get("type")
+        channel_id = data.get("channel_id", "")
+
+        # 生成消息唯一键用于幂等性检查
+        message_key = f"{msg_type}:{channel_id}"
+        current_time = time.time()
+
+        # 清理过期的消息记录（超过 10 秒）
+        expired_keys = [
+            k for k, t in self._processed_messages.items()
+            if current_time - t > 10.0
+        ]
+        for k in expired_keys:
+            del self._processed_messages[k]
+
+        # 幂等性检查：防止重复处理同一消息
+        if message_key in self._processed_messages:
+            self._logger.warning(f"[USER_AGENT] Duplicate message detected: {message_key}, skipping")
+            return
+
+        # 标记为已处理
+        self._processed_messages[message_key] = current_time
+
+        # 限制记录数量
+        if len(self._processed_messages) > self._max_processed_messages:
+            oldest_key = min(self._processed_messages, key=self._processed_messages.get)
+            del self._processed_messages[oldest_key]
+
+        self._logger.info(f"[USER_AGENT] on_direct received msg_type={msg_type}")
 
         if msg_type == "collaboration_invite":
             await self.handle_invite(
-                channel_id=content.get("channel_id", ""),
-                demand=content.get("demand", {}),
-                filter_reason=content.get("filter_reason", "")
+                channel_id=data.get("channel_id", ""),
+                demand=data.get("demand", {}),
+                filter_reason=data.get("filter_reason", "")
             )
         elif msg_type == "proposal_review":
+            # 检查是否已经完成协商
+            if channel_id in self.active_channels:
+                status = self.active_channels[channel_id].get("status", "")
+                if status in ("completed", "failed", "feedback_sent"):
+                    self._logger.warning(
+                        f"[USER_AGENT] Channel {channel_id} status={status}, ignoring proposal_review"
+                    )
+                    return
             await self.handle_proposal(
-                channel_id=content.get("channel_id", ""),
-                proposal=content.get("proposal", {})
+                channel_id=channel_id,
+                proposal=data.get("proposal", {})
             )
         elif msg_type == "demand_offer":
-            # 兼容旧格式
-            await self._handle_demand_offer(ctx, content)
+            # ChannelAdmin 广播的需求邀请
+            demand = data.get("demand", {})
+            filter_reason = data.get("filter_reason", "")
+
+            # 检查是否已经响应过
+            if channel_id in self.active_channels:
+                status = self.active_channels[channel_id].get("status", "")
+                if status in ("responded", "completed", "failed"):
+                    self._logger.warning(
+                        f"[USER_AGENT] Channel {channel_id} status={status}, ignoring demand_offer"
+                    )
+                    return
+
+            self._logger.info(f"[USER_AGENT] Handling demand_offer for channel={channel_id}")
+
+            # 记录参与信息
+            self.active_channels[channel_id] = {
+                "demand": demand,
+                "status": "evaluating",
+                "received_at": datetime.utcnow().isoformat(),
+            }
+
+            # 生成响应
+            response = await self._generate_response(demand, filter_reason)
+
+            # 更新状态
+            self.active_channels[channel_id]["response"] = response
+            self.active_channels[channel_id]["status"] = "responded"
+
+            self._logger.info(f"[USER_AGENT] Generated response: decision={response.get('decision')}")
+
+            # 发送响应给 ChannelAdmin
+            await self.send_to_agent(
+                "channel_admin",
+                {
+                    "type": "offer_response",
+                    "channel_id": channel_id,
+                    "agent_id": self.agent_id,
+                    "display_name": self.profile.get("name", self.user_id),
+                    **response,
+                },
+            )
+        elif msg_type == "negotiation_completed":
+            # 协商完成通知
+            channel_id = data.get("channel_id", "")
+            success = data.get("success", False)
+            self._logger.info(f"[USER_AGENT] Negotiation completed for channel={channel_id}, success={success}")
+            if channel_id in self.active_channels:
+                self.active_channels[channel_id]["status"] = "completed" if success else "failed"
         else:
             self._logger.debug(f"未知直接消息类型: {msg_type}")
 

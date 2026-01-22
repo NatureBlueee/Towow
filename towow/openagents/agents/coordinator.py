@@ -470,8 +470,8 @@ class CoordinatorAgent(TowowBaseAgent):
         if capability_tags:
             return filter_mock_candidates_by_tags(capability_tags, max_results=10)
 
-        # 默认返回前3个
-        return get_mock_candidates(limit=3)
+        # FIX: Return more candidates for better demo (10 instead of 3)
+        return get_mock_candidates(limit=10)
 
     async def _get_available_agents(self) -> List[Dict]:
         """

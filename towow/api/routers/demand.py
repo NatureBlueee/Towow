@@ -155,6 +155,9 @@ async def _process_demand_async(
 
     This function runs in background to avoid API timeout.
     All progress is reported via SSE events.
+
+    Note: Events are published by the Coordinator, NOT here.
+    This avoids duplicate events.
     """
     logger.info("[DEMAND] _process_demand_async START demand_id=%s", demand_id)
     try:
@@ -173,20 +176,8 @@ async def _process_demand_async(
         if demand_id in _demands:
             _demands[demand_id]["understanding"] = understanding
 
-        # Record demand understood event
-        logger.info("[DEMAND] Recording demand.understood event for demand_id=%s", demand_id)
-        await event_recorder.record({
-            "event_id": f"evt-{uuid4().hex[:8]}",
-            "event_type": "towow.demand.understood",
-            "timestamp": datetime.utcnow().isoformat(),
-            "payload": {
-                "demand_id": demand_id,
-                "channel_id": channel_id,
-                "surface_demand": understanding.get("surface_demand", raw_input),
-                "deep_understanding": understanding.get("deep_understanding"),
-                "confidence": understanding.get("confidence", "medium")
-            }
-        })
+        # NOTE: DO NOT publish demand.understood event here!
+        # The Coordinator will publish it to avoid duplicate events.
 
         # Step 2: Trigger negotiation flow
         logger.info("[DEMAND] Step 2: trigger_real_negotiation demand_id=%s", demand_id)

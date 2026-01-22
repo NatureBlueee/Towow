@@ -62,51 +62,115 @@ COVERAGE_THRESHOLD: float = _get_env_float("TOWOW_COVERAGE_THRESHOLD", 0.7)
 
 # Shared mock candidate data used by both demand.py and coordinator.py
 # This ensures consistency across fallback/mock scenarios
+# FIX: Increased to 12 candidates to support meaningful filtering
 MOCK_CANDIDATES: List[Dict[str, Any]] = [
     {
         "agent_id": "user_agent_bob",
         "display_name": "Bob",
         "reason": "场地资源丰富",
-        "relevance_score": 90,
+        "relevance_score": 95,
         "expected_role": "场地提供者",
         "capabilities": ["场地资源", "活动组织"],
-        "keywords": ["场地", "会议室", "空间"]
+        "keywords": ["场地", "会议室", "空间", "活动"]
     },
     {
         "agent_id": "user_agent_alice",
         "display_name": "Alice",
         "reason": "技术分享能力强",
-        "relevance_score": 85,
+        "relevance_score": 92,
         "expected_role": "技术顾问",
         "capabilities": ["技术分享", "AI研究"],
-        "keywords": ["技术", "AI", "分享", "演讲"]
+        "keywords": ["技术", "AI", "分享", "演讲", "人工智能"]
     },
     {
         "agent_id": "user_agent_charlie",
         "display_name": "Charlie",
         "reason": "活动策划经验丰富",
-        "relevance_score": 80,
+        "relevance_score": 88,
         "expected_role": "活动策划",
         "capabilities": ["活动策划", "流程设计"],
-        "keywords": ["活动", "策划", "组织"]
+        "keywords": ["活动", "策划", "组织", "流程"]
     },
     {
         "agent_id": "user_agent_david",
         "display_name": "David",
-        "reason": "UI设计能力",
-        "relevance_score": 75,
+        "reason": "UI设计能力出色",
+        "relevance_score": 85,
         "expected_role": "设计师",
         "capabilities": ["UI设计", "产品原型"],
-        "keywords": ["设计", "UI", "原型"]
+        "keywords": ["设计", "UI", "原型", "视觉"]
     },
     {
         "agent_id": "user_agent_emma",
         "display_name": "Emma",
-        "reason": "产品管理经验",
-        "relevance_score": 70,
+        "reason": "产品管理经验丰富",
+        "relevance_score": 82,
         "expected_role": "产品经理",
         "capabilities": ["产品经理", "需求分析"],
-        "keywords": ["产品", "管理", "需求"]
+        "keywords": ["产品", "管理", "需求", "用户"]
+    },
+    {
+        "agent_id": "user_agent_frank",
+        "display_name": "Frank",
+        "reason": "后端开发专家",
+        "relevance_score": 80,
+        "expected_role": "后端开发",
+        "capabilities": ["后端开发", "系统架构"],
+        "keywords": ["后端", "开发", "架构", "API", "技术"]
+    },
+    {
+        "agent_id": "user_agent_grace",
+        "display_name": "Grace",
+        "reason": "市场营销专业",
+        "relevance_score": 78,
+        "expected_role": "市场营销",
+        "capabilities": ["市场营销", "品牌推广"],
+        "keywords": ["市场", "营销", "推广", "品牌", "活动"]
+    },
+    {
+        "agent_id": "user_agent_henry",
+        "display_name": "Henry",
+        "reason": "摄影摄像能力强",
+        "relevance_score": 75,
+        "expected_role": "摄影师",
+        "capabilities": ["摄影", "视频制作"],
+        "keywords": ["摄影", "视频", "拍摄", "记录", "活动"]
+    },
+    {
+        "agent_id": "user_agent_ivy",
+        "display_name": "Ivy",
+        "reason": "运营管理经验",
+        "relevance_score": 72,
+        "expected_role": "运营专员",
+        "capabilities": ["运营管理", "数据分析"],
+        "keywords": ["运营", "管理", "数据", "分析"]
+    },
+    {
+        "agent_id": "user_agent_jack",
+        "display_name": "Jack",
+        "reason": "前端开发熟练",
+        "relevance_score": 70,
+        "expected_role": "前端开发",
+        "capabilities": ["前端开发", "React"],
+        "keywords": ["前端", "开发", "React", "技术", "界面"]
+    },
+    {
+        "agent_id": "user_agent_kate",
+        "display_name": "Kate",
+        "reason": "内容创作专家",
+        "relevance_score": 68,
+        "expected_role": "内容创作",
+        "capabilities": ["内容创作", "文案撰写"],
+        "keywords": ["内容", "创作", "文案", "写作"]
+    },
+    {
+        "agent_id": "user_agent_leo",
+        "display_name": "Leo",
+        "reason": "社区运营能手",
+        "relevance_score": 65,
+        "expected_role": "社区运营",
+        "capabilities": ["社区运营", "用户增长"],
+        "keywords": ["社区", "运营", "用户", "活动", "组织"]
     },
 ]
 
@@ -151,8 +215,9 @@ def filter_mock_candidates_by_tags(
     Returns:
         List of matching mock candidates (without keywords field)
     """
+    # FIX: Return more candidates even without tags (for better demo)
     if not capability_tags:
-        return get_mock_candidates(limit=3)
+        return get_mock_candidates(limit=10)
 
     matched = []
     for candidate in MOCK_CANDIDATES:
@@ -168,4 +233,5 @@ def filter_mock_candidates_by_tags(
         return matched[:max_results]
 
     # Fallback: return default candidates if no matches
-    return get_mock_candidates(limit=3)
+    # FIX: Return more candidates for better demo
+    return get_mock_candidates(limit=10)
