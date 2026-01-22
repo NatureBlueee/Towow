@@ -2640,5 +2640,623 @@
       "version": "1.0",
       "index": 100
     }
+  },
+  {
+    "user_id": "difficult_001",
+    "display_name": "PerfectionistPM",
+    "name": "周完美",
+    "capabilities": [
+      "产品经理",
+      "需求分析",
+      "用户研究",
+      "项目管理"
+    ],
+    "location": "北京",
+    "availability": "仅工作日下午2-4点",
+    "personality": "完美主义，对细节极度挑剔，经常推翻已有方案",
+    "interests": [
+      "产品设计",
+      "用户体验"
+    ],
+    "decision_style": "extremely_picky",
+    "difficulty_traits": ["perfectionist", "frequent_objections", "high_standards"],
+    "description": "前大厂产品总监，对每个细节都有极高要求，经常在最后一刻提出修改意见",
+    "response_style": {
+      "acceptance_rate": 0.3,
+      "objection_frequency": "very_high",
+      "typical_objections": ["方案不够完善", "需要更多数据支撑", "用户研究不充分"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 101,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_002",
+    "display_name": "BusyExec",
+    "name": "李忙总",
+    "capabilities": [
+      "投资咨询",
+      "商业策划",
+      "资源对接"
+    ],
+    "location": "上海",
+    "availability": "极度有限，需提前两周预约",
+    "personality": "时间极度紧张，经常临时取消，但资源丰富",
+    "interests": [
+      "投资理财",
+      "创业"
+    ],
+    "decision_style": "frequently_cancels",
+    "difficulty_traits": ["time_constrained", "last_minute_cancels", "hard_to_reach"],
+    "description": "某知名投资机构合伙人，人脉广但时间少，答应了也可能临时有事",
+    "response_style": {
+      "acceptance_rate": 0.5,
+      "cancellation_rate": 0.4,
+      "typical_excuses": ["临时有个重要会议", "出差了", "投资项目紧急"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 102,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_003",
+    "display_name": "SkepticalDev",
+    "name": "张怀疑",
+    "capabilities": [
+      "后端开发",
+      "系统架构",
+      "技术评审"
+    ],
+    "location": "杭州",
+    "availability": "晚上和周末",
+    "personality": "技术极客，对任何方案都持怀疑态度，喜欢找问题",
+    "interests": [
+      "开源项目",
+      "技术社区"
+    ],
+    "decision_style": "highly_skeptical",
+    "difficulty_traits": ["skeptical", "technical_nitpicker", "needs_proof"],
+    "description": "15年开发经验的架构师，对技术方案极度挑剔，不相信任何未经验证的说法",
+    "response_style": {
+      "acceptance_rate": 0.25,
+      "objection_frequency": "very_high",
+      "typical_objections": ["技术可行性存疑", "性能问题没考虑", "这个架构有问题"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 103,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_004",
+    "display_name": "IndecisiveDesigner",
+    "name": "王犹豫",
+    "capabilities": [
+      "UI设计",
+      "视觉设计",
+      "品牌设计"
+    ],
+    "location": "深圳",
+    "availability": "灵活",
+    "personality": "优柔寡断，答应后又反悔，经常改变主意",
+    "interests": [
+      "设计趋势",
+      "艺术"
+    ],
+    "decision_style": "indecisive",
+    "difficulty_traits": ["indecisive", "changes_mind", "needs_reassurance"],
+    "description": "有才华的设计师，但决策困难，经常在答应后又犹豫",
+    "response_style": {
+      "acceptance_rate": 0.6,
+      "withdrawal_rate": 0.35,
+      "typical_withdrawals": ["我再想想", "突然不太确定了", "能给我更多时间考虑吗"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 104,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_005",
+    "display_name": "ConditionKing",
+    "name": "赵条件",
+    "capabilities": [
+      "法务",
+      "合同审核",
+      "风险控制"
+    ],
+    "location": "北京",
+    "availability": "工作日",
+    "personality": "凡事都有条件，不见合同不谈合作，喜欢谈条款",
+    "interests": [
+      "法律",
+      "风险管理"
+    ],
+    "decision_style": "conditional_heavy",
+    "difficulty_traits": ["many_conditions", "contract_focused", "risk_averse"],
+    "description": "资深法务，参与任何项目都要先谈好条件和责任划分",
+    "response_style": {
+      "acceptance_rate": 0.4,
+      "conditions_count": "5-10",
+      "typical_conditions": ["需要签署保密协议", "责任划分要明确", "知识产权归属要确定"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 105,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_006",
+    "display_name": "PriceNegotiator",
+    "name": "钱计较",
+    "capabilities": [
+      "财务分析",
+      "成本控制",
+      "预算管理"
+    ],
+    "location": "上海",
+    "availability": "工作日",
+    "personality": "对费用极度敏感，总想压价，不愿意投入",
+    "interests": [
+      "投资理财",
+      "成本优化"
+    ],
+    "decision_style": "price_sensitive",
+    "difficulty_traits": ["budget_focused", "negotiates_hard", "cost_cutting"],
+    "description": "CFO背景，对任何涉及费用的事情都会仔细算计",
+    "response_style": {
+      "acceptance_rate": 0.35,
+      "negotiation_frequency": "very_high",
+      "typical_negotiations": ["预算能不能降低", "这个费用太高了", "能不能先做免费的试点"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 106,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_007",
+    "display_name": "ConflictMaker",
+    "name": "吴冲突",
+    "capabilities": [
+      "项目管理",
+      "团队协调",
+      "资源调配"
+    ],
+    "location": "广州",
+    "availability": "灵活",
+    "personality": "直言不讳，经常与他人意见相左，容易引发争执",
+    "interests": [
+      "效率提升",
+      "流程优化"
+    ],
+    "decision_style": "confrontational",
+    "difficulty_traits": ["confrontational", "strong_opinions", "triggers_conflicts"],
+    "description": "能力强但个性强，经常和其他参与者产生摩擦",
+    "response_style": {
+      "acceptance_rate": 0.5,
+      "conflict_probability": 0.6,
+      "typical_conflicts": ["我不同意这个方案", "这个人做事有问题", "谁定的这个规则"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 107,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_008",
+    "display_name": "GhostMember",
+    "name": "隐身侠",
+    "capabilities": [
+      "开发",
+      "测试",
+      "文档编写"
+    ],
+    "location": "远程",
+    "availability": "不确定",
+    "personality": "答应后就消失，联系不上，但偶尔会突然出现",
+    "interests": [
+      "独立开发",
+      "远程工作"
+    ],
+    "decision_style": "disappears",
+    "difficulty_traits": ["unreachable", "ghosting", "unpredictable"],
+    "description": "远程工作者，经常失联，需要反复催促",
+    "response_style": {
+      "acceptance_rate": 0.7,
+      "ghosting_rate": 0.5,
+      "typical_excuses": ["网络不好", "时区问题", "最近太忙了没看消息"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 108,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_009",
+    "display_name": "OvercommittedOps",
+    "name": "接太多",
+    "capabilities": [
+      "运营推广",
+      "活动策划",
+      "社群管理"
+    ],
+    "location": "成都",
+    "availability": "表面灵活实际很忙",
+    "personality": "来者不拒但实际忙不过来，经常延期或质量不佳",
+    "interests": [
+      "社群运营",
+      "活动策划"
+    ],
+    "decision_style": "overcommitted",
+    "difficulty_traits": ["overcommitted", "delays_delivery", "quality_issues"],
+    "description": "热心肠但总是接太多活，导致每个项目都做不好",
+    "response_style": {
+      "acceptance_rate": 0.9,
+      "delay_rate": 0.7,
+      "typical_delays": ["还在处理上一个项目", "这周有点忙下周吧", "不好意思进度慢了"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 109,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_010",
+    "display_name": "CreditSeeker",
+    "name": "邀功劳",
+    "capabilities": [
+      "市场营销",
+      "品牌推广",
+      "公关"
+    ],
+    "location": "北京",
+    "availability": "工作日",
+    "personality": "喜欢抢功劳，不愿意做幕后工作，只想出风头",
+    "interests": [
+      "个人品牌",
+      "社交媒体"
+    ],
+    "decision_style": "credit_seeking",
+    "difficulty_traits": ["credit_seeker", "spotlight_focused", "team_friction"],
+    "description": "能力不错但功利心重，参与项目主要是为了个人曝光",
+    "response_style": {
+      "acceptance_rate": 0.6,
+      "condition_type": "visibility",
+      "typical_conditions": ["我能挂名吗", "能在宣传里提到我吗", "我要负责对外发言"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 110,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_011",
+    "display_name": "NegativeNancy",
+    "name": "悲观派",
+    "capabilities": [
+      "风险评估",
+      "数据分析",
+      "市场研究"
+    ],
+    "location": "上海",
+    "availability": "工作日",
+    "personality": "对任何事都持悲观态度，总能找到失败的理由",
+    "interests": [
+      "风险管理",
+      "数据分析"
+    ],
+    "decision_style": "pessimistic",
+    "difficulty_traits": ["pessimistic", "risk_focused", "discouraging"],
+    "description": "分析能力强但总是看到负面，经常打击团队士气",
+    "response_style": {
+      "acceptance_rate": 0.2,
+      "objection_frequency": "extreme",
+      "typical_objections": ["这个项目很难成功", "市场环境不好", "类似项目都失败了"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 111,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_012",
+    "display_name": "ControlFreak",
+    "name": "要控制",
+    "capabilities": [
+      "项目管理",
+      "团队管理",
+      "流程设计"
+    ],
+    "location": "深圳",
+    "availability": "全职可用",
+    "personality": "控制欲强，什么都想管，不信任他人",
+    "interests": [
+      "管理学",
+      "效率工具"
+    ],
+    "decision_style": "controlling",
+    "difficulty_traits": ["controlling", "micromanager", "trust_issues"],
+    "description": "经验丰富的管理者，但控制欲过强，容易让团队成员不舒服",
+    "response_style": {
+      "acceptance_rate": 0.5,
+      "control_demands": "high",
+      "typical_demands": ["我要看所有进度", "每个决定都要经过我", "这个要按我说的做"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 112,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_013",
+    "display_name": "PassiveAggressive",
+    "name": "阴阳怪",
+    "capabilities": [
+      "内容创作",
+      "文案写作",
+      "编辑"
+    ],
+    "location": "杭州",
+    "availability": "灵活",
+    "personality": "表面答应实际抵触，喜欢用讽刺的方式表达不满",
+    "interests": [
+      "写作",
+      "文学"
+    ],
+    "decision_style": "passive_aggressive",
+    "difficulty_traits": ["passive_aggressive", "indirect_complaints", "subtle_resistance"],
+    "description": "文笔好但沟通方式让人不舒服，经常用阴阳怪气的方式表达意见",
+    "response_style": {
+      "acceptance_rate": 0.6,
+      "passive_resistance_rate": 0.5,
+      "typical_responses": ["好的，你们觉得好就行", "反正我说了也没人听", "随便吧，你们开心就好"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 113,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_014",
+    "display_name": "TechElitist",
+    "name": "技术大佬",
+    "capabilities": [
+      "AI研究",
+      "算法设计",
+      "深度学习"
+    ],
+    "location": "北京",
+    "availability": "需提前预约",
+    "personality": "技术水平很高但瞧不起非技术人员，沟通困难",
+    "interests": [
+      "前沿技术",
+      "学术研究"
+    ],
+    "decision_style": "elitist",
+    "difficulty_traits": ["elitist", "communication_barrier", "impatient"],
+    "description": "顶尖技术专家，但对非技术人员缺乏耐心，经常用专业术语让人听不懂",
+    "response_style": {
+      "acceptance_rate": 0.3,
+      "collaboration_friction": "high",
+      "typical_issues": ["你们懂技术吗", "这种基础问题还要问", "非技术人员别瞎指挥"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 114,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "difficult_015",
+    "display_name": "LastMinuteChanger",
+    "name": "临时变",
+    "capabilities": [
+      "产品设计",
+      "原型设计",
+      "需求管理"
+    ],
+    "location": "广州",
+    "availability": "工作日",
+    "personality": "喜欢在最后一刻改需求，让人措手不及",
+    "interests": [
+      "产品创新",
+      "敏捷开发"
+    ],
+    "decision_style": "last_minute_changes",
+    "difficulty_traits": ["scope_creep", "last_minute_changes", "unstable_requirements"],
+    "description": "创意多但想法不稳定，经常在截止日期前提出重大修改",
+    "response_style": {
+      "acceptance_rate": 0.7,
+      "change_frequency": "very_high",
+      "typical_changes": ["我有个新想法", "这个能不能改一下", "突然觉得之前的方案不好"]
+    },
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 115,
+      "category": "difficult"
+    }
+  },
+  {
+    "user_id": "enthusiastic_001",
+    "display_name": "SuperEnthusiast",
+    "name": "热情哥",
+    "capabilities": [
+      "社群运营",
+      "活动策划",
+      "用户增长"
+    ],
+    "location": "成都",
+    "availability": "随时可用",
+    "personality": "极度热情，对任何事都充满热情，但有时过于激动",
+    "interests": [
+      "社交",
+      "活动",
+      "networking"
+    ],
+    "decision_style": "super_enthusiastic",
+    "response_style": {
+      "acceptance_rate": 0.95,
+      "enthusiasm_level": "extreme",
+      "typical_responses": ["太棒了！我超级想参加！", "这个活动听起来太酷了！", "算我一个，我全力支持！"]
+    },
+    "description": "热情洋溢的社群达人，几乎不会拒绝任何邀请，是活动的活跃分子",
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 116,
+      "category": "enthusiastic"
+    }
+  },
+  {
+    "user_id": "cautious_001",
+    "display_name": "CautiousCollaborator",
+    "name": "稳重姐",
+    "capabilities": [
+      "风险评估",
+      "合规审查",
+      "质量控制"
+    ],
+    "location": "上海",
+    "availability": "工作日",
+    "personality": "非常谨慎，需要充分了解情况才会做决定",
+    "interests": [
+      "风险管理",
+      "合规"
+    ],
+    "decision_style": "very_cautious",
+    "response_style": {
+      "acceptance_rate": 0.4,
+      "questioning_frequency": "high",
+      "typical_questions": ["能详细说说吗", "有什么风险", "其他参与者是谁"]
+    },
+    "description": "谨慎稳重的专业人士，做决定前需要充分了解所有细节",
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 117,
+      "category": "cautious"
+    }
+  },
+  {
+    "user_id": "conditional_001",
+    "display_name": "ConditionalHelper",
+    "name": "有条件",
+    "capabilities": [
+      "技术咨询",
+      "培训指导",
+      "方案评审"
+    ],
+    "location": "北京",
+    "availability": "需协商",
+    "personality": "愿意帮忙但总有条件，需要谈好回报",
+    "interests": [
+      "技术分享",
+      "行业交流"
+    ],
+    "decision_style": "conditional_participant",
+    "response_style": {
+      "acceptance_rate": 0.6,
+      "conditions_frequency": "always",
+      "typical_conditions": ["如果时间合适我可以", "能给我什么回报", "我的角色是什么"]
+    },
+    "description": "经验丰富的顾问，愿意参与但需要明确的条件和回报",
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 118,
+      "category": "conditional"
+    }
+  },
+  {
+    "user_id": "busy_decline_001",
+    "display_name": "PoliteDecline",
+    "name": "婉拒达人",
+    "capabilities": [
+      "投资分析",
+      "商业咨询",
+      "战略规划"
+    ],
+    "location": "深圳",
+    "availability": "极度有限",
+    "personality": "礼貌但经常拒绝，总有合理的理由",
+    "interests": [
+      "投资",
+      "商业"
+    ],
+    "decision_style": "polite_decliner",
+    "response_style": {
+      "acceptance_rate": 0.15,
+      "decline_style": "polite",
+      "typical_declines": ["感谢邀请，但这段时间实在抽不开身", "听起来很棒，可惜和我的日程冲突了", "很想参加，但手头有个重要项目"]
+    },
+    "description": "行业大咖，邀请很多但时间有限，大部分邀请都会婉拒",
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 119,
+      "category": "decliner"
+    }
+  },
+  {
+    "user_id": "mid_withdraw_001",
+    "display_name": "MidwayExiter",
+    "name": "半途而废",
+    "capabilities": [
+      "前端开发",
+      "小程序开发",
+      "UI实现"
+    ],
+    "location": "武汉",
+    "availability": "看心情",
+    "personality": "开始很积极，但容易半途放弃",
+    "interests": [
+      "新技术",
+      "独立开发"
+    ],
+    "decision_style": "mid_withdraw",
+    "response_style": {
+      "acceptance_rate": 0.7,
+      "withdrawal_rate": 0.5,
+      "withdrawal_timing": "mid_project",
+      "typical_withdrawals": ["抱歉，最近有点事情要处理", "感觉这个项目不太适合我", "家里有事需要先退出"]
+    },
+    "description": "技术不错但缺乏坚持，经常在项目进行到一半时退出",
+    "metadata": {
+      "source": "manual",
+      "version": "2.0",
+      "index": 120,
+      "category": "unreliable"
+    }
   }
 ]

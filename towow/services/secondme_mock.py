@@ -17,12 +17,211 @@ from .secondme import SecondMeService
 logger = logging.getLogger(__name__)
 
 
+# ============================================================
+# 丰富的响应模板（用于生成个性化响应）
+# ============================================================
+
+# 接受邀请的响应模板（按风格分类）
+ACCEPTANCE_TEMPLATES = {
+    # 热情型
+    "enthusiastic": [
+        "太棒了！{topic}正是我感兴趣的领域。我可以负责{contribution}，之前在{experience}做过类似的事情，效果还不错。{time_note}",
+        "这个活动听起来太酷了！我一直想找机会参与{topic}相关的项目。算我一个，{contribution}方面我很有信心！",
+        "哇，终于有人组织这个了！我等这个机会好久了。{topic}是我的强项，绝对全力支持！",
+        "必须参加！{topic}是我的心头好，{contribution}我来搞定，放心交给我！{time_note}",
+        "超级期待！我在{experience}积累了不少经验，{contribution}绝对没问题。什么时候开始？"
+    ],
+    # 谨慎型
+    "cautious": [
+        "听起来挺有意思的。不过我想先了解一下：这个活动的具体形式是什么？{topic}方面我有一些经验，但想确认一下我能提供的价值。{time_note}",
+        "嗯，{topic}确实是我关注的方向。我可以考虑参与{contribution}，不过需要先看一下详细的方案和时间安排。",
+        "这个邀请我挺感兴趣的。在做决定之前，能否告诉我：1）其他参与者是谁？2）预期的投入时间？3）具体的产出目标？",
+        "谢谢邀请。{topic}我有一定的了解，但参与之前想确认几个问题：整体计划是什么？我的角色定位是？{time_note}",
+        "整体来说我是愿意参与的，但我的时间比较有限。如果{contribution}的工作量不是很大的话，我可以试试。"
+    ],
+    # 条件型
+    "conditional": [
+        "听起来不错，但我有几个条件：首先{time_note}；其次，我希望能在{contribution}方面有比较大的自主权；最后，希望能提前知道其他参与者的情况。",
+        "我对{topic}很感兴趣，愿意提供{contribution}方面的支持。不过有个前提——{condition}，这个可以满足吗？",
+        "可以参与，但我需要确认几点：1）我的角色和职责要明确；2）{time_note}；3）如果中途有变动，我保留退出的权利。",
+        "{topic}确实是我擅长的。我愿意帮忙，但有一个要求：{condition}。如果这个没问题，我就正式加入。",
+        "这个项目我很想参与。作为交换条件，我希望{condition}。另外，{time_note}。这些可以谈吗？"
+    ]
+}
+
+# 拒绝邀请的响应模板（按原因分类）
+DECLINE_TEMPLATES = {
+    # 时间冲突
+    "time_conflict": [
+        "感谢邀请，但这段时间实在抽不开身。下个月有个重要的{excuse}，每天都在加班。而且说实话，{scale_concern}。祝活动顺利！",
+        "很想参加，可惜时间上真的冲突了。最近在忙{excuse}，预计要持续到{time_estimate}。如果之后还有类似活动，请一定再叫上我！",
+        "不好意思，这个时间段我已经有安排了。{excuse}刚好在那几天，没法调开。真的很遗憾错过这次机会。",
+        "谢谢想到我！但最近的日程已经排满了，{excuse}占据了我大部分精力。下次有机会再合作吧。",
+        "这个活动听起来很棒，但我必须诚实地说——这段时间我真的忙不过来。{excuse}已经让我焦头烂额了。"
+    ],
+    # 能力不匹配
+    "skill_mismatch": [
+        "谢谢邀请，但我觉得自己可能不是最合适的人选。{topic}不太是我的强项，我更擅长{my_strength}方面的事情。",
+        "这个活动的方向和我的专业领域有些偏差。我在{my_strength}方面更有经验，{topic}相关的工作可能需要找更专业的人。",
+        "说实话，{topic}我接触得不多。虽然想帮忙，但怕做不好反而拖后腿。建议找一个这方面更有经验的人。",
+        "我仔细想了想，{topic}需要的技能我可能不太具备。我不想承诺自己做不好的事情，所以还是算了吧。",
+        "感谢信任，但我得诚实说——{topic}不是我的舒适区。我能做的是推荐几个这方面的朋友给你？"
+    ],
+    # 兴趣不匹配
+    "interest_mismatch": [
+        "这个活动的主题和我目前的关注方向不太一致。最近我主要在研究{my_interest}，对{topic}的热情没那么高。",
+        "谢谢邀请，但说实话{topic}不是我特别感兴趣的领域。我怕参与后投入度不够，还是把机会让给更热衷的人吧。",
+        "我考虑了一下，觉得这个项目可能不太适合我。不是能力问题，主要是{topic}方向和我当前的规划有些偏离。",
+        "这个活动本身很好，但和我的兴趣点有些错位。我更倾向于参与{my_interest}相关的项目。",
+        "感谢想到我，但{topic}不是我目前的重点方向。与其敷衍参与，不如把位置留给真正感兴趣的人。"
+    ],
+    # 规模/形式顾虑
+    "scale_concern": [
+        "{scale}人的规模对我来说压力有点大，我更擅长小范围的深度交流。这次就先不参加了。",
+        "这个活动规模挺大的，我个人比较喜欢小而精的形式。如果之后有10人以下的版本，请一定叫我！",
+        "说实话，我对大型活动有些社恐。{scale}人的场合我可能会不太自在，还是算了吧。",
+        "我仔细想了想，{scale}人的活动我可能贡献不了太多价值。我在小团队里能发挥得更好。",
+        "这个规模超出了我的舒适区。我更习惯和少数人深入交流，大型活动容易社交疲劳。"
+    ],
+    # 礼貌婉拒（万能）
+    "polite_generic": [
+        "感谢邀请！这个活动看起来很不错，但由于个人原因我这次没法参加。希望下次有机会！",
+        "谢谢你想到我。经过考虑，我决定这次就不参与了。不是活动的问题，纯粹是我个人的安排。祝活动顺利！",
+        "这个机会我很珍惜，但综合考虑后还是决定婉拒。希望以后还有合作的机会。",
+        "感谢邀请，但这次我可能要pass了。有一些私人原因不太方便细说。期待下次能参与！",
+        "很抱歉，这次我没法加入。原因比较复杂，但请相信这和活动本身无关。祝一切顺利！"
+    ]
+}
+
+# 协商过程中的响应模板
+NEGOTIATION_TEMPLATES = {
+    # 角色调整请求
+    "role_adjustment": [
+        "整体方案我觉得可以，但关于我的角色分配，我有些想法。能不能让我更多参与{preferred_role}的部分？这块是我的强项。",
+        "方案看过了，有个建议：我被分配的任务和我的专长有些偏差。如果能换成{preferred_role}相关的工作，我能发挥得更好。",
+        "基本同意这个方案，但我想争取一下——{preferred_role}能不能让我来负责？我在这方面更有经验。",
+        "这个分工我有点意见。相比现在分配给我的任务，我更想做{preferred_role}。能调整一下吗？"
+    ],
+    # 时间调整请求
+    "time_adjustment": [
+        "方案整体OK，但时间安排需要协调一下。能不能{time_preference}？这样我能投入更多精力。",
+        "我看了一下时间表，有个小问题——{time_conflict_detail}。如果能调整到{time_preference}就完美了。",
+        "其他都没问题，就是时间上想商量一下。{time_preference}对我来说更方便，可以调整吗？"
+    ],
+    # 资源/支持请求
+    "resource_request": [
+        "方案可行，但我有个请求：{resource_need}。有了这个支持，我能把事情做得更好。",
+        "基本同意，不过我需要一些额外支持：{resource_need}。这个能安排吗？",
+        "如果能提供{resource_need}，我可以把我负责的部分做得更出色。这个条件可以谈吗？"
+    ],
+    # 方案质疑
+    "plan_concerns": [
+        "这个方案我有些疑虑：{concern_detail}。能否解释一下这部分的考虑？",
+        "看完方案后有几个问题想确认：{concern_detail}。这些点如果能说清楚，我就没意见了。",
+        "整体思路没问题，但{concern_detail}这块我觉得需要再想想。大家怎么看？"
+    ]
+}
+
+# 退出原因模板
+WITHDRAWAL_TEMPLATES = {
+    # 外部原因
+    "external": [
+        "非常抱歉，我不得不退出这个项目了。公司那边突然有个紧急项目，需要我全力投入。真的很对不起大家。",
+        "很遗憾告诉大家，因为家里有些事情需要处理，我没法继续参与了。这不是我的本意，但确实身不由己。",
+        "抱歉通知大家一个坏消息——我要退出了。最近身体出了点状况，医生建议我减少工作量。希望大家理解。"
+    ],
+    # 对方案不满
+    "plan_dissatisfaction": [
+        "经过这段时间的参与，我发现这个项目的方向和我最初的预期有较大偏差。思考再三，我决定退出。",
+        "说实话，最近几次讨论让我感觉这个项目越来越偏离初衷。与其勉强继续，不如我先退出，不要影响大家。",
+        "我需要诚实地说：目前的方案我不太认同。继续参与对双方都不好，所以我选择退出。"
+    ],
+    # 与他人有矛盾
+    "interpersonal": [
+        "有些话不太好说，但我和{person}在一些关键问题上分歧太大，很难继续合作了。为了不影响项目，我决定退出。",
+        "最近和团队的沟通越来越困难，感觉我的意见很难被采纳。与其僵持下去，还是算了吧。",
+        "坦白说，这个团队的氛围不太适合我。这不是谁对谁错的问题，纯粹是风格不合。我退出比较好。"
+    ],
+    # 精力不足
+    "energy_issue": [
+        "很抱歉，我高估了自己的时间和精力。现在发现实在兼顾不过来，与其做不好，不如早点退出。",
+        "我必须承认自己接了太多事情，没法给这个项目足够的投入。继续下去会拖累大家，还是我先退出吧。",
+        "经过权衡，我决定把精力集中在更重要的事情上。这个项目我没法继续了，真的很抱歉。"
+    ]
+}
+
+# 难搞角色的特殊响应
+DIFFICULT_RESPONSES = {
+    "extremely_picky": {
+        "initial_response": [
+            "这个方案我看了，有很多问题需要指出。首先{issue1}，其次{issue2}，另外{issue3}。你们重新考虑一下吧。",
+            "emmm...这个计划离我的标准还有不小的差距。以我的经验来看，{detailed_criticism}。",
+            "我有几点意见：{detailed_criticism}。如果这些问题不解决，我很难认同这个方案。"
+        ],
+        "negotiation": [
+            "上次的反馈你们改了吗？我看看...还是不太行，{new_issue}。",
+            "比之前好一点了，但{remaining_issue}。能不能再完善一下？",
+            "这个版本...怎么说呢，进步是有的，但离我的要求还差一截。{specific_feedback}"
+        ]
+    },
+    "frequently_cancels": {
+        "initial_response": [
+            "好的，我先答应下来。不过提前说一声，我的行程经常会有变动，到时候如果有冲突我会尽早通知你们。",
+            "可以，算我一个。但你们也知道我比较忙，临时有事的可能性挺大的，你们做好Plan B。",
+            "我尽量参加吧。不过说实话，最近真的太忙了，只能走一步看一步。"
+        ],
+        "cancellation": [
+            "不好意思，临时有个投资项目的紧急会议，这次活动我参加不了了。真的很抱歉！",
+            "刚接到通知要出差，没办法赶回来了。抱歉让你们失望了。",
+            "出了点状况，今天的活动我没法去了。下次一定！"
+        ]
+    },
+    "highly_skeptical": {
+        "initial_response": [
+            "这个方案...我持保留态度。{technical_concern}，你们考虑过吗？",
+            "等等，这个技术路线我有疑问：{technical_concern}。能解释一下吗？",
+            "我需要先确认几个技术问题：{technical_concern}。如果这些问题没想清楚，后面会很麻烦。"
+        ],
+        "during_project": [
+            "我就说吧，{predicted_issue}现在果然出问题了。",
+            "之前我提的{concern}你们没重视，现在看到后果了吧。",
+            "这个结果在我意料之中。{technical_reasoning}"
+        ]
+    },
+    "pessimistic": {
+        "initial_response": [
+            "我觉得这个项目很难成功。{negative_reason}，类似的项目我见过太多失败的了。",
+            "说实话，我不太看好。{negative_reason}，市场环境也不好。",
+            "这个方向...我持悲观态度。{negative_reason}，成功率很低。"
+        ],
+        "during_project": [
+            "果然，问题开始出现了。我早就说过{previous_warning}。",
+            "照这个趋势发展下去，结果不会太好。{pessimistic_prediction}",
+            "我们需要面对现实：{harsh_reality}。"
+        ]
+    },
+    "passive_aggressive": {
+        "initial_response": [
+            "好的，你们决定就行。反正我说了也没人听。",
+            "随便吧，既然大家都觉得好，那就这样呗。",
+            "行吧，我配合就是了。虽然我有不同看法，但无所谓了。"
+        ],
+        "during_project": [
+            "哦，这个结果...嗯，我早就说过，但你们不是不信吗。",
+            "有意思，当初我的建议没人理，现在出问题了才想起来问我。",
+            "好的好的，你们说什么就是什么吧。我就是个打工的。"
+        ]
+    }
+}
+
+
 # 预设的用户档案（10个丰富的 Mock 用户）
 MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
     "bob": {
         "user_id": "bob",
         "display_name": "Bob",
         "name": "Bob Chen",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=bob",
         "capabilities": ["场地资源", "活动组织", "会议室"],
         "location": "北京朝阳",
         "availability": "工作日可用",
@@ -34,6 +233,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "alice",
         "display_name": "Alice",
         "name": "Alice Wang",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=alice",
         "capabilities": ["技术分享", "AI研究", "演讲"],
         "location": "北京海淀",
         "availability": "周末优先",
@@ -45,6 +245,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "charlie",
         "display_name": "Charlie",
         "name": "Charlie Zhang",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=charlie",
         "capabilities": ["活动策划", "流程设计", "现场协调"],
         "location": "北京",
         "availability": "灵活",
@@ -56,6 +257,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "david",
         "display_name": "David",
         "name": "David Liu",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=david",
         "capabilities": ["UI设计", "产品原型", "用户体验"],
         "location": "远程",
         "availability": "按项目排期",
@@ -67,6 +269,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "emma",
         "display_name": "Emma",
         "name": "Emma Li",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=emma",
         "capabilities": ["产品经理", "需求分析", "用户研究"],
         "location": "上海",
         "availability": "工作日",
@@ -78,6 +281,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "frank",
         "display_name": "Frank",
         "name": "Frank Wu",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=frank",
         "capabilities": ["后端开发", "系统架构", "数据库优化"],
         "location": "杭州",
         "availability": "晚上和周末",
@@ -89,6 +293,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "grace",
         "display_name": "Grace",
         "name": "Grace Huang",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=grace",
         "capabilities": ["前端开发", "React", "小程序"],
         "location": "深圳",
         "availability": "灵活，需提前沟通",
@@ -100,6 +305,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "henry",
         "display_name": "Henry",
         "name": "Henry Zhao",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=henry",
         "capabilities": ["数据分析", "机器学习", "Python"],
         "location": "北京",
         "availability": "周末",
@@ -111,6 +317,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "ivy",
         "display_name": "Ivy",
         "name": "Ivy Sun",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=ivy",
         "capabilities": ["运营推广", "社群管理", "内容创作"],
         "location": "广州",
         "availability": "全职可用",
@@ -122,6 +329,7 @@ MOCK_PROFILES: Dict[str, Dict[str, Any]] = {
         "user_id": "jack",
         "display_name": "Jack",
         "name": "Jack Zhou",
+        "avatar": "https://api.dicebear.com/7.x/avataaars/svg?seed=jack",
         "capabilities": ["投资咨询", "商业规划", "资源对接"],
         "location": "上海",
         "availability": "需要预约",
@@ -173,7 +381,7 @@ class SecondMeMockService(SecondMeService):
             - clarifying_questions: 澄清问题列表
             - confidence: 置信度
         """
-        logger.info(f"Mock understanding demand: {raw_input[:50]}...")
+        logger.info(f"模拟理解需求: {raw_input[:50]}...")
 
         # 简单的关键词提取
         keywords = self._extract_keywords(raw_input)
@@ -421,11 +629,12 @@ class SecondMeMockService(SecondMeService):
             - contribution: 贡献描述
             - conditions: 条件列表
             - reasoning: 决策理由
+            - decline_reason: 拒绝原因（仅当 decision=decline 时有值）
             - enthusiasm_level: 热情程度（high/medium/low）
             - suggested_role: 建议角色
             - availability_note: 可用性说明
         """
-        logger.info(f"Mock generating response for {user_id}")
+        logger.info(f"模拟生成用户 {user_id} 的响应")
 
         # 获取档案
         full_profile = profile or self.profiles.get(user_id, {})
@@ -450,13 +659,46 @@ class SecondMeMockService(SecondMeService):
         # 基于档案特征调整决策倾向
         decision_bias = self._get_decision_bias(decision_style)
 
+        # 检查是否触发 withdrawn 决策
+        # 条件1: 匹配度极低且用户性格为悲观/挑剔
+        is_pessimistic = "悲观" in personality or "挑剔" in personality
+        is_difficult = any(
+            trait in personality
+            for trait in ["pessimistic", "picky", "skeptical", "被动", "消极", "Pessimistic", "Picky"]
+        )
+        # 条件2: 随机概率触发（5%）
+        random_withdrawal = random.random() < 0.05
+
+        if (overall_match <= 0.3 and (is_pessimistic or is_difficult)) or random_withdrawal:
+            # 触发 withdrawn 决策
+            decision = "withdrawn"
+            enthusiasm_level = "low"
+            contribution = ""
+            # 选择退出原因类型
+            if is_pessimistic:
+                withdrawal_reason_type = "plan_dissatisfaction"
+            elif overall_match < 0.2:
+                withdrawal_reason_type = "interest_mismatch"
+            else:
+                withdrawal_reason_type = random.choice(["external", "energy_issue"])
+
+            # 生成退出消息
+            withdrawal_templates = WITHDRAWAL_TEMPLATES.get(
+                withdrawal_reason_type, WITHDRAWAL_TEMPLATES["external"]
+            )
+            withdrawal_message = random.choice(withdrawal_templates)
+            if "{person}" in withdrawal_message:
+                withdrawal_message = withdrawal_message.format(person="某位成员")
+
         # 综合匹配度和决策倾向决定结果
-        if overall_match >= 0.7 or (overall_match >= 0.5 and decision_bias > 0):
+        elif overall_match >= 0.7 or (overall_match >= 0.5 and decision_bias > 0):
             decision = "participate"
             enthusiasm_level = "high" if overall_match >= 0.8 else "medium"
             contribution = self._generate_detailed_contribution(
                 capabilities, demand_text, resource_requirements
             )
+            withdrawal_reason_type = None
+            withdrawal_message = ""
         elif overall_match >= 0.4:
             # 有时参与，有时有条件参与
             if random.random() > 0.3 + decision_bias * 0.1:
@@ -468,6 +710,8 @@ class SecondMeMockService(SecondMeService):
             contribution = self._generate_detailed_contribution(
                 capabilities, demand_text, resource_requirements
             )
+            withdrawal_reason_type = None
+            withdrawal_message = ""
         else:
             # 低匹配度
             if random.random() > 0.8 - decision_bias * 0.1:
@@ -478,6 +722,8 @@ class SecondMeMockService(SecondMeService):
                 decision = "conditional"
                 enthusiasm_level = "low"
                 contribution = "可以提供有限支持"
+            withdrawal_reason_type = None
+            withdrawal_message = ""
 
         # 生成条件
         conditions = []
@@ -490,13 +736,20 @@ class SecondMeMockService(SecondMeService):
         # 生成可用性说明
         availability_note = self._generate_availability_note(availability, deep.get("timeline"))
 
-        return {
+        # 生成拒绝原因（仅当 decision=decline 时）
+        decline_reason = ""
+        if decision == "decline":
+            decline_reason = self._generate_decline_reason(full_profile, demand_text, overall_match)
+
+        # 构建返回结果
+        result = {
             "decision": decision,
             "contribution": contribution,
             "conditions": conditions,
             "reasoning": self._generate_detailed_reasoning(
                 decision, overall_match, full_profile, demand_type
             ),
+            "decline_reason": decline_reason,
             "enthusiasm_level": enthusiasm_level,
             "suggested_role": suggested_role,
             "availability_note": availability_note,
@@ -506,6 +759,14 @@ class SecondMeMockService(SecondMeService):
                 "overall_match": round(overall_match, 2)
             }
         }
+
+        # 如果是 withdrawn 决策，添加额外字段
+        if decision == "withdrawn":
+            result["withdrawal_reason_type"] = withdrawal_reason_type
+            result["withdrawal_message"] = withdrawal_message
+            result["reasoning"] = withdrawal_message  # 覆盖 reasoning
+
+        return result
 
     def _calculate_interest_match(
         self,
@@ -546,6 +807,73 @@ class SecondMeMockService(SecondMeService):
                 bias -= 0.1
 
         return max(-0.3, min(0.3, bias))
+
+    def _generate_decline_reason(
+        self,
+        profile: Dict,
+        demand_text: str,
+        match_score: float
+    ) -> str:
+        """
+        生成拒绝原因
+
+        根据档案和匹配度，从模板中选择合适的拒绝原因
+
+        Args:
+            profile: 用户档案
+            demand_text: 需求文本
+            match_score: 匹配度分数
+
+        Returns:
+            拒绝原因文本
+        """
+        availability = profile.get("availability", "")
+        capabilities = profile.get("capabilities", [])
+        interests = profile.get("interests", [])
+
+        # 根据情况选择拒绝原因类型
+        if match_score < 0.3:
+            # 能力严重不匹配
+            reason_type = "skill_mismatch"
+            my_strength = capabilities[0] if capabilities else "其他方向"
+            templates = DECLINE_TEMPLATES.get(reason_type, [])
+            if templates:
+                template = random.choice(templates)
+                return template.format(
+                    topic="这个方向",
+                    my_strength=my_strength
+                )
+
+        if "忙" in availability or "需要预约" in availability:
+            # 时间冲突
+            reason_type = "time_conflict"
+            templates = DECLINE_TEMPLATES.get(reason_type, [])
+            if templates:
+                template = random.choice(templates)
+                return template.format(
+                    excuse="重要项目上线",
+                    time_estimate="下个月",
+                    scale_concern="规模可能有点大"
+                )
+
+        if interests and not any(interest.lower() in demand_text.lower() for interest in interests):
+            # 兴趣不匹配
+            reason_type = "interest_mismatch"
+            my_interest = interests[0] if interests else "其他领域"
+            templates = DECLINE_TEMPLATES.get(reason_type, [])
+            if templates:
+                template = random.choice(templates)
+                return template.format(
+                    topic="这个方向",
+                    my_interest=my_interest
+                )
+
+        # 默认使用礼貌婉拒
+        templates = DECLINE_TEMPLATES.get("polite_generic", [])
+        if templates:
+            return random.choice(templates)
+
+        return "感谢邀请，但由于个人原因这次无法参与。"
 
     def _generate_detailed_contribution(
         self,
@@ -782,6 +1110,391 @@ class SecondMeMockService(SecondMeService):
         else:
             return "目前的需求与我的能力方向不太匹配"
 
+    async def simulate_withdrawal(
+        self,
+        user_id: str,
+        reason_type: str = "external"
+    ) -> Dict[str, Any]:
+        """
+        模拟用户主动退出
+
+        Args:
+            user_id: 用户ID
+            reason_type: 退出原因类型 (external/plan_dissatisfaction/interpersonal/energy_issue)
+
+        Returns:
+            退出响应，包含：
+            - decision: "withdrawn"
+            - reason_type: 退出原因类型
+            - message: 退出消息
+            - timestamp: 退出时间
+        """
+        logger.info(f"模拟用户 {user_id} 退出，原因类型: {reason_type}")
+
+        # 获取用户档案
+        profile = self.profiles.get(user_id, {})
+
+        # 选择退出模板
+        templates = WITHDRAWAL_TEMPLATES.get(reason_type, WITHDRAWAL_TEMPLATES["external"])
+        template = random.choice(templates)
+
+        # 如果是人际关系问题，需要填充占位符
+        if reason_type == "interpersonal" and "{person}" in template:
+            template = template.format(person="某位成员")
+
+        return {
+            "decision": "withdrawn",
+            "user_id": user_id,
+            "reason_type": reason_type,
+            "message": template,
+            "profile_name": profile.get("display_name", user_id),
+            "timestamp": None  # 由调用方填充
+        }
+
+    async def simulate_kick(
+        self,
+        user_id: str,
+        kicked_by: str,
+        reason: str
+    ) -> Dict[str, Any]:
+        """
+        模拟用户被踢出
+
+        Args:
+            user_id: 被踢出的用户ID
+            kicked_by: 执行踢出的用户ID
+            reason: 踢出原因
+
+        Returns:
+            踢出响应，包含：
+            - decision: "kicked"
+            - user_id: 被踢出的用户ID
+            - kicked_by: 执行踢出的用户ID
+            - reason: 踢出原因
+            - message: 系统消息
+        """
+        logger.info(f"模拟用户 {user_id} 被 {kicked_by} 踢出，原因: {reason}")
+
+        profile = self.profiles.get(user_id, {})
+        kicker_profile = self.profiles.get(kicked_by, {})
+
+        # 生成踢出消息
+        kick_messages = [
+            f"{kicker_profile.get('display_name', kicked_by)} 将 {profile.get('display_name', user_id)} 移出了协作组",
+            f"由于 {reason}，{profile.get('display_name', user_id)} 已被移出协作组",
+            f"{profile.get('display_name', user_id)} 因 {reason} 被移出协作",
+        ]
+
+        return {
+            "decision": "kicked",
+            "user_id": user_id,
+            "kicked_by": kicked_by,
+            "reason": reason,
+            "message": random.choice(kick_messages),
+            "profile_name": profile.get("display_name", user_id),
+            "kicker_name": kicker_profile.get("display_name", kicked_by),
+            "timestamp": None  # 由调用方填充
+        }
+
+    async def simulate_bargain(
+        self,
+        user_id: str,
+        original_terms: Dict[str, Any],
+        profile: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        模拟讨价还价
+
+        Args:
+            user_id: 用户ID
+            original_terms: 原始条款
+            profile: 用户档案
+
+        Returns:
+            讨价还价响应，包含：
+            - decision: "bargain"
+            - bargain_type: 讨价还价类型
+            - request: 具体请求
+            - message: 讨价还价消息
+            - original_terms: 原始条款
+            - proposed_changes: 建议的修改
+        """
+        logger.info(f"模拟用户 {user_id} 讨价还价")
+
+        full_profile = profile or self.profiles.get(user_id, {})
+        capabilities = full_profile.get("capabilities", [])
+        availability = full_profile.get("availability", "")
+        decision_style = full_profile.get("decision_style", "")
+
+        # 确定讨价还价类型
+        bargain_types = ["role_adjustment", "time_adjustment", "resource_request", "plan_concerns"]
+
+        # 基于用户特征选择类型
+        if "技术" in decision_style or any("技术" in cap or "开发" in cap for cap in capabilities):
+            bargain_type = random.choice(["role_adjustment", "plan_concerns"])
+        elif "时间" in availability or "预约" in availability:
+            bargain_type = "time_adjustment"
+        else:
+            bargain_type = random.choice(bargain_types)
+
+        # 获取模板
+        templates = NEGOTIATION_TEMPLATES.get(bargain_type, NEGOTIATION_TEMPLATES["role_adjustment"])
+        template = random.choice(templates)
+
+        # 填充占位符
+        preferred_role = capabilities[0] if capabilities else "更适合我的方向"
+        time_preference = "改到周末" if "周末" in availability else "调整到晚上"
+        resource_need = "更多的技术支持" if "技术" in str(capabilities) else "更明确的任务说明"
+        concern_detail = "目前的分工是否合理，每个人的职责是否清晰"
+        time_conflict_detail = "和我原有的安排有些冲突"
+
+        message = template.format(
+            preferred_role=preferred_role,
+            time_preference=time_preference,
+            time_conflict_detail=time_conflict_detail,
+            resource_need=resource_need,
+            concern_detail=concern_detail
+        )
+
+        # 生成建议的修改
+        proposed_changes = {}
+        if bargain_type == "role_adjustment":
+            proposed_changes["role"] = preferred_role
+        elif bargain_type == "time_adjustment":
+            proposed_changes["time"] = time_preference
+        elif bargain_type == "resource_request":
+            proposed_changes["resource"] = resource_need
+
+        return {
+            "decision": "bargain",
+            "user_id": user_id,
+            "bargain_type": bargain_type,
+            "request": message,
+            "message": message,
+            "original_terms": original_terms,
+            "proposed_changes": proposed_changes,
+            "profile_name": full_profile.get("display_name", user_id),
+            "timestamp": None
+        }
+
+    async def simulate_counter_proposal(
+        self,
+        user_id: str,
+        original_proposal: Dict[str, Any],
+        profile: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        模拟反提案
+
+        Args:
+            user_id: 用户ID
+            original_proposal: 原始提案
+            profile: 用户档案
+
+        Returns:
+            反提案响应，包含：
+            - decision: "counter_proposal"
+            - original_proposal: 原始提案
+            - counter_proposal: 反提案内容
+            - reasoning: 理由
+            - message: 消息文本
+        """
+        logger.info(f"模拟用户 {user_id} 提出反提案")
+
+        full_profile = profile or self.profiles.get(user_id, {})
+        capabilities = full_profile.get("capabilities", [])
+        interests = full_profile.get("interests", [])
+        personality = full_profile.get("personality", "")
+
+        # 基于用户特征生成反提案
+        counter_points = []
+        reasoning_parts = []
+
+        # 角色调整建议
+        if capabilities:
+            counter_points.append({
+                "aspect": "role",
+                "suggestion": f"我更适合负责{capabilities[0]}相关的工作"
+            })
+            reasoning_parts.append(f"我在{capabilities[0]}方面有经验")
+
+        # 时间调整建议
+        availability = full_profile.get("availability", "")
+        if availability:
+            counter_points.append({
+                "aspect": "time",
+                "suggestion": f"建议调整为{availability}进行"
+            })
+            reasoning_parts.append(f"我的时间安排通常是{availability}")
+
+        # 方向调整建议
+        if interests:
+            counter_points.append({
+                "aspect": "focus",
+                "suggestion": f"可以更多融入{interests[0]}相关的内容"
+            })
+            reasoning_parts.append(f"这样能更好地发挥大家的兴趣")
+
+        # 生成消息
+        messages = [
+            f"关于这个方案，我有一些不同的想法。{reasoning_parts[0] if reasoning_parts else '我觉得可以优化'}，建议我们考虑以下调整：",
+            f"我看了方案，整体还可以，但我想提出一些修改建议。主要是{counter_points[0]['suggestion'] if counter_points else '一些细节'}。",
+            f"这个方案我有些不同看法。{counter_points[0]['suggestion'] if counter_points else '我们可以讨论一下'}，你们觉得呢？"
+        ]
+
+        return {
+            "decision": "counter_proposal",
+            "user_id": user_id,
+            "original_proposal": original_proposal,
+            "counter_proposal": {
+                "points": counter_points,
+                "summary": counter_points[0]["suggestion"] if counter_points else "建议调整方案细节"
+            },
+            "reasoning": "；".join(reasoning_parts) if reasoning_parts else "基于我的情况提出调整建议",
+            "message": random.choice(messages),
+            "profile_name": full_profile.get("display_name", user_id),
+            "timestamp": None
+        }
+
+    async def simulate_full_negotiation_flow(
+        self,
+        demand: Dict[str, Any],
+        participants: List[str]
+    ) -> List[Dict[str, Any]]:
+        """
+        模拟完整协商流程，包含各种事件
+
+        Args:
+            demand: 需求信息
+            participants: 参与者ID列表
+
+        Returns:
+            事件列表，包含 accept/decline/bargain/withdrawn/kicked 等各种事件
+        """
+        logger.info(f"模拟完整协商流程，参与者: {participants}")
+
+        events = []
+        active_participants = list(participants)
+        event_id = 0
+
+        for user_id in participants:
+            event_id += 1
+            profile = self.profiles.get(user_id, {})
+
+            # 生成初始响应
+            response = await self.generate_response(
+                user_id=user_id,
+                demand=demand,
+                profile=profile
+            )
+
+            events.append({
+                "event_id": event_id,
+                "event_type": "initial_response",
+                "user_id": user_id,
+                "decision": response["decision"],
+                "data": response
+            })
+
+            # 如果是拒绝，移出活跃参与者
+            if response["decision"] == "decline":
+                active_participants.remove(user_id)
+            elif response["decision"] == "withdrawn":
+                active_participants.remove(user_id)
+
+        # 模拟协商过程中的事件
+        for user_id in list(active_participants):
+            # 10% 概率发起讨价还价
+            if random.random() < 0.1:
+                event_id += 1
+                bargain_response = await self.simulate_bargain(
+                    user_id=user_id,
+                    original_terms={"demand": demand},
+                    profile=self.profiles.get(user_id)
+                )
+                events.append({
+                    "event_id": event_id,
+                    "event_type": "bargain",
+                    "user_id": user_id,
+                    "decision": "bargain",
+                    "data": bargain_response
+                })
+
+            # 5% 概率提出反提案
+            if random.random() < 0.05:
+                event_id += 1
+                counter_response = await self.simulate_counter_proposal(
+                    user_id=user_id,
+                    original_proposal={"demand": demand},
+                    profile=self.profiles.get(user_id)
+                )
+                events.append({
+                    "event_id": event_id,
+                    "event_type": "counter_proposal",
+                    "user_id": user_id,
+                    "decision": "counter_proposal",
+                    "data": counter_response
+                })
+
+            # 5% 概率主动退出
+            if random.random() < 0.05 and user_id in active_participants:
+                event_id += 1
+                reason_type = random.choice(["external", "plan_dissatisfaction", "energy_issue"])
+                withdrawal_response = await self.simulate_withdrawal(
+                    user_id=user_id,
+                    reason_type=reason_type
+                )
+                events.append({
+                    "event_id": event_id,
+                    "event_type": "withdrawal",
+                    "user_id": user_id,
+                    "decision": "withdrawn",
+                    "data": withdrawal_response
+                })
+                active_participants.remove(user_id)
+
+        # 模拟踢出事件（2% 概率）
+        if len(active_participants) >= 2 and random.random() < 0.02:
+            event_id += 1
+            kicked_user = random.choice(active_participants)
+            kicker = random.choice([u for u in active_participants if u != kicked_user])
+            kick_reasons = [
+                "多次无响应",
+                "承诺无法兑现",
+                "与团队协作存在问题",
+                "无法按时参与"
+            ]
+            kick_response = await self.simulate_kick(
+                user_id=kicked_user,
+                kicked_by=kicker,
+                reason=random.choice(kick_reasons)
+            )
+            events.append({
+                "event_id": event_id,
+                "event_type": "kick",
+                "user_id": kicked_user,
+                "decision": "kicked",
+                "data": kick_response
+            })
+            active_participants.remove(kicked_user)
+
+        # 最终状态汇总
+        events.append({
+            "event_id": event_id + 1,
+            "event_type": "summary",
+            "active_participants": active_participants,
+            "total_events": len(events),
+            "data": {
+                "initial_count": len(participants),
+                "final_count": len(active_participants),
+                "withdrawn_count": sum(1 for e in events if e.get("decision") == "withdrawn"),
+                "kicked_count": sum(1 for e in events if e.get("decision") == "kicked"),
+                "declined_count": sum(1 for e in events if e.get("decision") == "decline")
+            }
+        })
+
+        return events
+
     async def evaluate_proposal(
         self,
         user_id: str,
@@ -789,7 +1502,7 @@ class SecondMeMockService(SecondMeService):
         profile: Dict[str, Any]
     ) -> Dict[str, Any]:
         """评估方案（Mock实现）"""
-        logger.info(f"Mock evaluating proposal for {user_id}")
+        logger.info(f"模拟评估用户 {user_id} 的方案")
 
         full_profile = profile or self.profiles.get(user_id, {})
 
@@ -857,7 +1570,7 @@ def init_secondme_mock() -> SecondMeMockService:
     """初始化SecondMe Mock服务"""
     global secondme_mock_service
     secondme_mock_service = SecondMeMockService()
-    logger.info("SecondMe Mock service initialized with %d profiles", len(secondme_mock_service.profiles))
+    logger.info("SecondMe Mock 服务已初始化，共 %d 个用户档案", len(secondme_mock_service.profiles))
     return secondme_mock_service
 
 
@@ -930,8 +1643,8 @@ class SimpleRandomMockClient(SecondMeService):
         self.accept_probability = accept_probability
         self._profiles = dict(MOCK_PROFILES)
         logger.info(
-            f"SimpleRandomMockClient initialized - "
-            f"participate_prob={participate_probability}, accept_prob={accept_probability}"
+            f"SimpleRandomMockClient 已初始化 - "
+            f"参与概率={participate_probability}, 接受概率={accept_probability}"
         )
 
     async def understand_demand(
@@ -1090,7 +1803,7 @@ class SimpleRandomMockClient(SecondMeService):
             }
             self._profiles[user_id] = generated[user_id]
 
-        logger.info(f"Generated {count} random profiles for stress testing")
+        logger.info(f"已生成 {count} 个随机用户档案用于压力测试")
         return generated
 
 

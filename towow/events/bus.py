@@ -64,7 +64,7 @@ class EventBus:
             handler: Async function to call when event is published
         """
         self._handlers[event_type].append(handler)
-        logger.debug(f"Subscribed to {event_type}")
+        logger.debug(f"已订阅事件: {event_type}")
 
     def unsubscribe(self, event_type: str, handler: EventHandler) -> None:
         """Unsubscribe from an event type."""
@@ -94,7 +94,7 @@ class EventBus:
             if len(self._history) > self._max_history:
                 self._history = self._history[-self._max_history:]
 
-        logger.info(f"Event published: {event.event_type} ({event.event_id})")
+        logger.info(f"事件已发布: {event.event_type} ({event.event_id})")
 
         # Find matching handlers
         handlers_to_call = []
@@ -113,7 +113,7 @@ class EventBus:
                     else:
                         handler(evt)
                 except Exception as e:
-                    logger.error(f"Handler error for {evt.event_type}: {e}")
+                    logger.error(f"事件 {evt.event_type} 处理器错误: {e}")
 
             tasks = [safe_call(handler, event) for handler in handlers_to_call]
             await asyncio.gather(*tasks, return_exceptions=True)

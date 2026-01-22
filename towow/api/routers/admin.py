@@ -193,14 +193,14 @@ async def toggle_demo_mode(request: DemoModeToggleRequest):
             except ValueError:
                 raise HTTPException(
                     status_code=400,
-                    detail=f"Invalid scenario: {request.scenario}. "
-                           f"Available: {[s.value for s in DemoScenario]}"
+                    detail=f"无效的场景: {request.scenario}。"
+                           f"可用选项: {[s.value for s in DemoScenario]}"
                 )
         demo_service.enable(scenario)
-        message = f"Demo mode enabled with scenario: {demo_service.config.scenario.value}"
+        message = f"演示模式已启用，场景: {demo_service.config.scenario.value}"
     else:
         demo_service.disable()
-        message = "Demo mode disabled"
+        message = "演示模式已禁用"
 
     logger.info(message)
 
@@ -271,7 +271,7 @@ async def start_demo_session(
         except ValueError:
             raise HTTPException(
                 status_code=400,
-                detail=f"Invalid scenario: {scenario}"
+                detail=f"无效的场景: {scenario}"
             )
 
     session = await demo_service.start_demo_session(demand_key, scene)
@@ -285,7 +285,7 @@ async def run_demo_session(session_id: str):
 
     demo_service = get_demo_service()
     if not demo_service:
-        raise HTTPException(status_code=500, detail="Demo service not initialized")
+        raise HTTPException(status_code=500, detail="演示服务未初始化")
 
     result = await demo_service.run_demo_negotiation(session_id)
     if "error" in result:
@@ -307,14 +307,14 @@ async def reset_circuit_breaker():
     if not llm_service:
         raise HTTPException(
             status_code=500,
-            detail="LLM service with fallback not initialized"
+            detail="带降级功能的 LLM 服务未初始化"
         )
 
     llm_service.reset_circuit_breaker()
-    logger.info("Circuit breaker reset by admin")
+    logger.info("管理员已重置熔断器")
 
     return {
-        "message": "Circuit breaker reset to CLOSED state",
+        "message": "熔断器已重置为 CLOSED 状态",
         "status": llm_service.circuit_breaker.get_status()
     }
 
@@ -340,14 +340,14 @@ async def reset_rate_limiter_stats():
     if not rate_limiter:
         raise HTTPException(
             status_code=500,
-            detail="Rate limiter not initialized"
+            detail="限流器未初始化"
         )
 
     rate_limiter.reset_stats()
-    logger.info("Rate limiter stats reset by admin")
+    logger.info("管理员已重置限流器统计信息")
 
     return {
-        "message": "Rate limiter stats reset",
+        "message": "限流器统计信息已重置",
         "status": rate_limiter.get_status()
     }
 
@@ -368,13 +368,13 @@ async def reset_llm_stats():
     if not llm_service:
         raise HTTPException(
             status_code=500,
-            detail="LLM service with fallback not initialized"
+            detail="带降级功能的 LLM 服务未初始化"
         )
 
     llm_service.reset_stats()
-    logger.info("LLM service stats reset by admin")
+    logger.info("管理员已重置 LLM 服务统计信息")
 
     return {
-        "message": "LLM service stats reset",
+        "message": "LLM 服务统计信息已重置",
         "status": llm_service.get_status()
     }

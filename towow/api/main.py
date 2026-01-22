@@ -33,8 +33,10 @@ async def lifespan(app: FastAPI):
     # Initialize LLM service with fallback - TASK-020
     from services.llm import init_llm_service_with_fallback
     api_key = os.getenv("ANTHROPIC_API_KEY")
+    base_url = os.getenv("ANTHROPIC_BASE_URL")  # 支持自定义 base_url
     init_llm_service_with_fallback(
         api_key=api_key,
+        base_url=base_url,
         timeout=10.0,
         failure_threshold=3,
         recovery_timeout=30.0

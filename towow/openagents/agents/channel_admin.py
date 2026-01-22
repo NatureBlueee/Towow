@@ -84,7 +84,7 @@ class ChannelAdminAgent(TowowBaseAgent):
     async def on_startup(self):
         """Agent启动时调用"""
         await super().on_startup()
-        self._logger.info("ChannelAdmin Agent started, ready to manage channels")
+        self._logger.info("ChannelAdmin Agent 已启动，准备管理协商 Channel")
 
     async def on_shutdown(self):
         """Agent关闭时调用"""
@@ -121,10 +121,10 @@ class ChannelAdminAgent(TowowBaseAgent):
         channel_id = channel_name or f"ch-{uuid4().hex[:8]}"
 
         if channel_id in self.channels:
-            self._logger.warning(f"Channel {channel_id} already exists")
+            self._logger.warning(f"Channel {channel_id} 已存在")
             return channel_id
 
-        self._logger.info(f"Starting to manage channel {channel_id} for demand {demand_id}")
+        self._logger.info(f"开始管理 Channel {channel_id}，需求: {demand_id}")
 
         # 创建Channel状态
         state = ChannelState(
@@ -199,7 +199,7 @@ class ChannelAdminAgent(TowowBaseAgent):
             生成的方案，如果失败返回 None
         """
         if channel_id not in self.channels:
-            self._logger.warning(f"Channel {channel_id} not found")
+            self._logger.warning(f"Channel {channel_id} 未找到")
             return None
 
         state = self.channels[channel_id]
@@ -249,7 +249,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         data = content if isinstance(content, dict) else payload
         msg_type = data.get("type")
 
-        self._logger.debug(f"Received direct message type: {msg_type}")
+        self._logger.debug(f"收到直接消息类型: {msg_type}")
 
         if msg_type == "create_channel":
             await self._handle_create_channel(data, context)
@@ -259,8 +259,16 @@ class ChannelAdminAgent(TowowBaseAgent):
             await self._handle_proposal_feedback(data)
         elif msg_type == "get_status":
             await self._handle_get_status(data, context)
+        elif msg_type == "agent_withdrawn":
+            await self._handle_agent_withdrawn(data)
+        elif msg_type == "bargain":
+            await self._handle_bargain(data)
+        elif msg_type == "counter_proposal":
+            await self._handle_counter_proposal(data)
+        elif msg_type == "kick_agent":
+            await self._handle_kick_agent(data)
         else:
-            self._logger.warning(f"Unknown message type: {msg_type}")
+            self._logger.warning(f"未知消息类型: {msg_type}")
 
     async def on_channel_post(self, context: ChannelMessageContext):
         """处理Channel消息"""
@@ -270,7 +278,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         data = content if isinstance(content, dict) else payload
         msg_type = data.get("type")
 
-        self._logger.debug(f"Received channel message type: {msg_type} in {context.channel}")
+        self._logger.debug(f"在 {context.channel} 收到 Channel 消息类型: {msg_type}")
 
         if msg_type == "create_channel":
             await self._handle_create_channel(data, context)
@@ -289,7 +297,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         demand_id = data.get("demand_id")
 
         if channel_id in self.channels:
-            self._logger.warning(f"Channel {channel_id} already exists")
+            self._logger.warning(f"Channel {channel_id} 已存在")
             if context:
                 await context.reply({
                     "content": {
@@ -300,7 +308,7 @@ class ChannelAdminAgent(TowowBaseAgent):
                 })
             return
 
-        self._logger.info(f"Creating channel {channel_id} for demand {demand_id}")
+        self._logger.info(f"正在创建 Channel {channel_id}，需求: {demand_id}")
 
         # 创建Channel状态
         state = ChannelState(
@@ -342,7 +350,7 @@ class ChannelAdminAgent(TowowBaseAgent):
 
         candidate_ids = [c.get("agent_id") for c in state.candidates if c.get("agent_id")]
         self._logger.info(
-            f"Broadcasting demand to {len(candidate_ids)} candidates for channel {state.channel_id}"
+            f"正在向 {len(candidate_ids)} 个候选人广播需求，Channel: {state.channel_id}"
         )
 
         # 发布广播事件
@@ -369,9 +377,9 @@ class ChannelAdminAgent(TowowBaseAgent):
                     "filter_reason": candidate.get("reason", ""),
                     "match_score": candidate.get("match_score", 0)
                 })
-                self._logger.debug(f"Sent demand offer to {agent_id}")
+                self._logger.debug(f"已向 {agent_id} 发送需求邀请")
             except Exception as e:
-                self._logger.error(f"Failed to send demand offer to {agent_id}: {e}")
+                self._logger.error(f"向 {agent_id} 发送需求邀请失败: {e}")
 
         state.status = ChannelStatus.COLLECTING
 
@@ -409,8 +417,8 @@ class ChannelAdminAgent(TowowBaseAgent):
             responded = len(state.responses)
             total = len(state.candidates)
             self._logger.info(
-                f"Response timeout for {state.channel_id}, "
-                f"received {responded}/{total} responses"
+                f"Channel {state.channel_id} 响应超时，"
+                f"已收到 {responded}/{total} 个响应"
             )
             await self._aggregate_proposals(state)
 
@@ -420,18 +428,18 @@ class ChannelAdminAgent(TowowBaseAgent):
         agent_id = data.get("agent_id")
 
         if not channel_id or not agent_id:
-            self._logger.warning("Missing channel_id or agent_id in offer_response")
+            self._logger.warning("offer_response 中缺少 channel_id 或 agent_id")
             return
 
         if channel_id not in self.channels:
-            self._logger.warning(f"Unknown channel: {channel_id}")
+            self._logger.warning(f"未知 Channel: {channel_id}")
             return
 
         state = self.channels[channel_id]
 
         if state.status not in (ChannelStatus.COLLECTING, ChannelStatus.BROADCASTING):
             self._logger.warning(
-                f"Cannot accept response for channel {channel_id} in status {state.status.value}"
+                f"Channel {channel_id} 当前状态 {state.status.value} 不接受响应"
             )
             return
 
@@ -442,29 +450,42 @@ class ChannelAdminAgent(TowowBaseAgent):
             "contribution": data.get("contribution"),
             "conditions": data.get("conditions", []),
             "reasoning": data.get("reasoning"),
+            "decline_reason": data.get("decline_reason", ""),  # 拒绝原因
             "capabilities": data.get("capabilities", []),
             "estimated_effort": data.get("estimated_effort"),
             "received_at": datetime.utcnow().isoformat()
         }
 
         self._logger.info(
-            f"Received response from {agent_id} for {channel_id}: {decision}"
+            f"收到 {agent_id} 对 {channel_id} 的响应: {decision}"
         )
 
-        # 发布响应事件
+        # 获取 agent 的显示名称
+        display_name = data.get("display_name", agent_id)
+        for candidate in state.candidates:
+            if candidate.get("agent_id") == agent_id:
+                display_name = candidate.get("display_name", display_name)
+                break
+
+        # 发布响应事件（完整信息）
         await self._publish_event("towow.offer.submitted", {
             "channel_id": channel_id,
             "agent_id": agent_id,
+            "display_name": display_name,
             "decision": decision,
-            "contribution": data.get("contribution"),
-            "round": state.current_round
+            "contribution": data.get("contribution", ""),
+            "reasoning": data.get("reasoning", ""),
+            "decline_reason": data.get("decline_reason", ""),
+            "conditions": data.get("conditions", []),
+            "round": state.current_round,
+            "timestamp": datetime.utcnow().isoformat()
         })
 
         # 检查是否收集完毕
         responded = len(state.responses)
         total = len(state.candidates)
 
-        self._logger.debug(f"Responses collected: {responded}/{total}")
+        self._logger.debug(f"已收集响应: {responded}/{total}")
 
         if responded >= total:
             # 取消超时任务
@@ -478,7 +499,7 @@ class ChannelAdminAgent(TowowBaseAgent):
     async def _aggregate_proposals(self, state: ChannelState):
         """聚合响应，生成协作方案"""
         if state.status not in (ChannelStatus.COLLECTING, ChannelStatus.BROADCASTING):
-            self._logger.debug(f"Skip aggregation, channel status: {state.status.value}")
+            self._logger.debug(f"跳过聚合，Channel 状态: {state.status.value}")
             return
 
         state.status = ChannelStatus.AGGREGATING
@@ -491,13 +512,13 @@ class ChannelAdminAgent(TowowBaseAgent):
         ]
 
         if not participants:
-            self._logger.warning(f"No participants for channel {state.channel_id}")
+            self._logger.warning(f"Channel {state.channel_id} 没有参与者")
             await self._fail_channel(state, "no_participants")
             return
 
         self._logger.info(
-            f"Aggregating proposals from {len(participants)} participants "
-            f"for channel {state.channel_id}"
+            f"正在聚合 {len(participants)} 个参与者的方案，"
+            f"Channel: {state.channel_id}"
         )
 
         # 发布聚合开始事件
@@ -534,7 +555,7 @@ class ChannelAdminAgent(TowowBaseAgent):
             结构化的协作方案
         """
         if not self.llm:
-            self._logger.debug("No LLM service, using mock proposal")
+            self._logger.debug("未配置 LLM 服务，使用模拟方案")
             return self._mock_proposal(state, participants)
 
         demand = state.demand
@@ -637,7 +658,7 @@ class ChannelAdminAgent(TowowBaseAgent):
             )
             return self._parse_proposal(response)
         except Exception as e:
-            self._logger.error(f"Proposal generation error: {e}")
+            self._logger.error(f"方案生成错误: {e}")
             return self._mock_proposal(state, participants)
 
     def _parse_proposal(self, response: str) -> Dict[str, Any]:
@@ -654,9 +675,9 @@ class ChannelAdminAgent(TowowBaseAgent):
                 return json.loads(json_match.group())
 
         except json.JSONDecodeError as e:
-            self._logger.error(f"JSON parse error: {e}")
+            self._logger.error(f"JSON 解析错误: {e}")
         except Exception as e:
-            self._logger.error(f"Parse proposal error: {e}")
+            self._logger.error(f"解析方案错误: {e}")
 
         return {
             "summary": "方案生成中",
@@ -702,8 +723,8 @@ class ChannelAdminAgent(TowowBaseAgent):
         ]
 
         self._logger.info(
-            f"Distributing proposal to {len(participant_ids)} participants "
-            f"for channel {state.channel_id}"
+            f"正在向 {len(participant_ids)} 个参与者分发方案，"
+            f"Channel: {state.channel_id}"
         )
 
         # 发布方案分发事件
@@ -726,9 +747,9 @@ class ChannelAdminAgent(TowowBaseAgent):
                     "round": state.current_round,
                     "max_rounds": state.max_rounds
                 })
-                self._logger.debug(f"Sent proposal to {agent_id}")
+                self._logger.debug(f"已向 {agent_id} 发送方案")
             except Exception as e:
-                self._logger.error(f"Failed to send proposal to {agent_id}: {e}")
+                self._logger.error(f"向 {agent_id} 发送方案失败: {e}")
 
         state.status = ChannelStatus.NEGOTIATING
 
@@ -744,8 +765,8 @@ class ChannelAdminAgent(TowowBaseAgent):
         if state.status == ChannelStatus.NEGOTIATING:
             feedback_count = len(state.proposal_feedback)
             self._logger.info(
-                f"Feedback timeout for {state.channel_id}, "
-                f"received {feedback_count} feedbacks"
+                f"Channel {state.channel_id} 反馈超时，"
+                f"已收到 {feedback_count} 个反馈"
             )
             await self._evaluate_feedback(state)
 
@@ -755,19 +776,18 @@ class ChannelAdminAgent(TowowBaseAgent):
         agent_id = data.get("agent_id")
 
         if not channel_id or not agent_id:
-            self._logger.warning("Missing channel_id or agent_id in proposal_feedback")
+            self._logger.warning("proposal_feedback 中缺少 channel_id 或 agent_id")
             return
 
         if channel_id not in self.channels:
-            self._logger.warning(f"Unknown channel: {channel_id}")
+            self._logger.warning(f"未知 Channel: {channel_id}")
             return
 
         state = self.channels[channel_id]
 
         if state.status != ChannelStatus.NEGOTIATING:
             self._logger.warning(
-                f"Cannot accept feedback for channel {channel_id} "
-                f"in status {state.status.value}"
+                f"Channel {channel_id} 当前状态 {state.status.value} 不接受反馈"
             )
             return
 
@@ -781,7 +801,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         }
 
         self._logger.info(
-            f"Feedback from {agent_id} for {channel_id}: {feedback_type}"
+            f"收到 {agent_id} 对 {channel_id} 的反馈: {feedback_type}"
         )
 
         # 发布反馈事件
@@ -810,7 +830,7 @@ class ChannelAdminAgent(TowowBaseAgent):
     async def _evaluate_feedback(self, state: ChannelState):
         """评估反馈，决定下一步"""
         if state.status != ChannelStatus.NEGOTIATING:
-            self._logger.debug(f"Skip evaluation, channel status: {state.status.value}")
+            self._logger.debug(f"跳过评估，Channel 状态: {state.status.value}")
             return
 
         # 统计反馈
@@ -830,8 +850,8 @@ class ChannelAdminAgent(TowowBaseAgent):
         total = len(state.proposal_feedback)
 
         self._logger.info(
-            f"Feedback evaluation for {state.channel_id}: "
-            f"{accepts} accept, {rejects} reject, {negotiates} negotiate (total: {total})"
+            f"Channel {state.channel_id} 反馈评估: "
+            f"{accepts} 接受, {rejects} 拒绝, {negotiates} 协商 (共: {total})"
         )
 
         # 发布评估事件
@@ -846,7 +866,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         # 决策逻辑
         if total == 0:
             # 没有反馈，使用默认策略
-            self._logger.warning(f"No feedback received for {state.channel_id}")
+            self._logger.warning(f"Channel {state.channel_id} 未收到反馈")
             if state.current_round < state.max_rounds:
                 await self._next_round(state)
             else:
@@ -880,7 +900,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         state.proposal_feedback.clear()
 
         self._logger.info(
-            f"Starting round {state.current_round} for channel {state.channel_id}"
+            f"Channel {state.channel_id} 进入第 {state.current_round} 轮协商"
         )
 
         # 发布新一轮事件
@@ -1010,7 +1030,7 @@ class ChannelAdminAgent(TowowBaseAgent):
             )
             return self._parse_proposal(response)
         except Exception as e:
-            self._logger.error(f"Proposal adjustment error: {e}")
+            self._logger.error(f"方案调整错误: {e}")
             # 返回原方案并标记调整失败
             adjusted = dict(current_proposal)
             adjusted["adjustment_failed"] = True
@@ -1054,17 +1074,47 @@ class ChannelAdminAgent(TowowBaseAgent):
         """完成协商"""
         state.status = ChannelStatus.FINALIZED
 
+        # 统计各类参与者数量
+        confirmed_participants = [
+            aid for aid, resp in state.responses.items()
+            if resp.get("decision") in ("participate", "conditional")
+        ]
+        declined_agents = [
+            aid for aid, resp in state.responses.items()
+            if resp.get("decision") == "decline"
+        ]
+        withdrawn_agents = [
+            aid for aid, resp in state.responses.items()
+            if resp.get("decision") == "withdrawn"
+        ]
+
         self._logger.info(
-            f"Channel {state.channel_id} finalized after {state.current_round} rounds"
+            f"Channel {state.channel_id} 协商完成，共 {state.current_round} 轮，"
+            f"{len(confirmed_participants)} 人参与"
         )
 
-        # 发布完成事件
+        # 生成摘要
+        summary = (
+            f"经过{state.current_round}轮协商，"
+            f"{len(confirmed_participants)}位参与者达成共识"
+        )
+        if declined_agents:
+            summary += f"，{len(declined_agents)}人婉拒"
+        if withdrawn_agents:
+            summary += f"，{len(withdrawn_agents)}人中途退出"
+
+        # 发布完成事件（完整统计信息）
         await self._publish_event("towow.proposal.finalized", {
             "channel_id": state.channel_id,
             "demand_id": state.demand_id,
-            "proposal": state.current_proposal,
-            "participants": list(state.responses.keys()),
-            "rounds": state.current_round,
+            "status": "success",
+            "final_proposal": state.current_proposal,
+            "total_rounds": state.current_round,
+            "participants_count": len(confirmed_participants),
+            "declined_count": len(declined_agents),
+            "withdrawn_count": len(withdrawn_agents),
+            "participants": confirmed_participants,
+            "summary": summary,
             "finalized_at": datetime.utcnow().isoformat()
         })
 
@@ -1075,10 +1125,7 @@ class ChannelAdminAgent(TowowBaseAgent):
             "demand_id": state.demand_id,
             "success": True,
             "proposal": state.current_proposal,
-            "participants": [
-                aid for aid, resp in state.responses.items()
-                if resp.get("decision") in ("participate", "conditional")
-            ],
+            "participants": confirmed_participants,
             "rounds": state.current_round
         })
 
@@ -1092,22 +1139,47 @@ class ChannelAdminAgent(TowowBaseAgent):
                     "proposal": state.current_proposal
                 })
             except Exception as e:
-                self._logger.error(f"Failed to notify {agent_id}: {e}")
+                self._logger.error(f"通知 {agent_id} 失败: {e}")
 
     async def _fail_channel(self, state: ChannelState, reason: str):
         """协商失败"""
         state.status = ChannelStatus.FAILED
 
+        # 统计反馈情况
+        accept_count = 0
+        reject_count = 0
+        for feedback in state.proposal_feedback.values():
+            if feedback.get("feedback_type") == "accept":
+                accept_count += 1
+            elif feedback.get("feedback_type") == "reject":
+                reject_count += 1
+
+        # 生成失败原因的人性化描述
+        reason_descriptions = {
+            "no_participants": "没有候选人愿意参与",
+            "majority_reject": "多数参与者拒绝了方案",
+            "max_rounds_reached": "协商轮次已达上限，仍未达成共识",
+            "no_feedback": "未收到参与者反馈",
+            "all_participants_withdrawn": "所有参与者都已退出",
+            "all_participants_removed": "所有参与者都已被移除"
+        }
+        human_reason = reason_descriptions.get(reason, reason)
+
         self._logger.warning(
-            f"Channel {state.channel_id} failed: {reason} (round {state.current_round})"
+            f"Channel {state.channel_id} 协商失败: {reason} (第 {state.current_round} 轮)"
         )
 
-        # 发布失败事件
+        # 发布失败事件（完整统计信息）
         await self._publish_event("towow.negotiation.failed", {
             "channel_id": state.channel_id,
             "demand_id": state.demand_id,
-            "reason": reason,
-            "rounds": state.current_round,
+            "status": "failed",
+            "reason": human_reason,
+            "reason_code": reason,
+            "total_rounds": state.current_round,
+            "max_rounds": state.max_rounds,
+            "final_accept_count": accept_count,
+            "final_reject_count": reject_count,
             "responses_received": len(state.responses),
             "failed_at": datetime.utcnow().isoformat()
         })
@@ -1132,7 +1204,7 @@ class ChannelAdminAgent(TowowBaseAgent):
                     "reason": reason
                 })
             except Exception as e:
-                self._logger.error(f"Failed to notify {agent_id}: {e}")
+                self._logger.error(f"通知 {agent_id} 失败: {e}")
 
     async def _handle_get_status(
         self,
@@ -1173,9 +1245,9 @@ class ChannelAdminAgent(TowowBaseAgent):
             })
         except ImportError:
             # 事件总线不可用，仅记录日志
-            self._logger.debug(f"Event (no bus): {event_type} - {payload}")
+            self._logger.debug(f"事件 (无总线): {event_type} - {payload}")
         except Exception as e:
-            self._logger.error(f"Failed to publish event {event_type}: {e}")
+            self._logger.error(f"发布事件 {event_type} 失败: {e}")
 
     def get_channel_status(self, channel_id: str) -> Optional[Dict[str, Any]]:
         """获取Channel状态"""
@@ -1314,38 +1386,60 @@ class ChannelAdminAgent(TowowBaseAgent):
             )
             return self._parse_proposal(response)
         except Exception as e:
-            self._logger.error(f"Compromise generation error: {e}")
+            self._logger.error(f"妥协方案生成错误: {e}")
             return {
                 "summary": "妥协方案生成失败",
                 "type": "compromise",
                 "error": str(e)
             }
 
-    async def _handle_withdrawal(self, channel_id: str, agent_id: str) -> None:
+    async def _handle_withdrawal(
+        self,
+        channel_id: str,
+        agent_id: str,
+        reason: str = "因个人原因需要退出本次协作",
+        display_name: Optional[str] = None
+    ) -> None:
         """
         处理Agent退出协商
 
         Args:
             channel_id: Channel ID
             agent_id: 退出的Agent ID
+            reason: 退出原因
+            display_name: Agent显示名称
         """
         if channel_id not in self.channels:
             return
 
         state = self.channels[channel_id]
 
+        # 获取 agent 的显示名称
+        if not display_name:
+            # 尝试从候选人列表获取
+            for candidate in state.candidates:
+                if candidate.get("agent_id") == agent_id:
+                    display_name = candidate.get("display_name", agent_id)
+                    break
+            if not display_name:
+                display_name = agent_id
+
         # 更新响应状态
         if agent_id in state.responses:
             state.responses[agent_id]["decision"] = "withdrawn"
             state.responses[agent_id]["withdrawn_at"] = datetime.utcnow().isoformat()
+            state.responses[agent_id]["withdrawal_reason"] = reason
 
-        self._logger.info(f"Agent {agent_id} withdrew from channel {channel_id}")
+        self._logger.info(f"Agent {agent_id} 退出 Channel {channel_id}: {reason}")
 
-        # 发布退出事件
+        # 发布退出事件（完整信息）
         await self._publish_event("towow.agent.withdrawn", {
             "channel_id": channel_id,
             "agent_id": agent_id,
-            "round": state.current_round
+            "display_name": display_name,
+            "reason": reason,
+            "round": state.current_round,
+            "timestamp": datetime.utcnow().isoformat()
         })
 
         # 检查是否还有足够的参与者
@@ -1356,4 +1450,333 @@ class ChannelAdminAgent(TowowBaseAgent):
 
         if len(remaining_participants) == 0:
             await self._fail_channel(state, "all_participants_withdrawn")
+
+    async def _handle_kick(
+        self,
+        channel_id: str,
+        agent_id: str,
+        reason: str = "多次未响应，已自动移出协作",
+        kicked_by: str = "system",
+        display_name: Optional[str] = None
+    ) -> None:
+        """
+        处理Agent被踢出
+
+        Args:
+            channel_id: Channel ID
+            agent_id: 被踢出的Agent ID
+            reason: 踢出原因
+            kicked_by: 踢出者（system 或其他 agent_id）
+            display_name: Agent显示名称
+        """
+        if channel_id not in self.channels:
+            return
+
+        state = self.channels[channel_id]
+
+        # 获取 agent 的显示名称
+        if not display_name:
+            for candidate in state.candidates:
+                if candidate.get("agent_id") == agent_id:
+                    display_name = candidate.get("display_name", agent_id)
+                    break
+            if not display_name:
+                display_name = agent_id
+
+        # 更新响应状态
+        if agent_id in state.responses:
+            state.responses[agent_id]["decision"] = "kicked"
+            state.responses[agent_id]["kicked_at"] = datetime.utcnow().isoformat()
+            state.responses[agent_id]["kick_reason"] = reason
+            state.responses[agent_id]["kicked_by"] = kicked_by
+
+        self._logger.info(f"Agent {agent_id} 被踢出 Channel {channel_id}: {reason}")
+
+        # 发布被踢出事件
+        await self._publish_event("towow.agent.kicked", {
+            "channel_id": channel_id,
+            "agent_id": agent_id,
+            "display_name": display_name,
+            "reason": reason,
+            "kicked_by": kicked_by,
+            "round": state.current_round,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+        # 检查是否还有足够的参与者
+        remaining_participants = [
+            aid for aid, resp in state.responses.items()
+            if resp.get("decision") in ("participate", "conditional")
+        ]
+
+        if len(remaining_participants) == 0:
+            await self._fail_channel(state, "all_participants_removed")
+
+    async def _publish_bargain_event(
+        self,
+        channel_id: str,
+        agent_id: str,
+        display_name: str,
+        bargain_type: str,
+        content: str
+    ) -> None:
+        """
+        发布讨价还价事件
+
+        Args:
+            channel_id: Channel ID
+            agent_id: Agent ID
+            display_name: Agent显示名称
+            bargain_type: 讨价还价类型 (role_change/condition/objection)
+            content: 讨价还价内容
+        """
+        if channel_id not in self.channels:
+            return
+
+        state = self.channels[channel_id]
+
+        await self._publish_event("towow.negotiation.bargain", {
+            "channel_id": channel_id,
+            "agent_id": agent_id,
+            "display_name": display_name,
+            "bargain_type": bargain_type,
+            "content": content,
+            "round": state.current_round,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+    # ========== 新增消息处理方法 ==========
+
+    async def _handle_agent_withdrawn(self, data: Dict[str, Any]) -> None:
+        """
+        处理 Agent 主动退出消息
+
+        Args:
+            data: 消息数据，包含 channel_id, agent_id, reason
+        """
+        channel_id = data.get("channel_id")
+        agent_id = data.get("agent_id")
+        reason = data.get("reason", "因个人原因需要退出本次协作")
+
+        if not channel_id or not agent_id:
+            self._logger.warning("agent_withdrawn 消息缺少 channel_id 或 agent_id")
+            return
+
+        # 调用内部处理方法
+        await self._handle_withdrawal(channel_id, agent_id, reason)
+
+    async def _handle_bargain(self, data: Dict[str, Any]) -> None:
+        """
+        处理讨价还价消息
+
+        Args:
+            data: 消息数据，包含 channel_id, agent_id, offer, original_terms, new_terms
+        """
+        channel_id = data.get("channel_id")
+        agent_id = data.get("agent_id")
+        offer = data.get("offer", "")
+        original_terms = data.get("original_terms", {})
+        new_terms = data.get("new_terms", {})
+
+        if not channel_id or not agent_id:
+            self._logger.warning("bargain 消息缺少 channel_id 或 agent_id")
+            return
+
+        if channel_id not in self.channels:
+            self._logger.warning(f"未知 Channel: {channel_id}")
+            return
+
+        state = self.channels[channel_id]
+
+        # 获取 agent 的显示名称
+        display_name = agent_id
+        for candidate in state.candidates:
+            if candidate.get("agent_id") == agent_id:
+                display_name = candidate.get("display_name", agent_id)
+                break
+
+        self._logger.info(f"Agent {agent_id} 在 Channel {channel_id} 发起讨价还价: {offer}")
+
+        # 发布讨价还价事件（使用更完整的 payload）
+        await self._publish_event("towow.negotiation.bargain", {
+            "channel_id": channel_id,
+            "demand_id": state.demand_id,
+            "agent_id": agent_id,
+            "display_name": display_name,
+            "offer": offer,
+            "original_terms": original_terms,
+            "new_terms": new_terms,
+            "round": state.current_round,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+    async def _handle_counter_proposal(self, data: Dict[str, Any]) -> None:
+        """
+        处理反提案消息
+
+        Args:
+            data: 消息数据，包含 channel_id, agent_id, counter_proposal, reason
+        """
+        channel_id = data.get("channel_id")
+        agent_id = data.get("agent_id")
+        counter_proposal = data.get("counter_proposal", {})
+        reason = data.get("reason", "")
+
+        if not channel_id or not agent_id:
+            self._logger.warning("counter_proposal 消息缺少 channel_id 或 agent_id")
+            return
+
+        if channel_id not in self.channels:
+            self._logger.warning(f"未知 Channel: {channel_id}")
+            return
+
+        state = self.channels[channel_id]
+
+        # 获取 agent 的显示名称
+        display_name = agent_id
+        for candidate in state.candidates:
+            if candidate.get("agent_id") == agent_id:
+                display_name = candidate.get("display_name", agent_id)
+                break
+
+        self._logger.info(f"Agent {agent_id} 在 Channel {channel_id} 提交反提案")
+
+        # 发布反提案事件
+        await self._publish_event("towow.negotiation.counter_proposal", {
+            "channel_id": channel_id,
+            "demand_id": state.demand_id,
+            "agent_id": agent_id,
+            "display_name": display_name,
+            "counter_proposal": counter_proposal,
+            "reason": reason,
+            "round": state.current_round,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+        # 可以选择是否将反提案作为当前方案的调整
+        # 这里记录反提案供后续协商参考
+        if agent_id in state.proposal_feedback:
+            state.proposal_feedback[agent_id]["counter_proposal"] = counter_proposal
+            state.proposal_feedback[agent_id]["counter_proposal_reason"] = reason
+
+    async def _handle_kick_agent(self, data: Dict[str, Any]) -> None:
+        """
+        处理踢出 Agent 的消息
+
+        Args:
+            data: 消息数据，包含 channel_id, agent_id, reason, kicked_by
+        """
+        channel_id = data.get("channel_id")
+        agent_id = data.get("agent_id")
+        reason = data.get("reason", "多次未响应，已自动移出协作")
+        kicked_by = data.get("kicked_by", "system")
+
+        if not channel_id or not agent_id:
+            self._logger.warning("kick_agent 消息缺少 channel_id 或 agent_id")
+            return
+
+        # 调用内部处理方法
+        await self._handle_kick(channel_id, agent_id, reason, kicked_by)
+
+    # ========== 公共 API 方法（供外部调用）==========
+
+    async def withdraw_agent(
+        self,
+        channel_id: str,
+        agent_id: str,
+        reason: str = "因个人原因需要退出本次协作"
+    ) -> bool:
+        """
+        处理 Agent 退出（公共 API）
+
+        Args:
+            channel_id: Channel ID
+            agent_id: 退出的 Agent ID
+            reason: 退出原因
+
+        Returns:
+            是否成功处理
+        """
+        await self._handle_withdrawal(channel_id, agent_id, reason)
+        return True
+
+    async def kick_agent(
+        self,
+        channel_id: str,
+        agent_id: str,
+        reason: str = "多次未响应，已自动移出协作",
+        kicked_by: str = "system"
+    ) -> bool:
+        """
+        踢出 Agent（公共 API）
+
+        Args:
+            channel_id: Channel ID
+            agent_id: 被踢出的 Agent ID
+            reason: 踢出原因
+            kicked_by: 踢出者
+
+        Returns:
+            是否成功处理
+        """
+        await self._handle_kick(channel_id, agent_id, reason, kicked_by)
+        return True
+
+    async def publish_bargain(
+        self,
+        channel_id: str,
+        agent_id: str,
+        offer: str,
+        original_terms: Optional[Dict[str, Any]] = None,
+        new_terms: Optional[Dict[str, Any]] = None
+    ) -> bool:
+        """
+        发布讨价还价事件（公共 API）
+
+        Args:
+            channel_id: Channel ID
+            agent_id: Agent ID
+            offer: 讨价还价内容
+            original_terms: 原始条款
+            new_terms: 新条款
+
+        Returns:
+            是否成功处理
+        """
+        await self._handle_bargain({
+            "channel_id": channel_id,
+            "agent_id": agent_id,
+            "offer": offer,
+            "original_terms": original_terms or {},
+            "new_terms": new_terms or {}
+        })
+        return True
+
+    async def publish_counter_proposal(
+        self,
+        channel_id: str,
+        agent_id: str,
+        counter_proposal: Dict[str, Any],
+        reason: str = ""
+    ) -> bool:
+        """
+        发布反提案事件（公共 API）
+
+        Args:
+            channel_id: Channel ID
+            agent_id: Agent ID
+            counter_proposal: 反提案内容
+            reason: 提交原因
+
+        Returns:
+            是否成功处理
+        """
+        await self._handle_counter_proposal({
+            "channel_id": channel_id,
+            "agent_id": agent_id,
+            "counter_proposal": counter_proposal,
+            "reason": reason
+        })
+        return True
+
 

@@ -90,7 +90,7 @@ class UserAgent(TowowBaseAgent):
         demand = data.get("demand", {})
         filter_reason = data.get("filter_reason", "")
 
-        self._logger.info(f"Received demand offer for channel {channel_id}")
+        self._logger.info(f"收到 Channel {channel_id} 的需求邀请")
 
         # 记录参与信息
         self.active_channels[channel_id] = {
@@ -139,7 +139,7 @@ class UserAgent(TowowBaseAgent):
                     context={"filter_reason": filter_reason},
                 )
             except Exception as e:
-                self._logger.error(f"SecondMe error: {e}")
+                self._logger.error(f"SecondMe 错误: {e}")
 
         # 使用LLM作为备选
         if self.llm:
@@ -200,7 +200,7 @@ class UserAgent(TowowBaseAgent):
             )
             return self._parse_response(response)
         except Exception as e:
-            self._logger.error(f"LLM response error: {e}")
+            self._logger.error(f"LLM 响应错误: {e}")
             return self._mock_response(demand)
 
     def _parse_response(self, response: str) -> Dict[str, Any]:
@@ -223,7 +223,7 @@ class UserAgent(TowowBaseAgent):
                     "reasoning": data.get("reasoning", ""),
                 }
         except Exception as e:
-            self._logger.error(f"Parse response error: {e}")
+            self._logger.error(f"解析响应错误: {e}")
         return self._mock_response({})
 
     def _mock_response(self, demand: Dict[str, Any]) -> Dict[str, Any]:
@@ -271,10 +271,10 @@ class UserAgent(TowowBaseAgent):
         channel_id = data.get("channel_id", "")
         proposal = data.get("proposal", {})
 
-        self._logger.info(f"Reviewing proposal for channel {channel_id}")
+        self._logger.info(f"正在评审 Channel {channel_id} 的方案")
 
         if channel_id not in self.active_channels:
-            self._logger.warning(f"Unknown channel: {channel_id}")
+            self._logger.warning(f"未知 Channel: {channel_id}")
             return
 
         # 评估方案
@@ -314,7 +314,7 @@ class UserAgent(TowowBaseAgent):
                     profile=self.profile,
                 )
             except Exception as e:
-                self._logger.error(f"SecondMe evaluate error: {e}")
+                self._logger.error(f"SecondMe 评估错误: {e}")
 
         if self.llm:
             return await self._llm_evaluate_proposal(proposal)
@@ -378,7 +378,7 @@ class UserAgent(TowowBaseAgent):
             )
             return self._parse_feedback(response)
         except Exception as e:
-            self._logger.error(f"LLM evaluate error: {e}")
+            self._logger.error(f"LLM 评估错误: {e}")
             return self._mock_feedback(proposal)
 
     def _parse_feedback(self, response: str) -> Dict[str, Any]:
@@ -400,7 +400,7 @@ class UserAgent(TowowBaseAgent):
                     "reasoning": data.get("reasoning", ""),
                 }
         except Exception as e:
-            self._logger.error(f"Parse feedback error: {e}")
+            self._logger.error(f"解析反馈错误: {e}")
         return self._mock_feedback({})
 
     def _mock_feedback(self, proposal: Dict[str, Any]) -> Dict[str, Any]:
@@ -459,7 +459,7 @@ class UserAgent(TowowBaseAgent):
             }
         """
         demand_id = f"d-{uuid4().hex[:8]}"
-        self._logger.info(f"User {self.user_id} submitting demand: {demand_id}")
+        self._logger.info(f"用户 {self.user_id} 正在提交需求: {demand_id}")
 
         # 1. 调用 SecondMe 理解需求
         understanding = await self._understand_demand(raw_input)
@@ -509,7 +509,7 @@ class UserAgent(TowowBaseAgent):
                     user_id=self.user_id
                 )
             except Exception as e:
-                self._logger.error(f"SecondMe understand_demand error: {e}")
+                self._logger.error(f"SecondMe 理解需求错误: {e}")
 
         # 降级：返回基本结构
         return {
@@ -543,7 +543,7 @@ class UserAgent(TowowBaseAgent):
                 "reasoning": "决策理由"
             }
         """
-        self._logger.info(f"User {self.user_id} handling invite for channel {channel_id}")
+        self._logger.info(f"用户 {self.user_id} 正在处理 Channel {channel_id} 的协作邀请")
 
         # 记录邀请
         self.active_channels[channel_id] = {
@@ -595,10 +595,10 @@ class UserAgent(TowowBaseAgent):
                 "reasoning": "评估理由"
             }
         """
-        self._logger.info(f"User {self.user_id} handling proposal for channel {channel_id}")
+        self._logger.info(f"用户 {self.user_id} 正在处理 Channel {channel_id} 的方案")
 
         if channel_id not in self.active_channels:
-            self._logger.warning(f"Unknown channel: {channel_id}, creating entry")
+            self._logger.warning(f"未知 Channel: {channel_id}，正在创建条目")
             self.active_channels[channel_id] = {
                 "status": "proposal_received",
                 "received_at": datetime.utcnow().isoformat(),
@@ -656,5 +656,190 @@ class UserAgent(TowowBaseAgent):
             # 兼容旧格式
             await self._handle_demand_offer(ctx, content)
         else:
-            self._logger.debug(f"Unknown direct message type: {msg_type}")
+            self._logger.debug(f"未知直接消息类型: {msg_type}")
+
+    # ===== 新增事件发射方法 =====
+
+    async def withdraw(
+        self,
+        channel_id: str,
+        reason: str = "因个人原因需要退出本次协作"
+    ) -> Dict[str, Any]:
+        """主动退出协商.
+
+        当用户决定不再参与某个协商时调用此方法。
+        会发布 towow.agent.withdrawn 事件。
+
+        Args:
+            channel_id: Channel ID
+            reason: 退出原因
+
+        Returns:
+            {
+                "success": True/False,
+                "channel_id": channel_id,
+                "reason": reason
+            }
+        """
+        self._logger.info(f"用户 {self.user_id} 正在退出 Channel {channel_id}: {reason}")
+
+        # 更新本地状态
+        if channel_id in self.active_channels:
+            self.active_channels[channel_id]["status"] = "withdrawn"
+            self.active_channels[channel_id]["withdrawn_at"] = datetime.utcnow().isoformat()
+            self.active_channels[channel_id]["withdrawal_reason"] = reason
+
+        # 发布退出事件
+        await self._publish_event("towow.agent.withdrawn", {
+            "agent_id": self.agent_id,
+            "agent_name": self.profile.get("name", self.user_id),
+            "reason": reason,
+            "demand_id": self.active_channels.get(channel_id, {}).get("demand", {}).get("demand_id"),
+            "channel_id": channel_id,
+            "withdrawn_at": datetime.utcnow().isoformat()
+        })
+
+        # 通知 ChannelAdmin
+        await self.send_to_agent("channel_admin", {
+            "type": "agent_withdrawn",
+            "channel_id": channel_id,
+            "agent_id": self.agent_id,
+            "reason": reason
+        })
+
+        return {
+            "success": True,
+            "channel_id": channel_id,
+            "reason": reason
+        }
+
+    async def bargain(
+        self,
+        channel_id: str,
+        offer: str,
+        original_terms: Optional[Dict[str, Any]] = None,
+        new_terms: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """发起讨价还价.
+
+        当用户想要对方案中的某些条款进行协商时调用此方法。
+        会发布 towow.negotiation.bargain 事件。
+
+        Args:
+            channel_id: Channel ID
+            offer: 讨价还价的内容描述
+            original_terms: 原始条款（可选）
+            new_terms: 希望的新条款（可选）
+
+        Returns:
+            {
+                "success": True/False,
+                "channel_id": channel_id,
+                "offer": offer
+            }
+        """
+        self._logger.info(f"用户 {self.user_id} 在 Channel {channel_id} 发起讨价还价")
+
+        demand_id = self.active_channels.get(channel_id, {}).get("demand", {}).get("demand_id")
+
+        # 发布讨价还价事件
+        await self._publish_event("towow.negotiation.bargain", {
+            "agent_id": self.agent_id,
+            "agent_name": self.profile.get("name", self.user_id),
+            "offer": offer,
+            "original_terms": original_terms or {},
+            "new_terms": new_terms or {},
+            "demand_id": demand_id,
+            "channel_id": channel_id,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+        # 通知 ChannelAdmin
+        await self.send_to_agent("channel_admin", {
+            "type": "bargain",
+            "channel_id": channel_id,
+            "agent_id": self.agent_id,
+            "offer": offer,
+            "original_terms": original_terms,
+            "new_terms": new_terms
+        })
+
+        return {
+            "success": True,
+            "channel_id": channel_id,
+            "offer": offer
+        }
+
+    async def submit_counter_proposal(
+        self,
+        channel_id: str,
+        counter_proposal: Dict[str, Any],
+        reason: str = ""
+    ) -> Dict[str, Any]:
+        """提交反提案.
+
+        当用户对当前方案不满意，想要提出自己的替代方案时调用此方法。
+        会发布 towow.negotiation.counter_proposal 事件。
+
+        Args:
+            channel_id: Channel ID
+            counter_proposal: 反提案内容（应符合 ToWowProposal 结构）
+            reason: 提交反提案的原因
+
+        Returns:
+            {
+                "success": True/False,
+                "channel_id": channel_id,
+                "counter_proposal": counter_proposal
+            }
+        """
+        self._logger.info(f"用户 {self.user_id} 在 Channel {channel_id} 提交反提案")
+
+        demand_id = self.active_channels.get(channel_id, {}).get("demand", {}).get("demand_id")
+
+        # 发布反提案事件
+        await self._publish_event("towow.negotiation.counter_proposal", {
+            "agent_id": self.agent_id,
+            "agent_name": self.profile.get("name", self.user_id),
+            "counter_proposal": counter_proposal,
+            "reason": reason,
+            "demand_id": demand_id,
+            "channel_id": channel_id,
+            "timestamp": datetime.utcnow().isoformat()
+        })
+
+        # 通知 ChannelAdmin
+        await self.send_to_agent("channel_admin", {
+            "type": "counter_proposal",
+            "channel_id": channel_id,
+            "agent_id": self.agent_id,
+            "counter_proposal": counter_proposal,
+            "reason": reason
+        })
+
+        return {
+            "success": True,
+            "channel_id": channel_id,
+            "counter_proposal": counter_proposal
+        }
+
+    async def _publish_event(self, event_type: str, payload: Dict[str, Any]) -> None:
+        """发布事件到事件总线.
+
+        Args:
+            event_type: 事件类型
+            payload: 事件负载
+        """
+        try:
+            from events.bus import event_bus
+            await event_bus.publish({
+                "event_id": f"evt-{uuid4().hex[:8]}",
+                "event_type": event_type,
+                "timestamp": datetime.utcnow().isoformat(),
+                "payload": payload
+            })
+        except ImportError:
+            self._logger.debug("事件总线不可用")
+        except Exception as e:
+            self._logger.error(f"发布事件 {event_type} 失败: {e}")
 

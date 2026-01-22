@@ -335,7 +335,8 @@ llm_service: Optional[LLMService] = None
 
 def init_llm_service(
     api_key: Optional[str] = None,
-    model: Optional[str] = None
+    model: Optional[str] = None,
+    base_url: Optional[str] = None
 ) -> LLMService:
     """
     初始化LLM服务
@@ -343,6 +344,7 @@ def init_llm_service(
     Args:
         api_key: Anthropic API密钥
         model: 模型名称
+        base_url: 自定义API基础URL（用于代理服务）
 
     Returns:
         初始化后的LLMService实例
@@ -352,12 +354,18 @@ def init_llm_service(
     if api_key:
         try:
             import anthropic
-            client = anthropic.AsyncAnthropic(api_key=api_key)
+            # 支持自定义 base_url（如 omnimaas 代理）
+            if base_url:
+                client = anthropic.AsyncAnthropic(api_key=api_key, base_url=base_url)
+                logger.info(f"LLM service initialized with custom base_url: {base_url}")
+            else:
+                client = anthropic.AsyncAnthropic(api_key=api_key)
+                logger.info("LLM service initialized with API key")
+
             llm_service = LLMService(
                 client=client,
-                model=model or "claude-3-sonnet-20240229"
+                model=model or "claude-sonnet-4-5-20250929"
             )
-            logger.info("LLM service initialized with API key")
         except ImportError:
             logger.warning("anthropic package not installed")
             llm_service = LLMService()
@@ -609,6 +617,7 @@ llm_service_with_fallback: Optional[LLMServiceWithFallback] = None
 def init_llm_service_with_fallback(
     api_key: Optional[str] = None,
     model: Optional[str] = None,
+    base_url: Optional[str] = None,
     timeout: float = 10.0,
     failure_threshold: int = 3,
     recovery_timeout: float = 30.0
@@ -619,17 +628,22 @@ def init_llm_service_with_fallback(
     Args:
         api_key: Anthropic API 密钥
         model: 模型名称
-        timeout: 请求超时时间
+        base_url: 自定义API基础URL
+        timeout: 请求超时时间（秒）
         failure_threshold: 熔断器失败阈值
-        recovery_timeout: 熔断器恢复超时
+        recovery_timeout: 熔断器恢复超时（秒）
 
     Returns:
-        初始化后的 LLMServiceWithFallback 实例
+        初始化后的LLMServiceWithFallback实例
     """
     global llm_service_with_fallback
 
-    # 先初始化基础 LLM 服务
-    base_service = init_llm_service(api_key, model)
+    # 初始化基础 LLM 服务
+    base_llm_service = init_llm_service(
+        api_key=api_key,
+        model=model,
+        base_url=base_url
+    )
 
     # 创建熔断器
     circuit_breaker = CircuitBreaker(
@@ -639,7 +653,7 @@ def init_llm_service_with_fallback(
 
     # 创建带降级能力的服务
     llm_service_with_fallback = LLMServiceWithFallback(
-        llm_service=base_service,
+        llm_service=base_llm_service,
         timeout=timeout,
         circuit_breaker=circuit_breaker
     )

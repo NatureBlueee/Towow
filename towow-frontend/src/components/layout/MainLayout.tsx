@@ -64,7 +64,7 @@ export const MainLayout: React.FC = () => {
             ToWow
           </Title>
           <span style={{ color: 'rgba(255,255,255,0.65)', fontSize: 12 }}>
-            AI Negotiation Platform
+            AI 智能协商平台
           </span>
         </Space>
       </Header>

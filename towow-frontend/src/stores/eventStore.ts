@@ -9,6 +9,7 @@ import type {
   ToWowProposal,
   SSEEvent,
   ProposalAssignment,
+  CandidateDecision,
 } from '../types';
 
 // ============ Runtime Type Validators ============
@@ -51,11 +52,13 @@ function validateToWowProposal(proposal: unknown): ToWowProposal | null {
 
 function isValidDecision(
   decision: unknown
-): decision is 'participate' | 'decline' | 'conditional' {
+): decision is CandidateDecision {
   return (
     decision === 'participate' ||
     decision === 'decline' ||
-    decision === 'conditional'
+    decision === 'conditional' ||
+    decision === 'withdrawn' ||
+    decision === 'kicked'
   );
 }
 
@@ -210,6 +213,26 @@ export const useEventStore = create<EventStore>((set) => ({
                   )
                 : undefined;
 
+              // M1 修复: 补充字段提取
+              const enthusiasmLevel =
+                payload.enthusiasm_level === 'high' ||
+                payload.enthusiasm_level === 'medium' ||
+                payload.enthusiasm_level === 'low'
+                  ? payload.enthusiasm_level
+                  : undefined;
+              const suggestedRole =
+                typeof payload.suggested_role === 'string'
+                  ? payload.suggested_role
+                  : undefined;
+              const availabilityNote =
+                typeof payload.availability_note === 'string'
+                  ? payload.availability_note
+                  : undefined;
+              const matchAnalysis =
+                typeof payload.match_analysis === 'string'
+                  ? payload.match_analysis
+                  : undefined;
+
               newState.candidates = state.candidates.map((c) =>
                 c.agent_id === agentId
                   ? {
@@ -221,6 +244,11 @@ export const useEventStore = create<EventStore>((set) => ({
                             ? payload.contribution
                             : undefined,
                         conditions,
+                        // M1 修复: 添加新字段
+                        enthusiasm_level: enthusiasmLevel,
+                        suggested_role: suggestedRole,
+                        availability_note: availabilityNote,
+                        match_analysis: matchAnalysis,
                       },
                     }
                   : c
@@ -271,6 +299,91 @@ export const useEventStore = create<EventStore>((set) => ({
           timelineEvent.content.error = reason;
           break;
         }
+
+        // TASK-A3: 新增事件类型处理
+        case 'towow.agent.withdrawn':
+          if (payload?.agent_id && typeof payload.agent_id === 'string') {
+            const agentId = payload.agent_id;
+            const reason = typeof payload.reason === 'string' ? payload.reason : '主动退出';
+
+            // 更新候选人状态
+            newState.candidates = state.candidates.map((c) =>
+              c.agent_id === agentId
+                ? {
+                    ...c,
+                    response: {
+                      ...c.response,
+                      decision: 'withdrawn' as const,
+                      withdrawn_reason: reason,
+                      withdrawn_at: event.timestamp,
+                    },
+                  }
+                : c
+            );
+
+            timelineEvent.agent_id = agentId;
+            timelineEvent.content.message = `${agentId.replace('user_agent_', '')} 退出了协商: ${reason}`;
+          }
+          break;
+
+        case 'towow.agent.kicked':
+          if (payload?.agent_id && typeof payload.agent_id === 'string') {
+            const agentId = payload.agent_id;
+            const reason = typeof payload.reason === 'string' ? payload.reason : '被踢出';
+            const kickedBy = typeof payload.kicked_by === 'string' ? payload.kicked_by : undefined;
+
+            // 更新候选人状态
+            newState.candidates = state.candidates.map((c) =>
+              c.agent_id === agentId
+                ? {
+                    ...c,
+                    response: {
+                      ...c.response,
+                      decision: 'kicked' as const,
+                      kicked_reason: reason,
+                      kicked_by: kickedBy,
+                      kicked_at: event.timestamp,
+                    },
+                  }
+                : c
+            );
+
+            timelineEvent.agent_id = agentId;
+            timelineEvent.content.message = `${agentId.replace('user_agent_', '')} 被踢出协商: ${reason}`;
+          }
+          break;
+
+        case 'towow.negotiation.bargain':
+          if (payload?.agent_id && typeof payload.agent_id === 'string') {
+            const agentId = payload.agent_id;
+            const offer = typeof payload.offer === 'string' ? payload.offer : '';
+            const originalPrice = payload.original_price;
+            const newPrice = payload.new_price;
+
+            timelineEvent.agent_id = agentId;
+            if (originalPrice !== undefined && newPrice !== undefined) {
+              timelineEvent.content.message = `${agentId.replace('user_agent_', '')} 发起讨价还价: ${originalPrice} -> ${newPrice}`;
+            } else {
+              timelineEvent.content.message = `${agentId.replace('user_agent_', '')} 发起讨价还价: ${offer}`;
+            }
+          }
+          break;
+
+        case 'towow.negotiation.counter_proposal':
+          if (payload?.agent_id && typeof payload.agent_id === 'string') {
+            const agentId = payload.agent_id;
+            const counterProposal = validateToWowProposal(payload.counter_proposal);
+            const reason = typeof payload.reason === 'string' ? payload.reason : '';
+
+            timelineEvent.agent_id = agentId;
+            if (counterProposal) {
+              newState.currentProposal = counterProposal;
+              timelineEvent.content.message = `${agentId.replace('user_agent_', '')} 提交了反提案: ${counterProposal.summary}`;
+            } else {
+              timelineEvent.content.message = `${agentId.replace('user_agent_', '')} 提交了反提案${reason ? `: ${reason}` : ''}`;
+            }
+          }
+          break;
 
         // Handle legacy event types
         case 'agent_thinking':

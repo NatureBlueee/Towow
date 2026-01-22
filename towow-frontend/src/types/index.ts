@@ -1,8 +1,8 @@
 // ============ Request/Response Types ============
 
 export interface DemandSubmitRequest {
-  user_input: string;
-  context?: DemandContext;
+  raw_input: string;          // 后端期望 raw_input 字段
+  user_id?: string;           // 可选的用户ID
 }
 
 export interface DemandContext {
@@ -21,11 +21,15 @@ export interface DemandContext {
 }
 
 export interface DemandSubmitResponse {
-  negotiation_id: string;
-  status: NegotiationStatus;
-  parsed_demand: ParsedDemand;
-  initial_participants: Participant[];
-  message: string;
+  demand_id: string;          // 后端返回 demand_id
+  channel_id: string;         // 后端返回 channel_id
+  status: string;
+  understanding: {            // 后端返回 understanding 对象
+    surface_demand: string;
+    confidence: string;
+  };
+  // 兼容字段：前端可能还在使用 negotiation_id
+  negotiation_id?: string;
 }
 
 export interface ParsedDemand {
@@ -65,6 +69,16 @@ export type NegotiationStatus =
 
 // ============ ToWow Candidate Types ============
 
+/**
+ * 候选人决策类型
+ * - participate: 同意参与
+ * - decline: 拒绝参与
+ * - conditional: 有条件参与
+ * - withdrawn: 主动退出（已加入后退出）
+ * - kicked: 被踢出
+ */
+export type CandidateDecision = 'participate' | 'decline' | 'conditional' | 'withdrawn' | 'kicked';
+
 export interface Candidate {
   agent_id: string;
   reason: string;
@@ -73,24 +87,52 @@ export interface Candidate {
 }
 
 export interface CandidateResponse {
-  decision: 'participate' | 'decline' | 'conditional';
+  decision: CandidateDecision;
   contribution?: string;
   conditions?: string[];
+  // 拒绝/退出/被踢原因
+  decline_reason?: string;
+  withdrawn_reason?: string;
+  kicked_reason?: string;
+  kicked_by?: string;
+  // 时间戳
+  responded_at?: string;
+  withdrawn_at?: string;
+  kicked_at?: string;
+  // M1 修复: 补充后端返回的字段
+  enthusiasm_level?: 'high' | 'medium' | 'low';
+  suggested_role?: string;
+  availability_note?: string;
+  match_analysis?: string;
 }
 
 // ============ ToWow Proposal Types ============
 
+export interface ProposalTimeline {
+  start_date?: string;
+  end_date?: string;
+  milestones?: Array<{
+    name: string;
+    date: string;
+    deliverable?: string;
+  }>;
+}
+
 export interface ToWowProposal {
   summary: string;
   assignments: ProposalAssignment[];
-  timeline?: string;
+  timeline?: string | ProposalTimeline;
   confidence?: 'high' | 'medium' | 'low';
+  success_criteria?: string[];
 }
 
 export interface ProposalAssignment {
   agent_id: string;
   role: string;
   responsibility: string;
+  display_name?: string;
+  avatar?: string;
+  status?: 'confirmed' | 'pending' | 'conditional';
 }
 
 // ============ Participant Types ============
@@ -152,13 +194,19 @@ export type TimelineEventType =
   | 'error'
   // ToWow specific event types
   | 'towow.demand.understood'
+  | 'towow.demand.submitted'
   | 'towow.demand.broadcast'
   | 'towow.filter.completed'
   | 'towow.offer.submitted'
   | 'towow.proposal.distributed'
   | 'towow.proposal.feedback'
   | 'towow.proposal.finalized'
-  | 'towow.negotiation.failed';
+  | 'towow.negotiation.failed'
+  // TASK-A3 新增事件类型
+  | 'towow.agent.withdrawn'          // Agent主动退出
+  | 'towow.agent.kicked'             // 被踢出协商
+  | 'towow.negotiation.bargain'      // 讨价还价
+  | 'towow.negotiation.counter_proposal';  // 反提案
 
 export interface TimelineContent {
   message?: string;
@@ -220,7 +268,12 @@ export type ToWowEventPayload =
   | ProposalDistributedPayload
   | ProposalFeedbackPayload
   | ProposalFinalizedPayload
-  | NegotiationFailedPayload;
+  | NegotiationFailedPayload
+  // M3 修复: 添加新增的 payload 类型
+  | BargainPayload
+  | CounterProposalPayload
+  | WithdrawnPayload
+  | KickedPayload;
 
 export interface DemandUnderstoodPayload {
   parsed_intent: string;
@@ -234,9 +287,15 @@ export interface FilterCompletedPayload {
 
 export interface OfferSubmittedPayload {
   agent_id: string;
-  decision: 'participate' | 'decline' | 'conditional';
+  decision: CandidateDecision;
   contribution?: string;
   conditions?: string[];
+  decline_reason?: string;
+  // M1 修复: 补充后端返回的字段
+  enthusiasm_level?: 'high' | 'medium' | 'low';
+  suggested_role?: string;
+  availability_note?: string;
+  match_analysis?: string;
 }
 
 export interface ProposalDistributedPayload {
@@ -259,6 +318,50 @@ export interface ProposalFinalizedPayload {
 export interface NegotiationFailedPayload {
   reason: string;
   last_proposal?: ToWowProposal;
+}
+
+// M3 修复: 新增事件 payload 类型
+
+// 讨价还价事件 payload
+export interface BargainPayload {
+  agent_id: string;
+  agent_name?: string;
+  offer?: string;
+  original_terms?: Record<string, unknown>;
+  new_terms?: Record<string, unknown>;
+  original_price?: number;
+  new_price?: number;
+  demand_id?: string;
+}
+
+// 反提案事件 payload
+export interface CounterProposalPayload {
+  agent_id: string;
+  agent_name?: string;
+  counter_proposal?: ToWowProposal;
+  reason?: string;
+  demand_id?: string;
+}
+
+// 退出事件 payload
+export interface WithdrawnPayload {
+  agent_id: string;
+  agent_name?: string;
+  reason?: string;
+  withdrawn_at?: string;
+  demand_id?: string;
+  channel_id?: string;
+}
+
+// 踢出事件 payload
+export interface KickedPayload {
+  agent_id: string;
+  agent_name?: string;
+  reason?: string;
+  kicked_by?: string;
+  kicked_at?: string;
+  demand_id?: string;
+  channel_id?: string;
 }
 
 // ============ UI State Types ============

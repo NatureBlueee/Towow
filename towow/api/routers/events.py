@@ -39,7 +39,7 @@ async def event_generator(
     # Subscribe to events
     queue = event_recorder.subscribe()
     if queue is None:
-        raise HTTPException(status_code=503, detail="Server at capacity, please retry later")
+        raise HTTPException(status_code=503, detail="服务器繁忙，请稍后重试")
 
     try:
         # First send historical events
@@ -59,7 +59,7 @@ async def event_generator(
         while True:
             # Check if client disconnected
             if await request.is_disconnected():
-                logger.debug(f"Client disconnected for demand {demand_id}")
+                logger.debug(f"需求 {demand_id} 的客户端已断开连接")
                 break
 
             try:
@@ -91,7 +91,7 @@ async def event_generator(
 
     finally:
         event_recorder.unsubscribe(queue)
-        logger.debug(f"Cleaned up SSE connection for demand {demand_id}")
+        logger.debug(f"已清理需求 {demand_id} 的 SSE 连接")
 
 
 def get_cors_origin_for_sse():

@@ -54,7 +54,7 @@ class TestSSEEndpointConnectivity:
 
     def test_events_health_endpoint(self, client):
         """Verify events health endpoint works."""
-        response = client.get("/api/events/health")
+        response = client.get("/api/v1/events/health")
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "healthy"
@@ -188,7 +188,7 @@ class TestRecentEventsEndpoint:
     def test_recent_events_endpoint(self, client):
         """Verify recent events endpoint works."""
         demand_id = f"d-{uuid4().hex[:8]}"
-        response = client.get(f"/api/events/recent/{demand_id}")
+        response = client.get(f"/api/v1/events/negotiations/{demand_id}/recent")
 
         assert response.status_code == 200
         data = response.json()
@@ -200,7 +200,7 @@ class TestRecentEventsEndpoint:
     def test_recent_events_with_count(self, client):
         """Verify count parameter works."""
         demand_id = f"d-{uuid4().hex[:8]}"
-        response = client.get(f"/api/events/recent/{demand_id}?count=10")
+        response = client.get(f"/api/v1/events/negotiations/{demand_id}/recent?count=10")
 
         assert response.status_code == 200
         data = response.json()
@@ -211,11 +211,11 @@ class TestRecentEventsEndpoint:
         demand_id = f"d-{uuid4().hex[:8]}"
 
         # Test minimum
-        response = client.get(f"/api/events/recent/{demand_id}?count=0")
+        response = client.get(f"/api/v1/events/negotiations/{demand_id}/recent?count=0")
         assert response.status_code == 422
 
         # Test maximum
-        response = client.get(f"/api/events/recent/{demand_id}?count=500")
+        response = client.get(f"/api/v1/events/negotiations/{demand_id}/recent?count=500")
         assert response.status_code == 422
 
 
@@ -226,7 +226,7 @@ class TestCORSConfiguration:
         """Verify CORS headers are set."""
         # Preflight request
         response = client.options(
-            "/api/events/health",
+            "/api/v1/events/health",
             headers={
                 "Origin": "http://localhost:3000",
                 "Access-Control-Request-Method": "GET",
@@ -239,7 +239,7 @@ class TestCORSConfiguration:
         """Verify SSE endpoint includes CORS header."""
         demand_id = f"d-{uuid4().hex[:8]}"
 
-        with client.stream("GET", f"/api/events/stream/{demand_id}") as response:
+        with client.stream("GET", f"/api/v1/events/negotiations/{demand_id}/stream") as response:
             assert "access-control-allow-origin" in response.headers
             assert response.headers["access-control-allow-origin"] == "*"
             # Context manager handles cleanup

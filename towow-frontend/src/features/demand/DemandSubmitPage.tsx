@@ -40,38 +40,23 @@ export const DemandSubmitPage: React.FC = () => {
     resetEventStore();
 
     try {
+      // 构造符合后端 API 格式的请求
       const request: DemandSubmitRequest = {
-        user_input: values.user_input,
-        context: {},
+        raw_input: values.user_input,  // 后端期望 raw_input 字段
       };
-
-      if (values.location) {
-        request.context!.location = values.location;
-      }
-
-      if (values.budget_min || values.budget_max) {
-        request.context!.budget_range = {
-          min: values.budget_min,
-          max: values.budget_max,
-          currency: 'CNY',
-        };
-      }
-
-      if (values.time_flexible !== undefined) {
-        request.context!.time_constraints = {
-          flexible: values.time_flexible,
-        };
-      }
 
       const response = await demandApi.submit(request);
 
-      setNegotiationId(response.negotiation_id);
-      setStatus(response.status);
-      setParticipants(response.initial_participants);
-      setParsedDemand(response.parsed_demand);
+      // 后端返回 demand_id，映射为 negotiation_id 用于前端路由
+      const negotiationId = response.demand_id;
+      setNegotiationId(negotiationId);
+      // 后端返回 "processing"，映射到前端的 "in_progress" 状态
+      setStatus(response.status === 'processing' ? 'in_progress' : 'pending');
+      setParticipants([]);  // 后端目前不返回 initial_participants
+      setParsedDemand(null);  // 后端目前不返回 parsed_demand
 
       message.success('需求提交成功，正在开始协商...');
-      navigate(`/negotiations/${response.negotiation_id}`);
+      navigate(`/negotiations/${negotiationId}`);
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : '提交失败，请重试';
       setSubmitError(errorMessage);

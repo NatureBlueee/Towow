@@ -14,7 +14,22 @@ import React, { useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useSSE } from '../hooks/useSSE';
 import { useEventStore } from '../stores/eventStore';
-import type { NegotiationStatus, Candidate, ToWowProposal, TimelineEvent } from '../types';
+import type { NegotiationStatus, Candidate, ToWowProposal, TimelineEvent, ProposalTimeline } from '../types';
+
+// Helper function to format timeline for display
+const formatTimeline = (timeline: string | ProposalTimeline | undefined): string => {
+  if (!timeline) return '';
+  if (typeof timeline === 'string') return timeline;
+
+  const parts: string[] = [];
+  if (timeline.start_date) parts.push(`开始: ${timeline.start_date}`);
+  if (timeline.end_date) parts.push(`结束: ${timeline.end_date}`);
+  if (timeline.milestones && timeline.milestones.length > 0) {
+    const milestoneNames = timeline.milestones.map(m => m.name).join('、');
+    parts.push(`里程碑: ${milestoneNames}`);
+  }
+  return parts.join(' | ') || '时间待定';
+};
 
 // 状态配置映射
 const STATUS_CONFIG: Record<
@@ -68,13 +83,17 @@ const CandidateCard: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
   const hasResponse = !!candidate.response;
   const decision = candidate.response?.decision;
 
-  const decisionConfig = {
-    participate: { color: 'border-green-400 bg-green-400/10', badge: '参与', badgeColor: 'bg-green-500' },
-    decline: { color: 'border-red-400 bg-red-400/10', badge: '拒绝', badgeColor: 'bg-red-500' },
+  const decisionConfig: Record<string, { color: string; badge: string; badgeColor: string }> = {
+    participate: { color: 'border-green-400 bg-green-400/10', badge: '已接受', badgeColor: 'bg-green-500' },
+    decline: { color: 'border-red-400 bg-red-400/10', badge: '已拒绝', badgeColor: 'bg-red-500' },
     conditional: { color: 'border-yellow-400 bg-yellow-400/10', badge: '有条件', badgeColor: 'bg-yellow-500' },
+    withdrawn: { color: 'border-gray-400 bg-gray-400/10', badge: '已退出', badgeColor: 'bg-gray-500' },
+    kicked: { color: 'border-orange-400 bg-orange-400/10', badge: '被踢出', badgeColor: 'bg-orange-500' },
   };
 
-  const config = decision ? decisionConfig[decision] : { color: 'border-white/20 bg-white/5', badge: '等待中', badgeColor: 'bg-gray-500' };
+  const config = decision && decisionConfig[decision]
+    ? decisionConfig[decision]
+    : { color: 'border-white/20 bg-white/5', badge: '待响应', badgeColor: 'bg-blue-500' };
 
   return (
     <div className={`rounded-xl border-2 ${config.color} p-4 transition-all duration-300 hover:scale-[1.02]`}>
@@ -98,6 +117,22 @@ const CandidateCard: React.FC<{ candidate: Candidate }> = ({ candidate }) => {
       </div>
 
       <p className="text-white/70 text-sm mb-2">{candidate.reason}</p>
+
+      {/* 拒绝/退出原因展示 */}
+      {hasResponse && (candidate.response?.decline_reason || candidate.response?.withdrawn_reason || candidate.response?.kicked_reason) && (
+        <div className="mt-3 p-3 bg-red-500/10 border border-red-400/30 rounded-lg">
+          <p className="text-white/60 text-xs mb-1">
+            {candidate.response?.decline_reason ? '拒绝原因' :
+             candidate.response?.withdrawn_reason ? '退出原因' : '踢出原因'}:
+          </p>
+          <p className="text-red-300/90 text-sm italic">
+            "{candidate.response?.decline_reason || candidate.response?.withdrawn_reason || candidate.response?.kicked_reason}"
+          </p>
+          {candidate.response?.kicked_by && (
+            <p className="text-white/50 text-xs mt-1">操作者: {candidate.response.kicked_by}</p>
+          )}
+        </div>
+      )}
 
       {hasResponse && candidate.response?.contribution && (
         <div className="mt-3 pt-3 border-t border-white/10">
@@ -149,7 +184,7 @@ const ProposalCard: React.FC<{ proposal: ToWowProposal; round?: number }> = ({ p
       {proposal.timeline && (
         <div className="mb-4 p-3 bg-white/5 rounded-lg">
           <p className="text-white/60 text-xs mb-1">预计时间线</p>
-          <p className="text-white/80 text-sm">{proposal.timeline}</p>
+          <p className="text-white/80 text-sm">{formatTimeline(proposal.timeline)}</p>
         </div>
       )}
 

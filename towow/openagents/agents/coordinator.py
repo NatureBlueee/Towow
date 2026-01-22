@@ -61,7 +61,7 @@ class CoordinatorAgent(TowowBaseAgent):
         elif msg_type == "channel_completed":
             await self._handle_channel_completed(ctx, data)
         else:
-            self._logger.debug(f"Unknown message type: {msg_type}")
+            self._logger.debug(f"未知消息类型: {msg_type}")
 
     async def on_direct(self, ctx: EventContext):
         """
@@ -77,7 +77,7 @@ class CoordinatorAgent(TowowBaseAgent):
             # 将直接消息转换为需求处理
             await self._process_direct_demand(content)
         else:
-            self._logger.debug(f"Received direct message: {content}")
+            self._logger.debug(f"收到直接消息: {content}")
 
     async def _process_direct_demand(self, content: Dict):
         """处理通过直接消息发送的需求"""
@@ -106,7 +106,7 @@ class CoordinatorAgent(TowowBaseAgent):
         candidates = await self._smart_filter(demand_id, understanding)
 
         if not candidates:
-            self._logger.warning(f"No candidates found for demand {demand_id}")
+            self._logger.warning(f"需求 {demand_id} 未找到候选人")
             await self._publish_event("towow.filter.failed", {
                 "demand_id": demand_id,
                 "reason": "no_candidates"
@@ -131,7 +131,7 @@ class CoordinatorAgent(TowowBaseAgent):
         user_id = data.get("user_id", "anonymous")
         demand_id = data.get("demand_id") or f"d-{uuid4().hex[:8]}"
 
-        self._logger.info(f"Processing new demand: {demand_id}")
+        self._logger.info(f"正在处理新需求: {demand_id}")
 
         # 1. 调用SecondMe理解需求
         understanding = await self._understand_demand(raw_input, user_id)
@@ -157,7 +157,7 @@ class CoordinatorAgent(TowowBaseAgent):
         candidates = await self._smart_filter(demand_id, understanding)
 
         if not candidates:
-            self._logger.warning(f"No candidates found for demand {demand_id}")
+            self._logger.warning(f"需求 {demand_id} 未找到候选人")
             await self._publish_event("towow.filter.failed", {
                 "demand_id": demand_id,
                 "reason": "no_candidates"
@@ -190,7 +190,7 @@ class CoordinatorAgent(TowowBaseAgent):
                 result = await self.secondme.understand_demand(raw_input, user_id)
                 return result
             except Exception as e:
-                self._logger.error(f"SecondMe error: {e}")
+                self._logger.error(f"SecondMe 错误: {e}")
 
         # 降级：直接返回原始输入
         return {
@@ -217,14 +217,14 @@ class CoordinatorAgent(TowowBaseAgent):
             - relevance_score: 相关性分数
         """
         if not self.llm:
-            self._logger.warning("No LLM service, using mock filter")
+            self._logger.warning("未配置 LLM 服务，使用模拟筛选")
             return self._mock_filter(understanding)
 
         # 获取所有可用Agent的能力（从数据库）
         available_agents = await self._get_available_agents()
 
         if not available_agents:
-            self._logger.info("No available agents in database, using mock filter")
+            self._logger.info("数据库中没有可用 Agent，使用模拟筛选")
             return self._mock_filter(understanding)
 
         # 构建筛选提示词
@@ -238,7 +238,7 @@ class CoordinatorAgent(TowowBaseAgent):
             )
             return self._parse_filter_response(response, available_agents)
         except Exception as e:
-            self._logger.error(f"LLM filter error: {e}")
+            self._logger.error(f"LLM 筛选错误: {e}")
             return self._mock_filter(understanding)
 
     def _build_filter_prompt(
@@ -359,7 +359,7 @@ class CoordinatorAgent(TowowBaseAgent):
                 valid_ids = {a["agent_id"] for a in agents}
                 return [c for c in candidates if c.get("agent_id") in valid_ids]
         except Exception as e:
-            self._logger.error(f"Parse filter response error: {e}")
+            self._logger.error(f"解析筛选响应错误: {e}")
         return []
 
     def _mock_filter(self, understanding: Dict) -> List[Dict]:
@@ -416,7 +416,7 @@ class CoordinatorAgent(TowowBaseAgent):
                     for p in profiles
                 ]
             except Exception as e:
-                self._logger.error(f"DB error: {e}")
+                self._logger.error(f"数据库错误: {e}")
         return []
 
     async def _create_channel(
@@ -436,7 +436,7 @@ class CoordinatorAgent(TowowBaseAgent):
             candidates: 候选Agent列表
         """
         self._logger.info(
-            f"Creating channel {channel_id} with {len(candidates)} candidates"
+            f"正在创建协商 Channel {channel_id}，候选人数: {len(candidates)}"
         )
 
         # 发布筛选完成事件
@@ -476,7 +476,7 @@ class CoordinatorAgent(TowowBaseAgent):
         parent_channel_id = data.get("parent_channel_id")
         recursion_depth = data.get("recursion_depth", 1)
 
-        self._logger.info(f"Processing subnet demand, depth={recursion_depth}")
+        self._logger.info(f"正在处理子网需求，递归深度={recursion_depth}")
 
         # 简化处理：直接筛选并创建子Channel
         candidates = await self._smart_filter(
@@ -516,7 +516,7 @@ class CoordinatorAgent(TowowBaseAgent):
             )
             self.active_demands[demand_id]["final_proposal"] = proposal
 
-        self._logger.info(f"Demand {demand_id} completed, success={success}")
+        self._logger.info(f"需求 {demand_id} 已完成，成功={success}")
 
         # 发布完成事件
         await self._publish_event("towow.demand.completed", {
@@ -542,9 +542,9 @@ class CoordinatorAgent(TowowBaseAgent):
                 "payload": payload
             })
         except ImportError:
-            self._logger.debug("Event bus not available")
+            self._logger.debug("事件总线不可用")
         except Exception as e:
-            self._logger.error(f"Failed to publish event: {e}")
+            self._logger.error(f"发布事件失败: {e}")
 
     def get_demand_status(self, demand_id: str) -> Optional[Dict]:
         """
