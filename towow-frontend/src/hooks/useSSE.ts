@@ -43,6 +43,7 @@ export const useSSE = (
   const lastEventIdRef = useRef<string | null>(null);
   const reconnectTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const isManualDisconnectRef = useRef(false);
+  const isConnectingRef = useRef(false);
 
   // Store callbacks in refs to avoid unnecessary reconnections
   const onEventRef = useRef(onEvent);
@@ -90,6 +91,13 @@ export const useSSE = (
       return;
     }
 
+    // Prevent duplicate connections (React Strict Mode protection)
+    if (isConnectingRef.current || eventSourceRef.current?.readyState === EventSource.OPEN) {
+      console.log('[useSSE] Already connecting or connected, skipping');
+      return;
+    }
+    isConnectingRef.current = true;
+
     console.log('[useSSE] Connecting to SSE for negotiationId:', negotiationId);
 
     // Reset manual disconnect flag
@@ -114,6 +122,7 @@ export const useSSE = (
 
     eventSource.onopen = () => {
       console.log('[useSSE] Connection opened for negotiationId:', negotiationId);
+      isConnectingRef.current = false;
       setIsConnected(true);
       setError(null);
       setReconnectAttempts(0);
@@ -138,6 +147,7 @@ export const useSSE = (
 
     eventSource.onerror = (err) => {
       console.error('[useSSE] Connection error for negotiationId:', negotiationId, err);
+      isConnectingRef.current = false;
       setIsConnected(false);
       eventSource.close();
       eventSourceRef.current = null;

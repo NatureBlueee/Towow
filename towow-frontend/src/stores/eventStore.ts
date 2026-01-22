@@ -12,6 +12,12 @@ import type {
   CandidateDecision,
 } from '../types';
 
+// ============ Event Deduplication ============
+
+// Module-level event ID tracking for deduplication
+const processedEventIds = new Set<string>();
+const MAX_PROCESSED_IDS = 1000;
+
 // ============ Runtime Type Validators ============
 
 function isValidCandidate(obj: unknown): obj is Candidate {
@@ -168,6 +174,24 @@ export const useEventStore = create<EventStore>((set) => ({
 
   handleSSEEvent: (event) => {
     console.log('[EventStore] handleSSEEvent called, event_type:', event.event_type);
+
+    // Event deduplication based on event_id
+    const eventId = event.event_id;
+    if (eventId && processedEventIds.has(eventId)) {
+      console.log('[EventStore] Duplicate event ignored:', eventId);
+      return;
+    }
+    if (eventId) {
+      processedEventIds.add(eventId);
+      // Prevent memory leak by limiting Set size
+      if (processedEventIds.size > MAX_PROCESSED_IDS) {
+        const firstId = processedEventIds.values().next().value;
+        if (firstId) {
+          processedEventIds.delete(firstId);
+        }
+      }
+    }
+
     set((state) => {
       // Create new state object to accumulate all changes
       const newState: Partial<NegotiationState> = {};
@@ -505,7 +529,13 @@ export const useEventStore = create<EventStore>((set) => ({
       }
 
       // Add timeline event - always include this in the single state update
-      newState.timeline = [...state.timeline, timelineEvent];
+      // Check for duplicate timeline events by ID
+      const existingIds = new Set(state.timeline.map(e => e.id));
+      if (!existingIds.has(timelineEvent.id)) {
+        newState.timeline = [...state.timeline, timelineEvent];
+      } else {
+        console.log('[EventStore] Duplicate timeline event skipped:', timelineEvent.id);
+      }
 
       console.log('[EventStore] State update:', {
         event_type: event.event_type,
