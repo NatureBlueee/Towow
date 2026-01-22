@@ -354,3 +354,314 @@ class TestChannelCompletion:
         await coordinator._handle_channel_completed(mock_ctx, data)
 
         assert coordinator.active_demands[demand_id]["status"] == "failed"
+
+
+class TestSmartFilterWithLLM:
+    """Tests for smart filter with LLM integration - TASK-T02."""
+
+    @pytest.mark.asyncio
+    async def test_smart_filter_with_llm(self):
+        """Test LLM 智能筛选 - AC-1, AC-2, AC-3."""
+        mock_llm = MagicMock()
+        # Mock LLM response with valid JSON format
+        mock_llm.complete = AsyncMock(return_value='''
+```json
+{
+    "analysis": "Based on the demand for AI meetup",
+    "candidates": [
+        {
+            "agent_id": "agent_1",
+            "display_name": "Bob",
+            "reason": "场地资源丰富",
+            "relevance_score": 90,
+            "expected_role": "场地提供者"
+        },
+        {
+            "agent_id": "agent_2",
+            "display_name": "Alice",
+            "reason": "技术分享能力强",
+            "relevance_score": 85,
+            "expected_role": "技术顾问"
+        },
+        {
+            "agent_id": "agent_3",
+            "display_name": "Charlie",
+            "reason": "活动策划经验",
+            "relevance_score": 80,
+            "expected_role": "活动策划"
+        }
+    ],
+    "coverage": {
+        "covered": ["场地", "技术", "策划"],
+        "uncovered": []
+    }
+}
+```
+        ''')
+
+        mock_db = MagicMock()
+
+        coordinator = CoordinatorAgent(llm_service=mock_llm, db=mock_db)
+        # Mock _get_available_agents to return test agents
+        coordinator._get_available_agents = AsyncMock(return_value=[
+            {"agent_id": "agent_1", "display_name": "Bob", "capabilities": ["场地"]},
+            {"agent_id": "agent_2", "display_name": "Alice", "capabilities": ["技术"]},
+            {"agent_id": "agent_3", "display_name": "Charlie", "capabilities": ["策划"]}
+        ])
+
+        understanding = {
+            "surface_demand": "办一场AI聚会",
+            "deep_understanding": {"motivation": "networking", "type": "event"},
+            "capability_tags": ["场地提供", "技术分享"]
+        }
+
+        candidates = await coordinator._smart_filter("d-test", understanding)
+
+        # AC-1: LLM 调用成功
+        mock_llm.complete.assert_called_once()
+
+        # AC-2: 候选人数量在 3-15 人之间
+        assert 3 <= len(candidates) <= 15
+
+        # AC-3: 每个候选人都有 relevance_score 和 reason
+        assert all("agent_id" in c for c in candidates)
+        assert all("relevance_score" in c for c in candidates)
+        assert all("reason" in c for c in candidates)
+
+    @pytest.mark.asyncio
+    async def test_smart_filter_fallback_no_llm(self):
+        """Test LLM 不可用时降级 - AC-4."""
+        coordinator = CoordinatorAgent(llm_service=None)
+
+        understanding = {
+            "surface_demand": "办一场AI聚会",
+            "capability_tags": ["场地提供", "技术分享"]
+        }
+
+        candidates = await coordinator._smart_filter("d-test", understanding)
+
+        # AC-4: 应该返回 Mock 数据
+        assert len(candidates) > 0
+        # Verify mock filter returns proper structure
+        assert all("agent_id" in c for c in candidates)
+        assert all("display_name" in c for c in candidates)
+        assert all("reason" in c for c in candidates)
+        assert all("relevance_score" in c for c in candidates)
+
+    @pytest.mark.asyncio
+    async def test_smart_filter_fallback_no_agents(self):
+        """Test 无可用 Agent 时降级到 Mock."""
+        mock_llm = MagicMock()
+        coordinator = CoordinatorAgent(llm_service=mock_llm)
+        coordinator._get_available_agents = AsyncMock(return_value=[])
+
+        understanding = {"surface_demand": "办一场AI聚会"}
+
+        candidates = await coordinator._smart_filter("d-test", understanding)
+
+        # Should return mock data when no agents available
+        assert len(candidates) > 0
+        # LLM should not be called
+        mock_llm.complete.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_smart_filter_fallback_llm_error(self):
+        """Test LLM 调用失败时降级 - AC-4."""
+        mock_llm = MagicMock()
+        mock_llm.complete = AsyncMock(side_effect=Exception("LLM Error"))
+
+        coordinator = CoordinatorAgent(llm_service=mock_llm)
+        coordinator._get_available_agents = AsyncMock(return_value=[
+            {"agent_id": "agent_1", "display_name": "Bob"}
+        ])
+
+        understanding = {"surface_demand": "办一场AI聚会"}
+
+        candidates = await coordinator._smart_filter("d-test", understanding)
+
+        # Should return mock data on LLM error
+        assert len(candidates) > 0
+
+    @pytest.mark.asyncio
+    async def test_smart_filter_llm_empty_response(self):
+        """Test LLM 返回空结果时降级."""
+        mock_llm = MagicMock()
+        mock_llm.complete = AsyncMock(return_value='{"candidates": []}')
+
+        coordinator = CoordinatorAgent(llm_service=mock_llm)
+        coordinator._get_available_agents = AsyncMock(return_value=[
+            {"agent_id": "agent_1", "display_name": "Bob"}
+        ])
+
+        understanding = {"surface_demand": "办一场AI聚会"}
+
+        candidates = await coordinator._smart_filter("d-test", understanding)
+
+        # Should fallback to mock when LLM returns empty
+        assert len(candidates) > 0
+
+
+class TestMockFilterWithKeywords:
+    """Tests for mock filter keyword matching - TASK-T02 降级策略."""
+
+    @pytest.fixture
+    def coordinator(self):
+        """Create a CoordinatorAgent instance."""
+        return CoordinatorAgent()
+
+    def test_mock_filter_with_capability_tags(self, coordinator):
+        """Test mock filter matches based on capability_tags."""
+        understanding = {
+            "surface_demand": "需要场地和技术分享",
+            "capability_tags": ["场地", "技术"]
+        }
+
+        result = coordinator._mock_filter(understanding)
+
+        # Should match agents with relevant keywords
+        agent_ids = [c["agent_id"] for c in result]
+        assert "user_agent_bob" in agent_ids  # 场地
+        assert "user_agent_alice" in agent_ids  # 技术
+
+    def test_mock_filter_without_capability_tags(self, coordinator):
+        """Test mock filter returns default when no capability_tags."""
+        understanding = {"surface_demand": "一些需求"}
+
+        result = coordinator._mock_filter(understanding)
+
+        # Should return default 3 agents
+        assert len(result) == 3
+
+    def test_mock_filter_response_structure(self, coordinator):
+        """Test mock filter returns complete structure."""
+        understanding = {"surface_demand": "办活动", "capability_tags": ["场地"]}
+
+        result = coordinator._mock_filter(understanding)
+
+        for candidate in result:
+            assert "agent_id" in candidate
+            assert "display_name" in candidate
+            assert "reason" in candidate
+            assert "relevance_score" in candidate
+            assert "expected_role" in candidate
+            # keywords should be removed
+            assert "keywords" not in candidate
+
+
+class TestFilterSystemPrompt:
+    """Tests for filter system prompt - TASK-T02."""
+
+    @pytest.fixture
+    def coordinator(self):
+        """Create a CoordinatorAgent instance."""
+        return CoordinatorAgent()
+
+    def test_get_filter_system_prompt(self, coordinator):
+        """Test system prompt contains key elements."""
+        prompt = coordinator._get_filter_system_prompt()
+
+        # Check key elements exist
+        assert "ToWow" in prompt
+        assert "筛选" in prompt
+        assert "能力匹配" in prompt
+        assert "3-15" in prompt
+        assert "JSON" in prompt
+
+
+class TestParseFilterResponse:
+    """Tests for parsing filter response - TASK-T02 鲁棒性增强."""
+
+    @pytest.fixture
+    def coordinator(self):
+        """Create a CoordinatorAgent instance."""
+        return CoordinatorAgent()
+
+    def test_parse_json_code_block(self, coordinator):
+        """Test parsing JSON in code block format."""
+        response = '''
+Some analysis here...
+```json
+{
+    "candidates": [
+        {"agent_id": "agent_1", "reason": "Good", "relevance_score": 90}
+    ]
+}
+```
+        '''
+        agents = [{"agent_id": "agent_1", "display_name": "Bob"}]
+
+        result = coordinator._parse_filter_response(response, agents)
+
+        assert len(result) == 1
+        assert result[0]["agent_id"] == "agent_1"
+        assert result[0]["display_name"] == "Bob"  # Should be filled from agents
+
+    def test_parse_raw_json(self, coordinator):
+        """Test parsing raw JSON without code block."""
+        response = '''
+{
+    "candidates": [
+        {"agent_id": "agent_1", "relevance_score": 85}
+    ]
+}
+        '''
+        agents = [{"agent_id": "agent_1", "display_name": "Bob"}]
+
+        result = coordinator._parse_filter_response(response, agents)
+
+        assert len(result) == 1
+        assert result[0]["reason"] == "符合需求"  # Default reason
+
+    def test_parse_sorts_by_relevance(self, coordinator):
+        """Test candidates are sorted by relevance_score."""
+        response = '''
+{
+    "candidates": [
+        {"agent_id": "agent_2", "relevance_score": 70},
+        {"agent_id": "agent_1", "relevance_score": 90},
+        {"agent_id": "agent_3", "relevance_score": 80}
+    ]
+}
+        '''
+        agents = [
+            {"agent_id": "agent_1"},
+            {"agent_id": "agent_2"},
+            {"agent_id": "agent_3"}
+        ]
+
+        result = coordinator._parse_filter_response(response, agents)
+
+        # Should be sorted by relevance_score descending
+        assert result[0]["agent_id"] == "agent_1"  # 90
+        assert result[1]["agent_id"] == "agent_3"  # 80
+        assert result[2]["agent_id"] == "agent_2"  # 70
+
+    def test_parse_limits_to_15(self, coordinator):
+        """Test results are limited to 15 candidates."""
+        candidates = [
+            {"agent_id": f"agent_{i}", "relevance_score": 90-i}
+            for i in range(20)
+        ]
+        response = f'{{"candidates": {candidates}}}'.replace("'", '"')
+        agents = [{"agent_id": f"agent_{i}"} for i in range(20)]
+
+        result = coordinator._parse_filter_response(response, agents)
+
+        assert len(result) <= 15
+
+    def test_parse_filters_invalid_agents(self, coordinator):
+        """Test invalid agent IDs are filtered out."""
+        response = '''
+{
+    "candidates": [
+        {"agent_id": "valid_agent", "relevance_score": 90},
+        {"agent_id": "invalid_agent", "relevance_score": 85}
+    ]
+}
+        '''
+        agents = [{"agent_id": "valid_agent"}]
+
+        result = coordinator._parse_filter_response(response, agents)
+
+        assert len(result) == 1
+        assert result[0]["agent_id"] == "valid_agent"

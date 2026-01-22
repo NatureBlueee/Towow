@@ -31,10 +31,10 @@ async def lifespan(app: FastAPI):
     logger.info("Demo mode service initialized")
 
     # Initialize LLM service with fallback - TASK-020
-    from services.llm import init_llm_service_with_fallback
+    from services.llm import init_llm_service_with_fallback, get_llm_service_with_fallback
     api_key = os.getenv("ANTHROPIC_API_KEY")
     base_url = os.getenv("ANTHROPIC_BASE_URL")  # 支持自定义 base_url
-    init_llm_service_with_fallback(
+    llm_service = init_llm_service_with_fallback(
         api_key=api_key,
         base_url=base_url,
         timeout=10.0,
@@ -42,6 +42,22 @@ async def lifespan(app: FastAPI):
         recovery_timeout=30.0
     )
     logger.info("LLM service with fallback initialized")
+
+    # Initialize SecondMe Mock service - T01
+    from services.secondme_mock import init_secondme_mock
+    secondme_service = init_secondme_mock()
+    logger.info("SecondMe Mock service initialized")
+
+    # Initialize Agent factory - T01
+    from openagents.agents import init_agent_factory
+    agent_factory = init_agent_factory(
+        llm_service=llm_service,
+        secondme_service=secondme_service
+    )
+    # Pre-create Coordinator and ChannelAdmin
+    agent_factory.get_coordinator()
+    agent_factory.get_channel_admin()
+    logger.info("Agent factory initialized with Coordinator and ChannelAdmin")
 
     yield
 

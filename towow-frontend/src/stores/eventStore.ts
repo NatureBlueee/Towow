@@ -385,6 +385,44 @@ export const useEventStore = create<EventStore>((set) => ({
           }
           break;
 
+        // T07 新增事件类型处理
+        case 'towow.feedback.evaluated': {
+          const accepts = typeof payload?.accepts === 'number' ? payload.accepts : 0;
+          const rejects = typeof payload?.rejects === 'number' ? payload.rejects : 0;
+          const negotiates = typeof payload?.negotiates === 'number' ? payload.negotiates : 0;
+          const acceptRate = typeof payload?.accept_rate === 'number' ? payload.accept_rate : 0;
+          const round = typeof payload?.round === 'number' ? payload.round : state.currentRound;
+
+          newState.currentRound = round;
+          timelineEvent.content.message = `反馈评估完成：${accepts} 接受，${rejects} 拒绝，${negotiates} 协商 (接受率 ${(acceptRate * 100).toFixed(0)}%)`;
+          break;
+        }
+
+        case 'towow.gap.identified': {
+          const gaps = Array.isArray(payload?.gaps) ? payload.gaps : [];
+          const gapTypes = gaps.map((g: { gap_type?: string }) => g.gap_type || '未知').join('、');
+          timelineEvent.content.message = gaps.length > 0
+            ? `识别到 ${gaps.length} 个缺口：${gapTypes}`
+            : '未识别到缺口';
+          break;
+        }
+
+        case 'towow.subnet.triggered': {
+          const gapType = typeof payload?.gap_type === 'string' ? payload.gap_type : '未知';
+          const subDemandId = typeof payload?.sub_demand_id === 'string' ? payload.sub_demand_id : '';
+          timelineEvent.content.message = `子网协商已触发：${gapType}${subDemandId ? ` (${subDemandId})` : ''}`;
+          break;
+        }
+
+        case 'towow.negotiation.round_started': {
+          const round = typeof payload?.round === 'number' ? payload.round : 1;
+          const maxRounds = typeof payload?.max_rounds === 'number' ? payload.max_rounds : 3;
+          newState.currentRound = round;
+          newState.status = 'negotiating';
+          timelineEvent.content.message = `第 ${round} 轮协商开始 (最多 ${maxRounds} 轮)`;
+          break;
+        }
+
         // Handle legacy event types
         case 'agent_thinking':
           if (

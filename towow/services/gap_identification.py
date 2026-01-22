@@ -29,11 +29,21 @@ class GapIdentificationService:
     5. 条件缺口 - 参与者条件无法满足
     """
 
-    # 最小参与者数量阈值
-    MIN_PARTICIPANTS_THRESHOLD = 2
+    # H3 Fix: Load thresholds from shared config
+    # Can be overridden by environment variables:
+    # - TOWOW_MIN_PARTICIPANTS_THRESHOLD
+    # - TOWOW_COVERAGE_THRESHOLD
+    @property
+    def MIN_PARTICIPANTS_THRESHOLD(self) -> int:
+        """Minimum participants threshold, configurable via environment."""
+        from config import MIN_PARTICIPANTS_THRESHOLD
+        return MIN_PARTICIPANTS_THRESHOLD
 
-    # 需求覆盖率阈值（低于此值视为覆盖缺口）
-    COVERAGE_THRESHOLD = 0.7
+    @property
+    def COVERAGE_THRESHOLD(self) -> float:
+        """Coverage threshold, configurable via environment."""
+        from config import COVERAGE_THRESHOLD
+        return COVERAGE_THRESHOLD
 
     def __init__(self, llm_service=None):
         """

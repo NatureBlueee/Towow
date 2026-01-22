@@ -50,8 +50,11 @@ class AgentFactory:
             self._coordinator = CoordinatorAgent(
                 agent_id="coordinator",
                 name="Coordinator",
+                secondme_service=self.secondme,
+                llm=self.llm,
+                db=self.db,
             )
-            logger.info("Created Coordinator Agent")
+            logger.info("Created Coordinator Agent with services")
         return self._coordinator
 
     def get_channel_admin(self) -> ChannelAdminAgent:
@@ -64,8 +67,10 @@ class AgentFactory:
             self._channel_admin = ChannelAdminAgent(
                 agent_id="channel_admin",
                 name="Channel Admin",
+                llm=self.llm,
+                db=self.db,
             )
-            logger.info("Created ChannelAdmin Agent")
+            logger.info("Created ChannelAdmin Agent with services")
         return self._channel_admin
 
     def get_user_agent(

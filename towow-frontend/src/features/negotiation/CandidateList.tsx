@@ -308,12 +308,44 @@ const CandidateCard: React.FC<{
             </Tooltip>
           )}
 
+          {/* 热情度和建议角色 */}
+          {(response?.enthusiasm_level || response?.suggested_role) && (
+            <div className="mt-2 flex flex-wrap gap-1.5">
+              {response?.enthusiasm_level && (
+                <span
+                  className={`px-2 py-0.5 text-[10px] rounded-full ${
+                    response.enthusiasm_level === 'high'
+                      ? 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400'
+                      : response.enthusiasm_level === 'medium'
+                      ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400'
+                      : 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400'
+                  }`}
+                >
+                  {response.enthusiasm_level === 'high' ? '高度热情' :
+                   response.enthusiasm_level === 'medium' ? '中等热情' : '低热情'}
+                </span>
+              )}
+              {response?.suggested_role && (
+                <span className="px-2 py-0.5 text-[10px] rounded-full bg-[var(--color-primary)]/10 text-[var(--color-primary)]">
+                  建议: {response.suggested_role}
+                </span>
+              )}
+            </div>
+          )}
+
           {/* 贡献说明 */}
           {response?.contribution && (
             <div className="mt-2 p-2 rounded-lg bg-[var(--color-bg-elevated)] border-l-2 border-[var(--color-primary)]">
               <p className="text-xs text-[var(--color-text-secondary)] italic">
                 "{response.contribution}"
               </p>
+            </div>
+          )}
+
+          {/* 可用性备注 */}
+          {response?.availability_note && (
+            <div className="mt-1.5 text-[10px] text-[var(--color-text-muted)] italic">
+              可用性: {response.availability_note}
             </div>
           )}
 

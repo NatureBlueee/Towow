@@ -153,103 +153,260 @@ class UserAgent(TowowBaseAgent):
     ) -> Dict[str, Any]:
         """使用LLM生成响应.
 
+        基于提示词 3：响应生成（参考 TECH-v3.md 3.3.3）
+
         Args:
             demand: The demand to respond to.
             filter_reason: Reason why this user was selected.
 
         Returns:
-            Response containing decision, contribution, conditions, and reasoning.
+            Response containing decision, contribution, conditions, reasoning,
+            decline_reason, confidence, enthusiasm_level, and suggested_role.
         """
+        # 构建更丰富的 Profile 描述
+        profile_summary = self._build_profile_summary()
+
+        # 构建需求摘要
+        demand_summary = self._build_demand_summary(demand)
+
         prompt = f"""
+# 协作邀请响应任务
+
 ## 你的身份
-你是用户 {self.user_id} 的数字分身，需要代表用户回应一个协作需求。
+你是 **{self.profile.get('name', self.user_id)}** 的数字分身（AI Agent）。
+你需要代表用户，根据其个人档案和能力，决定是否参与这个协作需求。
 
-## 用户档案
-{json.dumps(self.profile, ensure_ascii=False, indent=2)}
+## 你的档案
+{profile_summary}
 
-## 收到的需求
-{json.dumps(demand, ensure_ascii=False, indent=2)}
+## 收到的协作需求
+{demand_summary}
 
-## 被筛选原因
-{filter_reason}
+## 你被筛选的原因
+{filter_reason or "未说明"}
 
-## 任务
-根据用户档案和需求，决定是否参与这个协作，并说明理由。
+## 决策任务
 
-## 输出格式
+请根据以下原则做出决策：
+
+1. **能力匹配原则**：只承诺你档案中明确具备的能力
+2. **真实性原则**：不要过度承诺，也不要过于谦虚
+3. **条件明确原则**：如果有条件，必须明确说明
+4. **理由清晰原则**：无论什么决定，都要给出清晰的理由
+
+## 输出要求
+
+请以 JSON 格式输出你的响应：
+
 ```json
 {{
-  "decision": "participate" 或 "decline" 或 "conditional",
-  "contribution": "如果参与，你能贡献什么",
-  "conditions": ["如果是conditional，列出条件"],
-  "reasoning": "决策理由"
+  "decision": "participate | decline | conditional",
+  "contribution": "如果参与，具体说明你能贡献什么（详细描述，包含时间、资源等）",
+  "conditions": ["如果是 conditional，列出每一个条件"],
+  "reasoning": "你做出这个决定的理由（50字以内）",
+  "decline_reason": "如果是 decline，说明原因",
+  "confidence": 80,
+  "enthusiasm_level": "high | medium | low",
+  "suggested_role": "你建议自己在协作中承担的角色"
 }}
 ```
 
-注意：
-- 基于用户档案做出符合用户性格和能力的决策
-- 不要过度承诺用户能力范围外的事情
-- 如果需求与用户能力不匹配，应该decline
+## 决策类型说明
+
+- **participate**: 愿意参与，能够贡献
+- **conditional**: 愿意参与，但有条件
+- **decline**: 不参与（能力不匹配、时间冲突、兴趣不合等）
+
+注意：请站在 {self.profile.get('name', self.user_id)} 的角度思考，基于其真实能力和偏好做出决策。
 """
 
         try:
             response = await self.llm.complete(
                 prompt=prompt,
-                system="你是一个数字分身系统，代表用户做出合理的协作决策。",
+                system=self._get_response_system_prompt(),
                 fallback_key="response_generation",
+                max_tokens=1000,
+                temperature=0.5,
             )
             return self._parse_response(response)
         except Exception as e:
             self._logger.error(f"LLM 响应错误: {e}")
             return self._mock_response(demand)
 
+    def _get_response_system_prompt(self) -> str:
+        """获取响应生成系统提示词."""
+        return """你是一个数字分身系统，代表用户做出合理的协作决策。
+
+关键原则：
+1. 基于用户档案做出符合用户性格和能力的决策
+2. 不要过度承诺用户能力范围外的事情
+3. 如果需求与用户能力不匹配，应该 decline
+4. 如果部分匹配但有顾虑，使用 conditional
+5. 始终以有效的 JSON 格式输出"""
+
+    def _build_profile_summary(self) -> str:
+        """构建 Profile 摘要."""
+        name = self.profile.get("name", self.user_id)
+        capabilities = self.profile.get("capabilities", [])
+        interests = self.profile.get("interests", [])
+        location = self.profile.get("location", "未知")
+        availability = self.profile.get("availability", "未说明")
+        description = self.profile.get("description", "")
+        tags = self.profile.get("tags", [])
+
+        # 处理 capabilities 可能是 dict 的情况
+        if isinstance(capabilities, dict):
+            cap_list = list(capabilities.keys())[:5]
+        else:
+            cap_list = capabilities[:5] if capabilities else []
+
+        return f"""
+- **姓名**: {name}
+- **位置**: {location}
+- **能力**: {', '.join(cap_list) if cap_list else '未说明'}
+- **标签**: {', '.join(tags[:5]) if tags else '未说明'}
+- **兴趣**: {', '.join(interests[:5]) if interests else '未说明'}
+- **可用时间**: {availability}
+- **简介**: {description[:200] if description else '未提供'}
+"""
+
+    def _build_demand_summary(self, demand: Dict[str, Any]) -> str:
+        """构建需求摘要."""
+        surface = demand.get("surface_demand", "未说明")
+        deep = demand.get("deep_understanding", {})
+        tags = demand.get("capability_tags", [])
+        context = demand.get("context", {})
+
+        return f"""
+- **需求内容**: {surface}
+- **需求类型**: {deep.get('type', '未知')}
+- **所需能力**: {', '.join(tags) if tags else '未指定'}
+- **地点**: {context.get('location', deep.get('location', '未指定'))}
+- **动机**: {deep.get('motivation', '未知')}
+- **预计人数**: {context.get('expected_attendees', '未指定')}
+"""
+
     def _parse_response(self, response: str) -> Dict[str, Any]:
         """解析响应.
+
+        增强解析鲁棒性，支持所有必要字段。
 
         Args:
             response: Raw response string from LLM.
 
         Returns:
-            Parsed response dictionary.
+            Parsed response dictionary with all required fields.
         """
         try:
-            json_match = re.search(r"\{[\s\S]*\}", response)
+            # 尝试提取 JSON 块（支持 markdown code block）
+            json_match = re.search(r"```json\s*([\s\S]*?)\s*```", response)
             if json_match:
-                data = json.loads(json_match.group())
-                return {
-                    "decision": data.get("decision", "decline"),
-                    "contribution": data.get("contribution", ""),
-                    "conditions": data.get("conditions", []),
-                    "reasoning": data.get("reasoning", ""),
-                }
+                json_str = json_match.group(1)
+            else:
+                # 尝试直接匹配 JSON 对象
+                json_match = re.search(r"\{[\s\S]*\}", response)
+                if json_match:
+                    json_str = json_match.group()
+                else:
+                    self._logger.warning("未找到有效 JSON")
+                    return self._mock_response({})
+
+            data = json.loads(json_str)
+
+            # 标准化决策类型
+            decision = data.get("decision", "decline").lower().strip()
+            if decision not in ("participate", "decline", "conditional"):
+                decision = "decline"
+
+            # 标准化热情度
+            enthusiasm = data.get("enthusiasm_level", "medium").lower().strip()
+            if enthusiasm not in ("high", "medium", "low"):
+                enthusiasm = "medium"
+
+            # 处理 confidence，确保是有效数字
+            confidence = data.get("confidence", 50)
+            if isinstance(confidence, str):
+                try:
+                    confidence = int(confidence)
+                except ValueError:
+                    confidence = 50
+            confidence = max(0, min(100, confidence))  # 限制在 0-100
+
+            return {
+                "decision": decision,
+                "contribution": data.get("contribution", ""),
+                "conditions": data.get("conditions", []),
+                "reasoning": data.get("reasoning", ""),
+                "decline_reason": data.get("decline_reason", ""),
+                "confidence": confidence,
+                "enthusiasm_level": enthusiasm,
+                "suggested_role": data.get("suggested_role", ""),
+            }
+
+        except json.JSONDecodeError as e:
+            self._logger.error(f"JSON 解析错误: {e}")
+            return self._mock_response({})
         except Exception as e:
             self._logger.error(f"解析响应错误: {e}")
-        return self._mock_response({})
+            return self._mock_response({})
 
     def _mock_response(self, demand: Dict[str, Any]) -> Dict[str, Any]:
-        """Mock响应（演示用）.
+        """Mock响应（降级/演示用）.
+
+        当 LLM 调用失败时使用此方法生成中性响应。
 
         Args:
             demand: The demand to respond to.
 
         Returns:
-            Mock response based on simple capability matching.
+            Mock response with all required fields based on simple capability matching.
         """
         # 基于profile简单决策
         capabilities = self.profile.get("capabilities", [])
+        tags = self.profile.get("tags", [])
         demand_text = str(demand.get("surface_demand", ""))
+        demand_tags = demand.get("capability_tags", [])
 
-        # 简单匹配
-        has_match = any(cap.lower() in demand_text.lower() for cap in capabilities)
+        # 处理 capabilities 可能是 dict 的情况
+        if isinstance(capabilities, dict):
+            cap_list = list(capabilities.keys())
+        else:
+            cap_list = capabilities if capabilities else []
+
+        # 综合匹配：能力、标签和需求文本
+        has_cap_match = any(
+            cap.lower() in demand_text.lower() for cap in cap_list
+        )
+        has_tag_match = any(
+            tag in demand_tags for tag in tags
+        ) if tags and demand_tags else False
+
+        has_match = has_cap_match or has_tag_match
 
         if has_match:
-            matched_caps = [cap for cap in capabilities[:2] if cap]
-            contribution = f"可以提供 {', '.join(matched_caps)} 方面的支持" if matched_caps else "可以提供支持"
+            matched_items = []
+            for cap in cap_list[:2]:
+                if cap and cap.lower() in demand_text.lower():
+                    matched_items.append(cap)
+            if not matched_items and cap_list:
+                matched_items = cap_list[:2]
+
+            contribution = (
+                f"可以提供 {', '.join(matched_items)} 方面的支持"
+                if matched_items
+                else "可以提供相关支持"
+            )
+            suggested_role = matched_items[0] if matched_items else "参与者"
+
             return {
                 "decision": "participate",
                 "contribution": contribution,
                 "conditions": [],
                 "reasoning": "需求与我的能力匹配",
+                "decline_reason": "",
+                "confidence": 70,
+                "enthusiasm_level": "medium",
+                "suggested_role": suggested_role,
             }
         else:
             return {
@@ -257,6 +414,10 @@ class UserAgent(TowowBaseAgent):
                 "contribution": "",
                 "conditions": [],
                 "reasoning": "需求与我的能力不太匹配",
+                "decline_reason": "当前能力与需求不匹配，无法提供有效贡献",
+                "confidence": 60,
+                "enthusiasm_level": "low",
+                "suggested_role": "",
             }
 
     async def _handle_proposal_review(

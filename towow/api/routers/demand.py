@@ -2,6 +2,7 @@
 Demand API Router
 
 Handles demand submission and status queries.
+Refactored in T01 to call real Coordinator Agent instead of mock.
 """
 from __future__ import annotations
 
@@ -58,16 +59,26 @@ async def submit_demand(request: DemandSubmitRequest):
 
     POST /api/v1/demand/submit
 
+    T01 Refactor: Now calls real Coordinator Agent for demand understanding
+    and triggers real negotiation flow. Falls back to mock if Coordinator
+    is unavailable.
+
+    FIX: Changed to return immediately with basic understanding,
+    then process asynchronously to avoid 30s timeout.
+
     Args:
         request: Demand submission request with raw_input and optional user_id
 
     Returns:
         Demand ID, channel ID, status, and initial understanding
     """
+    logger.info("[DEMAND] submit_demand called, raw_input=%s, user_id=%s",
+                request.raw_input[:50] if request.raw_input else "", request.user_id)
     try:
         # Generate demand_id
         demand_id = f"d-{uuid4().hex[:8]}"
         channel_id = f"collab-{demand_id[2:]}"
+        logger.info("[DEMAND] Generated demand_id=%s, channel_id=%s", demand_id, channel_id)
 
         # Store demand
         _demands[demand_id] = {
@@ -79,13 +90,91 @@ async def submit_demand(request: DemandSubmitRequest):
             "created_at": datetime.utcnow().isoformat()
         }
 
-        # Simple demand understanding (MVP stage)
-        understanding = {
+        # FIX: Return immediately with basic understanding
+        # Use simple understanding first, then process asynchronously
+        basic_understanding = {
             "surface_demand": request.raw_input,
-            "confidence": "high"
+            "deep_understanding": {
+                "motivation": "processing",
+                "type": "general",
+                "keywords": []
+            },
+            "uncertainties": [],
+            "confidence": "processing"
         }
 
+        # Record initial event
+        await event_recorder.record({
+            "event_id": f"evt-{uuid4().hex[:8]}",
+            "event_type": "towow.demand.submitted",
+            "timestamp": datetime.utcnow().isoformat(),
+            "payload": {
+                "demand_id": demand_id,
+                "channel_id": channel_id,
+                "surface_demand": request.raw_input,
+                "status": "processing"
+            }
+        })
+
+        # FIX: Process everything asynchronously to avoid timeout
+        logger.info("[DEMAND] Creating async task for demand_id=%s", demand_id)
+        task = asyncio.create_task(
+            _process_demand_async(
+                demand_id=demand_id,
+                channel_id=channel_id,
+                raw_input=request.raw_input,
+                user_id=request.user_id
+            ),
+            name=f"demand-processing-{demand_id}"
+        )
+        task.add_done_callback(_task_done_callback)
+        _active_tasks.add(task)
+
+        logger.info("[DEMAND] Returning response for demand_id=%s, active_tasks=%d",
+                    demand_id, len(_active_tasks))
+        return DemandSubmitResponse(
+            demand_id=demand_id,
+            channel_id=channel_id,
+            status="processing",
+            understanding=basic_understanding
+        )
+
+    except Exception as e:
+        logger.error("[DEMAND] submit_demand FAILED: %s", str(e), exc_info=True)
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+async def _process_demand_async(
+    demand_id: str,
+    channel_id: str,
+    raw_input: str,
+    user_id: str
+):
+    """
+    Process demand asynchronously (understanding + negotiation).
+
+    This function runs in background to avoid API timeout.
+    All progress is reported via SSE events.
+    """
+    logger.info("[DEMAND] _process_demand_async START demand_id=%s", demand_id)
+    try:
+        # Step 1: Understand demand (may call LLM)
+        logger.info("[DEMAND] Step 1: trigger_real_demand_understanding demand_id=%s", demand_id)
+        understanding = await trigger_real_demand_understanding(
+            demand_id=demand_id,
+            channel_id=channel_id,
+            raw_input=raw_input,
+            user_id=user_id
+        )
+        logger.info("[DEMAND] Step 1 DONE: understanding confidence=%s",
+                    understanding.get("confidence", "unknown"))
+
+        # Update stored demand with understanding
+        if demand_id in _demands:
+            _demands[demand_id]["understanding"] = understanding
+
         # Record demand understood event
+        logger.info("[DEMAND] Recording demand.understood event for demand_id=%s", demand_id)
         await event_recorder.record({
             "event_id": f"evt-{uuid4().hex[:8]}",
             "event_type": "towow.demand.understood",
@@ -93,36 +182,154 @@ async def submit_demand(request: DemandSubmitRequest):
             "payload": {
                 "demand_id": demand_id,
                 "channel_id": channel_id,
-                "surface_demand": understanding["surface_demand"],
-                "confidence": understanding["confidence"]
+                "surface_demand": understanding.get("surface_demand", raw_input),
+                "deep_understanding": understanding.get("deep_understanding"),
+                "confidence": understanding.get("confidence", "medium")
             }
         })
 
-        # Trigger mock negotiation flow asynchronously
-        task = asyncio.create_task(
-            trigger_mock_negotiation(demand_id, channel_id, request.raw_input),
-            name=f"negotiation-{demand_id}"
-        )
-        task.add_done_callback(_task_done_callback)
-        _active_tasks.add(task)
-
-        return DemandSubmitResponse(
-            demand_id=demand_id,
-            channel_id=channel_id,
-            status="processing",
-            understanding=understanding
-        )
+        # Step 2: Trigger negotiation flow
+        logger.info("[DEMAND] Step 2: trigger_real_negotiation demand_id=%s", demand_id)
+        await trigger_real_negotiation(demand_id, channel_id, raw_input, understanding)
+        logger.info("[DEMAND] _process_demand_async COMPLETED demand_id=%s", demand_id)
 
     except Exception as e:
-        logger.error(f"提交需求失败: {e}")
-        raise HTTPException(status_code=500, detail=str(e))
+        logger.error("[DEMAND] _process_demand_async FAILED demand_id=%s: %s",
+                     demand_id, str(e), exc_info=True)
+        # Record failure event
+        await event_recorder.record({
+            "event_id": f"evt-{uuid4().hex[:8]}",
+            "event_type": "towow.demand.failed",
+            "timestamp": datetime.utcnow().isoformat(),
+            "payload": {
+                "demand_id": demand_id,
+                "channel_id": channel_id,
+                "error": str(e)
+            }
+        })
+        # Update demand status
+        if demand_id in _demands:
+            _demands[demand_id]["status"] = "failed"
+            _demands[demand_id]["error"] = str(e)
+
+
+async def trigger_real_demand_understanding(
+    demand_id: str,
+    channel_id: str,
+    raw_input: str,
+    user_id: str
+) -> Dict[str, Any]:
+    """
+    T01: Call real SecondMe service or Coordinator for demand understanding.
+
+    Falls back to simple understanding if services are unavailable.
+
+    Args:
+        demand_id: Demand ID
+        channel_id: Channel ID
+        raw_input: Original demand text
+        user_id: User ID
+
+    Returns:
+        Understanding result dict
+    """
+    logger.info("[DEMAND] trigger_real_demand_understanding START demand_id=%s", demand_id)
+    try:
+        # Try to get SecondMe service from factory
+        from openagents.agents import get_agent_factory
+        factory = get_agent_factory()
+        logger.info("[DEMAND] Got factory=%s, secondme=%s",
+                    factory is not None, factory.secondme if factory else None)
+
+        if factory and factory.secondme:
+            logger.info("[DEMAND] Using SecondMe service for demand_id=%s", demand_id)
+            understanding = await factory.secondme.understand_demand(raw_input, user_id)
+            logger.info("[DEMAND] SecondMe understanding DONE, confidence=%s",
+                        understanding.get('confidence'))
+            return understanding
+        else:
+            logger.warning("[DEMAND] SecondMe service unavailable, using simple understanding")
+
+    except Exception as e:
+        logger.error("[DEMAND] SecondMe understanding FAILED: %s", str(e), exc_info=True)
+
+    # Fallback: Simple demand understanding
+    return {
+        "surface_demand": raw_input,
+        "deep_understanding": {
+            "motivation": "unknown",
+            "type": "general",
+            "keywords": []
+        },
+        "uncertainties": [],
+        "confidence": "low"
+    }
+
+
+async def trigger_real_negotiation(
+    demand_id: str,
+    channel_id: str,
+    raw_input: str,
+    understanding: Dict[str, Any]
+):
+    """
+    T01: Trigger real negotiation flow via Coordinator Agent.
+
+    Falls back to mock negotiation if Coordinator is unavailable.
+
+    Args:
+        demand_id: Demand ID
+        channel_id: Channel ID
+        raw_input: Original demand text
+        understanding: Demand understanding result
+    """
+    logger.info("[DEMAND] trigger_real_negotiation START demand_id=%s", demand_id)
+    try:
+        from openagents.agents import get_agent_factory
+        factory = get_agent_factory()
+        logger.info("[DEMAND] Got factory=%s", factory is not None)
+
+        if factory:
+            coordinator = factory.get_coordinator()
+            logger.info("[DEMAND] Got coordinator=%s", coordinator is not None)
+            if coordinator:
+                logger.info("[DEMAND] Calling Coordinator._process_direct_demand for demand_id=%s", demand_id)
+
+                # Call Coordinator's _process_direct_demand method
+                # This will trigger the full negotiation flow
+                await coordinator._process_direct_demand({
+                    "type": "new_demand",
+                    "demand_id": demand_id,
+                    "user_id": "anonymous",
+                    "raw_input": raw_input
+                })
+
+                logger.info("[DEMAND] Coordinator._process_direct_demand DONE for demand_id=%s", demand_id)
+
+                # Update demand status
+                if demand_id in _demands:
+                    _demands[demand_id]["status"] = "negotiating"
+                return
+
+    except Exception as e:
+        logger.error("[DEMAND] Coordinator processing FAILED: %s, falling back to Mock",
+                     str(e), exc_info=True)
+
+    # Fallback to mock negotiation
+    logger.warning("[DEMAND] Falling back to Mock negotiation for demand_id=%s", demand_id)
+    await trigger_mock_negotiation(demand_id, channel_id, raw_input)
 
 
 async def trigger_mock_negotiation(demand_id: str, channel_id: str, raw_input: str):
     """
-    Trigger mock negotiation flow with rich event sequence.
+    Mock negotiation flow with rich event sequence.
 
-    In MVP stage, simulates the full negotiation flow with complete events:
+    T01: This is now the FALLBACK mode, used when:
+    - Coordinator Agent is not available
+    - LLM service is not available
+    - Any error occurs in the real negotiation flow
+
+    Simulates the full negotiation flow with complete events:
     - Filter candidates
     - Collect responses (accept/decline with reasons)
     - Agent withdrawal
@@ -136,39 +343,9 @@ async def trigger_mock_negotiation(demand_id: str, channel_id: str, raw_input: s
         raw_input: Original demand text
     """
     try:
-        # 候选人列表（更丰富的信息）
-        candidates = [
-            {
-                "agent_id": "user_agent_bob",
-                "display_name": "Bob",
-                "reason": "场地资源",
-                "capabilities": ["场地资源", "活动组织"]
-            },
-            {
-                "agent_id": "user_agent_alice",
-                "display_name": "Alice",
-                "reason": "技术分享",
-                "capabilities": ["技术分享", "AI研究"]
-            },
-            {
-                "agent_id": "user_agent_charlie",
-                "display_name": "Charlie",
-                "reason": "活动策划",
-                "capabilities": ["活动策划", "流程设计"]
-            },
-            {
-                "agent_id": "user_agent_david",
-                "display_name": "David",
-                "reason": "UI设计",
-                "capabilities": ["UI设计", "产品原型"]
-            },
-            {
-                "agent_id": "user_agent_emma",
-                "display_name": "Emma",
-                "reason": "产品管理",
-                "capabilities": ["产品经理", "需求分析"]
-            },
-        ]
+        # H1 Fix: Use shared mock candidates from config
+        from config import get_mock_candidates
+        candidates = get_mock_candidates(include_keywords=False)
 
         # === 阶段1: 筛选完成 ===
         await asyncio.sleep(2)

@@ -146,7 +146,7 @@ class SubnetManager:
     """
 
     # 配置常量
-    MAX_RECURSION_DEPTH = 2       # 最大递归深度
+    MAX_RECURSION_DEPTH = 1       # 最大递归深度（MVP 简化：最多 1 层）
     MAX_SUBNETS_PER_LAYER = 3     # 单层最大子网数
     DEFAULT_TIMEOUT = 180         # 默认超时时间（秒）
 

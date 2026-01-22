@@ -145,6 +145,36 @@ const EVENT_CONFIG: Record<string, EventConfig> = {
     category: 'proposal',
   },
 
+  // T07 新增事件类型
+  'towow.feedback.evaluated': {
+    icon: '📊',
+    label: '反馈评估',
+    color: 'var(--color-info)',
+    bgColor: 'rgba(59, 130, 246, 0.1)',
+    category: 'proposal',
+  },
+  'towow.gap.identified': {
+    icon: '🔎',
+    label: '缺口识别',
+    color: 'var(--color-warning)',
+    bgColor: 'rgba(245, 158, 11, 0.1)',
+    category: 'negotiation',
+  },
+  'towow.subnet.triggered': {
+    icon: '🌐',
+    label: '子网触发',
+    color: 'var(--color-secondary)',
+    bgColor: 'rgba(139, 92, 246, 0.1)',
+    category: 'negotiation',
+  },
+  'towow.negotiation.round_started': {
+    icon: '🔄',
+    label: '新一轮协商',
+    color: 'var(--color-primary)',
+    bgColor: 'rgba(99, 102, 241, 0.1)',
+    category: 'negotiation',
+  },
+
   // 结果相关
   proposal_accepted: {
     icon: '✅',

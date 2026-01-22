@@ -85,8 +85,12 @@ class CoordinatorAgent(TowowBaseAgent):
         user_id = content.get("user_id", "anonymous")
         demand_id = content.get("demand_id") or f"d-{uuid4().hex[:8]}"
 
+        logger.info("[COORD] _process_direct_demand START demand_id=%s", demand_id)
+
         # 复用新需求处理逻辑
+        logger.info("[COORD] Step 1: _understand_demand demand_id=%s", demand_id)
         understanding = await self._understand_demand(raw_input, user_id)
+        logger.info("[COORD] Step 1 DONE: confidence=%s", understanding.get("confidence", "unknown"))
 
         self.active_demands[demand_id] = {
             "demand_id": demand_id,
@@ -96,6 +100,7 @@ class CoordinatorAgent(TowowBaseAgent):
             "created_at": datetime.utcnow().isoformat()
         }
 
+        logger.info("[COORD] Publishing towow.demand.understood event demand_id=%s", demand_id)
         await self._publish_event("towow.demand.understood", {
             "demand_id": demand_id,
             "surface_demand": understanding.get("surface_demand"),
@@ -103,10 +108,12 @@ class CoordinatorAgent(TowowBaseAgent):
             "confidence": understanding.get("confidence", "medium")
         })
 
+        logger.info("[COORD] Step 2: _smart_filter demand_id=%s", demand_id)
         candidates = await self._smart_filter(demand_id, understanding)
+        logger.info("[COORD] Step 2 DONE: candidates_count=%d", len(candidates) if candidates else 0)
 
         if not candidates:
-            self._logger.warning(f"需求 {demand_id} 未找到候选人")
+            logger.warning("[COORD] No candidates found for demand_id=%s", demand_id)
             await self._publish_event("towow.filter.failed", {
                 "demand_id": demand_id,
                 "reason": "no_candidates"
@@ -114,7 +121,10 @@ class CoordinatorAgent(TowowBaseAgent):
             return
 
         channel_id = f"collab-{demand_id[2:]}"
+        logger.info("[COORD] Step 3: _create_channel channel_id=%s, candidates=%d",
+                    channel_id, len(candidates))
         await self._create_channel(demand_id, channel_id, understanding, candidates)
+        logger.info("[COORD] _process_direct_demand COMPLETED demand_id=%s", demand_id)
 
     async def _handle_new_demand(self, ctx: ChannelMessageContext, data: Dict):
         """
@@ -206,6 +216,9 @@ class CoordinatorAgent(TowowBaseAgent):
         """
         智能筛选候选Agent
 
+        基于提示词 2：智能筛选
+        从 Agent 池中筛选出 3-15 个高相关候选人
+
         Args:
             demand_id: 需求ID
             understanding: 需求理解结果
@@ -213,33 +226,74 @@ class CoordinatorAgent(TowowBaseAgent):
         Returns:
             候选Agent列表，每个包含：
             - agent_id: Agent ID
+            - display_name: 显示名称
             - reason: 筛选理由
-            - relevance_score: 相关性分数
+            - relevance_score: 相关性分数 (0-100)
+            - expected_role: 预期角色
         """
+        logger.info("[COORD] _smart_filter START demand_id=%s", demand_id)
+
+        # 检查 LLM 服务
         if not self.llm:
-            self._logger.warning("未配置 LLM 服务，使用模拟筛选")
+            logger.warning("[COORD] LLM service unavailable, using mock filter")
             return self._mock_filter(understanding)
 
         # 获取所有可用Agent的能力（从数据库）
+        logger.info("[COORD] Getting available agents from database")
         available_agents = await self._get_available_agents()
+        logger.info("[COORD] Got %d available agents", len(available_agents) if available_agents else 0)
 
         if not available_agents:
-            self._logger.info("数据库中没有可用 Agent，使用模拟筛选")
+            logger.warning("[COORD] No available agents, using mock data")
             return self._mock_filter(understanding)
 
         # 构建筛选提示词
         prompt = self._build_filter_prompt(understanding, available_agents)
 
         try:
+            # 调用 LLM 进行智能筛选
+            logger.info("[COORD] Calling LLM for smart filter")
             response = await self.llm.complete(
                 prompt=prompt,
-                system="你是ToWow的智能筛选系统，负责为需求匹配最合适的Agent。",
-                fallback_key="smart_filter"
+                system=self._get_filter_system_prompt(),
+                fallback_key="smart_filter",
+                max_tokens=4000,
+                temperature=0.3  # 降低随机性，提高一致性
             )
-            return self._parse_filter_response(response, available_agents)
+            logger.info("[COORD] LLM response received, length=%d", len(response) if response else 0)
+
+            # 解析响应
+            candidates = self._parse_filter_response(response, available_agents)
+            logger.info("[COORD] Parsed %d candidates from LLM response", len(candidates))
+
+            if not candidates:
+                logger.warning("[COORD] LLM filter returned no candidates, using mock")
+                return self._mock_filter(understanding)
+
+            logger.info("[COORD] _smart_filter DONE, found %d candidates", len(candidates))
+            return candidates
+
         except Exception as e:
-            self._logger.error(f"LLM 筛选错误: {e}")
+            logger.error("[COORD] _smart_filter FAILED: %s", str(e), exc_info=True)
             return self._mock_filter(understanding)
+
+    def _get_filter_system_prompt(self) -> str:
+        """获取筛选系统提示词"""
+        return """你是 ToWow 协作平台的智能筛选系统。
+
+你的任务是根据用户需求，从候选 Agent 池中筛选出最适合参与协作的人选。
+
+筛选原则：
+1. 能力匹配优先：Agent 的 capabilities 应与需求的资源需求匹配
+2. 地域相关性：考虑 Agent 的 location 与需求地点的兼容性
+3. 多样性互补：选择能力互补的组合，避免过于同质化
+4. 规模适配：根据需求规模控制候选人数（小规模 3-5 人，中等 5-8 人，大规模 8-12 人）
+5. 关键角色优先：确保核心能力（如场地、技术、组织）有人覆盖
+
+重要：
+- 候选人数量应在 3-15 人之间
+- 优先选择 relevance_score >= 70 的候选人
+- 始终以有效的 JSON 格式输出"""
 
     def _build_filter_prompt(
         self, understanding: Dict, agents: List[Dict]
@@ -247,7 +301,7 @@ class CoordinatorAgent(TowowBaseAgent):
         """
         构建智能筛选提示词
 
-        基于提示词2：智能筛选
+        基于 TECH 文档 3.3.2 节的提示词模板
         根据需求理解结果，从候选Agent池中筛选最匹配的参与者
 
         Args:
@@ -259,11 +313,22 @@ class CoordinatorAgent(TowowBaseAgent):
         """
         surface_demand = understanding.get('surface_demand', '')
         deep = understanding.get('deep_understanding', {})
+        capability_tags = understanding.get('capability_tags', [])
+
+        # 格式化 Agent 信息（限制每个 Agent 的信息量）
+        agent_summaries = []
+        for agent in agents[:50]:  # 最多处理 50 个 Agent
+            summary = {
+                "agent_id": agent.get("agent_id"),
+                "display_name": agent.get("display_name", agent.get("agent_id")),
+                "capabilities": agent.get("capabilities", [])[:5],  # 最多 5 个能力
+                "location": agent.get("location", "未知"),
+                "summary": (agent.get("description", "") or "")[:100]  # 限制描述长度
+            }
+            agent_summaries.append(summary)
 
         return f"""
 # 智能筛选任务
-
-你是ToWow协作平台的智能筛选系统。你的任务是根据用户需求，从候选Agent池中筛选出最适合参与协作的人选。
 
 ## 需求信息
 
@@ -273,68 +338,40 @@ class CoordinatorAgent(TowowBaseAgent):
 ### 深层理解
 - **动机**: {deep.get('motivation', '未知')}
 - **需求类型**: {deep.get('type', 'general')}
-- **关键词**: {', '.join(deep.get('keywords', []))}
+- **关键能力标签**: {', '.join(capability_tags) if capability_tags else '未指定'}
 - **地点**: {deep.get('location', '未指定')}
 - **规模**: {json.dumps(deep.get('scale', {}), ensure_ascii=False)}
-- **时间线**: {json.dumps(deep.get('timeline', {}), ensure_ascii=False)}
-- **资源需求**: {', '.join(deep.get('resource_requirements', []))}
 
 ### 不确定点
 {json.dumps(understanding.get('uncertainties', []), ensure_ascii=False)}
 
-## 候选Agent池
+## 候选 Agent 池（共 {len(agent_summaries)} 人）
 ```json
-{json.dumps(agents, ensure_ascii=False, indent=2)}
+{json.dumps(agent_summaries, ensure_ascii=False, indent=2)}
 ```
-
-## 筛选原则
-
-1. **能力匹配优先**：Agent的capabilities应与需求的资源需求匹配
-2. **地域相关性**：考虑Agent的location与需求地点的兼容性
-3. **多样性互补**：选择能力互补的组合，避免过于同质化
-4. **规模适配**：根据需求规模控制候选人数（小规模3-5人，中等5-8人，大规模8-12人）
-5. **关键角色优先**：确保核心能力（如场地、技术、组织）有人覆盖
-
-## 筛选维度说明
-
-对每个候选人，请评估：
-- **直接匹配度**：能力与需求的直接相关程度（0-100）
-- **间接价值**：可能带来的额外价值（资源、人脉等）
-- **可用性风险**：基于其描述判断响应可能性
 
 ## 输出要求
 
-请以JSON格式输出筛选结果：
+请以 JSON 格式输出筛选结果：
 
 ```json
 {{
+  "analysis": "简要分析筛选逻辑（50字以内）",
   "candidates": [
     {{
-      "agent_id": "Agent的ID",
-      "reason": "选择该Agent的具体理由（30字以内）",
+      "agent_id": "Agent 的 ID",
+      "display_name": "Agent 显示名称",
+      "reason": "选择该 Agent 的具体理由（30字以内）",
       "relevance_score": 85,
-      "expected_role": "预期角色（如：场地提供者、技术顾问等）",
-      "match_dimensions": {{
-        "capability_match": 90,
-        "location_fit": 80,
-        "indirect_value": 70
-      }}
+      "expected_role": "预期角色（如：场地提供者、技术顾问等）"
     }}
   ],
-  "filtering_logic": "整体筛选逻辑说明（描述为什么选择这个组合）",
-  "coverage_analysis": {{
-    "covered_requirements": ["已覆盖的资源需求"],
-    "uncovered_requirements": ["未覆盖的资源需求"],
-    "suggested_actions": ["建议采取的补充行动"]
+  "coverage": {{
+    "covered": ["已覆盖的能力"],
+    "uncovered": ["未覆盖的能力"]
   }}
 }}
 ```
-
-## 注意事项
-- 候选人数量应在3-12人之间
-- relevance_score越高表示匹配度越高
-- 优先选择relevance_score >= 70的候选人
-- 如果某个关键需求无人覆盖，请在coverage_analysis中说明
 """
 
     def _parse_filter_response(
@@ -342,6 +379,8 @@ class CoordinatorAgent(TowowBaseAgent):
     ) -> List[Dict]:
         """
         解析筛选响应
+
+        增强解析鲁棒性，处理各种格式问题
 
         Args:
             response: LLM响应文本
@@ -351,22 +390,70 @@ class CoordinatorAgent(TowowBaseAgent):
             有效的候选Agent列表
         """
         try:
-            json_match = re.search(r'\{[\s\S]*\}', response)
+            # 尝试提取 JSON 块
+            json_match = re.search(r'```json\s*([\s\S]*?)\s*```', response)
             if json_match:
-                data = json.loads(json_match.group())
-                candidates = data.get("candidates", [])
-                # 验证agent_id存在
-                valid_ids = {a["agent_id"] for a in agents}
-                return [c for c in candidates if c.get("agent_id") in valid_ids]
+                json_str = json_match.group(1)
+            else:
+                # 尝试直接匹配 JSON 对象
+                json_match = re.search(r'\{[\s\S]*\}', response)
+                if json_match:
+                    json_str = json_match.group()
+                else:
+                    self._logger.warning("未找到有效 JSON")
+                    return []
+
+            data = json.loads(json_str)
+            candidates = data.get("candidates", [])
+
+            # 验证候选人 ID 存在
+            valid_ids = {a.get("agent_id") for a in agents}
+            valid_candidates = []
+
+            for candidate in candidates:
+                agent_id = candidate.get("agent_id")
+                if agent_id in valid_ids:
+                    # 补充显示名称（如果缺失）
+                    if not candidate.get("display_name"):
+                        for agent in agents:
+                            if agent.get("agent_id") == agent_id:
+                                candidate["display_name"] = agent.get(
+                                    "display_name", agent_id
+                                )
+                                break
+                    # 确保有 reason 字段
+                    if not candidate.get("reason"):
+                        candidate["reason"] = "符合需求"
+                    # 确保有 relevance_score 字段
+                    if not candidate.get("relevance_score"):
+                        candidate["relevance_score"] = 70
+                    valid_candidates.append(candidate)
+                else:
+                    self._logger.warning(f"无效的 agent_id: {agent_id}")
+
+            # 按 relevance_score 排序
+            valid_candidates.sort(
+                key=lambda x: x.get("relevance_score", 0),
+                reverse=True
+            )
+
+            return valid_candidates[:15]  # 最多返回 15 个
+
+        except json.JSONDecodeError as e:
+            self._logger.error(f"JSON 解析错误: {e}")
+            return []
         except Exception as e:
             self._logger.error(f"解析筛选响应错误: {e}")
-        return []
+            return []
 
     def _mock_filter(self, understanding: Dict) -> List[Dict]:
         """
-        Mock筛选（演示用）
+        Mock筛选（降级策略）
 
-        当没有LLM服务或数据库时使用
+        当没有LLM服务、数据库不可用或 LLM 筛选失败时使用
+
+        H1 Fix: Now uses shared mock candidates from config.py
+        to ensure consistency across the system.
 
         Args:
             understanding: 需求理解结果
@@ -374,23 +461,17 @@ class CoordinatorAgent(TowowBaseAgent):
         Returns:
             模拟的候选Agent列表
         """
-        return [
-            {
-                "agent_id": "user_agent_bob",
-                "reason": "场地资源",
-                "relevance_score": 90
-            },
-            {
-                "agent_id": "user_agent_alice",
-                "reason": "技术分享能力",
-                "relevance_score": 85
-            },
-            {
-                "agent_id": "user_agent_charlie",
-                "reason": "活动策划经验",
-                "relevance_score": 80
-            }
-        ]
+        # H1 Fix: Use shared mock candidates from config
+        from config import filter_mock_candidates_by_tags, get_mock_candidates
+
+        # 基于 capability_tags 进行简单的关键词匹配（降级逻辑）
+        capability_tags = understanding.get('capability_tags', [])
+
+        if capability_tags:
+            return filter_mock_candidates_by_tags(capability_tags, max_results=10)
+
+        # 默认返回前3个
+        return get_mock_candidates(limit=3)
 
     async def _get_available_agents(self) -> List[Dict]:
         """
@@ -435,11 +516,11 @@ class CoordinatorAgent(TowowBaseAgent):
             understanding: 需求理解结果
             candidates: 候选Agent列表
         """
-        self._logger.info(
-            f"正在创建协商 Channel {channel_id}，候选人数: {len(candidates)}"
-        )
+        logger.info("[COORD] _create_channel START channel_id=%s, candidates=%d",
+                    channel_id, len(candidates))
 
         # 发布筛选完成事件
+        logger.info("[COORD] Publishing towow.filter.completed event")
         await self._publish_event("towow.filter.completed", {
             "demand_id": demand_id,
             "channel_id": channel_id,
@@ -447,6 +528,7 @@ class CoordinatorAgent(TowowBaseAgent):
         })
 
         # 通知ChannelAdmin
+        logger.info("[COORD] Sending create_channel message to ChannelAdmin")
         await self.send_to_agent("channel_admin", {
             "type": "create_channel",
             "demand_id": demand_id,
@@ -454,11 +536,14 @@ class CoordinatorAgent(TowowBaseAgent):
             "demand": understanding,
             "candidates": candidates
         })
+        logger.info("[COORD] create_channel message sent to ChannelAdmin")
 
         # 更新需求状态
         if demand_id in self.active_demands:
             self.active_demands[demand_id]["status"] = "negotiating"
             self.active_demands[demand_id]["channel_id"] = channel_id
+
+        logger.info("[COORD] _create_channel DONE channel_id=%s", channel_id)
 
     async def _handle_subnet_demand(
         self, ctx: ChannelMessageContext, data: Dict

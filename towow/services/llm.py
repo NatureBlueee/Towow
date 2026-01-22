@@ -116,6 +116,18 @@ FALLBACK_RESPONSES: Dict[str, str] = {
     }''',
 
     # 用户代理相关
+    # 响应生成（提示词3）- TASK-T03
+    "response_generation": '''{
+        "decision": "decline",
+        "contribution": "",
+        "conditions": [],
+        "reasoning": "服务暂时不可用，使用中性响应",
+        "decline_reason": "由于系统原因，暂时无法做出决策",
+        "confidence": 30,
+        "enthusiasm_level": "low",
+        "suggested_role": ""
+    }''',
+
     "user_agent_evaluate": '''{
         "evaluation": "方案可接受",
         "score": 0.75,
@@ -142,11 +154,82 @@ FALLBACK_RESPONSES: Dict[str, str] = {
         "next_speaker": null
     }''',
 
+    # 方案聚合相关
+    "proposal_aggregation": '''{
+        "summary": "协作方案（降级响应）",
+        "objective": "完成协作需求",
+        "assignments": [],
+        "timeline": {
+            "start_date": "待定",
+            "end_date": "待定",
+            "milestones": [
+                {"name": "启动", "date": "待定", "deliverable": "项目启动"}
+            ]
+        },
+        "collaboration_model": {
+            "communication_channel": "微信群",
+            "meeting_frequency": "每周一次",
+            "decision_mechanism": "协商一致"
+        },
+        "success_criteria": ["需求被满足", "参与者达成共识"],
+        "risks": [{"risk": "方案可能需要调整", "probability": "medium", "mitigation": "多轮协商"}],
+        "gaps": [],
+        "confidence": "low",
+        "notes": "此为降级响应，LLM服务暂时不可用"
+    }''',
+
+    # 方案调整相关
+    "proposal_adjustment": '''{
+        "summary": "调整后的协作方案（降级响应）",
+        "assignments": [],
+        "timeline": {"start_date": "待定", "milestones": []},
+        "success_criteria": ["需求被满足"],
+        "confidence": "low",
+        "adjustment_summary": {
+            "round": 2,
+            "changes_made": [],
+            "requests_addressed": [],
+            "requests_declined": [{"request": "所有调整请求", "reason": "LLM服务不可用"}]
+        }
+    }''',
+
     # 缺口识别相关
     "gap_identify": '''{
         "gaps": [],
         "severity": "low",
         "recommendations": ["当前参与者组合可满足需求"]
+    }''',
+
+    # 智能筛选降级响应 - TASK-T02
+    "smart_filter": '''{
+        "analysis": "基于关键词匹配的降级筛选",
+        "candidates": [
+            {
+                "agent_id": "user_agent_bob",
+                "display_name": "Bob",
+                "reason": "场地资源丰富",
+                "relevance_score": 90,
+                "expected_role": "场地提供者"
+            },
+            {
+                "agent_id": "user_agent_alice",
+                "display_name": "Alice",
+                "reason": "技术分享能力强",
+                "relevance_score": 85,
+                "expected_role": "技术顾问"
+            },
+            {
+                "agent_id": "user_agent_charlie",
+                "display_name": "Charlie",
+                "reason": "活动策划经验丰富",
+                "relevance_score": 80,
+                "expected_role": "活动策划"
+            }
+        ],
+        "coverage": {
+            "covered": ["场地", "技术分享", "活动策划"],
+            "uncovered": []
+        }
     }''',
 
     # 通用降级

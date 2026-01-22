@@ -659,6 +659,190 @@ class AgentProfile:
     availability: str                 # 时间可用性
 ```
 
+#### 4.5.1 AgentProfile 初始化流程
+
+**Mock Agent Profile 的初始化与维护：**
+
+```python
+# scripts/load_mock_profiles.py
+
+# 1. Profile 来源
+# - 从 data/mock_profiles.json 加载预定义的 Agent 配置
+# - 每个 Agent 包含完整的能力描述、标签、兴趣等信息
+
+# 2. 初始化流程
+async def init_mock_agents():
+    """初始化 Mock Agent Profiles"""
+    profiles = load_profiles_from_file("data/mock_profiles.json")
+
+    for profile in profiles:
+        # 创建 UserAgent 实例
+        agent = UserAgentFactory.create(profile)
+
+        # 注册到 Agent Registry
+        AgentRegistry.register(agent)
+
+        # 初始化 Agent 状态
+        agent.set_status("active")
+
+    logger.info(f"已初始化 {len(profiles)} 个 Mock Agent")
+
+# 3. Profile 格式
+MOCK_PROFILE_SCHEMA = {
+    "agent_id": str,           # 唯一标识，格式：user_agent_{name}
+    "user_name": str,          # 显示名称
+    "profile_summary": str,    # 200-500字自我介绍
+    "location": str,           # 地理位置
+    "tags": List[str],         # 能力标签（用于筛选）
+    "capabilities": Dict,      # 详细能力描述
+    "interests": List[str],    # 兴趣领域
+    "availability": str        # 时间可用性
+}
+
+# 4. 运行时维护
+# - Profile 在内存中维护，通过 AgentRegistry 访问
+# - 支持热更新：通过 admin API 动态添加/修改 Agent
+# - 演示模式：可快速加载/重置所有 Mock Agent
+```
+
+### 4.6 事件类型（Event Types）
+
+SSE 推送的事件类型清单：
+
+```python
+# events/types.py
+
+EVENT_TYPES = {
+    # 需求处理阶段
+    "towow.demand.understood": {
+        "demand_id": str,
+        "surface_demand": str,
+        "capability_tags": List[str],
+        "confidence": str  # high | medium | low
+    },
+
+    # 筛选阶段
+    "towow.filter.completed": {
+        "demand_id": str,
+        "channel_id": str,
+        "candidates_count": int,
+        "candidates": List[{
+            "agent_id": str,
+            "display_name": str,
+            "reason": str
+        }]
+    },
+
+    # Channel 创建
+    "towow.channel.created": {
+        "channel_id": str,
+        "demand_id": str,
+        "participants_count": int
+    },
+
+    # 需求广播
+    "towow.demand.broadcast": {
+        "channel_id": str,
+        "demand_id": str,
+        "recipients_count": int
+    },
+
+    # 响应提交
+    "towow.offer.submitted": {
+        "channel_id": str,
+        "demand_id": str,
+        "agent_id": str,
+        "display_name": str,
+        "decision": str,  # participate | decline | conditional
+        "contribution": str
+    },
+
+    # 方案聚合开始
+    "towow.aggregation.started": {
+        "channel_id": str,
+        "demand_id": str,
+        "offers_count": int
+    },
+
+    # 方案分发
+    "towow.proposal.distributed": {
+        "channel_id": str,
+        "demand_id": str,
+        "proposal": Proposal,
+        "round": int
+    },
+
+    # 方案反馈
+    "towow.proposal.feedback": {
+        "channel_id": str,
+        "demand_id": str,
+        "agent_id": str,
+        "feedback_type": str,  # accept | negotiate | withdraw
+        "reasoning": str
+    },
+
+    # 反馈评估完成（新增）
+    "towow.feedback.evaluated": {
+        "channel_id": str,
+        "accepts": int,          # 接受数量
+        "rejects": int,          # 拒绝数量
+        "negotiates": int,       # 协商数量
+        "accept_rate": float,    # 接受率
+        "round": int             # 当前轮次
+    },
+
+    # 新一轮协商
+    "towow.negotiation.round_started": {
+        "channel_id": str,
+        "demand_id": str,
+        "round": int,
+        "max_rounds": int
+    },
+
+    # 协商成功完成
+    "towow.proposal.finalized": {
+        "channel_id": str,
+        "demand_id": str,
+        "final_proposal": Proposal,
+        "participants_count": int,
+        "rounds_taken": int
+    },
+
+    # 协商失败
+    "towow.negotiation.failed": {
+        "channel_id": str,
+        "demand_id": str,
+        "reason": str,
+        "last_proposal": Proposal  # 可选
+    },
+
+    # Agent 退出
+    "towow.agent.withdrawn": {
+        "channel_id": str,
+        "demand_id": str,
+        "agent_id": str,
+        "display_name": str,
+        "reason": str
+    },
+
+    # 缺口识别
+    "towow.gap.identified": {
+        "channel_id": str,
+        "demand_id": str,
+        "gaps": List[Gap]
+    },
+
+    # 子网触发
+    "towow.subnet.triggered": {
+        "parent_channel_id": str,
+        "parent_demand_id": str,
+        "sub_demand_id": str,
+        "sub_channel_id": str,
+        "gap_type": str
+    }
+}
+```
+
 ---
 
 ## 5. 状态机
@@ -912,6 +1096,25 @@ MVP 阶段采用纯 LLM 筛选，一步到位。
 - 后端通过 `event_recorder` 记录和推送事件
 - 前端通过 `useSSE` hook 订阅
 - 历史事件可回放
+
+**SSE 重连配置**:
+
+```typescript
+// towow-frontend/src/hooks/useSSE.ts
+
+// SSE 重连配置
+const SSE_CONFIG = {
+  MAX_RECONNECT_ATTEMPTS: 5,   // 最大重连次数
+  RECONNECT_DELAY: 3000,       // 重连间隔 (ms)
+  RECONNECT_BACKOFF: 1.5       // 重连退避系数
+};
+
+// 重连逻辑
+// 1. 连接断开后，等待 RECONNECT_DELAY 毫秒后尝试重连
+// 2. 每次重连失败，延迟时间乘以 RECONNECT_BACKOFF
+// 3. 超过 MAX_RECONNECT_ATTEMPTS 次后停止重连，提示用户
+// 4. 重连时带上 last_event_id 参数，避免事件丢失
+```
 
 ---
 

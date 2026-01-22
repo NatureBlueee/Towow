@@ -206,7 +206,12 @@ export type TimelineEventType =
   | 'towow.agent.withdrawn'          // Agent主动退出
   | 'towow.agent.kicked'             // 被踢出协商
   | 'towow.negotiation.bargain'      // 讨价还价
-  | 'towow.negotiation.counter_proposal';  // 反提案
+  | 'towow.negotiation.counter_proposal'  // 反提案
+  // T07 新增事件类型
+  | 'towow.feedback.evaluated'       // 反馈评估完成
+  | 'towow.gap.identified'           // 缺口识别
+  | 'towow.subnet.triggered'         // 子网触发
+  | 'towow.negotiation.round_started'; // 新一轮协商开始
 
 export interface TimelineContent {
   message?: string;

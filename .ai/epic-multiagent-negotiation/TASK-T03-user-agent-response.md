@@ -367,10 +367,80 @@ async def test_user_agent_decline_response():
 
 ## 实现记录
 
-*(开发完成后填写)*
+### 完成时间
+2026-01-22
+
+### 改动文件
+
+| 文件 | 改动说明 |
+|------|----------|
+| `towow/openagents/agents/user_agent.py` | 重构 `_llm_generate_response()`，新增 `_get_response_system_prompt()`、`_build_profile_summary()`、`_build_demand_summary()` |
+| `towow/services/llm.py` | 新增 `response_generation` 降级响应 |
+| `towow/tests/test_user_agent.py` | 新增 21 个单元测试 |
+
+### 关键实现
+
+1. **提示词优化**：基于 TECH-v3.md 3.3.3 节设计，使用结构化提示词注入 Agent Profile 和需求信息
+2. **响应字段扩展**：新增 `decline_reason`、`confidence`、`enthusiasm_level`、`suggested_role` 字段
+3. **解析鲁棒性**：支持 JSON code block 和裸 JSON，自动修正非法决策类型和热情度
+4. **降级策略**：LLM 失败时返回基于能力匹配的中性 Mock 响应
+5. **Profile 兼容**：支持 capabilities 为 list 或 dict 格式
+
+### 提示词设计要点
+
+- 四大决策原则：能力匹配、真实性、条件明确、理由清晰
+- 三种决策类型：participate、conditional、decline
+- 输出约束：JSON 格式，50字以内理由
 
 ---
 
 ## 测试记录
 
-*(测试完成后填写)*
+### 测试覆盖
+
+| 测试类 | 测试数量 | 状态 |
+|--------|----------|------|
+| TestUserAgentResponseGeneration | 18 | PASS |
+| TestUserAgentSystemPrompt | 1 | PASS |
+| TestUserAgentIntegration | 2 | PASS |
+
+### 测试用例清单
+
+- [x] `_build_profile_summary` 支持 list/dict capabilities
+- [x] `_build_demand_summary` 正确提取需求信息
+- [x] `_parse_response` 解析 JSON code block
+- [x] `_parse_response` 解析裸 JSON
+- [x] `_parse_response` 非法决策类型默认为 decline
+- [x] `_parse_response` 非法热情度默认为 medium
+- [x] `_parse_response` 字符串 confidence 转换为 int
+- [x] `_parse_response` confidence 限制在 0-100
+- [x] `_parse_response` 无效 JSON 返回 mock 响应
+- [x] `_mock_response` 能力匹配时返回 participate
+- [x] `_mock_response` 无匹配时返回 decline
+- [x] `_mock_response` 支持 dict capabilities
+- [x] `_mock_response` 支持 tag 匹配
+- [x] `_mock_response` 返回所有必要字段
+- [x] `_generate_response` 优先使用 LLM
+- [x] `_generate_response` LLM 错误时降级
+- [x] `_generate_response` 无 LLM 时使用 mock
+- [x] 系统提示词包含关键原则
+- [x] 集成测试：完整 participate 流程
+- [x] 集成测试：完整 decline 流程
+
+### 运行结果
+
+```
+21 passed in 0.06s
+```
+
+---
+
+## 验收标准达成
+
+- [x] **AC-1**: LLM 调用成功，返回有效的响应结构
+- [x] **AC-2**: 三种决策类型都能正确生成
+- [x] **AC-3**: `contribution` 描述与 Agent Profile 能力匹配
+- [x] **AC-4**: `conditional` 响应包含明确的条件列表
+- [x] **AC-5**: LLM 调用失败时，自动降级到 Mock
+- [ ] **AC-6**: 响应发布 `towow.offer.submitted` 事件（由上层 `_handle_demand_offer` 处理）
+
