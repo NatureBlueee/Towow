@@ -72,6 +72,19 @@ from .demo_mode import (
     is_demo_mode
 )
 
+# T07: 状态检查与恢复服务
+from .state_checker import (
+    StateChecker,
+    CheckResult,
+    StateCheckResult,
+    RecoveryAttempt,
+    ChannelRecoveryState,
+    init_state_checker,
+    get_state_checker,
+    start_state_checker,
+    stop_state_checker
+)
+
 __all__ = [
     # LLM 服务
     "LLMService",
@@ -119,5 +132,15 @@ __all__ = [
     "get_demo_service",
     "enable_demo_mode",
     "disable_demo_mode",
-    "is_demo_mode"
+    "is_demo_mode",
+    # 状态检查服务 (T07)
+    "StateChecker",
+    "CheckResult",
+    "StateCheckResult",
+    "RecoveryAttempt",
+    "ChannelRecoveryState",
+    "init_state_checker",
+    "get_state_checker",
+    "start_state_checker",
+    "stop_state_checker"
 ]

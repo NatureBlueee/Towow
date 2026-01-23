@@ -11,6 +11,11 @@ UserAgent - 用户数字分身代理
 - 用户输入 → UserAgent.submit_demand() → SecondMe.understand_demand() → Coordinator
 - Coordinator → UserAgent (collaboration_invite) → handle_invite() → SecondMe.generate_response()
 - ChannelAdmin → UserAgent (proposal_review) → handle_proposal() → SecondMe.evaluate_proposal()
+
+v4 变更 (TASK-T03):
+- 新增 response_type: "offer" | "negotiate" 响应类型区分
+- 新增 NegotiationPoint 数据类，支持协商要点
+- 新增 message_id 支持幂等处理
 """
 from __future__ import annotations
 
@@ -18,11 +23,88 @@ import json
 import logging
 import random
 import re
+from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Any, Dict, Optional
+from typing import Any, Dict, List, Literal, Optional
 from uuid import uuid4
 
 from .base import TowowBaseAgent
+
+
+# ============================================================================
+# v4 数据类定义 - TASK-T03
+# ============================================================================
+
+@dataclass
+class NegotiationPoint:
+    """协商要点 - 当 response_type 为 negotiate 时使用."""
+
+    aspect: str           # 协商方面（如：时间安排、角色分工、资源分配）
+    current_value: str    # 当前值（方案中的现状）
+    desired_value: str    # 期望值（希望调整为）
+    reason: str           # 调整原因
+
+    def to_dict(self) -> Dict[str, str]:
+        """转换为字典."""
+        return {
+            "aspect": self.aspect,
+            "current_value": self.current_value,
+            "desired_value": self.desired_value,
+            "reason": self.reason,
+        }
+
+
+@dataclass
+class OfferResponse:
+    """Agent 响应 - v4 完整响应结构."""
+
+    offer_id: str
+    agent_id: str
+    display_name: str
+    demand_id: str
+
+    # [v4新增] 响应类型：offer（直接提交方案）或 negotiate（希望讨价还价）
+    response_type: Literal["offer", "negotiate"]
+    decision: Literal["participate", "decline", "conditional"]
+
+    # 贡献与条件
+    contribution: Optional[str] = None
+    conditions: List[str] = field(default_factory=list)
+
+    # [v4新增] 协商要点，negotiate 类型时填充
+    negotiation_points: List[NegotiationPoint] = field(default_factory=list)
+
+    # 理由与附加信息
+    reasoning: str = ""
+    decline_reason: Optional[str] = None
+    confidence: int = 0  # 0-100 置信度
+    enthusiasm_level: str = "medium"  # high/medium/low
+    suggested_role: str = ""
+
+    # [v4新增] 幂等ID，用于消息去重
+    message_id: str = ""
+    submitted_at: str = ""
+
+    def to_dict(self) -> Dict[str, Any]:
+        """转换为字典，用于消息传递."""
+        return {
+            "offer_id": self.offer_id,
+            "agent_id": self.agent_id,
+            "display_name": self.display_name,
+            "demand_id": self.demand_id,
+            "response_type": self.response_type,
+            "decision": self.decision,
+            "contribution": self.contribution,
+            "conditions": self.conditions,
+            "negotiation_points": [p.to_dict() for p in self.negotiation_points],
+            "reasoning": self.reasoning,
+            "decline_reason": self.decline_reason,
+            "confidence": self.confidence,
+            "enthusiasm_level": self.enthusiasm_level,
+            "suggested_role": self.suggested_role,
+            "message_id": self.message_id,
+            "timestamp": self.submitted_at,
+        }
 
 logger = logging.getLogger(__name__)
 
@@ -85,6 +167,8 @@ class UserAgent(TowowBaseAgent):
     ) -> None:
         """处理需求offer.
 
+        v4 更新：支持 response_type、negotiation_points、message_id，发布 SSE 事件
+
         Args:
             ctx: Channel message context.
             data: Message data containing demand information.
@@ -92,33 +176,102 @@ class UserAgent(TowowBaseAgent):
         channel_id = data.get("channel_id", "")
         demand = data.get("demand", {})
         filter_reason = data.get("filter_reason", "")
+        round_num = data.get("round", 1)  # [v4] 当前轮次
+        match_score = data.get("match_score", 50)  # [v4] 匹配度
 
-        self._logger.info(f"收到 Channel {channel_id} 的需求邀请")
+        self._logger.info(f"收到 Channel {channel_id} 的需求邀请 (轮次: {round_num})")
 
         # 记录参与信息
         self.active_channels[channel_id] = {
             "demand": demand,
             "status": "evaluating",
             "received_at": datetime.utcnow().isoformat(),
+            "round": round_num,
         }
 
-        # 调用SecondMe生成响应
+        # 调用SecondMe或LLM生成响应
         response = await self._generate_response(demand, filter_reason)
+
+        # 确保 message_id 存在（v4 幂等支持）
+        if "message_id" not in response:
+            response["message_id"] = f"msg-{uuid4().hex[:12]}"
 
         # 更新状态
         self.active_channels[channel_id]["response"] = response
         self.active_channels[channel_id]["status"] = "responded"
 
-        # 发送响应给ChannelAdmin
+        # 获取 display_name
+        display_name = self.profile.get("name", self.user_id)
+
+        # 发送响应给ChannelAdmin（v4 格式）
         await self.send_to_agent(
             "channel_admin",
             {
                 "type": "offer_response",
                 "channel_id": channel_id,
                 "agent_id": self.agent_id,
-                **response,
+                "display_name": display_name,
+                "response_type": response.get("response_type", "offer"),  # [v4新增]
+                "decision": response.get("decision", "participate"),
+                "contribution": response.get("contribution"),
+                "conditions": response.get("conditions", []),
+                "reasoning": response.get("reasoning", ""),
+                "decline_reason": response.get("decline_reason"),
+                "negotiation_points": response.get("negotiation_points", []),  # [v4新增]
+                "message_id": response.get("message_id", ""),  # [v4新增]
+                "timestamp": datetime.utcnow().isoformat(),
             },
         )
+
+        # [v4新增] 发布 SSE 事件 towow.offer.submitted
+        await self._emit_offer_submitted_event(
+            channel_id=channel_id,
+            demand=demand,
+            response=response,
+            display_name=display_name,
+        )
+
+    async def _emit_offer_submitted_event(
+        self,
+        channel_id: str,
+        demand: Dict[str, Any],
+        response: Dict[str, Any],
+        display_name: str,
+    ) -> None:
+        """发布 towow.offer.submitted SSE 事件（v4 新增）.
+
+        Args:
+            channel_id: Channel ID
+            demand: 需求信息
+            response: 响应信息
+            display_name: Agent 显示名称
+        """
+        from towow.events.bus import event_bus, Event
+
+        # 汇总协商要点
+        negotiation_summary = self._summarize_negotiation_points(
+            response.get("negotiation_points", [])
+        )
+
+        event = Event.create(
+            event_type="towow.offer.submitted",
+            payload={
+                "channel_id": channel_id,
+                "demand_id": demand.get("demand_id", ""),
+                "agent_id": self.agent_id,
+                "display_name": display_name,
+                "response_type": response.get("response_type", "offer"),
+                "decision": response.get("decision", "participate"),
+                "contribution": response.get("contribution"),
+                "negotiation_summary": negotiation_summary,
+            }
+        )
+
+        try:
+            await event_bus.publish(event)
+            self._logger.debug(f"已发布 SSE 事件: {event.event_type}")
+        except Exception as e:
+            self._logger.error(f"发布 SSE 事件失败: {e}")
 
     async def _generate_response(
         self, demand: Dict[str, Any], filter_reason: str
@@ -156,7 +309,8 @@ class UserAgent(TowowBaseAgent):
     ) -> Dict[str, Any]:
         """使用LLM生成响应.
 
-        基于提示词 3：响应生成（参考 TECH-v3.md 3.3.3）
+        基于提示词 3：响应生成（TECH-v4 3.3.3）
+        v4 变更：支持 response_type 区分 offer/negotiate，新增 negotiation_points
 
         Args:
             demand: The demand to respond to.
@@ -164,8 +318,12 @@ class UserAgent(TowowBaseAgent):
 
         Returns:
             Response containing decision, contribution, conditions, reasoning,
-            decline_reason, confidence, enthusiasm_level, and suggested_role.
+            decline_reason, confidence, enthusiasm_level, suggested_role,
+            response_type, negotiation_points, and message_id.
         """
+        # 生成幂等消息ID
+        message_id = f"msg-{uuid4().hex[:12]}"
+
         # 构建更丰富的 Profile 描述
         profile_summary = self._build_profile_summary()
 
@@ -203,6 +361,7 @@ class UserAgent(TowowBaseAgent):
 
 ```json
 {{
+  "response_type": "offer | negotiate",
   "decision": "participate | decline | conditional",
   "contribution": "如果参与，具体说明你能贡献什么（详细描述，包含时间、资源等）",
   "conditions": ["如果是 conditional，列出每一个条件"],
@@ -210,9 +369,22 @@ class UserAgent(TowowBaseAgent):
   "decline_reason": "如果是 decline，说明原因",
   "confidence": 80,
   "enthusiasm_level": "high | medium | low",
-  "suggested_role": "你建议自己在协作中承担的角色"
+  "suggested_role": "你建议自己在协作中承担的角色",
+  "negotiation_points": [
+    {{
+      "aspect": "协商方面（如：时间安排、角色分工）",
+      "current_value": "当前方案中的值",
+      "desired_value": "你期望调整为的值",
+      "reason": "希望调整的原因"
+    }}
+  ]
 }}
 ```
+
+## 响应类型说明
+
+- **offer**: 直接提交你的方案，愿意按照当前需求参与
+- **negotiate**: 你想讨价还价，有些地方希望调整，需要填写 negotiation_points
 
 ## 决策类型说明
 
@@ -220,7 +392,10 @@ class UserAgent(TowowBaseAgent):
 - **conditional**: 愿意参与，但有条件
 - **decline**: 不参与（能力不匹配、时间冲突、兴趣不合等）
 
-注意：请站在 {self.profile.get('name', self.user_id)} 的角度思考，基于其真实能力和偏好做出决策。
+注意：
+- 如果你完全同意需求，使用 response_type="offer"
+- 如果你想参与但希望调整某些方面，使用 response_type="negotiate"，并填写 negotiation_points
+- 请站在 {self.profile.get('name', self.user_id)} 的角度思考，基于其真实能力和偏好做出决策
 """
 
         try:
@@ -228,16 +403,22 @@ class UserAgent(TowowBaseAgent):
                 prompt=prompt,
                 system=self._get_response_system_prompt(),
                 fallback_key="response_generation",
-                max_tokens=1000,
+                max_tokens=1500,
                 temperature=0.5,
             )
-            return self._parse_response(response)
+            result = self._parse_response(response)
+            # 注入 message_id（v4 幂等支持）
+            result["message_id"] = message_id
+            return result
         except Exception as e:
             self._logger.error(f"LLM 响应错误: {e}")
-            return self._mock_response(demand)
+            return self._get_fallback_response(demand, message_id)
 
     def _get_response_system_prompt(self) -> str:
-        """获取响应生成系统提示词."""
+        """获取响应生成系统提示词.
+
+        v4 更新：支持 response_type 和 negotiation_points
+        """
         return """你是一个数字分身系统，代表用户做出合理的协作决策。
 
 关键原则：
@@ -245,7 +426,12 @@ class UserAgent(TowowBaseAgent):
 2. 不要过度承诺用户能力范围外的事情
 3. 如果需求与用户能力不匹配，应该 decline
 4. 如果部分匹配但有顾虑，使用 conditional
-5. 始终以有效的 JSON 格式输出"""
+5. 如果想参与但希望调整某些方面，使用 response_type="negotiate" 并填写 negotiation_points
+6. 始终以有效的 JSON 格式输出
+
+响应类型选择：
+- response_type="offer"：完全同意需求，直接提交方案
+- response_type="negotiate"：想参与但希望调整某些方面，需要填写 negotiation_points"""
 
     def _build_profile_summary(self) -> str:
         """构建 Profile 摘要."""
@@ -293,12 +479,13 @@ class UserAgent(TowowBaseAgent):
         """解析响应.
 
         增强解析鲁棒性，支持所有必要字段。
+        v4 更新：支持 response_type 和 negotiation_points
 
         Args:
             response: Raw response string from LLM.
 
         Returns:
-            Parsed response dictionary with all required fields.
+            Parsed response dictionary with all required fields including v4 fields.
         """
         try:
             # 尝试提取 JSON 块（支持 markdown code block）
@@ -321,6 +508,11 @@ class UserAgent(TowowBaseAgent):
             if decision not in ("participate", "decline", "conditional"):
                 decision = "decline"
 
+            # [v4新增] 标准化响应类型
+            response_type = data.get("response_type", "offer").lower().strip()
+            if response_type not in ("offer", "negotiate"):
+                response_type = "offer"
+
             # 标准化热情度
             enthusiasm = data.get("enthusiasm_level", "medium").lower().strip()
             if enthusiasm not in ("high", "medium", "low"):
@@ -335,7 +527,21 @@ class UserAgent(TowowBaseAgent):
                     confidence = 50
             confidence = max(0, min(100, confidence))  # 限制在 0-100
 
+            # [v4新增] 解析协商要点
+            negotiation_points = []
+            raw_points = data.get("negotiation_points", [])
+            if response_type == "negotiate" and raw_points:
+                for p in raw_points:
+                    if isinstance(p, dict):
+                        negotiation_points.append({
+                            "aspect": p.get("aspect", ""),
+                            "current_value": p.get("current_value", ""),
+                            "desired_value": p.get("desired_value", ""),
+                            "reason": p.get("reason", ""),
+                        })
+
             return {
+                "response_type": response_type,  # [v4新增]
                 "decision": decision,
                 "contribution": data.get("contribution", ""),
                 "conditions": data.get("conditions", []),
@@ -344,6 +550,7 @@ class UserAgent(TowowBaseAgent):
                 "confidence": confidence,
                 "enthusiasm_level": enthusiasm,
                 "suggested_role": data.get("suggested_role", ""),
+                "negotiation_points": negotiation_points,  # [v4新增]
             }
 
         except json.JSONDecodeError as e:
@@ -357,6 +564,7 @@ class UserAgent(TowowBaseAgent):
         """Mock响应（降级/演示用）.
 
         当 LLM 调用失败时使用此方法生成中性响应。
+        v4 更新：新增 response_type 和 negotiation_points 字段
 
         Args:
             demand: The demand to respond to.
@@ -402,6 +610,7 @@ class UserAgent(TowowBaseAgent):
             suggested_role = matched_items[0] if matched_items else "参与者"
 
             return {
+                "response_type": "offer",  # [v4新增]
                 "decision": "participate",
                 "contribution": contribution,
                 "conditions": [],
@@ -410,9 +619,11 @@ class UserAgent(TowowBaseAgent):
                 "confidence": 70,
                 "enthusiasm_level": "medium",
                 "suggested_role": suggested_role,
+                "negotiation_points": [],  # [v4新增]
             }
         else:
             return {
+                "response_type": "offer",  # [v4新增]
                 "decision": "decline",
                 "contribution": "",
                 "conditions": [],
@@ -421,7 +632,47 @@ class UserAgent(TowowBaseAgent):
                 "confidence": 60,
                 "enthusiasm_level": "low",
                 "suggested_role": "",
+                "negotiation_points": [],  # [v4新增]
             }
+
+    def _get_fallback_response(
+        self,
+        demand: Dict[str, Any],
+        message_id: str
+    ) -> Dict[str, Any]:
+        """降级响应（v4 新增）.
+
+        当 LLM 调用失败时使用此方法生成降级响应，包含 message_id。
+
+        Args:
+            demand: The demand to respond to.
+            message_id: 幂等消息ID
+
+        Returns:
+            Fallback response with all required fields including message_id.
+        """
+        base_response = self._mock_response(demand)
+        base_response["message_id"] = message_id
+        return base_response
+
+    def _summarize_negotiation_points(
+        self,
+        negotiation_points: List[Dict[str, str]]
+    ) -> Optional[str]:
+        """汇总协商要点（v4 新增）.
+
+        Args:
+            negotiation_points: 协商要点列表
+
+        Returns:
+            协商要点摘要字符串，无要点时返回 None
+        """
+        if not negotiation_points:
+            return None
+        return "; ".join([
+            f"{p.get('aspect', '')}: 期望{p.get('desired_value', '')}"
+            for p in negotiation_points
+        ])
 
     async def _handle_proposal_review(
         self, ctx: Any, data: Dict[str, Any]
@@ -488,13 +739,21 @@ class UserAgent(TowowBaseAgent):
     async def _llm_evaluate_proposal(
         self, proposal: Dict[str, Any]
     ) -> Dict[str, Any]:
-        """使用LLM评估方案.
+        """
+        [v4优化] 使用LLM评估方案
+
+        支持的反馈类型：
+        - accept: 接受方案
+        - reject: 拒绝方案
+        - negotiate: 希望继续协商（需要提供调整请求）
+        - withdraw: 退出协商（不再参与）
 
         Args:
             proposal: The proposal to evaluate.
 
         Returns:
-            Feedback containing feedback_type, adjustment_request, and reasoning.
+            Feedback containing feedback_type, adjustment_request, reasoning,
+            and negotiation_points (for negotiate type).
         """
         # 找到自己在方案中的角色
         my_assignment = None
@@ -504,46 +763,185 @@ class UserAgent(TowowBaseAgent):
                 break
 
         assignment_json = (
-            json.dumps(my_assignment, ensure_ascii=False)
+            json.dumps(my_assignment, ensure_ascii=False, indent=2)
             if my_assignment
             else "未分配具体角色"
         )
 
-        prompt = f"""
-## 你的身份
-你是用户 {self.user_id} 的数字分身。
+        # 构建档案摘要
+        profile_summary = self._build_profile_summary()
 
-## 用户档案
-{json.dumps(self.profile, ensure_ascii=False, indent=2)}
+        # 获取当前轮次信息（从 active_channels 或 proposal）
+        round_info = ""
+        for channel_data in self.active_channels.values():
+            if channel_data.get("proposal") == proposal:
+                round_num = channel_data.get("round", 1)
+                round_info = f"当前第 {round_num} 轮协商"
+                break
+
+        prompt = f"""
+# 方案评审任务
+
+## 你的身份
+你是用户 **{self.profile.get('name', self.user_id)}** 的数字分身。
+你需要代表用户评估这个协作方案，并决定如何响应。
+
+## 你的档案
+{profile_summary}
 
 ## 协作方案
+```json
 {json.dumps(proposal, ensure_ascii=False, indent=2)}
+```
 
 ## 你在方案中的角色
+```json
 {assignment_json}
+```
 
-## 任务
-评估这个方案是否可以接受。
+{round_info}
+
+## 评估任务
+
+请根据以下原则评估方案：
+
+1. **角色匹配原则**：你的角色分配是否与你的能力匹配？
+2. **条件满足原则**：你之前提出的条件是否被满足？
+3. **公平性原则**：任务分配是否公平合理？
+4. **可行性原则**：方案整体是否可执行？
 
 ## 输出格式
+
+请以 JSON 格式输出你的反馈：
+
 ```json
 {{
-  "feedback_type": "accept" 或 "reject" 或 "negotiate",
-  "adjustment_request": "如果是negotiate，说明希望如何调整",
-  "reasoning": "评估理由"
+  "feedback_type": "accept | reject | negotiate | withdraw",
+  "adjustment_request": "如果是 negotiate，详细说明希望如何调整",
+  "reasoning": "你做出这个决定的理由（50字以内）",
+  "concerns": ["如果有顾虑，列出每一条"],
+  "negotiation_points": [
+    {{
+      "aspect": "需要调整的方面",
+      "current_value": "当前方案中的值",
+      "desired_value": "你期望的值",
+      "reason": "调整原因"
+    }}
+  ],
+  "satisfaction_score": 80
 }}
 ```
+
+## 反馈类型说明
+
+- **accept**: 完全接受方案，愿意按照分配参与
+- **reject**: 拒绝方案，不愿意按照当前分配参与（但仍在协商中）
+- **negotiate**: 有条件地接受，希望调整某些方面后再确认
+- **withdraw**: 退出协商，不再参与本次协作（永久退出）
+
+## 决策建议
+
+- 如果角色分配合理且条件被满足 → 使用 **accept**
+- 如果角色分配不合理但可以调整 → 使用 **negotiate**
+- 如果方案根本不可接受但想再看看调整 → 使用 **reject**
+- 如果决定不再参与这次协作 → 使用 **withdraw**
+
+注意：
+- **withdraw** 是永久性的，一旦选择就不会再收到后续方案
+- 尽量使用 **negotiate** 而非 **reject**，以促进协商进展
+- 请站在 {self.profile.get('name', self.user_id)} 的角度思考
 """
 
         try:
             response = await self.llm.complete(
                 prompt=prompt,
-                system="你是一个数字分身系统，代表用户评估协作方案。",
+                system=self._get_feedback_system_prompt(),
+                fallback_key="proposal_evaluation",
+                max_tokens=1500,
+                temperature=0.4
             )
-            return self._parse_feedback(response)
+            return self._parse_feedback_v4(response)
         except Exception as e:
             self._logger.error(f"LLM 评估错误: {e}")
             return self._mock_feedback(proposal)
+
+    def _get_feedback_system_prompt(self) -> str:
+        """[v4] 获取反馈评估系统提示词"""
+        return """你是一个数字分身系统，代表用户评估协作方案。
+
+关键原则：
+1. 基于用户档案做出符合用户性格和能力的决策
+2. 优先选择 accept 或 negotiate，促进协商进展
+3. 只有在方案完全不可接受时才选择 reject
+4. 只有在决定永久退出时才选择 withdraw
+5. negotiate 时必须提供具体的 adjustment_request 和 negotiation_points
+6. 始终以有效的 JSON 格式输出
+
+反馈类型使用建议：
+- accept: 方案可接受，同意参与
+- negotiate: 方案基本可行，但需要调整某些方面
+- reject: 方案当前不可接受，但愿意看调整后的方案
+- withdraw: 决定不再参与本次协作（慎用）"""
+
+    def _parse_feedback_v4(self, response: str) -> Dict[str, Any]:
+        """
+        [v4] 解析反馈响应
+
+        支持 accept/reject/negotiate/withdraw 四种类型
+
+        Args:
+            response: Raw response string from LLM.
+
+        Returns:
+            Parsed feedback dictionary.
+        """
+        try:
+            # 尝试提取 JSON 块
+            json_match = re.search(r"```json\s*([\s\S]*?)\s*```", response)
+            if json_match:
+                json_str = json_match.group(1)
+            else:
+                json_match = re.search(r"\{[\s\S]*\}", response)
+                if json_match:
+                    json_str = json_match.group()
+                else:
+                    self._logger.warning("未找到有效 JSON")
+                    return self._mock_feedback({})
+
+            data = json.loads(json_str)
+
+            # 标准化反馈类型
+            feedback_type = data.get("feedback_type", "accept").lower().strip()
+            if feedback_type not in ("accept", "reject", "negotiate", "withdraw"):
+                feedback_type = "accept"
+
+            # 解析协商要点
+            negotiation_points = []
+            if feedback_type == "negotiate" and data.get("negotiation_points"):
+                for point in data.get("negotiation_points", []):
+                    if isinstance(point, dict):
+                        negotiation_points.append({
+                            "aspect": point.get("aspect", ""),
+                            "current_value": point.get("current_value", ""),
+                            "desired_value": point.get("desired_value", ""),
+                            "reason": point.get("reason", "")
+                        })
+
+            return {
+                "feedback_type": feedback_type,
+                "adjustment_request": data.get("adjustment_request", ""),
+                "reasoning": data.get("reasoning", ""),
+                "concerns": data.get("concerns", []),
+                "negotiation_points": negotiation_points,
+                "satisfaction_score": data.get("satisfaction_score", 50)
+            }
+
+        except json.JSONDecodeError as e:
+            self._logger.error(f"JSON 解析错误: {e}")
+            return self._mock_feedback({})
+        except Exception as e:
+            self._logger.error(f"解析反馈错误: {e}")
+            return self._mock_feedback({})
 
     def _parse_feedback(self, response: str) -> Dict[str, Any]:
         """解析反馈.

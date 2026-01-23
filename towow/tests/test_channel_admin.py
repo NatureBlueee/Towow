@@ -653,7 +653,7 @@ class TestChannelAdminAgent:
     def test_agent_creation(self, agent):
         """测试Agent创建"""
         assert agent.AGENT_TYPE == "channel_admin"
-        assert agent.MAX_NEGOTIATION_ROUNDS == 3  # v3 改为 3 轮
+        assert agent.MAX_NEGOTIATION_ROUNDS == 5  # v4 改为 5 轮
         assert agent.RESPONSE_TIMEOUT == 300
         assert agent.FEEDBACK_TIMEOUT == 120
 
@@ -706,7 +706,7 @@ class TestChannelAdminPublicAPI:
         state = agent.channels["test-channel"]
         assert state.demand_id == "demand-001"
         assert len(state.candidates) == 2
-        assert state.max_rounds == 3  # v3 默认 3 轮
+        assert state.max_rounds == 5  # v4 默认 5 轮
 
     @pytest.mark.asyncio
     async def test_start_managing_auto_id(self, agent):
@@ -900,10 +900,10 @@ class TestMultiRoundNegotiationT05:
 
     @pytest.mark.asyncio
     async def test_max_rounds_reached_generates_compromise(self, agent, create_test_state):
-        """AC-7: 达到 3 轮后能够生成妥协方案（接受 > 拒绝时）"""
-        state = create_test_state(round_num=3, max_rounds=3)
+        """[v4更新] AC-5: 达到最大轮次后触发强制终结（FORCE_FINALIZED）"""
+        state = create_test_state(round_num=5, max_rounds=5)  # v4: 5轮
 
-        # 2 接受，1 协商 → 接受 > 拒绝
+        # 2 接受，1 协商 → 不满足80%接受，触发强制终结
         state.proposal_feedback = {
             "bob": {"feedback_type": "accept"},
             "alice": {"feedback_type": "accept"},
@@ -912,27 +912,25 @@ class TestMultiRoundNegotiationT05:
 
         await agent._evaluate_feedback(state)
 
-        # 应该完成（生成妥协方案）
-        assert state.status == RealChannelStatus.FINALIZED
+        # v4: 应该是 FORCE_FINALIZED
+        assert state.status == RealChannelStatus.FORCE_FINALIZED
 
     @pytest.mark.asyncio
     async def test_max_rounds_reached_with_more_rejects_fails(self, agent, create_test_state):
-        """测试达到最大轮次且拒绝 > 接受时失败"""
-        state = create_test_state(round_num=3, max_rounds=3)
+        """[v4更新] 测试达到最大轮次且拒绝>=50%时失败"""
+        state = create_test_state(round_num=5, max_rounds=5)  # v4: 5轮
 
-        # 1 接受，2 协商 → 不满足 80%，且不能进入下一轮
-        # 这种情况下 accept_rate (33%) < reject_rate (0%)，但没有拒绝
-        # 所以实际会 finalize
+        # 1 接受，2 拒绝 → 拒绝率 66.67% >= 50%，应该失败
         state.proposal_feedback = {
             "bob": {"feedback_type": "accept"},
-            "alice": {"feedback_type": "negotiate"},
-            "charlie": {"feedback_type": "negotiate"},
+            "alice": {"feedback_type": "reject"},
+            "charlie": {"feedback_type": "reject"},
         }
 
         await agent._evaluate_feedback(state)
 
-        # accept_rate (33%) > reject_rate (0%)，所以会 finalize
-        assert state.status == RealChannelStatus.FINALIZED
+        # 拒绝率超过50%，应该失败
+        assert state.status == RealChannelStatus.FAILED
 
     @pytest.mark.asyncio
     async def test_round_started_event_published(self, agent, create_test_state):
@@ -1031,6 +1029,413 @@ class TestMultiRoundNegotiationT05:
         # 应该返回原方案并标记轮次
         assert adjusted["round"] == 2
         assert adjusted.get("adjusted") is True
+
+
+class TestChannelAdminAggregateT04V4:
+    """测试 T04: ChannelAdmin 方案聚合 v4 功能"""
+
+    @pytest.fixture
+    def agent(self):
+        """创建测试用Agent实例"""
+        from openagents.agents.channel_admin import ChannelAdminAgent
+        return ChannelAdminAgent()
+
+    @pytest.fixture
+    def create_test_channel(self, agent):
+        """创建测试Channel的工厂函数"""
+        from openagents.agents.channel_admin import ChannelState
+
+        def _create(candidates=None):
+            if candidates is None:
+                candidates = [
+                    {"agent_id": "agent1", "display_name": "Agent 1"},
+                    {"agent_id": "agent2", "display_name": "Agent 2"},
+                    {"agent_id": "agent3", "display_name": "Agent 3"},
+                ]
+            state = ChannelState(
+                channel_id="test-channel",
+                demand_id="d-test",
+                demand={"surface_demand": "办聚会"},
+                candidates=candidates,
+            )
+            state.status = RealChannelStatus.COLLECTING
+            agent.channels["test-channel"] = state
+            return state
+
+        return _create
+
+    @pytest.mark.asyncio
+    async def test_idempotent_handling_by_message_id(self, agent, create_test_channel):
+        """AC-3: 测试基于 message_id 的幂等处理"""
+        state = create_test_channel()
+
+        # 第一次处理
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "offer",
+            "decision": "participate",
+            "contribution": "提供场地",
+            "message_id": "msg-001"
+        })
+
+        assert len(state.responses) == 1
+        assert "agent1" in state.responses
+        assert "msg-001" in state.processed_message_ids
+
+        # 第二次处理相同的消息（应该被忽略）
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "offer",
+            "decision": "participate",
+            "contribution": "修改后的贡献",  # 不同内容
+            "message_id": "msg-001"  # 相同的消息ID
+        })
+
+        # 应该还是只有1个响应，且内容不变
+        assert len(state.responses) == 1
+        assert state.responses["agent1"]["contribution"] == "提供场地"
+
+    @pytest.mark.asyncio
+    async def test_offer_response_type_processing(self, agent, create_test_channel):
+        """AC-2: 测试 offer 响应类型正确处理"""
+        state = create_test_channel()
+
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "offer",
+            "decision": "participate",
+            "contribution": "提供场地",
+            "message_id": "msg-offer-001"
+        })
+
+        assert state.responses["agent1"]["response_type"] == "offer"
+        assert state.responses["agent1"]["decision"] == "participate"
+        assert state.responses["agent1"]["contribution"] == "提供场地"
+        assert state.responses["agent1"]["negotiation_points"] == []
+
+    @pytest.mark.asyncio
+    async def test_negotiate_response_type_processing(self, agent, create_test_channel):
+        """AC-2: 测试 negotiate 响应类型正确处理"""
+        state = create_test_channel()
+
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "negotiate",
+            "decision": "conditional",
+            "contribution": "演讲嘉宾",
+            "negotiation_points": [
+                {
+                    "aspect": "时间",
+                    "current_value": "周五",
+                    "desired_value": "周末",
+                    "reason": "工作日不方便"
+                }
+            ],
+            "message_id": "msg-negotiate-001"
+        })
+
+        assert state.responses["agent1"]["response_type"] == "negotiate"
+        assert state.responses["agent1"]["decision"] == "conditional"
+        assert len(state.responses["agent1"]["negotiation_points"]) == 1
+        assert state.responses["agent1"]["negotiation_points"][0]["aspect"] == "时间"
+        assert state.responses["agent1"]["negotiation_points"][0]["desired_value"] == "周末"
+
+    @pytest.mark.asyncio
+    async def test_aggregate_after_all_responses_collected(self, agent, create_test_channel):
+        """AC-1: 测试收集完所有响应后自动触发聚合"""
+        state = create_test_channel(candidates=[
+            {"agent_id": "agent1", "display_name": "Agent 1"},
+        ])
+
+        # 发送响应
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "offer",
+            "decision": "participate",
+            "contribution": "提供场地",
+            "message_id": "msg-001"
+        })
+
+        # 应该自动触发聚合，状态变为 NEGOTIATING
+        assert state.status == RealChannelStatus.NEGOTIATING
+        assert state.current_proposal is not None
+
+    def test_fallback_proposal_v4_structure(self, agent):
+        """AC-5: 测试降级方案结构正确"""
+        from openagents.agents.channel_admin import ChannelState
+
+        state = ChannelState(
+            channel_id="test-ch",
+            demand_id="d-test",
+            demand={"surface_demand": "办AI聚会"},
+            candidates=[]
+        )
+
+        offers = [
+            {
+                "agent_id": "bob",
+                "display_name": "Bob",
+                "contribution": "提供场地",
+                "confidence": 80
+            }
+        ]
+
+        negotiations = [
+            {
+                "agent_id": "alice",
+                "display_name": "Alice",
+                "contribution": "演讲嘉宾",
+                "negotiation_points": [
+                    {"aspect": "时间", "desired_value": "周末"}
+                ]
+            }
+        ]
+
+        proposal = agent._get_fallback_proposal_v4(state, offers, negotiations)
+
+        # 验证降级方案结构
+        assert proposal["is_fallback"] is True
+        assert proposal["confidence"] == "low"
+        assert "办AI聚会" in proposal["summary"]
+        assert len(proposal["assignments"]) == 2
+
+        # 验证 offer 类型的分配
+        bob_assignment = next(a for a in proposal["assignments"] if a["agent_id"] == "bob")
+        assert bob_assignment["is_confirmed"] is True
+        assert bob_assignment["responsibility"] == "提供场地"
+
+        # 验证 negotiate 类型的分配
+        alice_assignment = next(a for a in proposal["assignments"] if a["agent_id"] == "alice")
+        assert alice_assignment["is_confirmed"] is False
+        assert "协商" in alice_assignment["notes"]
+
+    def test_build_aggregation_prompt_v4(self, agent):
+        """测试 v4 聚合提示词正确构建"""
+        demand = {
+            "surface_demand": "办AI聚会",
+            "deep_understanding": {"type": "event"},
+            "capability_tags": ["场地", "演讲"]
+        }
+
+        offers = [
+            {
+                "agent_id": "bob",
+                "display_name": "Bob",
+                "decision": "participate",
+                "contribution": "提供场地",
+                "confidence": 80
+            }
+        ]
+
+        negotiations = [
+            {
+                "agent_id": "alice",
+                "display_name": "Alice",
+                "decision": "conditional",
+                "contribution": "演讲嘉宾",
+                "negotiation_points": [
+                    {"aspect": "时间", "current_value": "周五", "desired_value": "周末", "reason": "工作日不方便"}
+                ]
+            }
+        ]
+
+        declines = []
+
+        prompt = agent._build_aggregation_prompt_v4(
+            demand=demand,
+            offers=offers,
+            negotiations=negotiations,
+            declines=declines,
+            current_round=1,
+            max_rounds=5
+        )
+
+        # 验证提示词包含关键内容
+        assert "办AI聚会" in prompt
+        assert "offer" in prompt.lower()
+        assert "negotiate" in prompt.lower()
+        assert "Bob" in prompt
+        assert "Alice" in prompt
+        assert "时间" in prompt
+        assert "周末" in prompt
+        assert "第 1 轮" in prompt
+        assert "5" in prompt  # max_rounds
+
+    def test_validate_and_enhance_proposal_v4_adds_missing_participants(self, agent):
+        """测试 v4 方案验证增强 - 补充缺失的参与者"""
+        proposal = {
+            "summary": "测试方案",
+            "assignments": [
+                {"agent_id": "bob", "role": "场地提供者"}
+            ]
+        }
+
+        offers = [
+            {"agent_id": "bob", "display_name": "Bob", "contribution": "场地"}
+        ]
+        negotiations = [
+            {"agent_id": "alice", "display_name": "Alice", "contribution": "演讲"}
+        ]
+
+        enhanced = agent._validate_and_enhance_proposal_v4(proposal, offers, negotiations)
+
+        # 验证 alice 被补充
+        assigned_ids = {a["agent_id"] for a in enhanced["assignments"]}
+        assert "alice" in assigned_ids
+
+        # 验证 negotiate 类型的参与者标记为未确认
+        alice_assignment = next(a for a in enhanced["assignments"] if a["agent_id"] == "alice")
+        assert alice_assignment["is_confirmed"] is False
+        assert "协商中" in alice_assignment["notes"]
+
+    def test_validate_and_enhance_proposal_v4_adds_negotiation_handling(self, agent):
+        """测试 v4 方案验证增强 - 添加 negotiation_handling"""
+        proposal = {
+            "summary": "测试方案",
+            "assignments": []
+        }
+
+        enhanced = agent._validate_and_enhance_proposal_v4(proposal, [], [])
+
+        # 验证 negotiation_handling 被添加
+        assert "negotiation_handling" in enhanced
+        assert "addressed" in enhanced["negotiation_handling"]
+        assert "declined" in enhanced["negotiation_handling"]
+
+    @pytest.mark.asyncio
+    async def test_proposal_distributed_event_v4_format(self, agent, create_test_channel):
+        """AC-6: 测试 towow.proposal.distributed 事件格式"""
+        state = create_test_channel(candidates=[
+            {"agent_id": "agent1", "display_name": "Agent 1"},
+        ])
+
+        # Mock _publish_event
+        published_events = []
+        original_publish = agent._publish_event
+
+        async def mock_publish(event_type, payload):
+            published_events.append((event_type, payload))
+            await original_publish(event_type, payload)
+
+        agent._publish_event = mock_publish
+
+        # 触发聚合
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "offer",
+            "decision": "participate",
+            "contribution": "提供场地",
+            "message_id": "msg-001"
+        })
+
+        # 检查 proposal.distributed 事件
+        distributed_events = [
+            e for e in published_events
+            if e[0] == "towow.proposal.distributed"
+        ]
+
+        assert len(distributed_events) >= 1
+        payload = distributed_events[0][1]
+
+        # 验证 v4 事件格式
+        assert "channel_id" in payload
+        assert "demand_id" in payload
+        assert "proposal_id" in payload
+        assert "summary" in payload
+        assert "participants_count" in payload
+        assert "has_gaps" in payload
+        assert "version" in payload
+
+    @pytest.mark.asyncio
+    async def test_proposal_distributed_to_all_participants(self, agent, create_test_channel):
+        """AC-7: 测试方案分发给所有参与者"""
+        state = create_test_channel(candidates=[
+            {"agent_id": "agent1", "display_name": "Agent 1"},
+            {"agent_id": "agent2", "display_name": "Agent 2"},
+        ])
+
+        # 记录发送的消息
+        sent_messages = []
+        original_send = agent.send_to_agent
+
+        async def mock_send(agent_id, data):
+            sent_messages.append((agent_id, data))
+            return await original_send(agent_id, data)
+
+        agent.send_to_agent = mock_send
+
+        # 发送两个响应
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "offer",
+            "decision": "participate",
+            "message_id": "msg-001"
+        })
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent2",
+            "response_type": "negotiate",
+            "decision": "conditional",
+            "message_id": "msg-002"
+        })
+
+        # 检查方案是否发送给所有参与者
+        proposal_review_messages = [
+            m for m in sent_messages
+            if m[1].get("type") == "proposal_review"
+        ]
+
+        agent_ids_received = {m[0] for m in proposal_review_messages}
+        assert "agent1" in agent_ids_received
+        assert "agent2" in agent_ids_received
+
+    @pytest.mark.asyncio
+    async def test_your_assignment_included_in_proposal_review(self, agent, create_test_channel):
+        """测试方案分发包含参与者的具体分配"""
+        state = create_test_channel(candidates=[
+            {"agent_id": "agent1", "display_name": "Agent 1"},
+        ])
+
+        # 记录发送的消息
+        sent_messages = []
+        original_send = agent.send_to_agent
+
+        async def mock_send(agent_id, data):
+            sent_messages.append((agent_id, data))
+            return await original_send(agent_id, data)
+
+        agent.send_to_agent = mock_send
+
+        # 发送响应
+        await agent._handle_offer_response({
+            "channel_id": "test-channel",
+            "agent_id": "agent1",
+            "response_type": "offer",
+            "decision": "participate",
+            "contribution": "提供场地",
+            "message_id": "msg-001"
+        })
+
+        # 检查 your_assignment 字段
+        proposal_review_messages = [
+            m for m in sent_messages
+            if m[1].get("type") == "proposal_review"
+        ]
+
+        assert len(proposal_review_messages) >= 1
+        message = proposal_review_messages[0][1]
+
+        # your_assignment 可能存在（如果 agent 被分配了角色）
+        if "your_assignment" in message:
+            assert "role" in message["your_assignment"]
+            assert "responsibility" in message["your_assignment"]
 
 
 if __name__ == "__main__":

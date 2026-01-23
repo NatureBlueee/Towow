@@ -38,13 +38,43 @@ def _get_env_float(key: str, default: float) -> float:
 
 # Maximum number of negotiation rounds before forcing a decision
 # Can be overridden by TOWOW_MAX_NEGOTIATION_ROUNDS environment variable
-MAX_NEGOTIATION_ROUNDS: int = _get_env_int("TOWOW_MAX_NEGOTIATION_ROUNDS", 3)
+# v4: 修改为 5 轮（原为 3 轮）
+MAX_NEGOTIATION_ROUNDS: int = _get_env_int("TOWOW_MAX_NEGOTIATION_ROUNDS", 5)
+
+# ============ Acceptance Threshold Configuration (v4) ============
+
+# High acceptance threshold - >= this value triggers FINALIZED
+# Can be overridden by TOWOW_ACCEPT_THRESHOLD_HIGH environment variable
+ACCEPT_THRESHOLD_HIGH: float = _get_env_float("TOWOW_ACCEPT_THRESHOLD_HIGH", 0.8)
+
+# Low acceptance threshold - < this value (for rejection) triggers FAILED
+# Can be overridden by TOWOW_ACCEPT_THRESHOLD_LOW environment variable
+ACCEPT_THRESHOLD_LOW: float = _get_env_float("TOWOW_ACCEPT_THRESHOLD_LOW", 0.5)
 
 # Response timeout in seconds (how long to wait for agent responses)
 RESPONSE_TIMEOUT: int = _get_env_int("TOWOW_RESPONSE_TIMEOUT", 300)
 
 # Feedback timeout in seconds (how long to wait for proposal feedback)
 FEEDBACK_TIMEOUT: int = _get_env_int("TOWOW_FEEDBACK_TIMEOUT", 120)
+
+
+# ============ State Checker Configuration (T07) ============
+
+# State check interval in seconds (how often to check channel states)
+# Can be overridden by TOWOW_STATE_CHECK_INTERVAL environment variable
+STATE_CHECK_INTERVAL: int = _get_env_int("TOWOW_STATE_CHECK_INTERVAL", 5)
+
+# Maximum time (seconds) a channel can be stuck in a state before recovery
+# Can be overridden by TOWOW_STATE_MAX_STUCK_TIME environment variable
+STATE_MAX_STUCK_TIME: int = _get_env_int("TOWOW_STATE_MAX_STUCK_TIME", 120)
+
+# Maximum recovery attempts before marking channel as failed
+# Can be overridden by TOWOW_STATE_MAX_RECOVERY_ATTEMPTS environment variable
+STATE_MAX_RECOVERY_ATTEMPTS: int = _get_env_int("TOWOW_STATE_MAX_RECOVERY_ATTEMPTS", 3)
+
+# Enable state checker (can be disabled for testing)
+# Can be overridden by TOWOW_STATE_CHECKER_ENABLED environment variable
+STATE_CHECKER_ENABLED: bool = os.getenv("TOWOW_STATE_CHECKER_ENABLED", "true").lower() == "true"
 
 
 # ============ Gap Identification Configuration ============

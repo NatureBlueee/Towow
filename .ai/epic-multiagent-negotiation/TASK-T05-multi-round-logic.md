@@ -21,21 +21,28 @@
 1. UserAgent 方案反馈生成（提示词 5）
 2. ChannelAdmin 方案调整（提示词 6）
 3. 协商状态机流转
-4. 最多 3 轮协商限制
+4. [v4] **最多 5 轮协商限制**（原为 3 轮）
+5. [v4] **第 5 轮强制终结**，区分已确认/可选参与者
+6. [v4] **三档阈值判定**：>=80% → finalize，50-80% → 继续协商，<50% → fail
 
 ### 当前问题
 
 1. `ChannelAdmin._adjust_proposal()` 提示词需优化
 2. `UserAgent._llm_evaluate_proposal()` 反馈生成不够丰富
-3. 协商轮次控制逻辑需要验证
-4. 80% 接受阈值判断需要实现
+3. [v4] 协商轮次从 3 轮改为 **5 轮**
+4. [v4] 需要实现**三档阈值判断**（>=80%/50-80%/<50%）
+5. [v4] 需要实现**强制终结**逻辑（第 5 轮后）
 
 ### 改造目标
 
-1. 实现 3 轮协商完整流程
+1. [v4] 实现 **5 轮协商** 完整流程
 2. 优化方案调整提示词，能够根据反馈有效调整
-3. 实现 80% 接受 → 完成的判断逻辑
-4. 支持 withdraw（退出）和 negotiate（协商）反馈类型
+3. [v4] 实现**三档阈值判定**：
+   - **>=80% 接受** → FINALIZED
+   - **50-80% 接受** → 继续协商（若 round < 5）
+   - **<50% 接受** → FAILED
+4. [v4] 实现**强制终结**：第 5 轮后，区分 confirmed_participants 和 optional_participants
+5. 支持 withdraw（退出）和 negotiate（协商）反馈类型
 
 ---
 
@@ -56,8 +63,11 @@
 # towow/openagents/agents/channel_admin.py
 
 class ChannelAdminAgent(TowowBaseAgent):
-    # 修改最大轮次为 3
-    MAX_NEGOTIATION_ROUNDS = 3
+    # [v4] 修改最大轮次为 5
+    MAX_NEGOTIATION_ROUNDS = 5
+    # [v4] 三档阈值
+    ACCEPT_THRESHOLD_HIGH = 0.8   # >= 80% 直接通过
+    ACCEPT_THRESHOLD_LOW = 0.5    # < 50% 失败
 ```
 
 #### 2. 优化 _evaluate_feedback()
@@ -67,11 +77,11 @@ async def _evaluate_feedback(self, state: ChannelState):
     """
     评估反馈，决定下一步
 
-    决策逻辑：
-    - 80%+ 接受 → 完成
-    - 50%+ 拒绝 → 失败
-    - 有 negotiate 且轮次 < 3 → 下一轮
-    - 轮次 >= 3 → 生成妥协方案或失败
+    [v4] 三档阈值决策逻辑：
+    - >= 80% 接受 → FINALIZED
+    - 50-80% 接受 → 继续协商（若 round < 5）
+    - < 50% 接受 → FAILED
+    - round >= 5 → FORCE_FINALIZED
     """
     if state.status != ChannelStatus.NEGOTIATING:
         self._logger.debug(f"跳过评估，Channel 状态: {state.status.value}")
@@ -119,36 +129,25 @@ async def _evaluate_feedback(self, state: ChannelState):
         "round": state.current_round
     })
 
-    # 决策逻辑
-    # 1. 80%+ 接受 → 完成
+    # [v4] 三档阈值决策逻辑
+    # 1. >= 80% 接受 → 完成
     if accept_rate >= 0.8:
         await self._finalize_channel(state)
         return
 
-    # 2. 50%+ 拒绝/退出 → 失败
-    if reject_rate > 0.5:
-        await self._fail_channel(state, "majority_reject")
+    # 2. < 50% 接受 → 失败
+    if accept_rate < 0.5:
+        await self._fail_channel(state, "low_acceptance")
         return
 
-    # 3. 全员接受（即使不足 80%）→ 完成
-    if accepts > 0 and negotiates == 0 and rejects == 0:
-        await self._finalize_channel(state)
+    # 3. 50-80% 接受：检查轮次
+    if state.current_round >= state.max_rounds:
+        # [v4] 达到第 5 轮，强制终结
+        await self._force_finalize_channel(state)
         return
 
-    # 4. 有 negotiate 且轮次 < 3 → 下一轮
-    if state.current_round < state.max_rounds:
-        await self._next_round(state)
-        return
-
-    # 5. 达到最大轮次
-    if accept_rate > reject_rate:
-        # 接受多于拒绝，尝试生成妥协方案
-        compromise = await self._generate_compromise(state.channel_id)
-        if compromise:
-            state.current_proposal = compromise
-        await self._finalize_channel(state)
-    else:
-        await self._fail_channel(state, "max_rounds_reached")
+    # 4. 50-80% 接受且轮次 < 5 → 下一轮
+    await self._next_round(state)
 ```
 
 #### 3. 优化 _adjust_proposal()
@@ -408,20 +407,26 @@ adjusted_proposal: Dict = {
 
 ### 被依赖
 - **T06**: 缺口识别与子网
-- **T07**: 前端修复（接口依赖）
-- **T08**: E2E 测试
+- **T07**: 状态检查与恢复机制
+- **T08**: 前端修复（接口依赖）
+- **T09**: 熔断器测试
+- **T10**: E2E 测试
 
 ---
 
 ## 验收标准
 
-- [ ] **AC-1**: 完整的 3 轮协商流程可运行
-- [ ] **AC-2**: 80%+ 接受时正确触发完成
-- [ ] **AC-3**: 50%+ 拒绝时正确触发失败
-- [ ] **AC-4**: `negotiate` 反馈触发方案调整
-- [ ] **AC-5**: `withdraw` 反馈正确处理
-- [ ] **AC-6**: 每轮发布 `towow.negotiation.round_started` 事件
-- [ ] **AC-7**: 达到 3 轮后能够生成妥协方案
+- [ ] **AC-1**: [v4] 完整的 **5 轮协商** 流程可运行
+- [ ] **AC-2**: [v4] **>=80% 接受** 时正确触发 FINALIZED
+- [ ] **AC-3**: [v4] **<50% 接受** 时正确触发 FAILED
+- [ ] **AC-4**: [v4] **50-80% 接受且 round < 5** 时触发下一轮
+- [ ] **AC-5**: [v4] **第 5 轮后强制终结**，状态为 FORCE_FINALIZED
+- [ ] **AC-6**: [v4] 强制终结时区分 `confirmed_participants` 和 `optional_participants`
+- [ ] **AC-7**: `negotiate` 反馈触发方案调整
+- [ ] **AC-8**: `withdraw` 反馈正确处理
+- [ ] **AC-9**: 每轮发布 `towow.negotiation.round_started` 事件
+- [ ] **AC-10**: [v4] 发布 `towow.feedback.evaluated` 事件（含 accept_rate 和 decision）
+- [ ] **AC-11**: [v4] 发布 `towow.negotiation.force_finalized` 事件（第 5 轮后）
 
 ### 测试用例
 

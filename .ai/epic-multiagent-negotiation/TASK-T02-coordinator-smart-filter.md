@@ -3,8 +3,8 @@
 > **文档路径**: `.ai/epic-multiagent-negotiation/TASK-T02-coordinator-smart-filter.md`
 >
 > * TASK_ID: TASK-T02
-> * BEADS_ID: (待创建后填写)
-> * 状态: TODO
+> * BEADS_ID: towow-t91
+> * 状态: DOING
 > * 创建日期: 2026-01-22
 
 ---
@@ -30,7 +30,9 @@
 1. 激活 LLM 调用，使用提示词 2 进行智能筛选
 2. 优化提示词，提高筛选质量
 3. 增强响应解析的鲁棒性
-4. 筛选出 10-20 个高相关候选人
+4. [v4] 筛选出 **最多 10 个** 高相关候选人（上限降低）
+5. [v4] **MVP 不允许筛选失败**，保证至少返回 1 个候选人
+6. [v4] 添加兜底机制：筛选失败时返回**随机 3 个活跃 Agent**
 
 ---
 
@@ -252,7 +254,8 @@ def _parse_filter_response(
             reverse=True
         )
 
-        return valid_candidates[:15]  # 最多返回 15 个
+        # [v4] 最多返回 10 个
+        return valid_candidates[:10]
 
     except json.JSONDecodeError as e:
         self._logger.error(f"JSON 解析错误: {e}")
@@ -313,11 +316,13 @@ candidates: List[Dict] = [
 
 ## 验收标准
 
-- [ ] **AC-1**: LLM 调用成功，返回有效的候选人列表
-- [ ] **AC-2**: 候选人数量在 3-15 人之间
-- [ ] **AC-3**: 每个候选人都有 `relevance_score` 和 `reason`
-- [ ] **AC-4**: LLM 调用失败时，自动降级到 Mock 数据
-- [ ] **AC-5**: 筛选结果发布 `towow.filter.completed` 事件
+- [x] **AC-1**: LLM 调用成功，返回有效的候选人列表
+- [x] **AC-2**: [v4] 候选人数量在 **1-10 人之间**（最少 1 个，最多 10 个）
+- [x] **AC-3**: 每个候选人都有 `relevance_score` 和 `reason`
+- [x] **AC-4**: LLM 调用失败时，自动降级到 Mock 数据
+- [x] **AC-5**: 筛选结果发布 `towow.filter.completed` 事件
+- [x] **AC-6**: [v4] **筛选永不返回空列表**，失败时使用兜底候选（随机 3 个活跃 Agent）
+- [x] **AC-7**: [v4] 兜底候选标记 `is_fallback: true`
 
 ### 测试用例
 
@@ -374,10 +379,94 @@ async def test_smart_filter_fallback():
 
 ## 实现记录
 
-*(开发完成后填写)*
+### 完成日期
+2026-01-23
+
+### 修改的文件
+
+| 文件 | 修改说明 |
+|------|----------|
+| `towow/openagents/agents/coordinator.py` | 实现 v4 智能筛选功能 |
+| `towow/tests/test_coordinator.py` | 添加 v4 测试用例 |
+
+### 关键改动点
+
+#### 1. `_get_filter_system_prompt()` - 更新系统提示词
+- 候选人数量范围从 3-15 改为 1-10
+- 增加"即使匹配度不高，也必须至少选择 1 个"的约束
+- 明确要求每个候选人必须包含 reason 和 relevance_score 字段
+
+#### 2. `_smart_filter()` - 添加兜底机制
+- LLM 返回空结果时，调用 `_create_fallback_candidates()` 从数据库随机选择
+- LLM 异常时，优先使用数据库兜底，其次使用 Mock 数据
+- 确保永不返回空列表（AC-6）
+
+#### 3. `_create_fallback_candidates()` - 新增方法
+- 从可用 Agent 中随机选择最多 3 个作为兜底
+- 所有兜底候选标记 `is_fallback: true`（AC-7）
+- 设置 `relevance_score: 50`（中等分数）和 `reason: "兜底候选：系统自动选择"`
+
+#### 4. `_parse_filter_response()` - 增强鲁棒性
+- 最多返回 10 个候选人（从 15 改为 10，AC-2）
+- 确保每个候选人有 reason、relevance_score、expected_role 字段（AC-3）
+- 使用 agent_map 优化查找性能
+
+#### 5. `_mock_filter()` - 支持 fallback 标记
+- 新增 `is_fallback` 参数
+- 当 `is_fallback=True` 时，为所有候选人添加 `is_fallback: true` 标记
+
+### 调用链路
+
+```
+_smart_filter(demand_id, understanding)
+    |
+    +-- 无 LLM -> _mock_filter(understanding, is_fallback=False)
+    |
+    +-- 无数据库 Agent -> _mock_filter(understanding, is_fallback=False)
+    |
+    +-- LLM 调用成功
+    |       |
+    |       +-- 解析成功且有候选人 -> 返回 candidates[:10]
+    |       |
+    |       +-- 解析成功但无候选人 -> _create_fallback_candidates(available_agents)
+    |
+    +-- LLM 异常
+            |
+            +-- 有数据库 Agent -> _create_fallback_candidates(available_agents)
+            |
+            +-- 无数据库 Agent -> _mock_filter(understanding, is_fallback=True)
+```
 
 ---
 
 ## 测试记录
 
-*(测试完成后填写)*
+### 测试命令
+```bash
+cd /Users/nature/个人项目/Towow/worktree-openagent/towow
+python3 -m pytest tests/test_coordinator.py -v
+```
+
+### 测试结果
+```
+47 passed, 3 warnings in 0.11s
+```
+
+### 新增测试用例（TestSmartFilterV4）
+
+| 测试用例 | 覆盖 AC | 说明 |
+|---------|--------|------|
+| `test_mock_filter_with_fallback_flag` | AC-7 | 验证 is_fallback 标记 |
+| `test_create_fallback_candidates` | AC-6, AC-7 | 验证兜底候选生成 |
+| `test_create_fallback_candidates_with_single_agent` | AC-6 | 验证单 Agent 兜底 |
+| `test_smart_filter_uses_fallback_on_empty_llm_response` | AC-6, AC-7 | LLM 返回空时使用兜底 |
+| `test_smart_filter_uses_fallback_on_llm_error` | AC-6, AC-7 | LLM 异常时使用兜底 |
+| `test_smart_filter_max_10_candidates` | AC-2 | 验证最多 10 个候选人 |
+| `test_parse_filter_response_ensures_required_fields` | AC-3 | 验证必填字段 |
+
+### 更新的测试用例
+
+| 测试用例 | 修改说明 |
+|---------|----------|
+| `test_get_filter_system_prompt` | 断言从 "3-15" 改为 "1-10" |
+| `test_parse_limits_to_15` -> `test_parse_limits_to_10` | 限制从 15 改为 10 |

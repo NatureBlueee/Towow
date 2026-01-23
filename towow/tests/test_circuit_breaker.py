@@ -1,7 +1,17 @@
 """
-熔断器测试 - TASK-T08
+熔断器测试 - TASK-T09 (beads: towow-ql9)
 
 测试 LLMService 的熔断器机制，确保在 LLM 服务不可用时系统能够正确降级。
+
+熔断器配置:
+- failure_threshold: 3     连续 3 次失败后触发熔断
+- recovery_timeout: 30     熔断后 30 秒进入半开状态
+- half_open_requests: 1    半开状态允许 1 次试探请求
+
+熔断器状态机:
+CLOSED (正常) -> 连续 3 次失败 -> OPEN (熔断) -> 30 秒后 -> HALF_OPEN (半开)
+    -> 成功 -> CLOSED
+    -> 失败 -> OPEN
 
 验收标准:
 - AC-1: 连续 3 次 LLM 调用失败后，熔断器进入 OPEN 状态
@@ -339,14 +349,25 @@ class TestLLMServiceWithFallback:
 # ============================================================================
 
 class TestFallbackResponses:
-    """AC-6: 降级响应格式验证"""
+    """AC-6: 降级响应格式验证
+
+    验证所有降级响应格式符合下游期望：
+    - smart_filter: 包含 candidates 数组（供 Coordinator._parse_filter_response 解析）
+    - response_generation: 包含 decision, reasoning（供 UserAgent 响应生成）
+    - proposal_aggregation: 包含 summary, assignments, confidence（供 ChannelAdmin 方案聚合）
+    - gap_identification: 返回数组格式（供 GapIdentificationService._parse_llm_gaps 解析）
+    """
 
     def test_all_fallback_responses_are_valid_json(self):
         """测试所有降级响应都是有效 JSON"""
         for key, response in FALLBACK_RESPONSES.items():
             try:
                 parsed = json.loads(response)
-                assert isinstance(parsed, dict), f"{key} should parse to dict"
+                # gap_identification 返回数组，其他返回对象
+                if key == "gap_identification":
+                    assert isinstance(parsed, list), f"{key} should parse to list"
+                else:
+                    assert isinstance(parsed, dict), f"{key} should parse to dict"
             except json.JSONDecodeError as e:
                 pytest.fail(f"Invalid JSON for fallback key '{key}': {e}")
 
@@ -407,13 +428,26 @@ class TestFallbackResponses:
         assert "summary" in response
 
     def test_gap_identify_fallback_format(self):
-        """测试缺口识别降级响应格式"""
+        """测试缺口识别降级响应格式（旧版兼容）"""
         response = json.loads(FALLBACK_RESPONSES["gap_identify"])
 
         assert "gaps" in response
         assert isinstance(response["gaps"], list)
         assert "severity" in response
         assert "recommendations" in response
+
+    def test_gap_identification_fallback_format(self):
+        """测试缺口识别降级响应格式（新版 - GapIdentificationService 使用）
+
+        GapIdentificationService._parse_llm_gaps 期望接收 JSON 数组格式，
+        降级时返回空数组表示没有发现缺口（安全的降级策略）。
+        """
+        response = json.loads(FALLBACK_RESPONSES["gap_identification"])
+
+        # gap_identification 返回空数组，表示没有发现缺口
+        assert isinstance(response, list)
+        # 空数组是安全的降级策略
+        assert len(response) == 0
 
     def test_default_fallback_format(self):
         """测试默认降级响应格式"""
@@ -422,6 +456,125 @@ class TestFallbackResponses:
         assert "status" in response
         assert response["status"] == "fallback"
         assert "message" in response
+
+    # =========================================================================
+    # 关键降级响应格式验证（下游系统依赖）
+    # =========================================================================
+
+    def test_smart_filter_format_for_coordinator(self):
+        """测试 smart_filter 降级响应格式 - Coordinator._parse_filter_response 期望的格式
+
+        关键字段验证：
+        - candidates: 候选人列表（必需，供 _parse_filter_response 解析）
+        - analysis: 分析说明（可选）
+        - coverage: 覆盖情况（可选）
+
+        每个 candidate 必须包含：
+        - agent_id: Agent ID（必需，用于验证）
+        - display_name: 显示名称
+        - reason: 筛选理由
+        - relevance_score: 相关性分数 (0-100)
+        - expected_role: 预期角色
+        """
+        response = json.loads(FALLBACK_RESPONSES["smart_filter"])
+
+        # 必须包含 candidates 字段
+        assert "candidates" in response
+        assert isinstance(response["candidates"], list)
+
+        # 验证候选人格式
+        for candidate in response["candidates"]:
+            assert "agent_id" in candidate, "candidate must have agent_id"
+            assert "display_name" in candidate, "candidate must have display_name"
+            assert "reason" in candidate, "candidate must have reason"
+            assert "relevance_score" in candidate, "candidate must have relevance_score"
+            assert isinstance(candidate["relevance_score"], (int, float))
+            assert 0 <= candidate["relevance_score"] <= 100
+            assert "expected_role" in candidate, "candidate must have expected_role"
+
+        # 可选字段
+        if "analysis" in response:
+            assert isinstance(response["analysis"], str)
+        if "coverage" in response:
+            assert isinstance(response["coverage"], dict)
+
+    def test_response_generation_format_for_user_agent(self):
+        """测试 response_generation 降级响应格式 - UserAgent._parse_response 期望的格式
+
+        关键字段验证（必需）：
+        - decision: participate | decline | conditional
+        - reasoning: 决策理由
+
+        可选字段：
+        - contribution: 贡献说明
+        - conditions: 条件列表
+        - confidence: 置信度 (0-100)
+        - enthusiasm_level: high | medium | low
+        - suggested_role: 建议角色
+        - decline_reason: 拒绝原因（decline 时）
+        """
+        response = json.loads(FALLBACK_RESPONSES["response_generation"])
+
+        # 必需字段
+        assert "decision" in response
+        assert response["decision"] in ["participate", "decline", "conditional"]
+        assert "reasoning" in response
+
+        # 可选字段验证
+        if "confidence" in response:
+            assert isinstance(response["confidence"], (int, float))
+            assert 0 <= response["confidence"] <= 100
+
+        if "enthusiasm_level" in response:
+            assert response["enthusiasm_level"] in ["high", "medium", "low"]
+
+        if "conditions" in response:
+            assert isinstance(response["conditions"], list)
+
+    def test_proposal_aggregation_format_for_channel_admin(self):
+        """测试 proposal_aggregation 降级响应格式 - ChannelAdmin._parse_proposal 期望的格式
+
+        关键字段验证（必需）：
+        - summary: 方案摘要
+        - assignments: 角色分配列表
+        - confidence: 方案置信度
+
+        可选字段：
+        - objective: 目标
+        - timeline: 时间线
+        - collaboration_model: 协作模式
+        - success_criteria: 成功标准
+        - risks: 风险列表
+        - gaps: 识别的缺口
+        - notes: 备注
+        """
+        response = json.loads(FALLBACK_RESPONSES["proposal_aggregation"])
+
+        # 必需字段
+        assert "summary" in response
+        assert isinstance(response["summary"], str)
+
+        assert "assignments" in response
+        assert isinstance(response["assignments"], list)
+
+        assert "confidence" in response
+        # confidence 可以是字符串（high/medium/low）或数字
+        assert response["confidence"] in ["high", "medium", "low"] or isinstance(
+            response["confidence"], (int, float)
+        )
+
+        # 可选字段验证
+        if "timeline" in response:
+            assert isinstance(response["timeline"], dict)
+
+        if "success_criteria" in response:
+            assert isinstance(response["success_criteria"], list)
+
+        if "risks" in response:
+            assert isinstance(response["risks"], list)
+
+        if "gaps" in response:
+            assert isinstance(response["gaps"], list)
 
 
 # ============================================================================
@@ -569,3 +722,181 @@ class TestEdgeCases:
 
         # 统计应该正确
         assert service.stats["circuit_open_count"] == 10
+
+
+# ============================================================================
+# 降级响应与下游代码集成测试
+# ============================================================================
+
+class TestFallbackResponseIntegration:
+    """验证降级响应可以被下游代码正确解析"""
+
+    def test_smart_filter_fallback_compatible_with_parse_filter_response(self):
+        """验证 smart_filter 降级响应可以被 Coordinator._parse_filter_response 解析
+
+        测试场景：熔断触发时，返回的降级响应格式必须能被下游正确解析。
+        """
+        import re
+
+        fallback = FALLBACK_RESPONSES["smart_filter"]
+
+        # 模拟 _parse_filter_response 的解析逻辑
+        json_match = re.search(r'\{[\s\S]*\}', fallback)
+        assert json_match is not None
+
+        data = json.loads(json_match.group())
+        candidates = data.get("candidates", [])
+
+        # 验证候选人列表格式正确
+        assert len(candidates) > 0
+
+        # 验证每个候选人都有必要字段（_parse_filter_response 会检查这些）
+        for candidate in candidates:
+            assert "agent_id" in candidate
+            assert "display_name" in candidate
+            # relevance_score 和 reason 在解析时会有默认值补充
+
+    def test_response_generation_fallback_compatible_with_parse_response(self):
+        """验证 response_generation 降级响应可以被 UserAgent._parse_response 解析
+
+        测试场景：用户代理生成响应时熔断，返回的降级响应必须符合预期格式。
+        """
+        import re
+
+        fallback = FALLBACK_RESPONSES["response_generation"]
+
+        # 模拟 _parse_response 的解析逻辑
+        json_match = re.search(r'\{[\s\S]*\}', fallback)
+        assert json_match is not None
+
+        data = json.loads(json_match.group())
+
+        # 验证必要字段
+        decision = data.get("decision", "decline").lower().strip()
+        assert decision in ("participate", "decline", "conditional")
+
+        # 验证 reasoning 存在
+        assert "reasoning" in data
+
+        # 验证 confidence 格式
+        confidence = data.get("confidence", 50)
+        if isinstance(confidence, str):
+            confidence = int(confidence)
+        assert 0 <= confidence <= 100
+
+    def test_proposal_aggregation_fallback_compatible_with_parse_proposal(self):
+        """验证 proposal_aggregation 降级响应可以被 ChannelAdmin._parse_proposal 解析
+
+        测试场景：方案聚合时熔断，返回的降级响应必须能够作为有效方案。
+        """
+        import re
+
+        fallback = FALLBACK_RESPONSES["proposal_aggregation"]
+
+        # 模拟 _parse_proposal 的解析逻辑
+        json_match = re.search(r'\{[\s\S]*\}', fallback)
+        assert json_match is not None
+
+        data = json.loads(json_match.group())
+
+        # 验证必要字段
+        assert "summary" in data
+        assert "assignments" in data
+        assert isinstance(data["assignments"], list)
+
+        # 验证 timeline 格式（如果存在）
+        if "timeline" in data:
+            timeline = data["timeline"]
+            assert isinstance(timeline, dict)
+
+    def test_gap_identification_fallback_compatible_with_parse_llm_gaps(self):
+        """验证 gap_identification 降级响应可以被 GapIdentificationService._parse_llm_gaps 解析
+
+        测试场景：缺口识别时熔断，返回的降级响应必须能被正确解析。
+        空数组是安全的降级策略，表示没有发现缺口。
+        """
+        import re
+
+        fallback = FALLBACK_RESPONSES["gap_identification"]
+
+        # 模拟 _parse_llm_gaps 的解析逻辑
+        json_match = re.search(r'\[[\s\S]*\]', fallback)
+        assert json_match is not None
+
+        data = json.loads(json_match.group())
+
+        # 验证返回的是数组
+        assert isinstance(data, list)
+
+        # 空数组是有效的（表示没有缺口）
+        # 如果有缺口，验证格式
+        for item in data:
+            assert isinstance(item, dict)
+            # 每个 gap 应该有 gap_type 和 severity
+            if "gap_type" in item:
+                assert item["gap_type"] in [
+                    "capability", "resource", "participant", "coverage", "condition"
+                ]
+            if "severity" in item:
+                assert item["severity"] in ["critical", "high", "medium", "low"]
+
+
+# ============================================================================
+# 熔断器配置验证测试
+# ============================================================================
+
+class TestCircuitBreakerConfiguration:
+    """验证熔断器配置符合任务要求"""
+
+    def test_default_configuration_matches_task_requirements(self):
+        """验证默认配置符合任务要求
+
+        任务要求：
+        - failure_threshold: 3 (连续 3 次失败后触发熔断)
+        - recovery_timeout: 30 (熔断后 30 秒进入半开状态)
+        - half_open_requests: 1 (半开状态允许 1 次试探请求)
+        """
+        cb = CircuitBreaker()
+
+        assert cb.failure_threshold == 3
+        assert cb.recovery_timeout == 30.0
+        assert cb.half_open_max_calls == 1
+
+    def test_custom_configuration(self):
+        """测试自定义配置"""
+        cb = CircuitBreaker(
+            failure_threshold=5,
+            recovery_timeout=60.0,
+            half_open_max_calls=2
+        )
+
+        assert cb.failure_threshold == 5
+        assert cb.recovery_timeout == 60.0
+        assert cb.half_open_max_calls == 2
+
+    @pytest.mark.asyncio
+    async def test_fallback_keys_used_in_actual_code(self):
+        """验证代码中实际使用的 fallback_key 都有对应的降级响应
+
+        检查以下 fallback_key 是否都有定义：
+        - smart_filter (Coordinator)
+        - response_generation (UserAgent)
+        - proposal_aggregation (ChannelAdmin)
+        - proposal_adjustment (ChannelAdmin)
+        - gap_identification (GapIdentificationService)
+        """
+        required_keys = [
+            "smart_filter",
+            "response_generation",
+            "proposal_aggregation",
+            "proposal_adjustment",
+            "gap_identification",
+        ]
+
+        for key in required_keys:
+            assert key in FALLBACK_RESPONSES, f"Missing fallback for: {key}"
+            # 验证是有效 JSON
+            try:
+                json.loads(FALLBACK_RESPONSES[key])
+            except json.JSONDecodeError:
+                pytest.fail(f"Invalid JSON for fallback key: {key}")

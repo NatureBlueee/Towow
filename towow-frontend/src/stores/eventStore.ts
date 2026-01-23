@@ -10,6 +10,8 @@ import type {
   SSEEvent,
   ProposalAssignment,
   CandidateDecision,
+  FeedbackResult,
+  ForceFinalizationInfo,
 } from '../types';
 
 // ============ Runtime Type Validators ============
@@ -83,8 +85,13 @@ interface EventStore extends NegotiationState {
   setCandidates: (candidates: Candidate[]) => void;
   setCurrentProposal: (proposal: ToWowProposal | null) => void;
   setCurrentRound: (round: number) => void;
+  setMaxRounds: (maxRounds: number) => void;
   setLoading: (isLoading: boolean) => void;
   setError: (error: string | null) => void;
+
+  // v4 新增 setters
+  setForceFinalized: (isForceFinalized: boolean, info?: ForceFinalizationInfo | null) => void;
+  addFeedbackResult: (result: FeedbackResult) => void;
 
   // Updaters
   updateParticipant: (agentId: string, updates: Partial<Participant>) => void;
@@ -111,9 +118,14 @@ const initialState: NegotiationState = {
   proposals: [],
   currentProposal: null,
   currentRound: 0,
+  maxRounds: 5,  // v4: 默认最大轮次为 5
   timeline: [],
   isLoading: false,
   error: null,
+  // v4 新增字段
+  isForceFinalized: false,
+  forceFinalizationInfo: null,
+  feedbackResults: [],
 };
 
 export const useEventStore = create<EventStore>((set) => ({
@@ -131,9 +143,22 @@ export const useEventStore = create<EventStore>((set) => ({
 
   setCurrentRound: (round) => set({ currentRound: round }),
 
+  setMaxRounds: (maxRounds) => set({ maxRounds }),
+
   setLoading: (isLoading) => set({ isLoading }),
 
   setError: (error) => set({ error }),
+
+  // v4 新增 setters
+  setForceFinalized: (isForceFinalized, info = null) => set({
+    isForceFinalized,
+    forceFinalizationInfo: info,
+  }),
+
+  addFeedbackResult: (result) =>
+    set((state) => ({
+      feedbackResults: [...state.feedbackResults, result],
+    })),
 
   updateParticipant: (agentId, updates) =>
     set((state) => ({
@@ -396,14 +421,43 @@ export const useEventStore = create<EventStore>((set) => ({
 
         // T07 新增事件类型处理
         case 'towow.feedback.evaluated': {
-          const accepts = typeof payload?.accepts === 'number' ? payload.accepts : 0;
-          const rejects = typeof payload?.rejects === 'number' ? payload.rejects : 0;
-          const negotiates = typeof payload?.negotiates === 'number' ? payload.negotiates : 0;
-          const acceptRate = typeof payload?.accept_rate === 'number' ? payload.accept_rate : 0;
-          const round = typeof payload?.round === 'number' ? payload.round : state.currentRound;
+          // 支持两种格式：批量评估结果或单个 Agent 反馈
+          const agentId = typeof payload?.agent_id === 'string' ? payload.agent_id : undefined;
 
-          newState.currentRound = round;
-          timelineEvent.content.message = `反馈评估完成：${accepts} 接受，${rejects} 拒绝，${negotiates} 协商 (接受率 ${(acceptRate * 100).toFixed(0)}%)`;
+          if (agentId) {
+            // 单个 Agent 反馈评估
+            const responseType = payload?.response_type === 'offer' || payload?.response_type === 'negotiate'
+              ? payload.response_type
+              : 'offer';
+            const evaluation = payload?.evaluation === 'accept' || payload?.evaluation === 'reject' || payload?.evaluation === 'conditional'
+              ? payload.evaluation
+              : 'accept';
+
+            // 添加到反馈结果列表
+            const feedbackResult: FeedbackResult = {
+              agent_id: agentId,
+              response_type: responseType,
+              evaluation: evaluation,
+              timestamp: event.timestamp,
+            };
+            newState.feedbackResults = [...state.feedbackResults, feedbackResult];
+
+            const displayName = agentId.replace('user_agent_', '');
+            const evaluationText = evaluation === 'accept' ? '接受' : evaluation === 'reject' ? '拒绝' : '有条件接受';
+            const typeText = responseType === 'offer' ? '报价' : '协商';
+            timelineEvent.agent_id = agentId;
+            timelineEvent.content.message = `${displayName} 的${typeText}反馈：${evaluationText}`;
+          } else {
+            // 批量评估结果（保持向后兼容）
+            const accepts = typeof payload?.accepts === 'number' ? payload.accepts : 0;
+            const rejects = typeof payload?.rejects === 'number' ? payload.rejects : 0;
+            const negotiates = typeof payload?.negotiates === 'number' ? payload.negotiates : 0;
+            const acceptRate = typeof payload?.accept_rate === 'number' ? payload.accept_rate : 0;
+            const round = typeof payload?.round === 'number' ? payload.round : state.currentRound;
+
+            newState.currentRound = round;
+            timelineEvent.content.message = `反馈评估完成：${accepts} 接受，${rejects} 拒绝，${negotiates} 协商 (接受率 ${(acceptRate * 100).toFixed(0)}%)`;
+          }
           break;
         }
 
@@ -425,10 +479,35 @@ export const useEventStore = create<EventStore>((set) => ({
 
         case 'towow.negotiation.round_started': {
           const round = typeof payload?.round === 'number' ? payload.round : 1;
-          const maxRounds = typeof payload?.max_rounds === 'number' ? payload.max_rounds : 3;
+          const maxRounds = typeof payload?.max_rounds === 'number' ? payload.max_rounds : 5;
           newState.currentRound = round;
+          newState.maxRounds = maxRounds;  // v4: 更新最大轮次
           newState.status = 'negotiating';
-          timelineEvent.content.message = `第 ${round} 轮协商开始 (最多 ${maxRounds} 轮)`;
+          // v4: 第 5 轮显示"最终轮"
+          const roundLabel = round === maxRounds ? '最终轮' : `第 ${round} 轮`;
+          timelineEvent.content.message = `${roundLabel}协商开始 (${round}/${maxRounds})`;
+          break;
+        }
+
+        // v4 新增: 强制终结事件
+        case 'towow.negotiation.force_finalized': {
+          const acceptedAgents = Array.isArray(payload?.accepted_agents) ? payload.accepted_agents : [];
+          const pendingAgents = Array.isArray(payload?.pending_agents) ? payload.pending_agents : [];
+          const compromiseProposal = validateToWowProposal(payload?.compromise_proposal);
+
+          newState.status = 'finalized';
+          newState.isForceFinalized = true;
+          newState.currentProposal = compromiseProposal;
+          newState.forceFinalizationInfo = {
+            accepted_agents: acceptedAgents,
+            pending_agents: pendingAgents,
+            compromise_proposal: compromiseProposal,
+            finalized_at: event.timestamp,
+          };
+
+          const acceptedCount = acceptedAgents.length;
+          const pendingCount = pendingAgents.length;
+          timelineEvent.content.message = `协商强制终结：${acceptedCount} 人接受，${pendingCount} 人未完全接受（已生成妥协方案）`;
           break;
         }
 

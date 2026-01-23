@@ -33,7 +33,17 @@ class ChannelStatus(Enum):
     PROPOSAL_SENT = "proposal_sent"
     NEGOTIATING = "negotiating"
     FINALIZED = "finalized"
+    FORCE_FINALIZED = "force_finalized"  # [v4新增] 强制终结状态
     FAILED = "failed"
+
+
+@dataclass
+class NegotiationPoint:
+    """协商要点 - v4新增"""
+    aspect: str           # 协商方面
+    current_value: str = ""  # 当前值
+    desired_value: str = ""  # 期望值
+    reason: str = ""      # 原因
 
 
 @dataclass
@@ -58,6 +68,8 @@ class ChannelState:
     gaps_identified: bool = False  # 缺口是否已识别
     subnet_triggered: bool = False  # 子网是否已触发
     finalized_notified: bool = False  # 完成通知是否已发送
+    # [v4新增] 基于 message_id 的幂等控制
+    processed_message_ids: set = field(default_factory=set)
 
 
 class ChannelAdminAgent(TowowBaseAgent):
@@ -99,14 +111,38 @@ class ChannelAdminAgent(TowowBaseAgent):
         super().__init__(**kwargs)
         self.channels: Dict[str, ChannelState] = {}
         self._timeout_tasks: Dict[str, asyncio.Task] = {}
+        # [T07] StateChecker 实例（延迟初始化）
+        self._state_checker: Optional[Any] = None
 
     async def on_startup(self):
         """Agent启动时调用"""
         await super().on_startup()
         self._logger.info("ChannelAdmin Agent 已启动，准备管理协商 Channel")
 
+        # [T07] 初始化并启动 StateChecker
+        try:
+            from config import STATE_CHECKER_ENABLED
+            if STATE_CHECKER_ENABLED:
+                from services.state_checker import StateChecker
+                self._state_checker = StateChecker(self)
+                await self._state_checker.start()
+                self._logger.info("StateChecker 已启动")
+        except ImportError as e:
+            self._logger.warning(f"StateChecker 未初始化: {e}")
+        except Exception as e:
+            self._logger.error(f"StateChecker 启动失败: {e}")
+
     async def on_shutdown(self):
         """Agent关闭时调用"""
+        # [T07] 停止 StateChecker
+        if self._state_checker:
+            try:
+                await self._state_checker.stop()
+                self._logger.info("StateChecker 已停止")
+            except Exception as e:
+                self._logger.error(f"StateChecker 停止失败: {e}")
+            self._state_checker = None
+
         # 取消所有超时任务
         for task in self._timeout_tasks.values():
             if not task.done():
@@ -450,9 +486,17 @@ class ChannelAdminAgent(TowowBaseAgent):
             await self._aggregate_proposals(state)
 
     async def _handle_offer_response(self, data: Dict[str, Any]):
-        """处理Agent的offer响应"""
+        """
+        处理Agent的offer响应
+
+        [v4] 增强功能：
+        1. 基于 message_id 的幂等处理
+        2. 区分 offer 和 negotiate 两种响应类型
+        3. 解析 negotiation_points 协商要点
+        """
         channel_id = data.get("channel_id") or data.get("channel")
         agent_id = data.get("agent_id")
+        message_id = data.get("message_id")
 
         if not channel_id or not agent_id:
             self._logger.warning("offer_response 中缺少 channel_id 或 agent_id")
@@ -470,28 +514,58 @@ class ChannelAdminAgent(TowowBaseAgent):
             )
             return
 
-        # 幂等性检查：检查是否已收到该 agent 的响应
+        # [v4] 基于 message_id 的幂等检查（优先级高于 agent_id 检查）
+        if message_id:
+            if message_id in state.processed_message_ids:
+                self._logger.info(
+                    f"消息 {message_id} 已处理，忽略重复响应 (agent={agent_id})"
+                )
+                return
+            # 记录已处理的消息ID
+            state.processed_message_ids.add(message_id)
+
+        # 幂等性检查：检查是否已收到该 agent 的响应（兜底检查）
         if agent_id in state.responses:
             self._logger.warning(
                 f"已收到 {agent_id} 对 {channel_id} 的响应，忽略重复响应"
             )
             return
 
-        # 记录响应
+        # [v4] 解析响应类型和协商要点
+        response_type = data.get("response_type", "offer")  # 默认为 offer
         decision = data.get("decision", "decline")
+
+        # 解析协商要点（negotiate 类型时使用）
+        negotiation_points = []
+        if response_type == "negotiate" and data.get("negotiation_points"):
+            for point in data.get("negotiation_points", []):
+                if isinstance(point, dict):
+                    negotiation_points.append({
+                        "aspect": point.get("aspect", ""),
+                        "current_value": point.get("current_value", ""),
+                        "desired_value": point.get("desired_value", ""),
+                        "reason": point.get("reason", "")
+                    })
+
+        # 记录响应
         state.responses[agent_id] = {
             "decision": decision,  # participate/decline/conditional
+            "response_type": response_type,  # [v4] offer/negotiate
             "contribution": data.get("contribution"),
             "conditions": data.get("conditions", []),
             "reasoning": data.get("reasoning"),
             "decline_reason": data.get("decline_reason", ""),  # 拒绝原因
             "capabilities": data.get("capabilities", []),
             "estimated_effort": data.get("estimated_effort"),
+            "negotiation_points": negotiation_points,  # [v4] 协商要点
+            "confidence": data.get("confidence", 50),  # [v4] 置信度
+            "message_id": message_id,  # [v4] 消息ID
             "received_at": datetime.utcnow().isoformat()
         }
 
         self._logger.info(
-            f"收到 {agent_id} 对 {channel_id} 的响应: {decision}"
+            f"收到 {agent_id} 对 {channel_id} 的响应: "
+            f"type={response_type}, decision={decision}"
         )
 
         # 获取 agent 的显示名称
@@ -501,11 +575,12 @@ class ChannelAdminAgent(TowowBaseAgent):
                 display_name = candidate.get("display_name", display_name)
                 break
 
-        # 发布响应事件（完整信息）
-        await self._publish_event("towow.offer.submitted", {
+        # [v4] 发布响应事件（包含 response_type）
+        event_payload = {
             "channel_id": channel_id,
             "agent_id": agent_id,
             "display_name": display_name,
+            "response_type": response_type,
             "decision": decision,
             "contribution": data.get("contribution", ""),
             "reasoning": data.get("reasoning", ""),
@@ -513,7 +588,16 @@ class ChannelAdminAgent(TowowBaseAgent):
             "conditions": data.get("conditions", []),
             "round": state.current_round,
             "timestamp": datetime.utcnow().isoformat()
-        })
+        }
+
+        # negotiate 类型时添加协商摘要
+        if response_type == "negotiate" and negotiation_points:
+            event_payload["negotiation_summary"] = "; ".join(
+                f"{p['aspect']}: 期望 {p['desired_value']}"
+                for p in negotiation_points if p.get("aspect")
+            )
+
+        await self._publish_event("towow.offer.submitted", event_payload)
 
         # 检查是否收集完毕
         responded = len(state.responses)
@@ -531,7 +615,13 @@ class ChannelAdminAgent(TowowBaseAgent):
             await self._aggregate_proposals(state)
 
     async def _aggregate_proposals(self, state: ChannelState):
-        """聚合响应，生成协作方案"""
+        """
+        聚合响应，生成协作方案
+
+        [v4] 区分处理：
+        - offer: 直接纳入方案
+        - negotiate: 标注协商要点，可能影响角色分配
+        """
         logger.info("[CHANNEL_ADMIN] _aggregate_proposals START channel_id=%s, status=%s",
                     state.channel_id, state.status.value)
 
@@ -545,33 +635,66 @@ class ChannelAdminAgent(TowowBaseAgent):
         state.status = ChannelStatus.AGGREGATING
         logger.info("[CHANNEL_ADMIN] Channel status changed to AGGREGATING")
 
-        # 筛选愿意参与的Agent
-        participants = [
-            {"agent_id": aid, **resp}
-            for aid, resp in state.responses.items()
-            if resp.get("decision") in ("participate", "conditional")
-        ]
-        logger.info("[CHANNEL_ADMIN] Found %d participants", len(participants))
+        # [v4] 分类响应：区分 offer、negotiate 和 decline
+        offers = []
+        negotiations = []
+        declines = []
 
-        if not participants:
+        for aid, resp in state.responses.items():
+            response_type = resp.get("response_type", "offer")
+            decision = resp.get("decision")
+
+            # 获取显示名称
+            display_name = aid
+            for candidate in state.candidates:
+                if candidate.get("agent_id") == aid:
+                    display_name = candidate.get("display_name", aid)
+                    break
+
+            participant_data = {
+                "agent_id": aid,
+                "display_name": display_name,
+                "decision": decision,
+                "contribution": resp.get("contribution"),
+                "conditions": resp.get("conditions", []),
+                "capabilities": resp.get("capabilities", []),
+                "confidence": resp.get("confidence", 50),
+                "negotiation_points": resp.get("negotiation_points", [])
+            }
+
+            if decision == "decline":
+                declines.append(participant_data)
+            elif response_type == "negotiate":
+                negotiations.append(participant_data)
+            else:  # offer
+                offers.append(participant_data)
+
+        logger.info(
+            "[CHANNEL_ADMIN] Response classification: "
+            f"offers={len(offers)}, negotiations={len(negotiations)}, declines={len(declines)}"
+        )
+
+        if not offers and not negotiations:
             logger.warning("[CHANNEL_ADMIN] No participants in channel_id=%s", state.channel_id)
             await self._fail_channel(state, "no_participants")
             return
 
-        logger.info("[CHANNEL_ADMIN] Aggregating %d participants for channel_id=%s",
-                    len(participants), state.channel_id)
+        logger.info("[CHANNEL_ADMIN] Aggregating responses for channel_id=%s",
+                    state.channel_id)
 
         # 发布聚合开始事件
         await self._publish_event("towow.aggregation.started", {
             "channel_id": state.channel_id,
             "demand_id": state.demand_id,
-            "participants_count": len(participants),
+            "offers_count": len(offers),
+            "negotiations_count": len(negotiations),
+            "declines_count": len(declines),
             "round": state.current_round
         })
 
         # 调用LLM聚合方案
         logger.info("[CHANNEL_ADMIN] Generating proposal via LLM")
-        proposal = await self._generate_proposal(state, participants)
+        proposal = await self._generate_proposal_v4(state, offers, negotiations, declines)
         state.current_proposal = proposal
         logger.info("[CHANNEL_ADMIN] Proposal generated, summary=%s",
                     proposal.get("summary", "")[:50] if proposal else "None")
@@ -914,8 +1037,421 @@ class ChannelAdminAgent(TowowBaseAgent):
             "is_mock": True
         }
 
+    # ========== [v4] 新增方法 ==========
+
+    async def _generate_proposal_v4(
+        self,
+        state: ChannelState,
+        offers: List[Dict[str, Any]],
+        negotiations: List[Dict[str, Any]],
+        declines: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        [v4] 生成协作方案 - 区分 offer 和 negotiate
+
+        Args:
+            state: Channel状态
+            offers: offer 类型响应列表
+            negotiations: negotiate 类型响应列表
+            declines: decline 响应列表
+
+        Returns:
+            结构化的协作方案
+        """
+        logger.info(
+            "[CHANNEL_ADMIN] _generate_proposal_v4 START channel_id=%s, "
+            "offers=%d, negotiations=%d, declines=%d",
+            state.channel_id, len(offers), len(negotiations), len(declines)
+        )
+
+        # 合并所有参与者（用于降级方案）
+        all_participants = offers + negotiations
+
+        if not self.llm:
+            logger.debug("[CHANNEL_ADMIN] No LLM service, using fallback proposal")
+            return self._get_fallback_proposal_v4(state, offers, negotiations)
+
+        # 构建 v4 聚合提示词
+        prompt = self._build_aggregation_prompt_v4(
+            demand=state.demand,
+            offers=offers,
+            negotiations=negotiations,
+            declines=declines,
+            current_round=state.current_round,
+            max_rounds=state.max_rounds
+        )
+
+        try:
+            logger.info("[CHANNEL_ADMIN] Calling LLM for v4 proposal generation")
+            response = await self.llm.complete(
+                prompt=prompt,
+                system=self._get_aggregation_system_prompt_v4(),
+                fallback_key="proposal_aggregation",
+                max_tokens=4000,
+                temperature=0.4
+            )
+            logger.info(
+                "[CHANNEL_ADMIN] LLM response received, length=%d",
+                len(response) if response else 0
+            )
+
+            proposal = self._parse_proposal(response)
+
+            # 验证方案完整性
+            proposal = self._validate_and_enhance_proposal_v4(
+                proposal, offers, negotiations
+            )
+
+            logger.info(
+                "[CHANNEL_ADMIN] _generate_proposal_v4 DONE, assignments=%d",
+                len(proposal.get('assignments', []))
+            )
+
+            return proposal
+
+        except Exception as e:
+            logger.error(
+                "[CHANNEL_ADMIN] _generate_proposal_v4 FAILED: %s",
+                str(e), exc_info=True
+            )
+            return self._get_fallback_proposal_v4(state, offers, negotiations)
+
+    def _get_aggregation_system_prompt_v4(self) -> str:
+        """[v4] 获取聚合系统提示词"""
+        return """你是 ToWow 协作平台的方案聚合系统。
+
+你的任务是根据参与者的响应，设计一个完整的协作方案。
+
+## 响应类型说明
+- **offer**: 参与者愿意直接贡献，可以直接分配角色
+- **negotiate**: 参与者希望协商条件，需要考虑其诉求并尝试满足
+
+## 方案设计原则
+1. **角色明确**: 每个参与者都应有明确的角色和职责
+2. **诉求兼顾**: 优先处理 negotiate 响应中的合理诉求
+3. **分配公平**: 根据能力和贡献合理分配任务
+4. **缺口识别**: 发现能力空白，标注需要填补的缺口
+5. **可执行性**: 方案应具体可行，而非泛泛而谈
+
+始终以有效的 JSON 格式输出。"""
+
+    def _build_aggregation_prompt_v4(
+        self,
+        demand: Dict[str, Any],
+        offers: List[Dict[str, Any]],
+        negotiations: List[Dict[str, Any]],
+        declines: List[Dict[str, Any]],
+        current_round: int,
+        max_rounds: int
+    ) -> str:
+        """
+        [v4] 构建聚合提示词 - 区分 offer 和 negotiate
+
+        Args:
+            demand: 需求信息
+            offers: offer 类型响应
+            negotiations: negotiate 类型响应
+            declines: decline 响应
+            current_round: 当前轮次
+            max_rounds: 最大轮次
+
+        Returns:
+            聚合提示词
+        """
+        surface_demand = demand.get('surface_demand', '未说明')
+        deep = demand.get('deep_understanding', {})
+
+        # 格式化 offer 响应
+        offers_text = json.dumps([
+            {
+                "agent_id": o.get("agent_id"),
+                "display_name": o.get("display_name"),
+                "decision": o.get("decision"),
+                "contribution": o.get("contribution"),
+                "conditions": o.get("conditions", []),
+                "confidence": o.get("confidence", 50)
+            }
+            for o in offers
+        ], ensure_ascii=False, indent=2)
+
+        # 格式化 negotiate 响应
+        negotiations_text = json.dumps([
+            {
+                "agent_id": n.get("agent_id"),
+                "display_name": n.get("display_name"),
+                "decision": n.get("decision"),
+                "contribution": n.get("contribution"),
+                "negotiation_points": [
+                    {
+                        "aspect": p.get("aspect"),
+                        "current_value": p.get("current_value"),
+                        "desired_value": p.get("desired_value"),
+                        "reason": p.get("reason")
+                    }
+                    for p in n.get("negotiation_points", [])
+                ]
+            }
+            for n in negotiations
+        ], ensure_ascii=False, indent=2)
+
+        return f"""
+# 协作方案聚合任务（v4）
+
+## 需求信息
+- **表面需求**: {surface_demand}
+- **深层理解**: {json.dumps(deep, ensure_ascii=False)}
+- **能力标签**: {demand.get('capability_tags', [])}
+
+## 响应汇总
+
+### 愿意参与的响应（offer 类型）- 共 {len(offers)} 人
+{offers_text}
+
+### 希望协商的响应（negotiate 类型）- 共 {len(negotiations)} 人
+{negotiations_text}
+
+### 拒绝参与
+共 {len(declines)} 人拒绝参与
+
+## 当前协商状态
+- 当前轮次: 第 {current_round} 轮（最多 {max_rounds} 轮）
+
+## 你的任务
+1. 根据 **offer** 响应直接分配角色和职责
+2. 分析 **negotiate** 响应中的协商要点，尽量满足合理诉求
+3. 如果无法满足某些诉求，在 notes 中说明原因
+4. 识别可能的缺口（能力不足的地方）
+5. 生成完整的协作方案
+
+## 输出格式 (JSON)
+```json
+{{
+  "summary": "方案一句话描述",
+  "objective": "协作目标",
+  "assignments": [
+    {{
+      "agent_id": "agent_001",
+      "display_name": "小王",
+      "role": "场地负责人",
+      "responsibility": "负责场地预订和布置",
+      "dependencies": [],
+      "is_confirmed": true,
+      "notes": "需要确认具体时间"
+    }}
+  ],
+  "timeline": {{
+    "start_date": "2026-02-01",
+    "end_date": "2026-02-15",
+    "milestones": [
+      {{"name": "场地确认", "date": "2026-02-03", "deliverable": "场地预订完成"}}
+    ]
+  }},
+  "collaboration_model": {{
+    "communication_channel": "微信群",
+    "meeting_frequency": "每周一次",
+    "decision_mechanism": "协商一致"
+  }},
+  "success_criteria": [
+    "成功标准1（可衡量的）",
+    "成功标准2"
+  ],
+  "rationale": "方案设计理由",
+  "negotiation_handling": {{
+    "addressed": [
+      {{"agent_id": "xxx", "aspect": "时间", "resolution": "调整为周末"}}
+    ],
+    "declined": [
+      {{"agent_id": "xxx", "aspect": "报酬", "reason": "超出预算"}}
+    ]
+  }},
+  "gaps": [
+    {{
+      "capability": "活动主持",
+      "description": "缺少主持人",
+      "severity": "medium",
+      "suggestion": "建议招募或外聘"
+    }}
+  ],
+  "confidence": "high" | "medium" | "low"
+}}
+```
+
+请返回 JSON 格式结果：
+"""
+
+    def _validate_and_enhance_proposal_v4(
+        self,
+        proposal: Dict[str, Any],
+        offers: List[Dict[str, Any]],
+        negotiations: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        [v4] 验证并增强方案
+
+        Args:
+            proposal: LLM 生成的方案
+            offers: offer 响应列表
+            negotiations: negotiate 响应列表
+
+        Returns:
+            验证并增强后的方案
+        """
+        all_participants = offers + negotiations
+
+        # 确保 assignments 包含所有参与者
+        assigned_ids = {a.get("agent_id") for a in proposal.get("assignments", [])}
+
+        # 补充未分配的参与者
+        for p in all_participants:
+            agent_id = p.get("agent_id")
+            if agent_id not in assigned_ids:
+                is_negotiate = p in negotiations
+                proposal.setdefault("assignments", []).append({
+                    "agent_id": agent_id,
+                    "display_name": p.get("display_name", agent_id),
+                    "role": "待分配",
+                    "responsibility": p.get("contribution", "待确定"),
+                    "dependencies": [],
+                    "is_confirmed": not is_negotiate,  # negotiate 类型标记为未确认
+                    "notes": "协商中" if is_negotiate else ""
+                })
+
+        # 为每个 assignment 补充 display_name（如果缺失）
+        for assignment in proposal.get("assignments", []):
+            if not assignment.get("display_name"):
+                agent_id = assignment.get("agent_id")
+                for p in all_participants:
+                    if p.get("agent_id") == agent_id:
+                        assignment["display_name"] = p.get("display_name", agent_id)
+                        break
+                else:
+                    assignment["display_name"] = agent_id
+
+        # 确保必要字段存在
+        proposal.setdefault("summary", "协作方案")
+        proposal.setdefault("objective", "完成协作需求")
+        proposal.setdefault("timeline", {
+            "start_date": "待定",
+            "end_date": "待定",
+            "milestones": [{"name": "启动", "date": "待定", "deliverable": "项目启动"}]
+        })
+
+        if "timeline" in proposal:
+            if not proposal["timeline"].get("milestones"):
+                proposal["timeline"]["milestones"] = [
+                    {"name": "启动", "date": "待定", "deliverable": "项目启动"}
+                ]
+
+        proposal.setdefault("collaboration_model", {
+            "communication_channel": "微信群",
+            "meeting_frequency": "按需",
+            "decision_mechanism": "协商一致"
+        })
+        proposal.setdefault("success_criteria", ["需求被满足", "参与者达成共识"])
+        proposal.setdefault("risks", [])
+        proposal.setdefault("gaps", [])
+        proposal.setdefault("confidence", "medium")
+        proposal.setdefault("rationale", "基于参与者贡献设计")
+
+        # 确保 negotiation_handling 存在
+        proposal.setdefault("negotiation_handling", {
+            "addressed": [],
+            "declined": []
+        })
+
+        return proposal
+
+    def _get_fallback_proposal_v4(
+        self,
+        state: ChannelState,
+        offers: List[Dict[str, Any]],
+        negotiations: List[Dict[str, Any]]
+    ) -> Dict[str, Any]:
+        """
+        [v4] 降级方案（LLM 失败时）
+
+        简单合并所有 offer 和 negotiate 响应
+
+        Args:
+            state: Channel 状态
+            offers: offer 响应列表
+            negotiations: negotiate 响应列表
+
+        Returns:
+            降级方案
+        """
+        surface_demand = state.demand.get("surface_demand", "未知需求")
+
+        assignments = []
+
+        # 处理 offer 响应
+        for i, o in enumerate(offers[:5]):
+            assignments.append({
+                "agent_id": o.get("agent_id"),
+                "display_name": o.get("display_name", o.get("agent_id")),
+                "role": f"参与者-{i+1}",
+                "responsibility": o.get("contribution") or "待确认",
+                "dependencies": [],
+                "is_confirmed": True,
+                "notes": ""
+            })
+
+        # 处理 negotiate 响应
+        for i, n in enumerate(negotiations[:3]):
+            negotiation_summary = ""
+            if n.get("negotiation_points"):
+                points = n.get("negotiation_points", [])
+                negotiation_summary = "; ".join(
+                    f"{p.get('aspect', '?')}: 期望{p.get('desired_value', '?')}"
+                    for p in points[:2]
+                )
+
+            assignments.append({
+                "agent_id": n.get("agent_id"),
+                "display_name": n.get("display_name", n.get("agent_id")),
+                "role": f"待协商参与者-{i+1}",
+                "responsibility": n.get("contribution") or "待确认",
+                "dependencies": [],
+                "is_confirmed": False,  # negotiate 类型标记为未确认
+                "notes": f"协商要点: {negotiation_summary}" if negotiation_summary else "待协商"
+            })
+
+        return {
+            "summary": f"关于'{surface_demand}'的协作方案（降级响应）",
+            "objective": f"完成 {surface_demand}",
+            "assignments": assignments,
+            "timeline": {
+                "start_date": "待定",
+                "end_date": "待定",
+                "milestones": [
+                    {"name": "启动", "date": "待定", "deliverable": "项目启动"}
+                ]
+            },
+            "collaboration_model": {
+                "communication_channel": "微信群",
+                "meeting_frequency": "按需",
+                "decision_mechanism": "协商一致"
+            },
+            "success_criteria": ["需求被满足", "参与者达成共识"],
+            "rationale": "系统繁忙，使用降级方案",
+            "negotiation_handling": {
+                "addressed": [],
+                "declined": []
+            },
+            "gaps": [],
+            "confidence": "low",
+            "notes": "此为降级响应，LLM服务暂时不可用",
+            "is_fallback": True
+        }
+
     async def _distribute_proposal(self, state: ChannelState):
-        """分发方案给参与者"""
+        """
+        分发方案给参与者
+
+        [v4] 更新：
+        - 同时分发给 offer 和 negotiate 类型的参与者
+        - 在发送消息中包含该参与者的具体分配信息
+        """
         # 幂等性检查：检查是否已分发过本轮方案
         if state.proposal_distributed and state.status == ChannelStatus.NEGOTIATING:
             logger.warning("[CHANNEL_ADMIN] Proposal already distributed for channel=%s round=%d, skipping",
@@ -925,7 +1461,7 @@ class ChannelAdminAgent(TowowBaseAgent):
         state.status = ChannelStatus.PROPOSAL_SENT
         state.proposal_distributed = True  # 标记本轮已分发
 
-        # 获取参与者列表
+        # [v4] 获取所有参与者（包括 negotiate 类型）
         participant_ids = [
             aid for aid, resp in state.responses.items()
             if resp.get("decision") in ("participate", "conditional")
@@ -936,26 +1472,66 @@ class ChannelAdminAgent(TowowBaseAgent):
             f"Channel: {state.channel_id}"
         )
 
-        # 发布方案分发事件
+        # 构建 proposal ID（如果不存在）
+        proposal = state.current_proposal or {}
+        if "proposal_id" not in proposal:
+            proposal["proposal_id"] = f"prop-{state.channel_id[:8]}-r{state.current_round}"
+
+        # 获取 assignments 映射（agent_id -> assignment）
+        assignments_map = {}
+        for assignment in proposal.get("assignments", []):
+            aid = assignment.get("agent_id")
+            if aid:
+                assignments_map[aid] = assignment
+
+        # [v4] 发布方案分发事件（包含更多信息）
         await self._publish_event("towow.proposal.distributed", {
             "channel_id": state.channel_id,
             "demand_id": state.demand_id,
-            "proposal": state.current_proposal,
-            "participants": participant_ids,
-            "round": state.current_round
+            "proposal_id": proposal.get("proposal_id"),
+            "summary": proposal.get("summary", ""),
+            "participants_count": len(participant_ids),
+            "has_gaps": len(proposal.get("gaps", [])) > 0,
+            "version": state.current_round,
+            "round": state.current_round,
+            "timestamp": datetime.utcnow().isoformat()
         })
 
-        # 发送给每个参与者
+        # [v4] 发送给每个参与者，包含其具体分配
         for agent_id in participant_ids:
             try:
-                await self.send_to_agent(agent_id, {
+                # 获取该参与者的分配信息
+                your_assignment = assignments_map.get(agent_id)
+
+                message = {
                     "type": "proposal_review",
                     "channel_id": state.channel_id,
                     "demand_id": state.demand_id,
-                    "proposal": state.current_proposal,
+                    "proposal": {
+                        "proposal_id": proposal.get("proposal_id"),
+                        "summary": proposal.get("summary"),
+                        "objective": proposal.get("objective"),
+                        "version": state.current_round,
+                        "confidence": proposal.get("confidence", "medium"),
+                        "assignments": proposal.get("assignments", []),
+                        "timeline": proposal.get("timeline", {}),
+                        "gaps": proposal.get("gaps", [])
+                    },
                     "round": state.current_round,
                     "max_rounds": state.max_rounds
-                })
+                }
+
+                # 如果有该参与者的分配，添加到消息中
+                if your_assignment:
+                    message["your_assignment"] = {
+                        "role": your_assignment.get("role", "待分配"),
+                        "responsibility": your_assignment.get("responsibility", ""),
+                        "dependencies": your_assignment.get("dependencies", []),
+                        "is_confirmed": your_assignment.get("is_confirmed", True),
+                        "notes": your_assignment.get("notes", "")
+                    }
+
+                await self.send_to_agent(agent_id, message)
                 self._logger.debug(f"已向 {agent_id} 发送方案")
             except Exception as e:
                 self._logger.error(f"向 {agent_id} 发送方案失败: {e}")
@@ -1046,20 +1622,29 @@ class ChannelAdminAgent(TowowBaseAgent):
 
     async def _evaluate_feedback(self, state: ChannelState):
         """
-        评估反馈，决定下一步
+        [v4] 评估反馈，决定下一步
 
-        决策逻辑：
-        - 80%+ 接受 -> 完成
-        - 50%+ 拒绝/退出 -> 失败
-        - 有 negotiate 且轮次 < 3 -> 下一轮
-        - 轮次 >= 3 -> 生成妥协方案或失败
+        三档阈值决策逻辑：
+        - >= 80% 接受 → FINALIZED（协商成功）
+        - < 50% 接受（即 >= 50% 拒绝/退出）→ FAILED（协商失败）
+        - 50%-80% 接受 且 round < max_rounds → 下一轮
+        - 第 max_rounds 轮后 → 强制终结（FORCE_FINALIZED）
+
+        支持的反馈类型：
+        - accept: 接受方案
+        - reject: 拒绝方案
+        - withdraw: 退出协商
+        - negotiate: 希望继续协商
         """
+        # 从配置加载阈值
+        from config import ACCEPT_THRESHOLD_HIGH, ACCEPT_THRESHOLD_LOW
+
         # 严格状态检查：防止重复评估
         if state.status != ChannelStatus.NEGOTIATING:
             self._logger.warning(f"跳过评估，Channel 状态: {state.status.value} (需要 NEGOTIATING)")
             return
 
-        # 统计反馈（支持 withdraw 类型）
+        # 统计反馈
         total = len(state.proposal_feedback)
         if total == 0:
             self._logger.warning(f"Channel {state.channel_id} 未收到反馈")
@@ -1069,78 +1654,129 @@ class ChannelAdminAgent(TowowBaseAgent):
                 await self._fail_channel(state, "no_feedback")
             return
 
+        # 分类统计（支持 withdraw 类型）
         accepts = sum(
             1 for f in state.proposal_feedback.values()
             if f.get("feedback_type") == "accept"
         )
         rejects = sum(
             1 for f in state.proposal_feedback.values()
-            if f.get("feedback_type") in ("reject", "withdraw")
+            if f.get("feedback_type") == "reject"
+        )
+        withdraws = sum(
+            1 for f in state.proposal_feedback.values()
+            if f.get("feedback_type") == "withdraw"
         )
         negotiates = sum(
             1 for f in state.proposal_feedback.values()
             if f.get("feedback_type") == "negotiate"
         )
 
+        # 计算比率
         accept_rate = accepts / total
-        reject_rate = rejects / total
+        # reject + withdraw 都算作不接受
+        reject_rate = (rejects + withdraws) / total
 
         self._logger.info(
-            f"Channel {state.channel_id} 反馈评估: "
-            f"{accepts} 接受 ({accept_rate:.0%}), "
-            f"{rejects} 拒绝/退出 ({reject_rate:.0%}), "
-            f"{negotiates} 协商 (共: {total})"
+            f"Channel {state.channel_id} 反馈评估 (轮次 {state.current_round}/{state.max_rounds}): "
+            f"接受={accepts} ({accept_rate:.0%}), "
+            f"拒绝={rejects}, 退出={withdraws} (合计拒绝率 {reject_rate:.0%}), "
+            f"协商={negotiates} (共 {total} 人)"
         )
 
-        # 发布评估事件（包含 accept_rate）
+        # 决定决策结果
+        decision = self._determine_decision(
+            accept_rate=accept_rate,
+            reject_rate=reject_rate,
+            negotiates=negotiates,
+            current_round=state.current_round,
+            max_rounds=state.max_rounds,
+            threshold_high=ACCEPT_THRESHOLD_HIGH,
+            threshold_low=ACCEPT_THRESHOLD_LOW
+        )
+
+        # 发布评估事件（包含 decision）
         await self._publish_event("towow.feedback.evaluated", {
             "channel_id": state.channel_id,
             "demand_id": state.demand_id,
             "accepts": accepts,
             "rejects": rejects,
+            "withdraws": withdraws,
             "negotiates": negotiates,
+            "total": total,
             "accept_rate": accept_rate,
             "reject_rate": reject_rate,
+            "decision": decision,
             "round": state.current_round,
-            "max_rounds": state.max_rounds
+            "max_rounds": state.max_rounds,
+            "threshold_high": ACCEPT_THRESHOLD_HIGH,
+            "threshold_low": ACCEPT_THRESHOLD_LOW
         })
 
-        # 决策逻辑
-        # 1. 80%+ 接受 → 完成
-        if accept_rate >= 0.8:
-            self._logger.info(f"Channel {state.channel_id} 达到 80% 接受率，协商成功")
+        # 执行决策
+        if decision == "finalized":
+            self._logger.info(f"Channel {state.channel_id} 达到 {ACCEPT_THRESHOLD_HIGH:.0%} 接受率，协商成功")
             await self._finalize_channel(state)
-            return
 
-        # 2. 50%+ 拒绝/退出 → 失败
-        if reject_rate > 0.5:
-            self._logger.info(f"Channel {state.channel_id} 超过 50% 拒绝/退出，协商失败")
+        elif decision == "failed":
+            self._logger.info(f"Channel {state.channel_id} 拒绝/退出率超过 {ACCEPT_THRESHOLD_LOW:.0%}，协商失败")
             await self._fail_channel(state, "majority_reject")
-            return
 
-        # 3. 全员接受（即使不足 80%，但无反对）→ 完成
-        if accepts > 0 and negotiates == 0 and rejects == 0:
-            self._logger.info(f"Channel {state.channel_id} 全员接受（{accepts}人），协商成功")
-            await self._finalize_channel(state)
-            return
+        elif decision == "force_finalized":
+            self._logger.info(f"Channel {state.channel_id} 达到最大轮次 {state.max_rounds}，强制终结")
+            await self._force_finalize_channel(state)
 
-        # 4. 有 negotiate 且轮次 < max_rounds → 下一轮
-        if state.current_round < state.max_rounds:
+        elif decision == "next_round":
             self._logger.info(f"Channel {state.channel_id} 进入下一轮协商")
             await self._next_round(state)
-            return
 
-        # 5. 达到最大轮次
-        self._logger.info(f"Channel {state.channel_id} 达到最大轮次 {state.max_rounds}")
-        if accept_rate > reject_rate:
-            # 接受多于拒绝，尝试生成妥协方案
-            self._logger.info(f"接受率 ({accept_rate:.0%}) > 拒绝率 ({reject_rate:.0%})，生成妥协方案")
-            compromise = await self._generate_compromise(state.channel_id)
-            if compromise:
-                state.current_proposal = compromise
+        elif decision == "finalized_unanimous":
+            self._logger.info(f"Channel {state.channel_id} 全员接受（{accepts}人），协商成功")
             await self._finalize_channel(state)
-        else:
-            await self._fail_channel(state, "max_rounds_reached")
+
+    def _determine_decision(
+        self,
+        accept_rate: float,
+        reject_rate: float,
+        negotiates: int,
+        current_round: int,
+        max_rounds: int,
+        threshold_high: float,
+        threshold_low: float
+    ) -> str:
+        """
+        [v4] 根据反馈数据确定决策
+
+        Args:
+            accept_rate: 接受率
+            reject_rate: 拒绝/退出率
+            negotiates: 协商人数
+            current_round: 当前轮次
+            max_rounds: 最大轮次
+            threshold_high: 高阈值（>=此值为成功）
+            threshold_low: 低阈值（拒绝率>=此值为失败）
+
+        Returns:
+            决策类型: finalized | failed | force_finalized | next_round | finalized_unanimous
+        """
+        # 1. >= 80% 接受 → FINALIZED
+        if accept_rate >= threshold_high:
+            return "finalized"
+
+        # 2. >= 50% 拒绝/退出 → FAILED
+        if reject_rate >= threshold_low:
+            return "failed"
+
+        # 3. 全员接受（即使不足 80%，但无反对且无协商）→ FINALIZED
+        if accept_rate > 0 and negotiates == 0 and reject_rate == 0:
+            return "finalized_unanimous"
+
+        # 4. 达到最大轮次 → 强制终结
+        if current_round >= max_rounds:
+            return "force_finalized"
+
+        # 5. 50%-80% 接受 且 round < max_rounds → 下一轮
+        return "next_round"
 
     async def _next_round(self, state: ChannelState):
         """进入下一轮协商"""
@@ -1321,6 +1957,10 @@ class ChannelAdminAgent(TowowBaseAgent):
         state.status = ChannelStatus.FINALIZED
         state.finalized_notified = True  # 标记已发送完成通知
 
+        # [T07] 清理 StateChecker 恢复状态
+        if self._state_checker:
+            self._state_checker.clear_recovery_state(state.channel_id)
+
         # 统计各类参与者数量
         confirmed_participants = [
             aid for aid, resp in state.responses.items()
@@ -1392,9 +2032,157 @@ class ChannelAdminAgent(TowowBaseAgent):
             except Exception as e:
                 self._logger.error(f"通知 {agent_id} 失败: {e}")
 
+    async def _force_finalize_channel(self, state: ChannelState):
+        """
+        [v4新增] 强制终结协商
+
+        在达到最大轮次（第5轮）后，如果仍未达成共识，强制终结协商。
+        区分已确认参与者（confirmed_participants）和可选参与者（optional_participants）。
+
+        决策逻辑：
+        - 接受方案的参与者 → confirmed_participants
+        - negotiate 反馈的参与者 → optional_participants（可选参与）
+        - reject/withdraw 的参与者 → 不纳入方案
+        """
+        # 幂等性检查
+        if state.status in (ChannelStatus.FORCE_FINALIZED, ChannelStatus.FINALIZED):
+            self._logger.warning(f"Channel {state.channel_id} 已终结，跳过重复 force_finalize")
+            return
+
+        if state.finalized_notified:
+            self._logger.warning(f"Channel {state.channel_id} 已发送完成通知，跳过")
+            return
+
+        state.status = ChannelStatus.FORCE_FINALIZED
+        state.finalized_notified = True
+
+        # [T07] 清理 StateChecker 恢复状态
+        if self._state_checker:
+            self._state_checker.clear_recovery_state(state.channel_id)
+
+        # 根据反馈类型分类参与者
+        confirmed_participants = []  # 已确认参与
+        optional_participants = []   # 可选参与（negotiate 类型）
+        declined_agents = []         # 拒绝/退出
+
+        for agent_id, feedback in state.proposal_feedback.items():
+            feedback_type = feedback.get("feedback_type")
+            if feedback_type == "accept":
+                confirmed_participants.append(agent_id)
+            elif feedback_type == "negotiate":
+                optional_participants.append(agent_id)
+            else:  # reject, withdraw
+                declined_agents.append(agent_id)
+
+        # 从 responses 中补充未给反馈但已参与的 agent
+        for agent_id, resp in state.responses.items():
+            if agent_id not in state.proposal_feedback:
+                # 没有提供反馈的参与者，根据原始决策判断
+                decision = resp.get("decision")
+                if decision in ("participate", "conditional"):
+                    # 默认归类为可选参与者
+                    if agent_id not in optional_participants:
+                        optional_participants.append(agent_id)
+
+        self._logger.info(
+            f"Channel {state.channel_id} 强制终结 (第 {state.current_round} 轮): "
+            f"已确认={len(confirmed_participants)}, "
+            f"可选={len(optional_participants)}, "
+            f"退出={len(declined_agents)}"
+        )
+
+        # 生成强制终结的方案（带有分类标注）
+        force_proposal = dict(state.current_proposal or {})
+        force_proposal["force_finalized"] = True
+        force_proposal["confirmed_participants"] = confirmed_participants
+        force_proposal["optional_participants"] = optional_participants
+        force_proposal["force_finalized_at"] = datetime.utcnow().isoformat()
+        force_proposal["total_rounds"] = state.current_round
+
+        # 更新 assignments 中的确认状态
+        for assignment in force_proposal.get("assignments", []):
+            agent_id = assignment.get("agent_id")
+            if agent_id in confirmed_participants:
+                assignment["is_confirmed"] = True
+                assignment["participation_status"] = "confirmed"
+            elif agent_id in optional_participants:
+                assignment["is_confirmed"] = False
+                assignment["participation_status"] = "optional"
+            else:
+                assignment["is_confirmed"] = False
+                assignment["participation_status"] = "declined"
+
+        state.current_proposal = force_proposal
+
+        # 生成摘要
+        summary = (
+            f"经过 {state.current_round} 轮协商达到最大轮次，强制终结。"
+            f"{len(confirmed_participants)} 人已确认参与"
+        )
+        if optional_participants:
+            summary += f"，{len(optional_participants)} 人为可选参与"
+        if declined_agents:
+            summary += f"，{len(declined_agents)} 人已退出"
+
+        # 发布强制终结事件
+        await self._publish_event("towow.negotiation.force_finalized", {
+            "channel_id": state.channel_id,
+            "demand_id": state.demand_id,
+            "status": "force_finalized",
+            "total_rounds": state.current_round,
+            "max_rounds": state.max_rounds,
+            "confirmed_participants": confirmed_participants,
+            "optional_participants": optional_participants,
+            "declined_agents": declined_agents,
+            "final_proposal": force_proposal,
+            "summary": summary,
+            "force_finalized_at": datetime.utcnow().isoformat()
+        })
+
+        # 缺口识别（仅主 Channel，非子网）
+        if not state.is_subnet:
+            await self._identify_and_handle_gaps(state)
+
+        # 通知 Coordinator
+        await self.send_to_agent("coordinator", {
+            "type": "channel_completed",
+            "channel_id": state.channel_id,
+            "demand_id": state.demand_id,
+            "success": True,  # 强制终结也算成功（有部分参与者）
+            "force_finalized": True,
+            "proposal": force_proposal,
+            "confirmed_participants": confirmed_participants,
+            "optional_participants": optional_participants,
+            "rounds": state.current_round
+        })
+
+        # 通知所有参与者（带有各自的参与状态）
+        for agent_id in state.responses.keys():
+            try:
+                participation_status = "confirmed"
+                if agent_id in optional_participants:
+                    participation_status = "optional"
+                elif agent_id in declined_agents:
+                    participation_status = "declined"
+
+                await self.send_to_agent(agent_id, {
+                    "type": "negotiation_completed",
+                    "channel_id": state.channel_id,
+                    "success": True,
+                    "force_finalized": True,
+                    "your_status": participation_status,
+                    "proposal": force_proposal
+                })
+            except Exception as e:
+                self._logger.error(f"通知 {agent_id} 失败: {e}")
+
     async def _fail_channel(self, state: ChannelState, reason: str):
         """协商失败"""
         state.status = ChannelStatus.FAILED
+
+        # [T07] 清理 StateChecker 恢复状态
+        if self._state_checker:
+            self._state_checker.clear_recovery_state(state.channel_id)
 
         # 统计反馈情况
         accept_count = 0
@@ -1544,6 +2332,25 @@ class ChannelAdminAgent(TowowBaseAgent):
             cid for cid, state in self.channels.items()
             if state.status in active_statuses
         ]
+
+    # [T07] StateChecker 访问方法
+    def get_state_checker(self) -> Optional[Any]:
+        """获取 StateChecker 实例（用于测试和调试）"""
+        return self._state_checker
+
+    def get_state_checker_status(self) -> Dict[str, Any]:
+        """获取 StateChecker 状态信息"""
+        if not self._state_checker:
+            return {"enabled": False, "running": False}
+        return {
+            "enabled": True,
+            "running": self._state_checker.is_running,
+            "check_interval": self._state_checker.check_interval,
+            "max_stuck_time": self._state_checker.max_stuck_time,
+            "max_recovery_attempts": self._state_checker.max_recovery_attempts,
+            "recovery_states_count": len(self._state_checker._recovery_states),
+            "active_channels_count": len(self.get_active_channels())
+        }
 
     # ========== 兼容性方法 ==========
 

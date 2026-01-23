@@ -7,6 +7,10 @@ requires-python = ">=3.10"
 [tool.pytest.ini_options]
 testpaths = ["tests"]
 asyncio_mode = "auto"
+markers = [
+    "e2e: End-to-end tests for complete negotiation flow",
+    "timeout: Test timeout marker",
+]
 
 [tool.ruff]
 line-length = 100

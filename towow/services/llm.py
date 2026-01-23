@@ -193,12 +193,16 @@ FALLBACK_RESPONSES: Dict[str, str] = {
         }
     }''',
 
-    # 缺口识别相关
+    # 缺口识别相关（旧格式，保留兼容性）
     "gap_identify": '''{
         "gaps": [],
         "severity": "low",
         "recommendations": ["当前参与者组合可满足需求"]
     }''',
+
+    # 缺口识别降级响应 - 供 GapIdentificationService 使用
+    # 返回空数组表示没有发现缺口（这是安全的降级策略）
+    "gap_identification": '''[]''',
 
     # 智能筛选降级响应 - TASK-T02
     "smart_filter": '''{

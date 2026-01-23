@@ -211,7 +211,9 @@ export type TimelineEventType =
   | 'towow.feedback.evaluated'       // 反馈评估完成
   | 'towow.gap.identified'           // 缺口识别
   | 'towow.subnet.triggered'         // 子网触发
-  | 'towow.negotiation.round_started'; // 新一轮协商开始
+  | 'towow.negotiation.round_started' // 新一轮协商开始
+  // v4 新增事件类型
+  | 'towow.negotiation.force_finalized'; // 强制终结（达到最大轮次）
 
 export interface TimelineContent {
   message?: string;
@@ -278,7 +280,11 @@ export type ToWowEventPayload =
   | BargainPayload
   | CounterProposalPayload
   | WithdrawnPayload
-  | KickedPayload;
+  | KickedPayload
+  // v4 新增 payload 类型
+  | ForceFinalizationPayload
+  | FeedbackEvaluatedPayload
+  | RoundStartedPayload;
 
 export interface DemandUnderstoodPayload {
   parsed_intent: string;
@@ -369,6 +375,61 @@ export interface KickedPayload {
   channel_id?: string;
 }
 
+// v4 新增 payload 类型
+
+// 强制终结事件 payload
+export interface ForceFinalizationPayload {
+  accepted_agents: string[];
+  pending_agents: string[];
+  compromise_proposal: ToWowProposal;
+  round: number;
+  max_rounds: number;
+}
+
+// 反馈评估事件 payload（单个 Agent 的反馈）
+export interface FeedbackEvaluatedPayload {
+  agent_id: string;
+  response_type: 'offer' | 'negotiate';
+  evaluation: 'accept' | 'reject' | 'conditional';
+  round?: number;
+  // 批量评估结果（可选）
+  accepts?: number;
+  rejects?: number;
+  negotiates?: number;
+  accept_rate?: number;
+}
+
+// 轮次开始事件 payload
+export interface RoundStartedPayload {
+  round: number;
+  max_rounds: number;
+  participants: string[];
+}
+
+// ============ V4 Negotiation Types ============
+
+/**
+ * 反馈评估结果
+ * 记录每个 Agent 对提案的反馈
+ */
+export interface FeedbackResult {
+  agent_id: string;
+  response_type: 'offer' | 'negotiate';
+  evaluation: 'accept' | 'reject' | 'conditional';
+  timestamp?: string;
+}
+
+/**
+ * 强制终结信息
+ * 当达到最大轮次后强制终结时的状态
+ */
+export interface ForceFinalizationInfo {
+  accepted_agents: string[];
+  pending_agents: string[];
+  compromise_proposal: ToWowProposal | null;
+  finalized_at: string;
+}
+
 // ============ UI State Types ============
 
 export interface NegotiationState {
@@ -379,9 +440,14 @@ export interface NegotiationState {
   proposals: Proposal[];
   currentProposal: ToWowProposal | null;
   currentRound: number;
+  maxRounds: number;  // v4: 最大协商轮次，默认为 5
   timeline: TimelineEvent[];
   isLoading: boolean;
   error: string | null;
+  // v4 新增字段
+  isForceFinalized: boolean;  // 是否强制终结
+  forceFinalizationInfo: ForceFinalizationInfo | null;  // 强制终结信息
+  feedbackResults: FeedbackResult[];  // 反馈评估结果列表
 }
 
 export interface DemandState {

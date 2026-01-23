@@ -80,17 +80,31 @@ class CoordinatorAgent(TowowBaseAgent):
             self._logger.debug(f"收到直接消息: {content}")
 
     async def _process_direct_demand(self, content: Dict):
-        """处理通过直接消息发送的需求"""
+        """处理通过直接消息发送的需求
+
+        Args:
+            content: 需求内容，包含:
+                - raw_input: 原始输入
+                - user_id: 用户ID
+                - demand_id: 需求ID（可选）
+                - understanding: 预先理解的结果（可选，如果提供则跳过理解步骤）
+        """
         raw_input = content.get("raw_input", "")
         user_id = content.get("user_id", "anonymous")
         demand_id = content.get("demand_id") or f"d-{uuid4().hex[:8]}"
+        pre_understanding = content.get("understanding")  # T01: 支持传入预先理解的结果
 
-        logger.info("[COORD] _process_direct_demand START demand_id=%s", demand_id)
+        logger.info("[COORD] _process_direct_demand START demand_id=%s, has_pre_understanding=%s",
+                    demand_id, pre_understanding is not None)
 
-        # 复用新需求处理逻辑
-        logger.info("[COORD] Step 1: _understand_demand demand_id=%s", demand_id)
-        understanding = await self._understand_demand(raw_input, user_id)
-        logger.info("[COORD] Step 1 DONE: confidence=%s", understanding.get("confidence", "unknown"))
+        # T01: 如果已有 understanding，直接使用；否则调用 SecondMe 理解
+        if pre_understanding:
+            logger.info("[COORD] Using pre-provided understanding, skipping _understand_demand")
+            understanding = pre_understanding
+        else:
+            logger.info("[COORD] Step 1: _understand_demand demand_id=%s", demand_id)
+            understanding = await self._understand_demand(raw_input, user_id)
+            logger.info("[COORD] Step 1 DONE: confidence=%s", understanding.get("confidence", "unknown"))
 
         self.active_demands[demand_id] = {
             "demand_id": demand_id,
@@ -217,7 +231,12 @@ class CoordinatorAgent(TowowBaseAgent):
         智能筛选候选Agent
 
         基于提示词 2：智能筛选
-        从 Agent 池中筛选出 3-15 个高相关候选人
+        从 Agent 池中筛选出 1-10 个高相关候选人
+
+        [v4] 核心要求：
+        - 最多 10 个候选人（上限降低）
+        - MVP 不允许筛选失败，保证至少返回 1 个候选人
+        - 筛选失败时返回随机 3 个活跃 Agent，标记 is_fallback: true
 
         Args:
             demand_id: 需求ID
@@ -230,13 +249,14 @@ class CoordinatorAgent(TowowBaseAgent):
             - reason: 筛选理由
             - relevance_score: 相关性分数 (0-100)
             - expected_role: 预期角色
+            - is_fallback: 是否为兜底候选（可选）
         """
         logger.info("[COORD] _smart_filter START demand_id=%s", demand_id)
 
         # 检查 LLM 服务
         if not self.llm:
             logger.warning("[COORD] LLM service unavailable, using mock filter")
-            return self._mock_filter(understanding)
+            return self._mock_filter(understanding, is_fallback=False)
 
         # 获取所有可用Agent的能力（从数据库）
         logger.info("[COORD] Getting available agents from database")
@@ -245,7 +265,7 @@ class CoordinatorAgent(TowowBaseAgent):
 
         if not available_agents:
             logger.warning("[COORD] No available agents, using mock data")
-            return self._mock_filter(understanding)
+            return self._mock_filter(understanding, is_fallback=False)
 
         # 构建筛选提示词
         prompt = self._build_filter_prompt(understanding, available_agents)
@@ -266,16 +286,52 @@ class CoordinatorAgent(TowowBaseAgent):
             candidates = self._parse_filter_response(response, available_agents)
             logger.info("[COORD] Parsed %d candidates from LLM response", len(candidates))
 
-            if not candidates:
-                logger.warning("[COORD] LLM filter returned no candidates, using mock")
-                return self._mock_filter(understanding)
+            if candidates:
+                logger.info("[COORD] _smart_filter DONE, found %d candidates", len(candidates))
+                return candidates
 
-            logger.info("[COORD] _smart_filter DONE, found %d candidates", len(candidates))
-            return candidates
+            # [v4] AC-6: LLM 筛选返回空时，使用数据库兜底
+            logger.warning("[COORD] LLM filter returned no candidates, using fallback from DB")
+            return self._create_fallback_candidates(available_agents)
 
         except Exception as e:
             logger.error("[COORD] _smart_filter FAILED: %s", str(e), exc_info=True)
-            return self._mock_filter(understanding)
+            # [v4] AC-6: 异常时也使用兜底机制
+            if available_agents:
+                return self._create_fallback_candidates(available_agents)
+            return self._mock_filter(understanding, is_fallback=True)
+
+    def _create_fallback_candidates(self, available_agents: List[Dict]) -> List[Dict]:
+        """
+        创建兜底候选人列表
+
+        [v4] AC-6 & AC-7: 从可用 Agent 中随机选择 3 个作为兜底
+
+        Args:
+            available_agents: 可用Agent列表
+
+        Returns:
+            带有 is_fallback 标记的候选人列表（最少 1 个，最多 3 个）
+        """
+        import random
+
+        # 随机选择最多 3 个
+        num_fallback = min(3, len(available_agents))
+        selected = random.sample(available_agents, num_fallback)
+
+        fallback_candidates = []
+        for agent in selected:
+            fallback_candidates.append({
+                "agent_id": agent.get("agent_id"),
+                "display_name": agent.get("display_name", agent.get("agent_id")),
+                "reason": "兜底候选：系统自动选择",
+                "relevance_score": 50,  # 兜底候选给中等分数
+                "expected_role": "参与者",
+                "is_fallback": True  # [v4] AC-7: 标记为兜底候选
+            })
+
+        logger.info("[COORD] Created %d fallback candidates", len(fallback_candidates))
+        return fallback_candidates
 
     def _get_filter_system_prompt(self) -> str:
         """获取筛选系统提示词"""
@@ -287,12 +343,14 @@ class CoordinatorAgent(TowowBaseAgent):
 1. 能力匹配优先：Agent 的 capabilities 应与需求的资源需求匹配
 2. 地域相关性：考虑 Agent 的 location 与需求地点的兼容性
 3. 多样性互补：选择能力互补的组合，避免过于同质化
-4. 规模适配：根据需求规模控制候选人数（小规模 3-5 人，中等 5-8 人，大规模 8-12 人）
+4. 规模适配：根据需求规模控制候选人数（小规模 2-4 人，中等 4-6 人，大规模 6-10 人）
 5. 关键角色优先：确保核心能力（如场地、技术、组织）有人覆盖
 
-重要：
-- 候选人数量应在 3-15 人之间
+重要约束（必须遵守）：
+- 候选人数量必须在 1-10 人之间（最少 1 人，最多 10 人）
+- 即使匹配度不高，也必须至少选择 1 个最相关的候选人
 - 优先选择 relevance_score >= 70 的候选人
+- 每个候选人必须包含 reason 和 relevance_score 字段
 - 始终以有效的 JSON 格式输出"""
 
     def _build_filter_prompt(
@@ -387,7 +445,7 @@ class CoordinatorAgent(TowowBaseAgent):
             agents: 可用Agent列表（用于验证）
 
         Returns:
-            有效的候选Agent列表
+            有效的候选Agent列表（最多 10 个）
         """
         try:
             # 尝试提取 JSON 块
@@ -408,25 +466,28 @@ class CoordinatorAgent(TowowBaseAgent):
 
             # 验证候选人 ID 存在
             valid_ids = {a.get("agent_id") for a in agents}
+            # 构建 agent_id -> agent 映射，便于快速查找
+            agent_map = {a.get("agent_id"): a for a in agents}
             valid_candidates = []
 
             for candidate in candidates:
                 agent_id = candidate.get("agent_id")
                 if agent_id in valid_ids:
+                    agent_info = agent_map.get(agent_id, {})
                     # 补充显示名称（如果缺失）
                     if not candidate.get("display_name"):
-                        for agent in agents:
-                            if agent.get("agent_id") == agent_id:
-                                candidate["display_name"] = agent.get(
-                                    "display_name", agent_id
-                                )
-                                break
-                    # 确保有 reason 字段
+                        candidate["display_name"] = agent_info.get(
+                            "display_name", agent_id
+                        )
+                    # 确保有 reason 字段（AC-3 要求）
                     if not candidate.get("reason"):
                         candidate["reason"] = "符合需求"
-                    # 确保有 relevance_score 字段
-                    if not candidate.get("relevance_score"):
+                    # 确保有 relevance_score 字段（AC-3 要求）
+                    if candidate.get("relevance_score") is None:
                         candidate["relevance_score"] = 70
+                    # 确保有 expected_role 字段
+                    if not candidate.get("expected_role"):
+                        candidate["expected_role"] = "参与者"
                     valid_candidates.append(candidate)
                 else:
                     self._logger.warning(f"无效的 agent_id: {agent_id}")
@@ -437,7 +498,8 @@ class CoordinatorAgent(TowowBaseAgent):
                 reverse=True
             )
 
-            return valid_candidates[:15]  # 最多返回 15 个
+            # [v4] 最多返回 10 个（AC-2 要求）
+            return valid_candidates[:10]
 
         except json.JSONDecodeError as e:
             self._logger.error(f"JSON 解析错误: {e}")
@@ -446,7 +508,7 @@ class CoordinatorAgent(TowowBaseAgent):
             self._logger.error(f"解析筛选响应错误: {e}")
             return []
 
-    def _mock_filter(self, understanding: Dict) -> List[Dict]:
+    def _mock_filter(self, understanding: Dict, is_fallback: bool = False) -> List[Dict]:
         """
         Mock筛选（降级策略）
 
@@ -457,6 +519,7 @@ class CoordinatorAgent(TowowBaseAgent):
 
         Args:
             understanding: 需求理解结果
+            is_fallback: 是否为兜底模式（True 时标记 is_fallback）
 
         Returns:
             模拟的候选Agent列表
@@ -468,10 +531,17 @@ class CoordinatorAgent(TowowBaseAgent):
         capability_tags = understanding.get('capability_tags', [])
 
         if capability_tags:
-            return filter_mock_candidates_by_tags(capability_tags, max_results=10)
+            candidates = filter_mock_candidates_by_tags(capability_tags, max_results=10)
+        else:
+            # [v4] 最多返回 10 个候选人（AC-2 要求）
+            candidates = get_mock_candidates(limit=10)
 
-        # FIX: Return more candidates for better demo (10 instead of 3)
-        return get_mock_candidates(limit=10)
+        # [v4] AC-7: 如果是兜底模式，标记 is_fallback: true
+        if is_fallback:
+            for candidate in candidates:
+                candidate["is_fallback"] = True
+
+        return candidates
 
     async def _get_available_agents(self) -> List[Dict]:
         """

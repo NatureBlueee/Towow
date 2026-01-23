@@ -10,7 +10,289 @@ import sys
 import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from openagents.agents.user_agent import UserAgent
+from openagents.agents.user_agent import UserAgent, OfferResponse, NegotiationPoint
+
+
+class TestUserAgentV4ResponseType:
+    """Tests for v4 response_type and negotiation_points."""
+
+    @pytest.fixture
+    def profile_with_capabilities(self):
+        """Profile with matching capabilities."""
+        return {
+            "name": "Bob",
+            "user_id": "bob",
+            "location": "Beijing",
+            "capabilities": ["venue_management", "event_planning"],
+            "tags": ["venue", "events", "community"],
+            "interests": ["AI", "technology", "networking"],
+            "availability": "weekends",
+            "description": "I have a 50-person meeting room in Zhongguancun",
+        }
+
+    def test_parse_response_with_response_type_offer(self, profile_with_capabilities):
+        """Test _parse_response correctly parses response_type: offer."""
+        agent = UserAgent(user_id="bob", profile=profile_with_capabilities)
+
+        response = '''```json
+{
+  "response_type": "offer",
+  "decision": "participate",
+  "contribution": "I can provide a 50-person meeting room",
+  "conditions": [],
+  "reasoning": "My venue matches the requirements",
+  "decline_reason": "",
+  "confidence": 85,
+  "enthusiasm_level": "high",
+  "suggested_role": "Venue Provider",
+  "negotiation_points": []
+}
+```'''
+
+        result = agent._parse_response(response)
+
+        assert result["response_type"] == "offer"
+        assert result["decision"] == "participate"
+        assert result["negotiation_points"] == []
+
+    def test_parse_response_with_response_type_negotiate(self, profile_with_capabilities):
+        """Test _parse_response correctly parses response_type: negotiate with points."""
+        agent = UserAgent(user_id="bob", profile=profile_with_capabilities)
+
+        response = '''```json
+{
+  "response_type": "negotiate",
+  "decision": "conditional",
+  "contribution": "I can provide a meeting room",
+  "conditions": ["Must be on weekends"],
+  "reasoning": "Weekday availability is limited",
+  "decline_reason": "",
+  "confidence": 70,
+  "enthusiasm_level": "medium",
+  "suggested_role": "Venue Provider",
+  "negotiation_points": [
+    {
+      "aspect": "时间安排",
+      "current_value": "周末",
+      "desired_value": "工作日晚上",
+      "reason": "周末有其他安排"
+    }
+  ]
+}
+```'''
+
+        result = agent._parse_response(response)
+
+        assert result["response_type"] == "negotiate"
+        assert result["decision"] == "conditional"
+        assert len(result["negotiation_points"]) == 1
+        assert result["negotiation_points"][0]["aspect"] == "时间安排"
+        assert result["negotiation_points"][0]["desired_value"] == "工作日晚上"
+
+    def test_parse_response_invalid_response_type_defaults_to_offer(self, profile_with_capabilities):
+        """Test that invalid response_type defaults to offer."""
+        agent = UserAgent(user_id="bob", profile=profile_with_capabilities)
+
+        response = '{"response_type": "invalid", "decision": "participate"}'
+
+        result = agent._parse_response(response)
+
+        assert result["response_type"] == "offer"
+
+    def test_mock_response_includes_v4_fields(self, profile_with_capabilities):
+        """Test that mock response includes response_type and negotiation_points."""
+        agent = UserAgent(user_id="bob", profile=profile_with_capabilities)
+
+        result = agent._mock_response({})
+
+        assert "response_type" in result
+        assert result["response_type"] == "offer"
+        assert "negotiation_points" in result
+        assert result["negotiation_points"] == []
+
+    def test_fallback_response_includes_message_id(self, profile_with_capabilities):
+        """Test that fallback response includes message_id."""
+        agent = UserAgent(user_id="bob", profile=profile_with_capabilities)
+
+        result = agent._get_fallback_response({}, "msg-test12345")
+
+        assert "message_id" in result
+        assert result["message_id"] == "msg-test12345"
+        assert "response_type" in result
+
+    def test_summarize_negotiation_points_empty(self, profile_with_capabilities):
+        """Test _summarize_negotiation_points with empty list."""
+        agent = UserAgent(user_id="bob", profile=profile_with_capabilities)
+
+        result = agent._summarize_negotiation_points([])
+
+        assert result is None
+
+    def test_summarize_negotiation_points_with_data(self, profile_with_capabilities):
+        """Test _summarize_negotiation_points with data."""
+        agent = UserAgent(user_id="bob", profile=profile_with_capabilities)
+
+        points = [
+            {"aspect": "时间", "desired_value": "周末"},
+            {"aspect": "角色", "desired_value": "技术顾问"},
+        ]
+
+        result = agent._summarize_negotiation_points(points)
+
+        assert result is not None
+        assert "时间: 期望周末" in result
+        assert "角色: 期望技术顾问" in result
+
+
+class TestNegotiationPointDataclass:
+    """Tests for NegotiationPoint dataclass."""
+
+    def test_negotiation_point_to_dict(self):
+        """Test NegotiationPoint.to_dict()."""
+        point = NegotiationPoint(
+            aspect="时间安排",
+            current_value="周末",
+            desired_value="工作日晚上",
+            reason="周末有其他安排"
+        )
+
+        result = point.to_dict()
+
+        assert result["aspect"] == "时间安排"
+        assert result["current_value"] == "周末"
+        assert result["desired_value"] == "工作日晚上"
+        assert result["reason"] == "周末有其他安排"
+
+
+class TestOfferResponseDataclass:
+    """Tests for OfferResponse dataclass."""
+
+    def test_offer_response_to_dict(self):
+        """Test OfferResponse.to_dict()."""
+        offer = OfferResponse(
+            offer_id="offer-123",
+            agent_id="bob",
+            display_name="Bob",
+            demand_id="d-456",
+            response_type="negotiate",
+            decision="conditional",
+            contribution="I can provide a meeting room",
+            conditions=["Must be on weekends"],
+            negotiation_points=[
+                NegotiationPoint(
+                    aspect="时间",
+                    current_value="周末",
+                    desired_value="工作日",
+                    reason="周末忙"
+                )
+            ],
+            reasoning="有部分能力匹配",
+            confidence=70,
+            message_id="msg-789",
+            submitted_at="2026-01-23T10:00:00Z"
+        )
+
+        result = offer.to_dict()
+
+        assert result["offer_id"] == "offer-123"
+        assert result["response_type"] == "negotiate"
+        assert result["decision"] == "conditional"
+        assert len(result["negotiation_points"]) == 1
+        assert result["negotiation_points"][0]["aspect"] == "时间"
+        assert result["message_id"] == "msg-789"
+
+
+class TestUserAgentV4Integration:
+    """Integration tests for v4 features."""
+
+    @pytest.mark.asyncio
+    async def test_llm_generate_response_includes_message_id(self):
+        """Test that _llm_generate_response includes message_id."""
+        profile = {
+            "name": "Integration Test User",
+            "capabilities": ["event_planning"],
+        }
+
+        agent = UserAgent(user_id="test_user", profile=profile)
+
+        # Mock LLM to return valid response
+        mock_llm = AsyncMock()
+        mock_llm.complete = AsyncMock(return_value=json.dumps({
+            "response_type": "offer",
+            "decision": "participate",
+            "contribution": "test",
+            "confidence": 80
+        }))
+        agent.llm = mock_llm
+
+        demand = {"demand_id": "d-test", "surface_demand": "test"}
+
+        result = await agent._llm_generate_response(demand, "test reason")
+
+        assert "message_id" in result
+        assert result["message_id"].startswith("msg-")
+        assert result["response_type"] == "offer"
+
+    @pytest.mark.asyncio
+    async def test_llm_generate_response_fallback_on_error(self):
+        """Test that _llm_generate_response falls back on LLM error."""
+        profile = {
+            "name": "Test User",
+            "capabilities": ["event_planning"],
+        }
+
+        agent = UserAgent(user_id="test_user", profile=profile)
+
+        # Mock LLM to raise exception
+        mock_llm = AsyncMock()
+        mock_llm.complete = AsyncMock(side_effect=Exception("LLM Error"))
+        agent.llm = mock_llm
+
+        demand = {"demand_id": "d-test", "surface_demand": "test"}
+
+        result = await agent._llm_generate_response(demand, "test reason")
+
+        # Should return fallback response with message_id
+        assert "message_id" in result
+        assert "response_type" in result
+        assert result["response_type"] == "offer"
+
+    @pytest.mark.asyncio
+    async def test_generate_response_with_negotiate_type(self):
+        """Test generating negotiate type response."""
+        profile = {
+            "name": "Negotiator",
+            "capabilities": ["event_planning"],
+        }
+
+        agent = UserAgent(user_id="negotiator", profile=profile)
+
+        # Mock LLM to return negotiate response
+        mock_llm = AsyncMock()
+        mock_llm.complete = AsyncMock(return_value=json.dumps({
+            "response_type": "negotiate",
+            "decision": "conditional",
+            "contribution": "I can help",
+            "conditions": ["weekend only"],
+            "confidence": 65,
+            "negotiation_points": [
+                {
+                    "aspect": "timing",
+                    "current_value": "weekday",
+                    "desired_value": "weekend",
+                    "reason": "availability"
+                }
+            ]
+        }))
+        agent.llm = mock_llm
+
+        demand = {"demand_id": "d-test", "surface_demand": "event"}
+
+        result = await agent._llm_generate_response(demand, "matching skills")
+
+        assert result["response_type"] == "negotiate"
+        assert len(result["negotiation_points"]) == 1
+        assert result["negotiation_points"][0]["aspect"] == "timing"
 
 
 class TestUserAgentResponseGeneration:

@@ -288,11 +288,13 @@ async def trigger_real_negotiation(
 
                 # Call Coordinator's _process_direct_demand method
                 # This will trigger the full negotiation flow
+                # T01: Pass understanding to avoid duplicate LLM calls
                 await coordinator._process_direct_demand({
                     "type": "new_demand",
                     "demand_id": demand_id,
                     "user_id": "anonymous",
-                    "raw_input": raw_input
+                    "raw_input": raw_input,
+                    "understanding": understanding  # T01: Pass pre-computed understanding
                 })
 
                 logger.info("[DEMAND] Coordinator._process_direct_demand DONE for demand_id=%s", demand_id)
