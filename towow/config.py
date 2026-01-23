@@ -46,6 +46,27 @@ RESPONSE_TIMEOUT: int = _get_env_int("TOWOW_RESPONSE_TIMEOUT", 300)
 # Feedback timeout in seconds (how long to wait for proposal feedback)
 FEEDBACK_TIMEOUT: int = _get_env_int("TOWOW_FEEDBACK_TIMEOUT", 120)
 
+# ============ Negotiation Stage Delays (for realistic UX) ============
+
+# Enable stage delays for more realistic negotiation experience
+# Set to False for faster testing, True for production/demo
+ENABLE_STAGE_DELAYS: bool = os.getenv("TOWOW_ENABLE_STAGE_DELAYS", "true").lower() == "true"
+
+# Delay before filter completion event (seconds)
+FILTER_STAGE_DELAY: float = _get_env_float("TOWOW_FILTER_STAGE_DELAY", 1.5)
+
+# Delay before each agent response (seconds) - simulates "thinking time"
+AGENT_RESPONSE_DELAY: float = _get_env_float("TOWOW_AGENT_RESPONSE_DELAY", 0.8)
+
+# Delay before aggregation starts (seconds)
+AGGREGATION_STAGE_DELAY: float = _get_env_float("TOWOW_AGGREGATION_STAGE_DELAY", 1.0)
+
+# Delay before proposal distribution (seconds)
+PROPOSAL_STAGE_DELAY: float = _get_env_float("TOWOW_PROPOSAL_STAGE_DELAY", 1.2)
+
+# Delay for LLM mock responses (seconds) - simulates LLM processing time
+LLM_MOCK_DELAY: float = _get_env_float("TOWOW_LLM_MOCK_DELAY", 0.5)
+
 
 # ============ Gap Identification Configuration ============
 

@@ -516,8 +516,15 @@ class CoordinatorAgent(TowowBaseAgent):
             understanding: 需求理解结果
             candidates: 候选Agent列表
         """
+        import asyncio
+        from config import ENABLE_STAGE_DELAYS, FILTER_STAGE_DELAY
+
         logger.info("[COORD] _create_channel START channel_id=%s, candidates=%d",
                     channel_id, len(candidates))
+
+        # Add stage delay for more realistic UX - gives time for filter.completed event to be visible
+        if ENABLE_STAGE_DELAYS:
+            await asyncio.sleep(FILTER_STAGE_DELAY)
 
         # 发布筛选完成事件
         logger.info("[COORD] Publishing towow.filter.completed event")

@@ -132,6 +132,13 @@ class UserAgent(TowowBaseAgent):
         Returns:
             Response containing decision, contribution, conditions, and reasoning.
         """
+        import asyncio
+        from config import ENABLE_STAGE_DELAYS, AGENT_RESPONSE_DELAY, LLM_MOCK_DELAY
+
+        # Add stage delay for more realistic UX
+        if ENABLE_STAGE_DELAYS:
+            await asyncio.sleep(AGENT_RESPONSE_DELAY)
+
         # 优先使用SecondMe
         if self.secondme:
             try:
@@ -148,7 +155,9 @@ class UserAgent(TowowBaseAgent):
         if self.llm:
             return await self._llm_generate_response(demand, filter_reason)
 
-        # Mock响应
+        # Mock响应 - add simulated delay
+        if ENABLE_STAGE_DELAYS:
+            await asyncio.sleep(LLM_MOCK_DELAY)
         return self._mock_response(demand)
 
     async def _llm_generate_response(
@@ -470,6 +479,13 @@ class UserAgent(TowowBaseAgent):
         Returns:
             Feedback containing feedback_type, adjustment_request, and reasoning.
         """
+        import asyncio
+        from config import ENABLE_STAGE_DELAYS, AGENT_RESPONSE_DELAY, LLM_MOCK_DELAY
+
+        # Add stage delay for more realistic UX
+        if ENABLE_STAGE_DELAYS:
+            await asyncio.sleep(AGENT_RESPONSE_DELAY)
+
         if self.secondme:
             try:
                 return await self.secondme.evaluate_proposal(
@@ -483,6 +499,9 @@ class UserAgent(TowowBaseAgent):
         if self.llm:
             return await self._llm_evaluate_proposal(proposal)
 
+        # Mock feedback - add simulated delay
+        if ENABLE_STAGE_DELAYS:
+            await asyncio.sleep(LLM_MOCK_DELAY)
         return self._mock_feedback(proposal)
 
     async def _llm_evaluate_proposal(

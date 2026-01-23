@@ -532,6 +532,9 @@ class ChannelAdminAgent(TowowBaseAgent):
 
     async def _aggregate_proposals(self, state: ChannelState):
         """聚合响应，生成协作方案"""
+        import asyncio
+        from config import ENABLE_STAGE_DELAYS, AGGREGATION_STAGE_DELAY
+
         logger.info("[CHANNEL_ADMIN] _aggregate_proposals START channel_id=%s, status=%s",
                     state.channel_id, state.status.value)
 
@@ -544,6 +547,10 @@ class ChannelAdminAgent(TowowBaseAgent):
         # 立即更新状态，防止并发调用
         state.status = ChannelStatus.AGGREGATING
         logger.info("[CHANNEL_ADMIN] Channel status changed to AGGREGATING")
+
+        # Add stage delay for more realistic UX
+        if ENABLE_STAGE_DELAYS:
+            await asyncio.sleep(AGGREGATION_STAGE_DELAY)
 
         # 筛选愿意参与的Agent
         participants = [
@@ -599,11 +606,17 @@ class ChannelAdminAgent(TowowBaseAgent):
         Returns:
             结构化的协作方案
         """
+        import asyncio
+        from config import ENABLE_STAGE_DELAYS, LLM_MOCK_DELAY
+
         logger.info("[CHANNEL_ADMIN] _generate_proposal START channel_id=%s, participants=%d",
                     state.channel_id, len(participants))
 
         if not self.llm:
             logger.debug("[CHANNEL_ADMIN] No LLM service, using mock proposal")
+            # Add delay for mock scenario
+            if ENABLE_STAGE_DELAYS:
+                await asyncio.sleep(LLM_MOCK_DELAY)
             return self._mock_proposal(state, participants)
 
         # 构建提示词
@@ -632,6 +645,9 @@ class ChannelAdminAgent(TowowBaseAgent):
 
         except Exception as e:
             logger.error("[CHANNEL_ADMIN] _generate_proposal FAILED: %s", str(e), exc_info=True)
+            # Add delay for mock fallback scenario
+            if ENABLE_STAGE_DELAYS:
+                await asyncio.sleep(LLM_MOCK_DELAY)
             return self._mock_proposal(state, participants)
 
     def _get_proposal_system_prompt(self) -> str:
@@ -864,7 +880,10 @@ class ChannelAdminAgent(TowowBaseAgent):
         state: ChannelState,
         participants: List[Dict[str, Any]]
     ) -> Dict[str, Any]:
-        """生成Mock方案（演示用）"""
+        """生成Mock方案（演示用）
+
+        Note: This is a sync method. Delay is applied in _generate_proposal before calling this.
+        """
         surface_demand = state.demand.get("surface_demand", "未知需求")
 
         # 构建完整的 assignments，包含 display_name
@@ -916,6 +935,9 @@ class ChannelAdminAgent(TowowBaseAgent):
 
     async def _distribute_proposal(self, state: ChannelState):
         """分发方案给参与者"""
+        import asyncio
+        from config import ENABLE_STAGE_DELAYS, PROPOSAL_STAGE_DELAY
+
         # 幂等性检查：检查是否已分发过本轮方案
         if state.proposal_distributed and state.status == ChannelStatus.NEGOTIATING:
             logger.warning("[CHANNEL_ADMIN] Proposal already distributed for channel=%s round=%d, skipping",
@@ -924,6 +946,10 @@ class ChannelAdminAgent(TowowBaseAgent):
 
         state.status = ChannelStatus.PROPOSAL_SENT
         state.proposal_distributed = True  # 标记本轮已分发
+
+        # Add stage delay for more realistic UX
+        if ENABLE_STAGE_DELAYS:
+            await asyncio.sleep(PROPOSAL_STAGE_DELAY)
 
         # 获取参与者列表
         participant_ids = [
