@@ -134,14 +134,46 @@ openagents agent start agents/config.yaml
 
 ## Architecture Overview
 
+### ⚠️ Critical Architecture Context
+
+**Design Intent vs. Actual Implementation:**
+
+The project was **designed** to use OpenAgent framework, but the actual implementation uses a **self-built lightweight agent infrastructure**. This is crucial to understand:
+
+**Original Plan:**
+- Inherit from OpenAgent's `WorkerAgent`
+- Use OpenAgent's native Channel management
+- Leverage OpenAgent's event bus and message routing
+
+**Actual Implementation:**
+- `TowowBaseAgent` - Custom base class (NOT inheriting from OpenAgent)
+- `AgentRouter` - Custom message routing with deduplication
+- `AgentFactory` - Custom agent instance management
+- `AgentLauncher` - Custom lifecycle management
+- Mock implementations of `workspace()`, `send_to_agent()`, `post_to_channel()`
+
+**Why this decision was made:**
+1. Time constraint (7-10 days to MVP demo)
+2. Learning curve with OpenAgent APIs
+3. Need for full control during rapid iteration
+4. Uncertainty about OpenAgent's capabilities for 2000+ agents
+
+**Current Status:**
+- ✅ 23,000 lines of code written
+- ✅ Core business logic 80-90% complete
+- ✅ All three agent types implemented (Coordinator, ChannelAdmin, UserAgent)
+- ⚠️ Real OpenAgent integration pending
+- ⚠️ Channel broadcasting is mocked
+- ⚠️ Agent registration/discovery not implemented
+
 ### Backend Architecture
 
 **API Layer (api/):**
 - `main.py` - FastAPI application entry point with CORS, middleware, and router registration
-- `routers/` - API endpoints:
+- `routers/` - API endpoints (for Web UI only, NOT for agent-to-agent communication):
   - `admin.py` - Central admin agent management and network coordination
   - `demand.py` - Demand broadcasting, offer collection, negotiation flow
-  - `events.py` - SSE (Server-Sent Events) for real-time updates
+  - `events.py` - SSE (Server-Sent Events) for real-time updates to frontend
   - `health.py` - Health check endpoints
 
 **Database Layer (database/):**
@@ -150,17 +182,24 @@ openagents agent start agents/config.yaml
 - `connection.py` - Database connection and session management
 - `migrations/` - Alembic migration files
 
-**OpenAgents Integration (openagents/):**
-- Event-driven architecture for agent communication
-- Three agent types:
-  - **Central Admin Agent** - Single instance, listens for `demand.broadcast`, routes to channel admins
-  - **Channel Admin Agent** - Per-demand instance, manages negotiation in isolated channels
-  - **User Agent** - Per-user instance, responds to demands and participates in negotiation
-- Agents communicate through OpenAgents events, not direct API calls
+**Agent Layer (openagents/)** - Self-Implemented:
+- `agents/base.py` (8KB) - TowowBaseAgent with mock workspace API
+- `agents/coordinator.py` (23KB) - Central coordinator for demand routing and smart filtering
+- `agents/channel_admin.py` (77KB) - Channel management and negotiation orchestration
+- `agents/user_agent.py` (37KB) - User digital twin for demand participation
+- `agents/router.py` (7.5KB) - Message routing with deduplication logic
+- `agents/factory.py` (6.5KB) - Agent instance management (singleton + caching)
+- `launcher.py` (4KB) - Agent lifecycle management
+
+**Three Agent Types:**
+- **Coordinator** - Single instance, receives demands, calls LLM for smart filtering (3-15 from 2000), creates channels
+- **ChannelAdmin** - Per-demand instance, manages negotiation lifecycle, aggregates proposals, handles subnet recursion (max 2 layers)
+- **UserAgent** - Per-user instance (lazy-loaded, cached), interfaces with SecondMe or LLM for decision-making
 
 **Services Layer (services/):**
 - Business logic for demand processing, offer evaluation, negotiation coordination
 - LLM integration for intelligent filtering and response generation
+- SecondMe API integration (with mock fallback)
 
 ### Frontend Architecture
 
@@ -316,41 +355,203 @@ bd sync               # Sync with git
 
 ## Important Documentation
 
-- **OPENAGENTS_DEV_GUIDE.md** - Comprehensive OpenAgents framework guide
-- **TESTING_GUIDE.md** - Testing setup and procedures
-- **ToWow-Design-MVP.md** - Product design and MVP scope
-- **AGENTS.md** - Agent workflow and session completion checklist
-- Backend README: `towow/README.md`
-- Frontend README: `towow-frontend/README.md`
+**Must-Read Before Starting Work:**
+
+1. **ALIGNMENT-REPORT-v1.md** - Gap analysis between design and implementation
+   - Shows what's complete (80-90%) and what's missing (10-20%)
+   - Lists all Critical/High/Medium priority gaps
+   - Provides SQL migration scripts for fixes
+
+2. **docs/tech/TOWOW-AGENT-IMPLEMENTATION.md** - Deep dive into agent architecture
+   - Explains why we built custom infrastructure instead of using OpenAgent
+   - Documents all agent communication mechanisms
+   - Outlines technical challenges and questions for OpenAgent team
+
+3. **ToWow-Design-MVP.md** - Product design and MVP scope
+   - 10 core MVP concepts
+   - 21-step workflow
+   - Success criteria (100 users, 2000 concurrent, subnet demo)
+
+4. **docs/tech/TECH-TOWOW-MVP-v1.md** - Technical architecture spec
+   - System architecture diagrams
+   - Technology choices and rationale
+   - Deployment configuration
+
+5. **TESTING_GUIDE.md** - Testing setup and procedures
+   - How to run tests for each agent type
+   - E2E test scenarios
+   - Mock data setup
+
+6. **OPENAGENTS_DEV_GUIDE.md** - OpenAgent framework guide
+   - Reference for what OpenAgent *should* provide
+   - Note: Current code does NOT fully use this
+
+7. **AGENTS.md** - Agent workflow and session completion checklist
+
+8. **Task Documentation (docs/tasks/):**
+   - TASK-001 to TASK-020: Detailed implementation tasks
+   - Each shows planned vs actual implementation
+   - Check task status before starting related work
+
+## Project Status & Known Gaps
+
+### Implementation Progress (Based on ALIGNMENT-REPORT-v1.md)
+
+**Concept Coverage:** 80% (8/10 complete)
+**Flow Coverage:** 90% (19/21 steps complete)
+**Data Structure:** 70% (several fields missing)
+
+### Critical Gaps (Must Fix Before Production)
+
+1. **GAP-001: Missing `offers` table**
+   - Current: Offers handled as ephemeral messages
+   - Need: Dedicated table with offer_id, confidence, decision, structured_data
+   - Impact: Cannot persist or analyze offer data
+
+2. **GAP-002: Missing identity fields**
+   - Current: `agent_profiles` lacks `user_id` and `secondme_id` columns
+   - Need: Add these fields to support unified identity mapping
+   - Impact: Cannot properly map SecondMe users to agents
+
+3. **GAP-003: Missing capability_tags**
+   - Current: `demands` table lacks `capability_tags` JSONB field
+   - Need: Add for capability-based filtering
+   - Impact: Smart filtering uses unstructured data
+
+4. **GAP-004: Channel archiving not implemented**
+   - Current: Channels marked complete but not archived to `collaboration_history`
+   - Need: Implement `ChannelAdmin._archive_channel()` method
+   - Impact: No historical record of negotiations
+
+5. **GAP-005: notify_user not implemented**
+   - Current: Final proposal not sent back to user via SecondMe
+   - Need: Implement SecondMe notification callback
+   - Impact: Users don't receive results
+
+### Agent Communication Caveats
+
+**Real vs Mock Implementation:**
+```python
+# ⚠️ These methods are MOCKED, not real OpenAgent calls:
+await agent.send_to_agent(target_id, data)  # Goes through AgentRouter, not network
+await agent.post_to_channel(channel, data)  # Logged but not broadcast
+await agent.workspace().agents()             # Returns empty list
+
+# ✅ These work as expected:
+await agent.llm.complete(prompt)             # Real LLM calls
+await agent.db.execute(query)                # Real database queries
+```
+
+**Message Routing:**
+- All agent-to-agent messages go through `AgentRouter`
+- Router uses `AgentFactory` to get target instances
+- Messages delivered synchronously via `target.on_direct(context)`
+- Deduplication based on `from_agent:to_agent:msg_type:channel_id` key
+- Recent messages cached for 5 seconds to prevent duplicates
+
+**Agent Instance Management:**
+- Coordinator & ChannelAdmin: Singletons
+- UserAgent: Lazy-loaded and cached per user_id
+- No automatic cleanup (instances persist in memory)
+- Factory pattern used: `get_agent_factory().get_user_agent(user_id, profile)`
 
 ## Common Gotchas
 
-1. **Agent vs API confusion:** Agents communicate via OpenAgents events, not REST API. The API is for web UI only.
+1. **Agent communication is NOT using OpenAgent:** Despite the `openagents/` directory name, the implementation is custom. Don't expect OpenAgent's native features to work.
 
-2. **Async all the way:** Backend is fully async. Don't mix sync and async database calls.
+2. **send_to_agent is synchronous:** The router waits for the target agent to process messages. In high concurrency, this can cause blocking.
 
-3. **Environment setup:** Both `ANTHROPIC_API_KEY` and `DATABASE_URL` must be set before backend starts.
+3. **Channel broadcasts are mocked:** `post_to_channel()` doesn't actually broadcast. You must manually send to each participant.
 
-4. **OpenAgents ports:** If testing full agent network, ensure ports 8600, 8700, 8800 are available.
+4. **Agent vs API confusion:** Agents communicate via custom router, not REST API. The FastAPI endpoints are for web UI only.
 
-5. **Database migrations:** After changing models, always create and run migrations with Alembic.
+5. **Async all the way:** Backend is fully async. Don't mix sync and async database calls.
 
-6. **Frontend API base URL:** In development, Vite proxy handles CORS. In production, set `VITE_API_BASE_URL` correctly.
+6. **Environment setup:** Both `ANTHROPIC_API_KEY` and `DATABASE_URL` must be set before backend starts.
 
-7. **Test isolation:** Tests use async fixtures and auto mode. Ensure proper cleanup in `conftest.py`.
+7. **OpenAgents ports:** Ports 8600, 8700, 8800 are defined but not actually used in current implementation.
 
-8. **Session completion:** Work is NOT done until changes are pushed to remote. This is mandatory.
+8. **Database migrations:** After changing models, always create and run migrations with Alembic.
+
+9. **Frontend API base URL:** In development, Vite proxy handles CORS. In production, set `VITE_API_BASE_URL` correctly.
+
+10. **Test isolation:** Tests use async fixtures and auto mode. Ensure proper cleanup in `conftest.py`.
+
+11. **Session completion:** Work is NOT done until changes are pushed to remote. This is mandatory.
+
+12. **Event naming inconsistency:** Design docs use `plan.*` events, code uses `proposal.*`. They refer to the same thing.
+
+## Key Technical Decisions & Rationale
+
+### Why Custom Agent Infrastructure Instead of OpenAgent?
+
+**Context:** Project timeline is 7-10 days to MVP demo (Feb 1, 2026).
+
+**Decision Factors:**
+1. **Time Constraint:** Learning OpenAgent's APIs would take 2-3 days
+2. **Control:** Need to debug and iterate quickly without framework limitations
+3. **Uncertainty:** Not sure if OpenAgent handles 2000 concurrent agents well
+4. **Pragmatism:** Can build working demo with mocks, migrate to real OpenAgent later
+
+**Current Trade-offs:**
+- ✅ Fast iteration and full debugging control
+- ✅ Business logic (filtering, aggregation, recursion) is framework-agnostic
+- ❌ Missing real agent communication (all mocked)
+- ❌ No actual Channel broadcasting
+- ❌ No distributed agent deployment
+
+**Future Migration Path:**
+1. Keep business logic in agent classes
+2. Replace `TowowBaseAgent` to inherit from OpenAgent's `WorkerAgent`
+3. Replace `AgentRouter` with OpenAgent's native routing
+4. Replace `workspace()` mocks with real OpenAgent workspace
+5. Test with real OpenAgent network
+
+### Architecture Invariants (Don't Change These)
+
+1. **Event-Driven Design:** All agent interactions are event-based, never direct function calls
+2. **Agent Autonomy:** Each agent type has its own decision-making logic via LLM
+3. **Channel Isolation:** Each demand gets its own isolated channel, no cross-channel interference
+4. **Idempotency:** All state changes are protected by flags (e.g., `proposal_distributed`, `finalized_notified`)
+5. **Async First:** All I/O operations are async, no blocking calls
+6. **Database as State:** Agent state persists in PostgreSQL, not in-memory (except for `ChannelState` during active negotiation)
+
+### Performance Considerations
+
+**Current Bottlenecks:**
+1. **Synchronous Message Routing:** `AgentRouter` waits for target to process message (blocking)
+2. **LLM Calls:** Smart filtering (2000 profiles → 15 candidates) takes 5-10 seconds
+3. **No Caching:** Agent profiles loaded from DB on every filter operation
+4. **SSE Fan-out:** Broadcasting events to many frontend clients can overwhelm server
+
+**Mitigation Strategies (Implemented):**
+- Rate limiting middleware (100 concurrent requests)
+- Circuit breaker pattern for external services
+- Demo mode with pre-computed results
+- Graceful degradation if LLM/SecondMe unavailable
+
+**Future Optimizations (If Needed):**
+- Cache agent profiles in Redis
+- Async message delivery (fire-and-forget)
+- LLM result caching for similar demands
+- SSE connection pooling
 
 ## MVP Scope (Reference)
 
 **Core MVP Features (In Scope):**
-- Unified identity (user_id + secondme_id mapping)
-- Agent cards in PostgreSQL (no A2A protocol yet)
-- Three agent roles (Central Admin, Channel Admin, User Agent)
-- Channel-based collaboration (using OpenAgents native channels)
-- Demand broadcasting and intelligent filtering
-- Offer mechanism and multi-round negotiation (max 5 rounds)
-- Subnet recursion (max 2 layers)
+- Unified identity (user_id + secondme_id mapping) - ⚠️ Partially complete
+- Agent cards in PostgreSQL (no A2A protocol yet) - ✅ Complete
+- Three agent roles (Central Admin, Channel Admin, User Agent) - ✅ Complete
+- Channel-based collaboration - ⚠️ Mocked, not using OpenAgent channels
+- Demand broadcasting and intelligent filtering - ✅ Complete
+- Offer mechanism and multi-round negotiation (max 5 rounds) - ✅ Complete
+- Subnet recursion (max 2 layers) - ✅ Complete
+
+**Critical Gaps to Fix Before Demo:**
+- Add `offers` table (GAP-001)
+- Add `user_id`/`secondme_id` fields (GAP-002)
+- Implement channel archiving (GAP-004)
+- Implement user notification (GAP-005)
 
 **Future Features (Out of Scope for MVP):**
 - Context as Agent
@@ -361,4 +562,10 @@ bd sync               # Sync with git
 - Agent reputation system
 - Waiting room mechanism
 
-When implementing features, refer to ToWow-Design-MVP.md for detailed requirements and success criteria (e.g., support 2000 concurrent users, demonstrate emergent negotiation effects).
+**Success Criteria (Per Design Doc):**
+- [ ] 100 real users can submit/respond to demands
+- [ ] Audience can watch negotiation in real-time (SSE implemented ✅)
+- [ ] At least one demo triggers subnet recursion (need pre-set scenario)
+- [ ] 2000 concurrent users don't crash the system (needs load testing ⚠️)
+
+When implementing features, refer to ToWow-Design-MVP.md for detailed requirements and ALIGNMENT-REPORT-v1.md for gap analysis.
