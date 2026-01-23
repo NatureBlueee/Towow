@@ -184,69 +184,143 @@ for candidate in candidates:
 
 ---
 
-### Step 5: 每个 UserAgent 生成报价
+### Step 5: 每个 UserAgent 生成 Offer（综合性回应）
 
-**UserAgent (张工作室) 调用 LLM 生成报价:**
+**重要：Offer 不是简单的"报价"，是基于 Agent 个人能力、记忆、偏好的综合性回应！**
+
+**UserAgent (张工作室) 调用 SecondMe MCP 生成 Offer:**
 
 ```
-System Prompt:
-你是张工作室的代理，专长：web开发、电商、支付集成，评分4.8。
-请根据用户需求生成一个有竞争力的报价。
+SecondMe 基于用户的 HMM 记忆生成个性化 offer：
+- 张工作室有 10 年电商开发经验
+- 最近刚完成一个类似项目
+- 对微信支付特别熟悉
+- 最近时间比较充裕
+```
 
-User Input:
-需求：电商网站，预算5万，2个月，微信支付
-
-LLM Output:
+**Offer 数据结构（综合性回应）:**
+```json
 {
-  "candidate_id": "c-001",
-  "offer": {
-    "price": 45000,
-    "duration": "45天",
-    "features": ["商品管理", "订单系统", "微信支付", "会员系统"],
-    "highlights": "10年电商经验，已交付50+电商项目"
-  }
+  "offer_id": "offer_001",
+  "agent_id": "c-001",
+  "demand_id": "d-abc123",
+  "content": "我有10年电商开发经验，刚完成一个类似的服装电商项目。微信支付我特别熟，还做过退款和对账功能。最近时间充裕，可以全职投入。如果项目有意思，价格可以商量。",
+  "structured_data": {
+    "resource_type": "技术开发",
+    "experience": "10年电商",
+    "recent_project": "服装电商，2个月前完成",
+    "specialty": ["微信支付", "退款对账", "会员系统"],
+    "availability": "全职投入",
+    "cost_flexibility": "可商量"
+  },
+  "confidence": 95,
+  "personal_note": "这个项目和我之前做的很像，很有信心能做好"
 }
 ```
 
-**每个 UserAgent 独立生成报价，发出事件:** `towow.offer.submitted`
+**UserAgent (李开发) 的 Offer - 不同的视角:**
+```json
+{
+  "offer_id": "offer_002",
+  "agent_id": "c-002",
+  "content": "我是独立开发者，擅长快速交付。虽然经验没那么久，但我用的技术栈很新，可以更快上手。我可以做前后端，但支付部分可能需要学习一下。",
+  "structured_data": {
+    "resource_type": "全栈开发",
+    "experience": "3年",
+    "tech_stack": ["React", "Node.js", "最新框架"],
+    "strength": "快速交付",
+    "weakness": "支付经验少",
+    "availability": "兼职，每天6小时"
+  },
+  "confidence": 75,
+  "personal_note": "想通过这个项目学习支付集成"
+}
+```
 
+**UserAgent (王团队) 的 Offer - 团队视角:**
+```json
+{
+  "offer_id": "offer_003",
+  "agent_id": "c-003",
+  "content": "我们是5人团队，可以分工协作。有专门的UI设计师、前端、后端、测试。我们做过很多电商项目，流程很成熟。缺点是沟通成本高一些，需要明确的需求文档。",
+  "structured_data": {
+    "resource_type": "团队开发",
+    "team_size": 5,
+    "roles": ["UI设计", "前端", "后端", "测试", "项目经理"],
+    "strength": "分工明确，流程成熟",
+    "requirement": "需要详细需求文档",
+    "availability": "可以立即开始"
+  },
+  "confidence": 90,
+  "personal_note": "团队正好有空档期，可以优先处理这个项目"
+}
 ```
-时间线:
-T+0s:  UserAgent-001 调用 LLM...
-T+2s:  towow.offer.submitted (c-001, 报价 45000)
-T+3s:  towow.offer.submitted (c-002, 报价 48000)
-T+4s:  towow.offer.submitted (c-003, 报价 42000)
-...
-T+15s: towow.offer.submitted (c-010, 报价 55000)
-```
+
+**每个 Agent 的 Offer 都是独特的、个性化的，反映了他们自己的能力、偏好、限制。**
+
+**发出事件:** `towow.offer.submitted` (每个 Agent 一个，并行)
 
 ---
 
-### Step 6: ChannelAdmin 聚合方案
+### Step 6: ChannelAdmin 聚合方案（Skill 1: 方案聚合）
 
-**等待所有报价收集完成后，ChannelAdmin 调用 LLM 聚合:**
+**收集到 10 个 Offers 后，ChannelAdmin 调用 LLM 进行方案聚合：**
 
 ```
-System Prompt:
-你是协商频道管理员，请根据收到的10份报价，生成一个综合方案推荐给用户。
+LLM Prompt:
+原始需求：电商网站，预算5万，2个月，需要微信支付
 
-User Input:
-报价列表:
-- 张工作室: 45000元, 45天, 特点: 10年经验
-- 李开发: 48000元, 50天, 特点: 快速响应
-- 王团队: 42000元, 55天, 特点: 性价比高
+收到的 Offers：
+1. c-001 (张工作室): 10年电商经验，微信支付专精，全职投入，价格可商量
+2. c-002 (李开发): 3年经验，技术栈新，支付经验少，兼职
+3. c-003 (王团队): 5人团队，流程成熟，需要需求文档
+4. c-004 (赵设计): 专业UI设计，不做开发
+5. c-005 (孙测试): 专业测试，可兼职
 ...
+10. c-010 (周运维): 服务器部署和运维
 
-LLM Output:
+请完成以下任务：
+1. 分析哪些 Offers 对满足需求是必要的
+2. 选出最相关的 5-8 个
+3. 为每个被选中的 Agent 分配具体任务
+4. 考虑 Agent 之间的协作关系
+```
+
+**LLM 聚合结果（不是简单分配预算，而是任务和角色）:**
+```json
 {
-  "proposal": {
-    "recommended": "c-001",
-    "reason": "综合性价比最高，经验丰富且报价合理",
-    "alternatives": ["c-003", "c-002"],
-    "summary": "收到10份报价，价格区间42000-55000元，工期45-60天。推荐张工作室，报价45000元/45天，10年电商经验。"
+  "selected_agents": ["c-001", "c-003", "c-004", "c-005"],
+  "plan": {
+    "c-001": {
+      "role": "技术负责人 + 核心开发",
+      "specific_task": "负责架构设计、后端开发、微信支付集成",
+      "why_selected": "微信支付专精，经验丰富",
+      "dependencies": ["需要 c-004 提供UI设计稿"]
+    },
+    "c-003": {
+      "role": "前端开发",
+      "specific_task": "团队出一人负责前端实现",
+      "why_selected": "团队有前端专人，可以和 c-001 配合",
+      "dependencies": ["依赖 c-004 的设计", "依赖 c-001 的接口"]
+    },
+    "c-004": {
+      "role": "UI/UX 设计",
+      "specific_task": "设计电商网站整体界面和交互",
+      "why_selected": "专业设计师，可以保证视觉质量",
+      "dependencies": []
+    },
+    "c-005": {
+      "role": "测试",
+      "specific_task": "负责功能测试和支付流程测试",
+      "why_selected": "专业测试，确保支付安全",
+      "dependencies": ["在开发完成后介入"]
+    }
   },
-  "all_offers": [...],
-  "round": 1
+  "not_selected": {
+    "c-002": "支付经验不足，且只能兼职",
+    "c-010": "当前阶段不需要运维，可能后期需要"
+  },
+  "rationale": "选择了一个经验丰富的技术负责人（c-001）+ 团队前端支持（c-003）+ 专业设计（c-004）+ 专业测试（c-005）的组合，可以保证质量和进度"
 }
 ```
 
@@ -254,9 +328,11 @@ LLM Output:
 
 ---
 
-### Step 7: ChannelAdmin 分发方案给用户
+### Step 7: ChannelAdmin 选择性分发方案给被选中的 Agent
 
-**向用户展示聚合方案:**
+**重要：方案只发给被选中的 Agent，不是发给用户！**
+
+**方案内容（给每个 Agent 看的是他们的具体任务和整体协作关系）:**
 
 ```json
 {
@@ -264,169 +340,275 @@ LLM Output:
   "payload": {
     "channel_id": "collab-abc123",
     "round": 1,
-    "proposal": {
-      "recommended": {
-        "name": "张工作室",
-        "price": 45000,
-        "duration": "45天",
-        "highlights": "10年电商经验"
+    "recipients": ["c-001", "c-003", "c-004", "c-005"],
+    "overall_goal": "电商网站，预算5万，2个月",
+    "tasks": {
+      "c-001": {
+        "role": "技术负责人 + 核心开发",
+        "specific_task": "架构设计、后端开发、微信支付集成",
+        "collaborators": ["c-003 负责前端", "c-004 负责设计"],
+        "dependencies": ["等待 c-004 的设计稿"]
       },
-      "alternatives": [...],
-      "summary": "收到10份报价..."
+      "c-003": {
+        "role": "前端开发",
+        "specific_task": "前端页面实现",
+        "collaborators": ["配合 c-001 的接口"],
+        "dependencies": ["等待 c-004 的设计", "等待 c-001 的API"]
+      },
+      "c-004": {
+        "role": "UI/UX 设计",
+        "specific_task": "整体界面和交互设计",
+        "collaborators": ["设计稿给 c-001 和 c-003"],
+        "dependencies": []
+      },
+      "c-005": {
+        "role": "测试",
+        "specific_task": "功能和支付流程测试",
+        "collaborators": ["验收各方产出"],
+        "dependencies": ["在开发完成后介入"]
+      }
+    },
+    "timeline": "总工期2个月，设计2周→开发5周→测试1周",
+    "next_steps": "请各位确认是否接受安排，或提出调整建议"
+  }
+}
+```
+
+**未被选中的 Agent 不会收到方案（隐式知道"我这次没被需要"）**
+
+---
+
+### Step 8: 每个 Agent 评估方案并给出反馈
+
+**这是 Agent 之间的协商，不是用户参与！**
+
+**每个被选中的 Agent 基于自己的情况评估方案，给出三种响应之一：**
+
+**Agent c-001 (张工作室) - Accept:**
+```json
+{
+  "agent_id": "c-001",
+  "response_type": "accept",
+  "message": "我接受技术负责人的角色。架构设计和微信支付都是我擅长的，没问题。",
+  "additional_thoughts": "建议 c-004 的设计稿最好在第一周出来，这样我可以尽早开始后端设计"
+}
+```
+
+**Agent c-003 (王团队) - Negotiate:**
+```json
+{
+  "agent_id": "c-003",
+  "response_type": "negotiate",
+  "message": "前端开发可以，但我们团队习惯整体接项目。只出一个人做前端，我们内部资源浪费了。建议让我们团队也参与部分后端工作，可以加快进度。",
+  "proposed_changes": {
+    "expand_scope": "前端 + 部分后端模块（如商品管理）",
+    "reason": "团队协作效率更高，可以缩短工期"
+  }
+}
+```
+
+**Agent c-004 (赵设计) - Accept with condition:**
+```json
+{
+  "agent_id": "c-004",
+  "response_type": "accept",
+  "message": "设计没问题，但需要先明确几个问题：网站风格是什么？有参考网站吗？目标用户是谁？",
+  "conditions": ["需要需求方提供风格参考", "需要明确目标用户群"],
+  "commitment": "明确后可以在2周内出设计稿"
+}
+```
+
+**Agent c-005 (孙测试) - Accept:**
+```json
+{
+  "agent_id": "c-005",
+  "response_type": "accept",
+  "message": "测试工作没问题。我建议在开发过程中就介入，做一些冒烟测试，不用等到最后。",
+  "additional_thoughts": "可以提前准备测试用例和自动化脚本"
+}
+```
+
+**发出事件:** `towow.feedback.submitted` (每个 Agent 一个)
+
+---
+
+### Step 9: ChannelAdmin 根据 Agent 反馈调整方案
+
+**ChannelAdmin 分析所有 Agent 的反馈，调用 LLM 调整方案：**
+
+```
+第1轮反馈汇总:
+- c-001: accept，建议设计稿第一周出
+- c-003: negotiate，希望扩大范围（前端+部分后端）
+- c-004: accept with condition，需要风格参考和用户画像
+- c-005: accept，建议提前介入测试
+
+分析:
+- c-003 的建议有道理，团队整体参与效率更高
+- c-004 的条件合理，需要补充信息
+- c-005 的建议很好，可以提高质量
+
+调整方案:
+1. c-003 范围扩大：前端 + 商品管理模块
+2. c-001 范围调整：架构设计 + 订单系统 + 支付集成
+3. 补充 c-004 需要的信息（从原始需求中提取或标记为待确认）
+4. c-005 提前介入，从第3周开始
+```
+
+**发出事件:** `towow.proposal.distributed` (Round 2)
+
+---
+
+### Step 10: 第2轮 Agent 协商
+
+**ChannelAdmin 发送调整后的方案：**
+```json
+{
+  "round": 2,
+  "changes_summary": "根据大家反馈调整了分工",
+  "updated_tasks": {
+    "c-001": {
+      "role": "技术架构 + 核心系统",
+      "scope_change": "移除商品管理（给c-003），专注订单和支付"
+    },
+    "c-003": {
+      "role": "前端 + 商品管理",
+      "scope_change": "扩大范围，团队可以整体参与"
+    },
+    "c-004": {
+      "additional_info": "风格参考：简约现代，目标用户：25-40岁白领",
+      "note": "如需更多信息，可以直接问需求方"
+    },
+    "c-005": {
+      "timeline_change": "从第3周开始介入，边开发边测试"
     }
   }
 }
 ```
 
-**用户在前端看到:**
-
-```
-===== 协商结果 (第1轮) =====
-
-推荐方案: 张工作室
-- 报价: ¥45,000
-- 工期: 45天
-- 亮点: 10年电商经验，已交付50+电商项目
-
-备选方案:
-1. 王团队 - ¥42,000 / 55天
-2. 李开发 - ¥48,000 / 50天
-
-[接受推荐] [提出反馈] [查看全部报价]
-```
+**第2轮各 Agent 评估...**
 
 ---
 
-### Step 8: 用户提交反馈
+### Step 11: 第3轮协商达成一致
 
-**用户选择"提出反馈":**
+**经过调整，所有 Agent 接受：** 4个 accept
 
 ```json
 {
-  "feedback_type": "counter_offer",
-  "content": "价格可以接受，但希望工期能缩短到30天"
+  "event_type": "towow.negotiation.round_completed",
+  "payload": {
+    "channel_id": "collab-abc123",
+    "round": 3,
+    "result": "all_accepted",
+    "final_allocation": {
+      "c-001": "技术架构 + 订单系统 + 支付集成",
+      "c-003": "前端开发 + 商品管理模块",
+      "c-004": "UI/UX 设计",
+      "c-005": "测试（第3周起介入）"
+    },
+    "collaboration_notes": [
+      "c-004 第1周出设计稿",
+      "c-001 和 c-003 并行开发",
+      "c-005 从第3周开始做冒烟测试"
+    ]
+  }
 }
 ```
 
-**发出事件:** `towow.feedback.submitted`
-
 ---
 
-### Step 9: ChannelAdmin 识别缺口
+### Step 12: ChannelAdmin 识别缺口
 
-**ChannelAdmin 分析反馈，识别缺口:**
+**协商达成一致后，ChannelAdmin 调用 Skill 2 识别缺口：**
 
 ```
-用户反馈: 希望工期缩短到30天
-当前最短工期: 45天
-缺口: timeline (需要缩短15天)
+当前方案:
+- 主开发: c-001
+- 支付集成: c-003
+- UI设计: c-005
+
+原始需求分析:
+- 需要: 电商网站、微信支付、2个月上线
+- 当前: 有开发、有支付、有UI
+- 缺口: 无（方案完整）
+
+或者如果有缺口:
+- 缺口: 服务器运维（无人负责部署和运维）
+- 重要性: 70%
 ```
 
 **发出事件:** `towow.gap.identified`
 
-```json
-{
-  "event_type": "towow.gap.identified",
-  "payload": {
-    "gap_type": "timeline",
-    "current": "45天",
-    "expected": "30天",
-    "gap": "15天"
-  }
-}
+---
+
+### Step 13: 智能递归判断（如果有缺口）
+
+**如果识别到缺口，ChannelAdmin 调用 Skill 3 判断是否触发子网：**
+
 ```
+缺口: 服务器运维
+三重条件判断:
+1. 需求满足度: 当前80% → 递归后95% ✓
+2. 利益相关方: c-001表示"如果有运维支持，我可以更专注开发" ✓
+3. 成本效益: 递归成本5000 tokens，收益显著 ✓
+
+决定: 触发子网递归
+```
+
+**发出事件:** `towow.subnet.triggered`
 
 ---
 
-### Step 10: ChannelAdmin 分发反馈给 UserAgent
+### Step 14: 子网执行（如果触发）
 
-**ChannelAdmin 向所有 UserAgent 分发用户反馈:**
-
-```json
-{
-  "message_type": "proposal_review",
-  "channel_id": "collab-abc123",
-  "round": 2,
-  "feedback": {
-    "type": "counter_offer",
-    "content": "希望工期缩短到30天"
-  }
-}
 ```
+创建子 Channel: collab-abc123-sub-1
+子需求: "寻找服务器运维，负责电商网站部署"
+子网协商...
+子网结果: c-012 负责运维，预算 5000元
+```
+
+**子结果返回父 Channel，整合进最终方案**
 
 ---
 
-### Step 11: UserAgent 评估并更新报价
+### Step 15: 协商完成，通知用户
 
-**UserAgent (张工作室) 调用 LLM 评估:**
-
-```
-System Prompt:
-用户希望工期从45天缩短到30天。请评估是否可行，如果可行请更新报价。
-
-LLM Output:
-{
-  "can_meet": true,
-  "updated_offer": {
-    "price": 52000,  // 加价7000元（加急费）
-    "duration": "30天",
-    "note": "可以30天交付，需要增加2名开发人员，加急费7000元"
-  }
-}
-```
-
-**发出事件:** `towow.offer.updated`
-
----
-
-### Step 12: 多轮协商（重复 Step 6-11）
-
-```
-Round 2:
-- 收集更新后的报价
-- 聚合新方案
-- 用户反馈: "加急费太高，能便宜点吗？"
-
-Round 3:
-- 张工作室: 50000元/30天（降价2000）
-- 王团队: 48000元/35天
-- 用户反馈: "接受张工作室的方案"
-
-Round 4: 达成一致
-```
-
----
-
-### Step 13: 协商完成
-
-**用户接受方案，ChannelAdmin 完成协商:**
+**所有协商完成后（Agent 们达成一致 + 缺口处理完毕），ChannelAdmin 生成最终方案并通知用户：**
 
 ```json
 {
   "event_type": "towow.negotiation.finalized",
   "payload": {
     "channel_id": "collab-abc123",
-    "total_rounds": 4,
+    "total_rounds": 3,
     "final_result": {
-      "selected_candidate": "c-001",
-      "name": "张工作室",
-      "final_price": 50000,
-      "final_duration": "30天",
-      "agreement": "电商网站开发，含商品管理、订单系统、微信支付、会员系统"
+      "participants": [
+        {"agent_id": "c-001", "role": "主开发", "budget": 33000},
+        {"agent_id": "c-003", "role": "支付集成", "budget": 10000},
+        {"agent_id": "c-005", "role": "UI设计", "budget": 7000}
+      ],
+      "total_budget": 50000,
+      "timeline": "45天",
+      "scope": "电商网站（商品管理、订单系统、微信支付，不含会员系统）",
+      "agreement": "各方已达成一致"
     }
   }
 }
 ```
 
+**用户最终看到的是已协商好的完整方案，而非需要用户参与协商！**
+
 ---
 
-## 四、事件流总览
+## 四、事件流总览（修正版）
 
 ```
 Timeline:
 
 T+0s    [USER]        提交需求
-        [COORDINATOR] → towow.demand.submitted
+        [SYSTEM]      → towow.demand.submitted
 
 T+2s    [COORDINATOR] LLM 理解需求
         [COORDINATOR] → towow.demand.understood
@@ -440,43 +622,105 @@ T+4s    [COORDINATOR] 创建频道，注册 UserAgent
 T+5s    [CHANNEL_ADMIN] 广播需求
         [CHANNEL_ADMIN] → towow.demand.broadcast
 
-T+7s    [USER_AGENT_001] LLM 生成报价
-        [USER_AGENT_001] → towow.offer.submitted
+T+7s~T+20s  [USER_AGENT_*] 各 Agent LLM 生成报价（并行）
+            [USER_AGENT_*] → towow.offer.submitted (x10)
 
-T+8s    [USER_AGENT_002] LLM 生成报价
-        [USER_AGENT_002] → towow.offer.submitted
-
-...
-
-T+20s   [USER_AGENT_010] LLM 生成报价
-        [USER_AGENT_010] → towow.offer.submitted
-
-T+22s   [CHANNEL_ADMIN] LLM 聚合方案
+T+22s   [CHANNEL_ADMIN] LLM 聚合方案，选出5个Agent
         [CHANNEL_ADMIN] → towow.aggregation.completed
 
-T+23s   [CHANNEL_ADMIN] 分发方案给用户
-        [CHANNEL_ADMIN] → towow.proposal.distributed
+T+23s   [CHANNEL_ADMIN] 选择性分发方案给5个被选中的Agent
+        [CHANNEL_ADMIN] → towow.proposal.distributed (Round 1)
 
-T+60s   [USER]        提交反馈
-        [CHANNEL_ADMIN] → towow.feedback.submitted
+--- 第1轮 Agent 协商 ---
+
+T+25s~T+35s  [USER_AGENT_*] 各 Agent LLM 评估方案
+             [USER_AGENT_*] → towow.feedback.submitted (accept/negotiate)
+
+T+36s   [CHANNEL_ADMIN] 分析反馈，调整方案
+        [CHANNEL_ADMIN] → towow.proposal.distributed (Round 2)
+
+--- 第2轮 Agent 协商 ---
+
+T+38s~T+48s  [USER_AGENT_*] 各 Agent 再次评估
+             [USER_AGENT_*] → towow.feedback.submitted
+
+T+49s   [CHANNEL_ADMIN] 再次调整
+        [CHANNEL_ADMIN] → towow.proposal.distributed (Round 3)
+
+--- 第3轮 Agent 协商 ---
+
+T+51s~T+60s  [USER_AGENT_*] 所有 Agent accept
+             [CHANNEL_ADMIN] → towow.negotiation.round_completed
 
 T+62s   [CHANNEL_ADMIN] 识别缺口
-        [CHANNEL_ADMIN] → towow.gap.identified
+        [CHANNEL_ADMIN] → towow.gap.identified (无缺口/有缺口)
 
-T+63s   [CHANNEL_ADMIN] 分发反馈给 UserAgent
+T+63s   [CHANNEL_ADMIN] 判断是否递归
+        (如有缺口) → towow.subnet.triggered
 
-T+65s   [USER_AGENT_*] 更新报价
-        [USER_AGENT_*] → towow.offer.updated
-
-... (多轮协商)
-
-T+180s  [CHANNEL_ADMIN] 协商完成
+T+90s   [CHANNEL_ADMIN] 子网结果返回，整合最终方案
         [CHANNEL_ADMIN] → towow.negotiation.finalized
+
+T+91s   [USER_AGENT_*] 通知各参与方的人类用户
+        [SYSTEM]      → 用户看到最终方案
 ```
 
 ---
 
-## 五、OpenAgent 实现建议
+## 五、核心设计点（修正版）
+
+### 5.1 用户只参与开始和结束
+
+```
+用户的参与点：
+1. 开始：提交需求（自然语言描述）
+2. 结束：查看最终协商结果
+
+用户不参与的部分：
+- 候选人筛选（Coordinator 自动完成）
+- 方案聚合（ChannelAdmin 自动完成）
+- 多轮协商（Agent 之间自动完成）
+- 缺口识别和子网递归（ChannelAdmin 自动完成）
+
+这就是"AI 代理协商"的核心价值：
+用户只需要说"我要什么"，Agent 们自己去谈判、协调、达成一致。
+```
+
+### 5.2 Agent 的三种响应模式
+
+```
+当 Agent 收到方案时，必须给出三种响应之一：
+
+1. Accept（接受）
+   - "我接受这个安排"
+   - 无需进一步协商
+
+2. Negotiate（协商）
+   - "我有意见，建议调整..."
+   - 提供具体的修改建议
+   - ChannelAdmin 会尝试调整方案
+
+3. Reject（拒绝并退出）
+   - Agent 直接退出 Channel
+   - 不需要解释原因
+   - ChannelAdmin 会重新分配任务或标记需求失败
+```
+
+### 5.3 多轮协商的终止条件
+
+```
+成功终止：
+- 所有被选中的 Agent 都回复 "accept"
+- 进入缺口识别阶段
+
+达到上限终止（最多5轮）：
+- 如果大部分 Agent 已 accept → 继续，标记未 accept 的为"可选参与者"
+- 如果核心 Agent 未 accept → 标记需求为"协商失败"
+
+异常终止：
+- 核心 Agent 退出（如唯一的主开发退出）
+- ChannelAdmin 重新筛选或通知需求无法满足
+```
 
 ### 5.1 网络配置 (network.yaml)
 
