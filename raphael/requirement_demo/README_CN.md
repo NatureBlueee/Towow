@@ -471,3 +471,197 @@ user> submit 我需要一个电商网站的购物车功能，支持添加商品�
 user> status
 user> quit
 ```
+
+## Web 注册服务（动态用户系统）
+
+除了预设的工作智能体（设计师、开发者），本演示还支持**动态用户注册**。用户可以通过 Web API 注册，系统会自动为其创建专属的 Worker Agent。
+
+### 功能特性
+
+- **SecondMe OAuth2 登录** - 使用 SecondMe 账号进行身份认证
+- **动态 Agent 创建** - 注册后自动创建 Worker Agent
+- **能力注册** - Agent 自动注册技能到网络 registry
+- **持久化存储** - 用户配置保存到本地，服务重启后可恢复
+
+### 启动 Web 服务
+
+```bash
+cd /Users/nature/个人项目/Towow/raphael/requirement_demo
+
+# 设置环境变量（SecondMe OAuth2）
+export SECONDME_CLIENT_ID=your_client_id
+export SECONDME_CLIENT_SECRET=your_client_secret
+export SECONDME_REDIRECT_URI=http://localhost:8080/api/auth/callback
+
+# 可选配置
+export SECONDME_API_BASE_URL=https://app.mindos.com
+export SECONDME_AUTH_URL=https://app.me.bot/oauth
+export ALLOWED_ORIGINS=http://localhost:3000,http://localhost:8080
+
+# 启动服务
+uvicorn web.app:app --reload --port 8080
+```
+
+### 环境变量说明
+
+| 变量 | 必需 | 默认值 | 描述 |
+|------|------|--------|------|
+| `SECONDME_CLIENT_ID` | 是 | - | SecondMe 应用 ID |
+| `SECONDME_CLIENT_SECRET` | 是 | - | SecondMe 应用密钥 |
+| `SECONDME_REDIRECT_URI` | 是 | - | OAuth2 回调地址 |
+| `SECONDME_API_BASE_URL` | 否 | `https://app.mindos.com` | SecondMe API 地址 |
+| `SECONDME_AUTH_URL` | 否 | `https://app.me.bot/oauth` | SecondMe 授权页面 |
+| `ALLOWED_ORIGINS` | 否 | `http://localhost:3000,http://localhost:8080` | CORS 允许的域名 |
+
+### API 端点
+
+#### 认证相关
+
+| 端点 | 方法 | 描述 |
+|------|------|------|
+| `/api/auth/login` | GET | 获取 SecondMe 授权 URL |
+| `/api/auth/callback` | GET | 处理 OAuth2 回调 |
+| `/api/auth/complete-registration` | POST | 用户补填技能后完成注册 |
+| `/api/auth/refresh` | POST | 刷新 Access Token |
+
+#### Agent 管理
+
+| 端点 | 方法 | 描述 |
+|------|------|------|
+| `/api/register` | POST | 直接注册（无需 OAuth） |
+| `/api/agents` | GET | 列出所有已注册的 Agent |
+| `/api/agents/{id}` | GET | 获取指定 Agent 详情 |
+| `/api/agents/{id}/action` | POST | 启动/停止/重启 Agent |
+| `/api/agents/start-all` | POST | 启动所有 Agent |
+| `/api/agents/stop-all` | POST | 停止所有 Agent |
+
+### OAuth2 认证流程
+
+```
+┌─────────────────────────────────────────────────────────────────┐
+│                     SecondMe OAuth2 流程                         │
+├─────────────────────────────────────────────────────────────────┤
+│                                                                  │
+│  1. 前端调用 GET /api/auth/login                                  │
+│     └─ 返回 authorization_url 和 state                           │
+│                                                                  │
+│  2. 前端重定向用户到 authorization_url                             │
+│     └─ 用户在 SecondMe 页面登录并授权                              │
+│                                                                  │
+│  3. SecondMe 重定向回 redirect_uri?code=xxx&state=xxx            │
+│                                                                  │
+│  4. 前端调用 GET /api/auth/callback?code=xxx&state=xxx           │
+│     └─ 返回 open_id, name, avatar, access_token                  │
+│     └─ needs_registration=true 表示新用户需要补填信息              │
+│                                                                  │
+│  5. 前端显示补填页面，用户填写技能和专长                             │
+│                                                                  │
+│  6. 前端调用 POST /api/auth/complete-registration                │
+│     └─ 提交 access_token, open_id, skills, specialties           │
+│     └─ 系统验证 token，创建 Agent                                 │
+│     └─ 返回 agent_id                                             │
+│                                                                  │
+│  7. 完成！Agent 已连接到 OpenAgents 网络                          │
+│                                                                  │
+└─────────────────────────────────────────────────────────────────┘
+```
+
+### 注册示例
+
+#### 方式一：通过 OAuth2 登录（推荐）
+
+```bash
+# 1. 获取授权 URL
+curl http://localhost:8080/api/auth/login
+
+# 2. 用户完成授权后，处理回调
+curl "http://localhost:8080/api/auth/callback?code=AUTH_CODE&state=STATE"
+
+# 3. 补填信息完成注册
+curl -X POST http://localhost:8080/api/auth/complete-registration \
+  -H "Content-Type: application/json" \
+  -d '{
+    "access_token": "ACCESS_TOKEN",
+    "open_id": "OPEN_ID",
+    "display_name": "张三",
+    "skills": ["python", "react"],
+    "specialties": ["web-development"],
+    "bio": "全栈开发者"
+  }'
+```
+
+#### 方式二：直接注册（测试用）
+
+```bash
+curl -X POST http://localhost:8080/api/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "display_name": "张三",
+    "skills": ["python", "react", "api-design"],
+    "specialties": ["web-development", "backend"],
+    "secondme_id": "test_user_001",
+    "bio": "全栈开发者"
+  }'
+```
+
+### 启动已注册用户的 Agent
+
+```bash
+# 启动所有 Agent
+curl -X POST http://localhost:8080/api/agents/start-all
+
+# 或启动单个 Agent
+curl -X POST http://localhost:8080/api/agents/user_xxx/action \
+  -H "Content-Type: application/json" \
+  -d '{"action": "start"}'
+```
+
+### 完整测试流程
+
+```bash
+# 终端 1：启动网络
+PYTHONPATH="./mods:$PYTHONPATH" openagents network start .
+
+# 终端 2：启动 Admin
+python agents/admin_agent.py
+
+# 终端 3：启动 Coordinator
+python agents/coordinator_agent.py
+
+# 终端 4：启动 Web 服务
+uvicorn web.app:app --reload --port 8080
+
+# 终端 5：注册用户并启动 Agent
+curl -X POST http://localhost:8080/api/register \
+  -H "Content-Type: application/json" \
+  -d '{"display_name":"张三","skills":["python","react"],"specialties":["web"],"secondme_id":"test001"}'
+
+curl -X POST http://localhost:8080/api/agents/start-all
+
+# 终端 6：提交需求测试
+python agents/user_agent.py
+> submit 我需要一个 React 网站
+```
+
+### 文件结构
+
+```
+web/
+├── __init__.py           # 包初始化
+├── app.py                # FastAPI 应用（API 端点）
+├── agent_manager.py      # Agent 生命周期管理
+├── oauth2_client.py      # SecondMe OAuth2 客户端
+└── tests/
+    └── test_oauth2_client.py  # OAuth2 单元测试
+
+agents/
+└── dynamic_worker.py     # 动态 Worker Agent 模板
+```
+
+### 安全说明
+
+1. **Token 验证** - `complete-registration` 端点会验证 access_token 的有效性
+2. **CSRF 防护** - OAuth2 流程使用 state 参数防止 CSRF 攻击
+3. **CORS 配置** - 生产环境需要配置 `ALLOWED_ORIGINS` 限制允许的域名
+4. **敏感信息** - 日志中的敏感信息（如 open_id）已做脱敏处理
+5. **线程安全** - OAuth2 客户端使用线程锁保护单例实例
