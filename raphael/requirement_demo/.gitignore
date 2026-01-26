@@ -1,0 +1,23 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+
+# Logs
+*.log
+
+# Database
+*.db
+
+# OS
+.DS_Store
+
+# Data files (user-specific)
+data/
+
+# Message history
+mods/openagents.mods.workspace.messaging/

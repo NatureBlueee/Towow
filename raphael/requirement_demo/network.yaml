@@ -1,0 +1,130 @@
+network:
+  name: RequirementDemo
+  mode: centralized
+  node_id: requirement-demo-1
+  initialized: true
+  transports:
+  - type: http
+    config:
+      port: 8800
+      serve_studio: true
+      serve_mcp: true
+  - type: grpc
+    config:
+      port: 8801
+      max_message_size: 104857600
+      compression: gzip
+      keepalive_time: 60000
+      keepalive_timeout: 30000
+  manifest_transport: http
+  recommended_transport: grpc
+  encryption_enabled: false
+  discovery_interval: 10
+  discovery_enabled: true
+  max_connections: 50
+  connection_timeout: 30.0
+  retry_attempts: 3
+  heartbeat_interval: 60
+  agent_timeout: 180
+  message_queue_size: 1000
+  message_timeout: 30.0
+  message_routing_enabled: true
+  default_agent_group: guest
+  requires_password: false
+  agent_groups:
+    admin:
+      description: Admin agents with full registry access and invitation permissions
+      password_hash: 8c6976e5b5410415bde908bd4dee15dfb167a9c873fc4bb8a81f6f2ab448a918
+      metadata:
+        permissions:
+        - registry_read
+        - invite_agents
+        - all
+        agents:
+        - admin
+    coordinators:
+      description: Coordinator agents that distribute tasks and manage workflow
+      password_hash: bf24385098410391a81d92b2de72d3a2946d24f42ee387e51004a868281a2408
+      metadata:
+        permissions:
+        - distribute_tasks
+        - read_agent_cards
+        agents:
+        - coordinator
+    workers:
+      description: Worker agents that handle specific tasks
+      password_hash: 3588bb7219b1faa3d01f132a0c60a394258ccc3049d8e4a243b737e62524d147
+      metadata:
+        permissions:
+        - respond_to_tasks
+        - join_channels
+        agents:
+        - designer
+        - developer
+    users:
+      description: User agents that submit requirements
+      password_hash: 04f8996da763b7a969b1028ee3007569eaf3a635486ddab211d512c85b9df8fb
+      metadata:
+        permissions:
+        - submit_requirements
+        agents:
+        - user
+  mods:
+  - name: openagents.mods.workspace.default
+    enabled: true
+    config:
+      custom_events_enabled: true
+  - name: openagents.mods.workspace.messaging
+    enabled: true
+    config:
+      default_channels:
+      - name: general
+        description: General discussion channel
+      - name: announcements
+        description: Important announcements
+      max_memory_messages: 1000
+      memory_cleanup_minutes: 30
+      dump_interval_minutes: 10
+      max_thread_depth: 10
+  - name: requirement_network
+    enabled: true
+    config:
+      admin_group: admin
+      channel_prefix: req
+  created_by_version: 0.8.5.post5
+network_profile:
+  discoverable: true
+  name: Requirement Demo Network
+  description: 'A demo network showcasing the requirement_network mod with:
+
+    - User agents submitting requirements in natural language
+
+    - Automatic channel creation for each requirement
+
+    - Admin agent reading registry and inviting relevant agents
+
+    - Coordinator distributing tasks after invitations complete
+
+    - Worker agents responding with accept/reject/propose
+
+    '
+  tags:
+  - demo
+  - requirement
+  - workflow
+  - coordination
+  - task-delegation
+  categories:
+  - demo
+  - workflow
+  country: Worldwide
+  required_openagents_version: 0.6.13
+  capacity: 50
+  authentication:
+    type: password
+  host: 0.0.0.0
+  port: 8800
+log_level: INFO
+data_dir: ./data/requirement-demo
+runtime_limit: null
+shutdown_timeout: 30
