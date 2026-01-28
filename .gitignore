@@ -1,0 +1,56 @@
+# OS files
+.DS_Store
+*.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg
+*.egg-info/
+venv/
+.venv/
+*.db
+
+# Node.js
+node_modules/
+
+# Remotion animation project (too large)
+towow-animation/
+
+# Playwright MCP cache
+.playwright-mcp/
+
+# Worktrees (local development)
+worktree-*/
+.dev/worktree/
+
+# Logs
+*.log
+
+# IDE
+.idea/
+.vscode/
+
+# Environment files
+.env
+.env.local
+
+# Data directories
+data/
+
+# Message history
+mods/openagents.mods.workspace.messaging/
+
+# Build outputs
+dist/
+build/
+out/
+
+# Archives
+*.zip
+
+# Separate git repositories
+openagents/
