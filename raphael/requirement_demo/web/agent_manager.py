@@ -5,11 +5,11 @@ Agent Manager - 管理动态创建的 Worker Agent 生命周期
 1. 创建新的 Worker Agent（用户注册时）
 2. 追踪所有活跃的 Agent
 3. 停止/重启 Agent
-4. 持久化 Agent 配置
+4. 持久化 Agent 配置（使用 SQLite）
 """
 
 import asyncio
-import json
+import hashlib
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -25,18 +25,22 @@ if str(_project_dir / "agents") not in sys.path:
 if str(_project_dir / "mods") not in sys.path:
     sys.path.insert(0, str(_project_dir / "mods"))
 
+from . import database as db
+
 logger = logging.getLogger(__name__)
 
 
 @dataclass
 class UserAgentConfig:
-    """用户 Agent 配置"""
+    """用户 Agent 配置（兼容旧接口）"""
     agent_id: str
     display_name: str
     skills: List[str]
     specialties: List[str]
     secondme_id: Optional[str] = None
     bio: Optional[str] = None
+    avatar_url: Optional[str] = None
+    self_intro: Optional[str] = None
     created_at: str = ""
     is_active: bool = True
 
@@ -44,12 +48,29 @@ class UserAgentConfig:
         if not self.created_at:
             self.created_at = datetime.now().isoformat()
 
+    @classmethod
+    def from_db_user(cls, user: db.User) -> "UserAgentConfig":
+        """从数据库 User 对象创建"""
+        return cls(
+            agent_id=user.agent_id,
+            display_name=user.display_name,
+            skills=user.skills or [],
+            specialties=user.specialties or [],
+            secondme_id=user.secondme_id,
+            bio=user.bio,
+            avatar_url=user.avatar_url,
+            self_intro=user.self_intro,
+            created_at=user.created_at.isoformat() if user.created_at else "",
+            is_active=user.is_active,
+        )
+
 
 class AgentManager:
     """
     Agent 管理器 - 单例模式
 
     管理所有动态创建的 Worker Agent
+    使用 SQLite 存储用户配置
     """
 
     _instance = None
@@ -67,60 +88,50 @@ class AgentManager:
 
         self._initialized = True
 
-        # Agent 配置存储
-        self.agents_config: Dict[str, UserAgentConfig] = {}
-
         # 运行中的 Agent 实例
         self.running_agents: Dict[str, Any] = {}
 
         # Agent 任务（asyncio tasks）
         self.agent_tasks: Dict[str, asyncio.Task] = {}
 
-        # 配置文件路径
-        self.config_dir = Path(__file__).parent.parent / "data"
-        self.config_file = self.config_dir / "user_agents.json"
-
         # 网络配置
         self.network_host = "localhost"
         self.network_port = 8800
 
-        # 加载已保存的配置
-        self._load_config()
+        # 初始化数据库并迁移旧数据
+        self._init_database()
 
         logger.info("AgentManager 初始化完成")
 
-    def _load_config(self):
-        """从文件加载 Agent 配置"""
-        self.config_dir.mkdir(parents=True, exist_ok=True)
+    def _init_database(self):
+        """初始化数据库并迁移旧数据"""
+        # 确保数据库初始化
+        db.get_engine()
 
-        if self.config_file.exists():
+        # 迁移旧的 JSON 数据
+        json_file = Path(__file__).parent.parent / "data" / "user_agents.json"
+        if json_file.exists():
             try:
-                with open(self.config_file, "r", encoding="utf-8") as f:
-                    data = json.load(f)
-                    for agent_id, config_dict in data.items():
-                        self.agents_config[agent_id] = UserAgentConfig(**config_dict)
-                logger.info(f"加载了 {len(self.agents_config)} 个用户 Agent 配置")
+                migrated = db.migrate_from_json(json_file)
+                if migrated > 0:
+                    # 备份并重命名旧文件
+                    backup_file = json_file.with_suffix(".json.bak")
+                    json_file.rename(backup_file)
+                    logger.info(f"Migrated {migrated} users, old file renamed to {backup_file}")
             except Exception as e:
-                logger.error(f"加载配置失败: {e}")
+                logger.error(f"Migration failed: {e}")
 
-    def _save_config(self):
-        """保存 Agent 配置到文件"""
-        try:
-            self.config_dir.mkdir(parents=True, exist_ok=True)
-            data = {
-                agent_id: asdict(config)
-                for agent_id, config in self.agents_config.items()
-            }
-            with open(self.config_file, "w", encoding="utf-8") as f:
-                json.dump(data, f, ensure_ascii=False, indent=2)
-            logger.info(f"保存了 {len(data)} 个用户 Agent 配置")
-        except Exception as e:
-            logger.error(f"保存配置失败: {e}")
+    @property
+    def agents_config(self) -> Dict[str, UserAgentConfig]:
+        """获取所有 Agent 配置（兼容旧接口）"""
+        users = db.get_all_users()
+        return {
+            user.agent_id: UserAgentConfig.from_db_user(user)
+            for user in users
+        }
 
     def generate_agent_id(self, secondme_id: str) -> str:
         """根据 SecondMe ID 生成 Agent ID"""
-        # 简单的 ID 生成策略
-        import hashlib
         hash_suffix = hashlib.md5(secondme_id.encode()).hexdigest()[:8]
         return f"user_{hash_suffix}"
 
@@ -131,6 +142,9 @@ class AgentManager:
         specialties: List[str],
         secondme_id: str,
         bio: Optional[str] = None,
+        avatar_url: Optional[str] = None,
+        access_token: Optional[str] = None,
+        refresh_token: Optional[str] = None,
     ) -> Dict[str, Any]:
         """
         注册新用户并创建 Agent
@@ -141,6 +155,9 @@ class AgentManager:
             specialties: 专长列表
             secondme_id: SecondMe 用户 ID
             bio: 个人简介
+            avatar_url: 头像 URL
+            access_token: OAuth2 access token
+            refresh_token: OAuth2 refresh token
 
         Returns:
             注册结果字典
@@ -150,8 +167,8 @@ class AgentManager:
             agent_id = self.generate_agent_id(secondme_id)
 
             # 检查是否已存在
-            if agent_id in self.agents_config:
-                existing = self.agents_config[agent_id]
+            existing = db.get_user_by_agent_id(agent_id)
+            if existing:
                 return {
                     "success": True,
                     "message": "用户已注册，返回现有信息",
@@ -160,19 +177,18 @@ class AgentManager:
                     "is_new": False,
                 }
 
-            # 创建配置
-            config = UserAgentConfig(
+            # 创建用户
+            user = db.create_user(
                 agent_id=agent_id,
                 display_name=display_name,
                 skills=skills,
                 specialties=specialties,
                 secondme_id=secondme_id,
                 bio=bio,
+                avatar_url=avatar_url,
+                access_token=access_token,
+                refresh_token=refresh_token,
             )
-
-            # 保存配置
-            self.agents_config[agent_id] = config
-            self._save_config()
 
             # 启动 Agent
             try:
@@ -205,7 +221,8 @@ class AgentManager:
         Returns:
             是否启动成功
         """
-        if agent_id not in self.agents_config:
+        user = db.get_user_by_agent_id(agent_id)
+        if not user:
             logger.error(f"Agent 配置不存在: {agent_id}")
             return False
 
@@ -213,20 +230,18 @@ class AgentManager:
             logger.info(f"Agent 已在运行: {agent_id}")
             return True
 
-        config = self.agents_config[agent_id]
-
         try:
             # 动态导入以避免循环依赖
             from dynamic_worker import DynamicWorkerAgent
 
             # 创建 Agent 实例
             worker = DynamicWorkerAgent(
-                agent_id=config.agent_id,
-                display_name=config.display_name,
-                skills=config.skills,
-                specialties=config.specialties,
-                secondme_id=config.secondme_id,
-                bio=config.bio,
+                agent_id=user.agent_id,
+                display_name=user.display_name,
+                skills=user.skills or [],
+                specialties=user.specialties or [],
+                secondme_id=user.secondme_id,
+                bio=user.bio,
             )
 
             # workers 组的密码哈希
@@ -253,7 +268,7 @@ class AgentManager:
             self.agent_tasks[agent_id] = task
             self.running_agents[agent_id] = worker
 
-            logger.info(f"Agent {agent_id} ({config.display_name}) 已启动")
+            logger.info(f"Agent {agent_id} ({user.display_name}) 已启动")
             return True
 
         except Exception as e:
@@ -296,13 +311,13 @@ class AgentManager:
 
     async def start_all_agents(self):
         """启动所有配置的 Agent"""
-        logger.info(f"正在启动 {len(self.agents_config)} 个 Agent...")
+        users = db.get_all_users(active_only=True)
+        logger.info(f"正在启动 {len(users)} 个 Agent...")
 
-        for agent_id, config in self.agents_config.items():
-            if config.is_active:
-                await self.start_agent(agent_id)
-                # 稍微延迟，避免同时大量连接
-                await asyncio.sleep(0.5)
+        for user in users:
+            await self.start_agent(user.agent_id)
+            # 稍微延迟，避免同时大量连接
+            await asyncio.sleep(0.5)
 
         logger.info("所有 Agent 启动完成")
 
@@ -318,26 +333,38 @@ class AgentManager:
 
     def list_agents(self) -> List[Dict[str, Any]]:
         """列出所有 Agent"""
+        users = db.get_all_users()
         result = []
-        for agent_id, config in self.agents_config.items():
+        for user in users:
             result.append({
-                "agent_id": agent_id,
-                "display_name": config.display_name,
-                "skills": config.skills,
-                "specialties": config.specialties,
-                "is_running": agent_id in self.running_agents,
-                "created_at": config.created_at,
+                "agent_id": user.agent_id,
+                "display_name": user.display_name,
+                "skills": user.skills or [],
+                "specialties": user.specialties or [],
+                "is_running": user.agent_id in self.running_agents,
+                "created_at": user.created_at.isoformat() if user.created_at else "",
+                "secondme_id": user.secondme_id,
+                "bio": user.bio,
             })
         return result
 
     def get_agent_info(self, agent_id: str) -> Optional[Dict[str, Any]]:
         """获取指定 Agent 的信息"""
-        if agent_id not in self.agents_config:
+        user = db.get_user_by_agent_id(agent_id)
+        if not user:
             return None
 
-        config = self.agents_config[agent_id]
         return {
-            **asdict(config),
+            "agent_id": user.agent_id,
+            "display_name": user.display_name,
+            "skills": user.skills or [],
+            "specialties": user.specialties or [],
+            "secondme_id": user.secondme_id,
+            "bio": user.bio,
+            "avatar_url": user.avatar_url,
+            "self_intro": user.self_intro,
+            "is_active": user.is_active,
+            "created_at": user.created_at.isoformat() if user.created_at else "",
             "is_running": agent_id in self.running_agents,
         }
 

@@ -212,14 +212,14 @@ class SecondMeOAuth2Client:
         if state is None:
             state = self.generate_state()
 
-        params = {
-            "client_id": self.config.client_id,
-            "redirect_uri": self.config.redirect_uri,
-            "response_type": "code",
-            "state": state,
-        }
-
-        url = f"{self.config.auth_url}?{urlencode(params)}"
+        # 不对 redirect_uri 进行编码，SecondMe 可能会自行处理
+        url = (
+            f"{self.config.auth_url}"
+            f"?client_id={self.config.client_id}"
+            f"&redirect_uri={self.config.redirect_uri}"
+            f"&response_type=code"
+            f"&state={state}"
+        )
         return url, state
 
     async def exchange_token(self, code: str) -> TokenSet:
@@ -393,7 +393,8 @@ class SecondMeOAuth2Client:
             data = body.get("data", body)
 
             user_info = UserInfo(
-                open_id=data.get("openId") or data.get("open_id", ""),
+                # SecondMe 不返回 openId，使用 email 作为唯一标识符
+                open_id=data.get("openId") or data.get("open_id") or data.get("email", ""),
                 name=data.get("name") or data.get("nickname"),
                 avatar=data.get("avatar") or data.get("avatarUrl"),
                 bio=data.get("bio") or data.get("description"),
