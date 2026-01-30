@@ -6,8 +6,8 @@ import styles from './RequirementForm.module.css';
 
 // Demo content for one-click experience
 const DEMO_CONTENT = {
-  title: '为独立音乐人打造一场线下演出',
-  description: '我是一个独立音乐人，想在上海办一场 50 人规模的小型演出。我有原创歌曲但没有演出经验，预算有限（5000元），希望能找到场地、做好宣传、处理好版权和演出许可等问题。时间希望在下个月的某个周末。',
+  title: '找一个技术合伙人',
+  description: '我有一个创业想法，想做一个帮助自由职业者管理客户和项目的工具。我需要找一个技术合伙人，最好是全栈开发，愿意用业余时间一起做，可以给15%的股份。',
 };
 
 interface RequirementFormProps {
