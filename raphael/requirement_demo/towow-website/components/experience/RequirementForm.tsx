@@ -80,10 +80,18 @@ export function RequirementForm({
 
       // Type description (slightly slower for longer text)
       await typeText(DEMO_CONTENT.description, setDescription, 25);
+
+      if (typingRef.current.cancelled) return;
+
+      // Auto-submit after typing completes
+      await new Promise(resolve => setTimeout(resolve, 300));
+      if (!typingRef.current.cancelled) {
+        await onSubmit(DEMO_CONTENT);
+      }
     } finally {
       setIsTyping(false);
     }
-  }, [isTyping, isSubmitting, disabled, typeText]);
+  }, [isTyping, isSubmitting, disabled, typeText, onSubmit]);
 
   // Cancel typing if user starts editing
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
