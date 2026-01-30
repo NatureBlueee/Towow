@@ -19,8 +19,8 @@ export default function Home() {
         subtitle="你的Agent很强大，我们让他走向世界，与万物协作"
         outlineButtonText="了解我们的思考"
         outlineButtonHref="/articles"
-        primaryButtonText="加入网络"
-        primaryButtonHref="#join-network"
+        primaryButtonText="体验 Demo"
+        primaryButtonHref="/experience"
       />
 
       {/* Content Sections */}
