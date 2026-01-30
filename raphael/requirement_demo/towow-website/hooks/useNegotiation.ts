@@ -17,6 +17,15 @@ export type NegotiationStatus = 'idle' | 'submitting' | 'waiting' | 'in_progress
 // 协商超时时间（毫秒）
 const NEGOTIATION_TIMEOUT = 5 * 60 * 1000; // 5 分钟
 
+// 检测是否为本地开发环境（跨域场景）
+const isLocalDevCrossOrigin = () => {
+  if (typeof window === 'undefined') return false;
+  const wsUrl = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080';
+  const currentOrigin = window.location.origin;
+  // 如果 WebSocket URL 和当前页面不在同一个端口，则为跨域
+  return wsUrl.includes('localhost') && !wsUrl.includes(window.location.port);
+};
+
 export interface UseNegotiationReturn {
   submitRequirement: (data: RequirementInput) => Promise<string>;
   currentRequirement: Requirement | null;
@@ -46,6 +55,15 @@ export function useNegotiation(): UseNegotiationReturn {
   const syncedMessageIdsRef = useRef<Set<string>>(new Set());
 
   const agentId = state.user?.agent_id || null;
+  // 在本地开发跨域场景下使用演示模式（绕过 cookie 认证问题）
+  const useDemoMode = isLocalDevCrossOrigin();
+  // 使用 ref 存储稳定的演示 ID，避免每次渲染都生成新 ID
+  const demoAgentIdRef = useRef<string | null>(null);
+  if (useDemoMode && !demoAgentIdRef.current) {
+    demoAgentIdRef.current = `demo_${Date.now()}`;
+  }
+  // 如果没有 agentId 但需要连接 WebSocket，使用稳定的演示 ID
+  const wsAgentId = agentId || (useDemoMode ? demoAgentIdRef.current : null);
   const {
     messages,
     subscribe,
@@ -55,7 +73,7 @@ export function useNegotiation(): UseNegotiationReturn {
     status: wsStatus,
     error: wsError,
     reconnect: reconnectWs,
-  } = useWebSocket(agentId);
+  } = useWebSocket(wsAgentId, { demoMode: useDemoMode });
 
   // Keep negotiationStatusRef in sync with state
   useEffect(() => {

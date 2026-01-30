@@ -30,7 +30,13 @@ interface UseWebSocketReturn {
 const WS_BASE = process.env.NEXT_PUBLIC_WS_URL || 'ws://localhost:8080';
 const MAX_RETRIES = 10;
 
-export function useWebSocket(agentId: string | null): UseWebSocketReturn {
+interface UseWebSocketOptions {
+  // 使用演示模式端点（不需要认证，用于本地开发跨域场景）
+  demoMode?: boolean;
+}
+
+export function useWebSocket(agentId: string | null, options?: UseWebSocketOptions): UseWebSocketReturn {
+  const { demoMode = false } = options || {};
   const [status, setStatus] = useState<ConnectionStatus>('disconnected');
   const [messages, setMessages] = useState<NegotiationMessage[]>([]);
   const [error, setError] = useState<ApiError | null>(null);
@@ -61,7 +67,9 @@ export function useWebSocket(agentId: string | null): UseWebSocketReturn {
     }
 
     try {
-      const ws = new WebSocket(`${WS_BASE}/ws/${agentId}`);
+      // 根据 demoMode 选择端点
+      const wsPath = demoMode ? `/ws/demo/${agentId}` : `/ws/${agentId}`;
+      const ws = new WebSocket(`${WS_BASE}${wsPath}`);
 
       ws.onopen = () => {
         setStatus('connected');
@@ -135,7 +143,7 @@ export function useWebSocket(agentId: string | null): UseWebSocketReturn {
         details: { error: String(err) },
       });
     }
-  }, [agentId, getRetryDelay]);
+  }, [agentId, demoMode, getRetryDelay]);
 
   // 手动重连
   const reconnect = useCallback(() => {

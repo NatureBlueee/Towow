@@ -1127,10 +1127,56 @@ async def get_stats():
 
 # ============ WebSocket 端点 ============
 
+async def _handle_websocket_connection(websocket: WebSocket, agent_id: str):
+    """
+    WebSocket 连接处理的公共逻辑
+
+    处理消息订阅、取消订阅和心跳等操作。
+    """
+    ws_manager = get_websocket_manager()
+
+    if not await ws_manager.connect(websocket, agent_id):
+        return
+
+    try:
+        while True:
+            # 接收客户端消息
+            data = await websocket.receive_json()
+
+            # 处理订阅/取消订阅请求
+            action = data.get("action")
+            if action == "subscribe":
+                channel_id = data.get("channel_id")
+                if channel_id:
+                    await ws_manager.subscribe_channel(agent_id, channel_id)
+                    await websocket.send_json({
+                        "type": "subscribed",
+                        "channel_id": channel_id,
+                    })
+
+            elif action == "unsubscribe":
+                channel_id = data.get("channel_id")
+                if channel_id:
+                    await ws_manager.unsubscribe_channel(agent_id, channel_id)
+                    await websocket.send_json({
+                        "type": "unsubscribed",
+                        "channel_id": channel_id,
+                    })
+
+            elif action == "ping":
+                await websocket.send_json({"type": "pong"})
+
+    except WebSocketDisconnect:
+        await ws_manager.disconnect(agent_id)
+    except Exception as e:
+        logger.error(f"WebSocket error for {agent_id}: {e}")
+        await ws_manager.disconnect(agent_id)
+
+
 @app.websocket("/ws/{agent_id}")
 async def websocket_endpoint(websocket: WebSocket, agent_id: str):
     """
-    WebSocket 连接端点
+    WebSocket 连接端点（需要认证）
 
     用户连接后可以接收实时消息：
     - Channel 消息
@@ -1174,44 +1220,25 @@ async def websocket_endpoint(websocket: WebSocket, agent_id: str):
 
     logger.info(f"WebSocket connection authenticated: agent_id={agent_id}")
 
-    ws_manager = get_websocket_manager()
+    await _handle_websocket_connection(websocket, agent_id)
 
-    if not await ws_manager.connect(websocket, agent_id):
-        return
 
-    try:
-        while True:
-            # 接收客户端消息
-            data = await websocket.receive_json()
+@app.websocket("/ws/demo/{agent_id}")
+async def websocket_demo_endpoint(websocket: WebSocket, agent_id: str):
+    """
+    演示模式 WebSocket 连接端点（无需认证）
 
-            # 处理订阅/取消订阅请求
-            action = data.get("action")
-            if action == "subscribe":
-                channel_id = data.get("channel_id")
-                if channel_id:
-                    await ws_manager.subscribe_channel(agent_id, channel_id)
-                    await websocket.send_json({
-                        "type": "subscribed",
-                        "channel_id": channel_id,
-                    })
+    用于本地开发环境中跨域 cookie 无法传递的情况。
+    允许匿名连接，但仅限于演示用途。
 
-            elif action == "unsubscribe":
-                channel_id = data.get("channel_id")
-                if channel_id:
-                    await ws_manager.unsubscribe_channel(agent_id, channel_id)
-                    await websocket.send_json({
-                        "type": "unsubscribed",
-                        "channel_id": channel_id,
-                    })
+    安全说明：
+    - 此端点不验证用户身份
+    - 仅用于演示协商流程的消息接收
+    - 生产环境应通过 CORS 和其他方式限制访问
+    """
+    logger.info(f"WebSocket demo connection: agent_id={agent_id}")
 
-            elif action == "ping":
-                await websocket.send_json({"type": "pong"})
-
-    except WebSocketDisconnect:
-        await ws_manager.disconnect(agent_id)
-    except Exception as e:
-        logger.error(f"WebSocket error for {agent_id}: {e}")
-        await ws_manager.disconnect(agent_id)
+    await _handle_websocket_connection(websocket, agent_id)
 
 
 @app.get(
