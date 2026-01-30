@@ -12,12 +12,15 @@ import os
 import secrets
 import logging
 import threading
-from typing import Optional, Dict, Any
+from typing import Optional, Dict, Any, TYPE_CHECKING
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
 
 import httpx
+
+if TYPE_CHECKING:
+    from .session_store import SessionStore
 
 # ============ 常量定义 ============
 STATE_EXPIRY_MINUTES = 10  # state 有效期（分钟）
@@ -133,11 +136,12 @@ class SecondMeOAuth2Client:
     SecondMe OAuth2 客户端
 
     使用示例:
-        # 创建客户端
-        client = SecondMeOAuth2Client.from_env()
+        # 创建客户端（带 SessionStore）
+        session_store = await get_session_store()
+        client = SecondMeOAuth2Client(config, session_store)
 
         # 1. 构建授权 URL，重定向用户
-        auth_url, state = client.build_authorization_url()
+        auth_url, state = await client.build_authorization_url()
 
         # 2. 用户授权后，用回调中的 code 交换 Token
         token_set = await client.exchange_token(code)
@@ -146,18 +150,20 @@ class SecondMeOAuth2Client:
         user_info = await client.get_user_info(token_set.access_token)
     """
 
-    def __init__(self, config: OAuth2Config):
+    def __init__(
+        self,
+        config: OAuth2Config,
+        session_store: Optional["SessionStore"] = None
+    ):
         self.config = config
         self._http_client: Optional[httpx.AsyncClient] = None
-
-        # 用于存储 state，防止 CSRF
-        self._pending_states: Dict[str, datetime] = {}
+        self._session_store = session_store
 
     @classmethod
-    def from_env(cls) -> "SecondMeOAuth2Client":
+    def from_env(cls, session_store: Optional["SessionStore"] = None) -> "SecondMeOAuth2Client":
         """从环境变量创建客户端"""
         config = OAuth2Config.from_env()
-        return cls(config)
+        return cls(config, session_store)
 
     @property
     def http_client(self) -> httpx.AsyncClient:
@@ -175,31 +181,28 @@ class SecondMeOAuth2Client:
             await self._http_client.aclose()
             self._http_client = None
 
-    def generate_state(self) -> str:
+    async def generate_state(self) -> str:
         """生成随机 state 用于 CSRF 防护"""
         state = secrets.token_hex(16)
-        # 存储 state，有效期由常量控制
-        self._pending_states[state] = datetime.now() + timedelta(minutes=STATE_EXPIRY_MINUTES)
-        # 清理过期的 state
-        self._cleanup_expired_states()
+        if self._session_store:
+            await self._session_store.set(
+                f"oauth_state:{state}",
+                "1",
+                ttl_seconds=STATE_EXPIRY_MINUTES * 60
+            )
         return state
 
-    def verify_state(self, state: str) -> bool:
+    async def verify_state(self, state: str) -> bool:
         """验证 state 是否有效"""
-        if state not in self._pending_states:
-            return False
+        if self._session_store:
+            key = f"oauth_state:{state}"
+            exists = await self._session_store.exists(key)
+            if exists:
+                await self._session_store.delete(key)
+                return True
+        return False
 
-        expires_at = self._pending_states.pop(state)
-        return datetime.now() < expires_at
-
-    def _cleanup_expired_states(self):
-        """清理过期的 state"""
-        now = datetime.now()
-        expired = [s for s, exp in self._pending_states.items() if now >= exp]
-        for s in expired:
-            del self._pending_states[s]
-
-    def build_authorization_url(self, state: Optional[str] = None) -> tuple[str, str]:
+    async def build_authorization_url(self, state: Optional[str] = None) -> tuple[str, str]:
         """
         构建授权 URL
 
@@ -210,7 +213,7 @@ class SecondMeOAuth2Client:
             (authorization_url, state) 元组
         """
         if state is None:
-            state = self.generate_state()
+            state = await self.generate_state()
 
         # 不对 redirect_uri 进行编码，SecondMe 可能会自行处理
         url = (
@@ -419,14 +422,24 @@ _oauth2_client: Optional[SecondMeOAuth2Client] = None
 _oauth2_client_lock = threading.Lock()
 
 
-def get_oauth2_client() -> SecondMeOAuth2Client:
-    """获取 OAuth2 客户端单例（线程安全）"""
+async def get_oauth2_client(
+    session_store: Optional["SessionStore"] = None
+) -> SecondMeOAuth2Client:
+    """
+    获取 OAuth2 客户端单例（线程安全）
+
+    Args:
+        session_store: 可选的 SessionStore 实例，首次创建时使用
+
+    Returns:
+        SecondMeOAuth2Client 实例
+    """
     global _oauth2_client
     if _oauth2_client is None:
         with _oauth2_client_lock:
             # 双重检查锁定，避免竞态条件
             if _oauth2_client is None:
-                _oauth2_client = SecondMeOAuth2Client.from_env()
+                _oauth2_client = SecondMeOAuth2Client.from_env(session_store)
     return _oauth2_client
 
 

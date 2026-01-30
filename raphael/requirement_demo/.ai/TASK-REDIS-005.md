@@ -1,5 +1,7 @@
 # TASK-REDIS-005: 修改 oauth2_client.py 使用 SessionStore
 
+> Beads 任务ID: `towow-ahn`
+
 ## 任务信息
 
 - **任务 ID**: TASK-REDIS-005

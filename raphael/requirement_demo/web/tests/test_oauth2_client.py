@@ -167,35 +167,81 @@ class TestSecondMeOAuth2Client:
         """创建测试客户端"""
         return SecondMeOAuth2Client(config)
 
-    def test_generate_state(self, client):
-        """测试 state 生成"""
-        state1 = client.generate_state()
-        state2 = client.generate_state()
+    @pytest.fixture
+    def mock_session_store(self):
+        """创建 mock session store"""
+        store = AsyncMock()
+        store.set = AsyncMock(return_value=True)
+        store.exists = AsyncMock(return_value=True)
+        store.delete = AsyncMock(return_value=True)
+        return store
+
+    @pytest.fixture
+    def client_with_store(self, config, mock_session_store):
+        """创建带 session_store 的测试客户端"""
+        return SecondMeOAuth2Client(config, mock_session_store)
+
+    @pytest.mark.asyncio
+    async def test_generate_state(self, client):
+        """测试 state 生成（无 session_store 时直接返回 state）"""
+        state1 = await client.generate_state()
+        state2 = await client.generate_state()
 
         # state 应该是 32 字符的十六进制字符串
         assert len(state1) == 32
         assert len(state2) == 32
         # 每次生成的 state 应该不同
         assert state1 != state2
-        # state 应该被存储
-        assert state1 in client._pending_states
-        assert state2 in client._pending_states
 
-    def test_verify_state(self, client):
-        """测试 state 验证"""
-        state = client.generate_state()
+    @pytest.mark.asyncio
+    async def test_generate_state_with_session_store(self, client_with_store, mock_session_store):
+        """测试带 session_store 时 state 生成"""
+        state = await client_with_store.generate_state()
+
+        # state 应该是 32 字符的十六进制字符串
+        assert len(state) == 32
+        # 应该调用 session_store.set
+        mock_session_store.set.assert_called_once()
+        call_args = mock_session_store.set.call_args
+        assert call_args[0][0] == f"oauth_state:{state}"
+        assert call_args[0][1] == "1"
+        assert call_args[1]["ttl_seconds"] == 600  # 10 minutes
+
+    @pytest.mark.asyncio
+    async def test_verify_state_without_session_store(self, client):
+        """测试无 session_store 时 state 验证（总是返回 False）"""
+        state = await client.generate_state()
+
+        # 无 session_store 时，verify_state 总是返回 False
+        assert await client.verify_state(state) is False
+        assert await client.verify_state("invalid_state") is False
+
+    @pytest.mark.asyncio
+    async def test_verify_state_with_session_store(self, client_with_store, mock_session_store):
+        """测试带 session_store 时 state 验证"""
+        state = "test_state_123"
 
         # 验证有效 state
-        assert client.verify_state(state) is True
-        # 验证后 state 应该被删除
-        assert state not in client._pending_states
+        result = await client_with_store.verify_state(state)
+        assert result is True
+        mock_session_store.exists.assert_called_once_with(f"oauth_state:{state}")
+        mock_session_store.delete.assert_called_once_with(f"oauth_state:{state}")
 
-        # 验证无效 state
-        assert client.verify_state("invalid_state") is False
+    @pytest.mark.asyncio
+    async def test_verify_state_invalid_with_session_store(self, client_with_store, mock_session_store):
+        """测试带 session_store 时无效 state 验证"""
+        mock_session_store.exists.return_value = False
+        state = "invalid_state"
 
-    def test_build_authorization_url(self, client):
+        result = await client_with_store.verify_state(state)
+        assert result is False
+        mock_session_store.exists.assert_called_once_with(f"oauth_state:{state}")
+        mock_session_store.delete.assert_not_called()
+
+    @pytest.mark.asyncio
+    async def test_build_authorization_url(self, client):
         """测试构建授权 URL"""
-        url, state = client.build_authorization_url()
+        url, state = await client.build_authorization_url()
 
         assert "https://app.me.bot/oauth" in url
         assert f"client_id={client.config.client_id}" in url
@@ -299,15 +345,17 @@ class TestSecondMeOAuth2Client:
 class TestGlobalClient:
     """全局客户端测试"""
 
-    def test_get_oauth2_client_missing_config(self):
+    @pytest.mark.asyncio
+    async def test_get_oauth2_client_missing_config(self):
         """测试缺少配置时获取客户端"""
         reset_oauth2_client()
 
         with patch.dict('os.environ', {}, clear=True):
             with pytest.raises(ValueError):
-                get_oauth2_client()
+                await get_oauth2_client()
 
-    def test_get_oauth2_client_singleton(self):
+    @pytest.mark.asyncio
+    async def test_get_oauth2_client_singleton(self):
         """测试客户端单例"""
         reset_oauth2_client()
 
@@ -318,8 +366,8 @@ class TestGlobalClient:
         }
 
         with patch.dict('os.environ', env_vars, clear=True):
-            client1 = get_oauth2_client()
-            client2 = get_oauth2_client()
+            client1 = await get_oauth2_client()
+            client2 = await get_oauth2_client()
             assert client1 is client2
 
         reset_oauth2_client()

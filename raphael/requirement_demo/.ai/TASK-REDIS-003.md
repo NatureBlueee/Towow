@@ -1,5 +1,7 @@
 # TASK-REDIS-003: 实现 RedisSessionStore
 
+> Beads 任务ID: `towow-3gj`
+
 ## 任务信息
 
 - **任务 ID**: TASK-REDIS-003

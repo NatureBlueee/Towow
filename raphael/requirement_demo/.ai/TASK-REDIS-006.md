@@ -1,5 +1,7 @@
 # TASK-REDIS-006: 集成测试与文档
 
+> Beads 任务ID: `towow-6fw`
+
 ## 任务信息
 
 - **任务 ID**: TASK-REDIS-006

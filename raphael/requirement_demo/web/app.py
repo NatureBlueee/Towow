@@ -21,7 +21,7 @@ import os
 import secrets
 import uuid
 from contextlib import asynccontextmanager
-from datetime import datetime, timedelta
+from datetime import datetime
 from typing import List, Optional, Dict, Any
 
 from fastapi import FastAPI, HTTPException, BackgroundTasks, Query, WebSocket, WebSocketDisconnect, Cookie, Response, Request
@@ -29,9 +29,12 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel, Field
 
+import json
+
 from .agent_manager import get_agent_manager, AgentManager
 from .websocket_manager import get_websocket_manager, WebSocketManager
 from . import database as db
+from .session_store import get_session_store, close_session_store
 from .oauth2_client import (
     get_oauth2_client,
     SecondMeOAuth2Client,
@@ -244,16 +247,9 @@ class CurrentUserResponse(BaseModel):
     secondme_id: str
 
 
-# ============ 临时 Token 存储 ============
-# 生产环境建议使用 Redis 或数据库
-# 存储格式: {session_id: {"data": {...}, "expires_at": datetime}}
-_pending_auth_sessions: Dict[str, Dict[str, Any]] = {}
+# ============ Session 配置 ============
+# Session 存储由 SessionStore 抽象接口管理（支持 Memory/Redis）
 PENDING_AUTH_EXPIRE_MINUTES = 15  # pending_auth 会话过期时间（分钟）
-
-# ============ Session 存储 ============
-# 生产环境建议使用 Redis 或数据库
-# session_id -> agent_id
-_sessions: Dict[str, str] = {}
 
 SESSION_COOKIE_NAME = "towow_session"
 SESSION_MAX_AGE = 7 * 24 * 60 * 60  # 7 days in seconds
@@ -269,36 +265,17 @@ OPENAGENTS_HOST = os.getenv("OPENAGENTS_HOST", "localhost")
 OPENAGENTS_PORT = int(os.getenv("OPENAGENTS_PORT", "8800"))
 
 
-# ============ Pending Auth 清理任务 ============
-
-async def cleanup_expired_pending_auth():
-    """定期清理过期的 pending_auth 会话"""
-    while True:
-        try:
-            now = datetime.now()
-            expired_keys = [
-                key for key, value in _pending_auth_sessions.items()
-                if value.get("expires_at") and value["expires_at"] < now
-            ]
-            for key in expired_keys:
-                del _pending_auth_sessions[key]
-                logger.debug(f"Cleaned up expired pending_auth session: {key[:20]}...")
-
-            if expired_keys:
-                logger.info(f"Cleaned up {len(expired_keys)} expired pending_auth sessions")
-        except Exception as e:
-            logger.error(f"Error cleaning up pending_auth sessions: {e}")
-
-        # 每 5 分钟清理一次
-        await asyncio.sleep(300)
-
-
 # ============ 应用生命周期 ============
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """应用生命周期管理"""
     logger.info("Web 服务启动中...")
+
+    # 初始化 Session Store
+    session_store = await get_session_store()
+    app.state.session_store = session_store
+    logger.info(f"Session store initialized: {session_store.store_type}")
 
     # 启动时：恢复所有之前注册的 Agent
     manager = get_agent_manager()
@@ -307,10 +284,6 @@ async def lifespan(app: FastAPI):
     # await manager.start_all_agents()
 
     logger.info(f"已加载 {len(manager.agents_config)} 个用户配置")
-
-    # 启动 pending_auth 清理任务
-    cleanup_task = asyncio.create_task(cleanup_expired_pending_auth())
-    logger.info("Pending auth cleanup task started")
 
     # 如果启用真实 Agent，启动 BridgeAgent
     if USE_REAL_AGENTS:
@@ -330,14 +303,6 @@ async def lifespan(app: FastAPI):
 
     yield
 
-    # 关闭时：停止清理任务
-    cleanup_task.cancel()
-    try:
-        await cleanup_task
-    except asyncio.CancelledError:
-        pass
-    logger.info("Pending auth cleanup task stopped")
-
     # 如果启用真实 Agent，停止 BridgeAgent
     if USE_REAL_AGENTS:
         try:
@@ -352,10 +317,14 @@ async def lifespan(app: FastAPI):
 
     # 关闭 OAuth2 客户端
     try:
-        oauth_client = get_oauth2_client()
+        oauth_client = await get_oauth2_client()
         await oauth_client.close()
     except ValueError:
         pass  # OAuth2 未配置，忽略
+
+    # 关闭 Session Store
+    await close_session_store()
+    logger.info("Session store closed")
 
     logger.info("所有 Agent 已停止")
 
@@ -649,8 +618,9 @@ async def auth_login():
     - state: CSRF 防护的 state 参数，需要在 callback 中验证
     """
     try:
-        oauth_client = get_oauth2_client()
-        auth_url, state = oauth_client.build_authorization_url()
+        session_store = await get_session_store()
+        oauth_client = await get_oauth2_client(session_store)
+        auth_url, state = await oauth_client.build_authorization_url()
 
         return AuthLoginResponse(
             authorization_url=auth_url,
@@ -671,6 +641,7 @@ async def auth_login():
     description="处理 SecondMe OAuth2 授权回调，用授权码换取 Token 并获取用户信息，然后重定向回前端"
 )
 async def auth_callback(
+    request: Request,
     response: Response,
     code: str = Query(..., description="授权码"),
     state: str = Query(..., description="CSRF 防护的 state 参数"),
@@ -687,10 +658,11 @@ async def auth_callback(
     # 前端 URL（从环境变量读取，默认 localhost:3000）
     frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
 
-    oauth_client = get_oauth2_client()
+    session_store = await get_session_store()
+    oauth_client = await get_oauth2_client(session_store)
 
     # 验证 state（防止 CSRF 攻击）
-    if not oauth_client.verify_state(state):
+    if not await oauth_client.verify_state(state):
         logger.warning(f"Invalid state in OAuth callback: {state[:20]}...")
         return RedirectResponse(
             url=f"{frontend_url}/experience?error=invalid_state&error_description=请重新发起登录流程",
@@ -719,7 +691,12 @@ async def auth_callback(
         if existing_agent:
             # 用户已注册，创建 session 并重定向到体验页
             session_id = secrets.token_urlsafe(32)
-            _sessions[session_id] = agent_id
+            session_store = request.app.state.session_store
+            await session_store.set(
+                f"session:{session_id}",
+                agent_id,
+                ttl_seconds=SESSION_MAX_AGE
+            )
 
             redirect_response = RedirectResponse(
                 url=f"{frontend_url}/experience",
@@ -738,16 +715,19 @@ async def auth_callback(
         else:
             # 用户需要注册，将信息存储到临时会话，重定向到注册页
             pending_session_id = secrets.token_urlsafe(32)
-            _pending_auth_sessions[pending_session_id] = {
-                "data": {
-                    "access_token": token_set.access_token,
-                    "user_identifier": user_identifier,
-                    "name": user_info.name,
-                    "avatar": user_info.avatar,
-                    "bio": user_info.bio,
-                },
-                "expires_at": datetime.now() + timedelta(minutes=PENDING_AUTH_EXPIRE_MINUTES),
-            }
+            session_store = request.app.state.session_store
+            pending_data = json.dumps({
+                "access_token": token_set.access_token,
+                "user_identifier": user_identifier,
+                "name": user_info.name,
+                "avatar": user_info.avatar,
+                "bio": user_info.bio,
+            })
+            await session_store.set(
+                f"pending_auth:{pending_session_id}",
+                pending_data,
+                ttl_seconds=PENDING_AUTH_EXPIRE_MINUTES * 60
+            )
 
             redirect_response = RedirectResponse(
                 url=f"{frontend_url}/experience?pending_auth={pending_session_id}",
@@ -777,7 +757,11 @@ async def auth_callback(
     summary="完成注册",
     description="用户补填技能信息后完成注册，创建 Worker Agent"
 )
-async def complete_registration(request: CompleteRegistrationRequest, response: Response):
+async def complete_registration(
+    http_request: Request,
+    reg_request: CompleteRegistrationRequest,
+    response: Response
+):
     """
     完成用户注册
 
@@ -793,28 +777,33 @@ async def complete_registration(request: CompleteRegistrationRequest, response: 
 
     try:
         # 验证 access_token 有效性（通过获取用户信息）
-        oauth_client = get_oauth2_client()
-        user_info = await oauth_client.get_user_info(request.access_token)
+        oauth_client = await get_oauth2_client()
+        user_info = await oauth_client.get_user_info(reg_request.access_token)
 
         # 注意：SecondMe API 当前不返回 open_id，暂时跳过验证
         # TODO: 与 SecondMe 确认正确的用户唯一标识符字段名
         # 使用用户名作为临时标识符
-        user_identifier = user_info.open_id or user_info.name or request.display_name
+        user_identifier = user_info.open_id or user_info.name or reg_request.display_name
 
         logger.info(f"User verified via access_token, name={user_info.name}")
 
         result = await manager.register_user(
-            display_name=request.display_name,
-            skills=request.skills,
-            specialties=request.specialties,
+            display_name=reg_request.display_name,
+            skills=reg_request.skills,
+            specialties=reg_request.specialties,
             secondme_id=user_identifier,  # 使用用户标识符
-            bio=request.bio,
+            bio=reg_request.bio,
         )
 
         # 注册成功后设置 session Cookie
         if result.get("success") and result.get("agent_id"):
             session_id = secrets.token_urlsafe(32)
-            _sessions[session_id] = result["agent_id"]
+            session_store = http_request.app.state.session_store
+            await session_store.set(
+                f"session:{session_id}",
+                result["agent_id"],
+                ttl_seconds=SESSION_MAX_AGE
+            )
             response.set_cookie(
                 key=SESSION_COOKIE_NAME,
                 value=session_id,
@@ -866,7 +855,7 @@ async def refresh_auth_token(request: RefreshTokenRequest):
     - refresh_token: OAuth2 授权时获取的 refresh_token
     """
     try:
-        oauth_client = get_oauth2_client()
+        oauth_client = await get_oauth2_client()
         token_set = await oauth_client.refresh_token(request.refresh_token)
 
         return {
@@ -911,7 +900,8 @@ async def get_current_user(
     if not towow_session:
         raise HTTPException(status_code=401, detail="未登录")
 
-    agent_id = _sessions.get(towow_session)
+    session_store = request.app.state.session_store
+    agent_id = await session_store.get(f"session:{towow_session}")
     if not agent_id:
         raise HTTPException(status_code=401, detail="Session 无效或已过期")
 
@@ -920,7 +910,7 @@ async def get_current_user(
 
     if not agent_info:
         # Session 存在但 Agent 不存在，清理无效 session
-        del _sessions[towow_session]
+        await session_store.delete(f"session:{towow_session}")
         raise HTTPException(status_code=401, detail="用户不存在")
 
     return CurrentUserResponse(
@@ -941,6 +931,7 @@ async def get_current_user(
     description="清除用户 session 并删除 Cookie"
 )
 async def logout(
+    request: Request,
     response: Response,
     towow_session: Optional[str] = Cookie(None, alias=SESSION_COOKIE_NAME),
 ):
@@ -949,9 +940,12 @@ async def logout(
 
     清除服务端 session 并删除客户端 Cookie。
     """
-    if towow_session and towow_session in _sessions:
-        agent_id = _sessions.pop(towow_session)
-        logger.info(f"User logged out: agent_id={agent_id}")
+    if towow_session:
+        session_store = request.app.state.session_store
+        agent_id = await session_store.get(f"session:{towow_session}")
+        if agent_id:
+            await session_store.delete(f"session:{towow_session}")
+            logger.info(f"User logged out: agent_id={agent_id}")
 
     # 删除 Cookie
     response.delete_cookie(
@@ -969,25 +963,20 @@ async def logout(
     summary="获取待注册用户信息",
     description="通过 pending_auth ID 获取 OAuth 回调后待注册用户的信息"
 )
-async def get_pending_auth(pending_id: str):
+async def get_pending_auth(request: Request, pending_id: str):
     """
     获取待注册用户信息
 
     OAuth 回调后，如果用户需要注册，会生成一个 pending_auth ID。
     前端可以用这个 ID 获取用户信息，显示注册表单。
     """
-    pending_session = _pending_auth_sessions.get(pending_id)
-    if not pending_session:
+    session_store = request.app.state.session_store
+    pending_data_str = await session_store.get(f"pending_auth:{pending_id}")
+    if not pending_data_str:
         raise HTTPException(status_code=404, detail="待注册会话不存在或已过期")
 
-    # 检查是否过期
-    if pending_session.get("expires_at") and pending_session["expires_at"] < datetime.now():
-        # 清理过期会话
-        del _pending_auth_sessions[pending_id]
-        logger.info(f"Pending auth session expired: {pending_id[:20]}...")
-        raise HTTPException(status_code=404, detail="待注册会话已过期，请重新登录")
-
-    pending_data = pending_session.get("data", pending_session)  # 兼容旧格式
+    # TTL 由 SessionStore 自动处理，无需手动检查过期
+    pending_data = json.loads(pending_data_str)
 
     return {
         "name": pending_data.get("name"),
@@ -1004,6 +993,7 @@ async def get_pending_auth(pending_id: str):
     description="使用 pending_auth ID 完成用户注册"
 )
 async def complete_pending_registration(
+    request: Request,
     pending_id: str,
     response: Response,
     display_name: str = Query(..., description="显示名称"),
@@ -1016,18 +1006,13 @@ async def complete_pending_registration(
 
     使用 pending_auth ID 和用户填写的技能信息完成注册。
     """
-    pending_session = _pending_auth_sessions.get(pending_id)
-    if not pending_session:
+    session_store = request.app.state.session_store
+    pending_data_str = await session_store.get(f"pending_auth:{pending_id}")
+    if not pending_data_str:
         raise HTTPException(status_code=404, detail="待注册会话不存在或已过期")
 
-    # 检查是否过期
-    if pending_session.get("expires_at") and pending_session["expires_at"] < datetime.now():
-        # 清理过期会话
-        del _pending_auth_sessions[pending_id]
-        logger.info(f"Pending auth session expired during registration: {pending_id[:20]}...")
-        raise HTTPException(status_code=404, detail="待注册会话已过期，请重新登录")
-
-    pending_data = pending_session.get("data", pending_session)  # 兼容旧格式
+    # TTL 由 SessionStore 自动处理，无需手动检查过期
+    pending_data = json.loads(pending_data_str)
     manager = get_agent_manager()
 
     try:
@@ -1046,10 +1031,14 @@ async def complete_pending_registration(
         if result.get("success") and result.get("agent_id"):
             # 注册成功，创建 session
             session_id = secrets.token_urlsafe(32)
-            _sessions[session_id] = result["agent_id"]
+            await session_store.set(
+                f"session:{session_id}",
+                result["agent_id"],
+                ttl_seconds=SESSION_MAX_AGE
+            )
 
             # 清理 pending session
-            del _pending_auth_sessions[pending_id]
+            await session_store.delete(f"pending_auth:{pending_id}")
 
             response.set_cookie(
                 key=SESSION_COOKIE_NAME,
@@ -1071,6 +1060,8 @@ async def complete_pending_registration(
         else:
             raise HTTPException(status_code=500, detail="注册失败")
 
+    except HTTPException:
+        raise
     except Exception as e:
         logger.error(f"Complete pending registration failed: {e}")
         raise HTTPException(status_code=500, detail="注册过程中发生错误")
@@ -1164,8 +1155,9 @@ async def websocket_endpoint(websocket: WebSocket, agent_id: str):
         await websocket.close(code=4001, reason="Unauthorized: no session")
         return
 
-    # 2. 验证 session 是否有效
-    session_agent_id = _sessions.get(session_id)
+    # 2. 验证 session 是否有效（通过 SessionStore）
+    session_store = websocket.app.state.session_store
+    session_agent_id = await session_store.get(f"session:{session_id}")
     if not session_agent_id:
         logger.warning(f"WebSocket connection rejected: invalid session for agent_id={agent_id}")
         await websocket.close(code=4001, reason="Unauthorized: invalid session")

@@ -1,5 +1,7 @@
 # TASK-REDIS-001: 创建 SessionStore 抽象接口
 
+> Beads 任务ID: `towow-lw6`
+
 ## 任务信息
 
 - **任务 ID**: TASK-REDIS-001

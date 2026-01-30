@@ -1,5 +1,7 @@
 # TASK-REDIS-004: 修改 app.py 使用 SessionStore
 
+> Beads 任务ID: `towow-l2y`
+
 ## 任务信息
 
 - **任务 ID**: TASK-REDIS-004

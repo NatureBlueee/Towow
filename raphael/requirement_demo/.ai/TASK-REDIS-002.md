@@ -1,5 +1,7 @@
 # TASK-REDIS-002: 实现 MemorySessionStore
 
+> Beads 任务ID: `towow-8sh`
+
 ## 任务信息
 
 - **任务 ID**: TASK-REDIS-002
