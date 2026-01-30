@@ -59,7 +59,7 @@ export function Header({ progress = 0 }: HeaderProps) {
       <div className={styles.headerLogo}>ToWow</div>
 
       <div className={styles.headerRight}>
-        <Link href="/experience" className={styles.btnOutline}>体验 Demo</Link>
+        <Link href="/experience-v2" className={styles.btnOutline}>体验 Demo</Link>
       </div>
 
       {/* 汉堡菜单按钮 */}
@@ -88,7 +88,7 @@ export function Header({ progress = 0 }: HeaderProps) {
         <Link href="/articles" className={styles.mobileNavLink} onClick={handleLinkClick}>
           文章
         </Link>
-        <Link href="/experience" className={styles.mobileNavLink} onClick={handleLinkClick}>
+        <Link href="/experience-v2" className={styles.mobileNavLink} onClick={handleLinkClick}>
           体验 Demo
         </Link>
       </nav>
