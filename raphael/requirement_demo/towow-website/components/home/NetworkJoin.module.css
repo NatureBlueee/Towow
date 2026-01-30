@@ -4,6 +4,8 @@
   position: relative;
   background: linear-gradient(180deg, var(--c-bg) 0%, #fff 100%);
   padding: var(--spacing-section) 0;
+  /* Scroll offset for anchor links */
+  scroll-margin-top: 100px;
 }
 
 /* Grid Wrapper */

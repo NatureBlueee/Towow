@@ -23,7 +23,7 @@ export function Header({ progress = 0 }: HeaderProps) {
       <div className={styles.headerLogo}>ToWow</div>
 
       <div className={styles.headerRight}>
-        <button type="button" className={styles.btnOutline}>加入网络</button>
+        <Link href="/#join-network" className={styles.btnOutline}>加入网络</Link>
       </div>
 
       <div

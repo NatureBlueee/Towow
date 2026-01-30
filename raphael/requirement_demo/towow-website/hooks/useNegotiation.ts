@@ -39,6 +39,11 @@ export function useNegotiation(): UseNegotiationReturn {
   const [error, setError] = useState<ApiError | null>(null);
   const timeoutRef = useRef<NodeJS.Timeout | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const lastSyncedIndexRef = useRef(0);
+  // Use ref to track negotiation status to avoid callback recreation
+  const negotiationStatusRef = useRef<NegotiationStatus>('idle');
+  // Track synced message IDs to prevent duplicates even after reset
+  const syncedMessageIdsRef = useRef<Set<string>>(new Set());
 
   const agentId = state.user?.agent_id || null;
   const {
@@ -52,6 +57,11 @@ export function useNegotiation(): UseNegotiationReturn {
     reconnect: reconnectWs,
   } = useWebSocket(agentId);
 
+  // Keep negotiationStatusRef in sync with state
+  useEffect(() => {
+    negotiationStatusRef.current = negotiationStatus;
+  }, [negotiationStatus]);
+
   // 清除超时定时器
   const clearNegotiationTimeout = useCallback(() => {
     if (timeoutRef.current) {
@@ -60,20 +70,22 @@ export function useNegotiation(): UseNegotiationReturn {
     }
   }, []);
 
-  // 设置协商超时
+  // 设置协商超时 - use ref to avoid dependency on negotiationStatus
   const startNegotiationTimeout = useCallback(() => {
     clearNegotiationTimeout();
     startTimeRef.current = Date.now();
 
     timeoutRef.current = setTimeout(() => {
-      if (negotiationStatus === 'waiting' || negotiationStatus === 'in_progress') {
+      // Use ref to get current status, avoiding stale closure
+      const currentStatus = negotiationStatusRef.current;
+      if (currentStatus === 'waiting' || currentStatus === 'in_progress') {
         setNegotiationStatus('timeout');
         setError(NegotiationErrors.TIMEOUT);
         dispatch({ type: 'SET_STATE', payload: 'ERROR' });
         dispatch({ type: 'SET_ERROR', payload: new Error(NegotiationErrors.TIMEOUT.message) });
       }
     }, NEGOTIATION_TIMEOUT);
-  }, [clearNegotiationTimeout, negotiationStatus, dispatch]);
+  }, [clearNegotiationTimeout, dispatch]);
 
   // Subscribe to channel when requirement is created
   useEffect(() => {
@@ -87,6 +99,15 @@ export function useNegotiation(): UseNegotiationReturn {
   }, [state.currentRequirement?.channel_id, isConnected, subscribe, unsubscribe]);
 
   // Monitor messages for status changes
+  // Use refs for callbacks to avoid unnecessary re-runs
+  const startNegotiationTimeoutRef = useRef(startNegotiationTimeout);
+  const clearNegotiationTimeoutRef = useRef(clearNegotiationTimeout);
+
+  useEffect(() => {
+    startNegotiationTimeoutRef.current = startNegotiationTimeout;
+    clearNegotiationTimeoutRef.current = clearNegotiationTimeout;
+  }, [startNegotiationTimeout, clearNegotiationTimeout]);
+
   useEffect(() => {
     if (messages.length > 0) {
       const lastMessage = messages[messages.length - 1];
@@ -97,14 +118,14 @@ export function useNegotiation(): UseNegotiationReturn {
         if (content.includes('started') || content.includes('begin') || content.includes('协商开始')) {
           setNegotiationStatus('in_progress');
           // 重置超时计时器
-          startNegotiationTimeout();
+          startNegotiationTimeoutRef.current();
         } else if (content.includes('completed') || content.includes('finished') || content.includes('协商完成') || content.includes('✅')) {
           setNegotiationStatus('completed');
-          clearNegotiationTimeout();
+          clearNegotiationTimeoutRef.current();
           dispatch({ type: 'SET_STATE', payload: 'COMPLETED' });
         } else if (content.includes('failed') || content.includes('error') || content.includes('失败') || content.includes('错误')) {
           setNegotiationStatus('failed');
-          clearNegotiationTimeout();
+          clearNegotiationTimeoutRef.current();
           setError({
             code: 'NEGOTIATION_FAILED',
             message: lastMessage.content || '协商失败',
@@ -112,7 +133,7 @@ export function useNegotiation(): UseNegotiationReturn {
         }
       }
     }
-  }, [messages, dispatch, startNegotiationTimeout, clearNegotiationTimeout]);
+  }, [messages, dispatch]);
 
   // Fetch result when negotiation completes
   useEffect(() => {
@@ -174,6 +195,8 @@ export function useNegotiation(): UseNegotiationReturn {
     setError(null);
     setIsLoading(false);
     startTimeRef.current = null;
+    lastSyncedIndexRef.current = 0;  // Reset sync index when clearing messages
+    syncedMessageIdsRef.current.clear();  // Clear synced message IDs
     clearMessages();
     dispatch({ type: 'SET_REQUIREMENT', payload: null });
     dispatch({ type: 'CLEAR_MESSAGES' });
@@ -181,11 +204,18 @@ export function useNegotiation(): UseNegotiationReturn {
     dispatch({ type: 'SET_ERROR', payload: null });
   }, [clearMessages, dispatch, clearNegotiationTimeout]);
 
-  // Sync messages to context
+  // Sync messages to context - only add new messages
   useEffect(() => {
-    messages.forEach((msg) => {
-      dispatch({ type: 'ADD_MESSAGE', payload: msg });
+    // Only sync messages that haven't been synced yet
+    const newMessages = messages.slice(lastSyncedIndexRef.current);
+    newMessages.forEach((msg) => {
+      // Double-check: skip if already synced (handles edge cases)
+      if (!syncedMessageIdsRef.current.has(msg.message_id)) {
+        syncedMessageIdsRef.current.add(msg.message_id);
+        dispatch({ type: 'ADD_MESSAGE', payload: msg });
+      }
     });
+    lastSyncedIndexRef.current = messages.length;
   }, [messages, dispatch]);
 
   return {

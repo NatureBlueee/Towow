@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=1920, initial-scale=1.0">
+    <title>ToWow Content Detail</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css" rel="stylesheet">
+    <style>
+        /* Font Faces */
+        @font-face {
+            font-family: 'NotoSerifCJKsc-Bold';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/NotoSerifCJKsc-Bold.otf');
+        }
+        @font-face {
+            font-family: 'MiSans-Regular';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/MiSans-Regular.ttf');
+        }
+        @font-face {
+            font-family: 'MiSans-Medium';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/MiSans-Medium.ttf');
+        }
+        @font-face {
+            font-family: 'MiSans-Bold';
+            src: url('https://assets-persist.lovart.ai/agent-static-assets/MiSans-Bold.ttf');
+        }
+
+        /* Global Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 1920px;
+            background-color: #F2F4F6; /* Fog Gray */
+            font-family: 'MiSans-Regular', sans-serif;
+            color: #1F2937;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Geometric Shapes & Backgrounds */
+        .bg-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.03;
+            background-image: url('https://a.lovart.ai/artifacts/agent/1vbMlXkbjNcYRJCe.jpg');
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        /* Hero Section */
+        .hero-section {
+            position: relative;
+            height: 720px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            background: linear-gradient(180deg, #F9FAFB 0%, #F2F4F6 100%);
+        }
+
+        .hero-decor-circle {
+            position: absolute;
+            bottom: -150px;
+            left: 100px;
+            width: 500px;
+            height: 500px;
+            background-color: #FCD34D; /* Apricot Yellow */
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.6;
+            z-index: 1;
+        }
+
+        .hero-decor-square {
+            position: absolute;
+            top: -100px;
+            right: 150px;
+            width: 400px;
+            height: 400px;
+            background-color: #BEF264; /* Lime Green */
+            transform: rotate(15deg);
+            filter: blur(60px);
+            opacity: 0.5;
+            z-index: 1;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            text-align: center;
+            max-width: 1200px;
+        }
+
+        .hero-meta {
+            font-family: 'MiSans-Medium';
+            font-size: 18px;
+            color: #6B7280;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .hero-meta span {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .hero-title {
+            font-family: 'NotoSerifCJKsc-Bold';
+            font-size: 80px;
+            line-height: 1.1;
+            color: #111827;
+            margin-bottom: 24px;
+            letter-spacing: -1px;
+        }
+
+        .hero-subtitle {
+            font-family: 'MiSans-Regular';
+            font-size: 32px;
+            color: #4B5563;
+            font-weight: 400;
+        }
+
+        /* Main Content Area */
+        .content-container {
+            display: flex;
+            justify-content: center;
+            padding: 80px 0;
+            position: relative;
+            z-index: 2;
+            max-width: 1400px;
+            margin: 0 auto;
+            gap: 80px;
+        }
+
+        /* Floating TOC */
+        .toc-sidebar {
+            width: 280px;
+            flex-shrink: 0;
+        }
+
+        .toc-sticky {
+            position: sticky;
+            top: 100px;
+        }
+
+        .toc-title {
+            font-family: 'MiSans-Bold';
+            font-size: 14px;
+            color: #9CA3AF;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 20px;
+            padding-left: 16px;
+        }
+
+        .toc-list {
+            list-style: none;
+            border-left: 2px solid #E5E7EB;
+        }
+
+        .toc-item {
+            margin-bottom: 0;
+        }
+
+        .toc-link {
+            display: block;
+            padding: 12px 16px;
+            font-family: 'MiSans-Medium';
+            font-size: 16px;
+            color: #6B7280;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            border-left: 2px solid transparent;
+            margin-left: -2px;
+        }
+
+        .toc-link:hover, .toc-link.active {
+            color: #111827;
+            border-left-color: #FCD34D;
+            background: linear-gradient(90deg, rgba(252, 211, 77, 0.1) 0%, transparent 100%);
+        }
+
+        /* Article Body */
+        .article-body {
+            width: 800px;
+            font-size: 20px;
+            line-height: 1.8;
+            color: #374151;
+        }
+
+        .article-body h1 {
+            display: none; /* Hiding H1 as it is in Hero */
+        }
+
+        .article-body h2 {
+            font-family: 'NotoSerifCJKsc-Bold';
+            font-size: 36px;
+            color: #111827;
+            margin-top: 60px;
+            margin-bottom: 30px;
+            position: relative;
+            padding-left: 0;
+        }
+        
+        .article-body h2::before {
+             /* Abstract geometric accent for H2 */
+             content: '';
+             position: absolute;
+             left: -24px;
+             top: 8px;
+             width: 8px;
+             height: 8px;
+             border-radius: 50%;
+             background-color: #BEF264;
+        }
+
+        .article-body p {
+            margin-bottom: 28px;
+            text-align: justify;
+        }
+
+        .article-body strong {
+            font-family: 'MiSans-Bold';
+            color: #000;
+            background: linear-gradient(120deg, transparent 50%, rgba(252, 211, 77, 0.5) 50%);
+            padding: 0 4px;
+        }
+        
+        .article-divider {
+            width: 100px;
+            height: 4px;
+            background-color: #E5E7EB;
+            margin: 60px auto;
+            border-radius: 2px;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            margin-top: 100px;
+            background: #FFFFFF;
+            border-radius: 32px;
+            padding: 80px;
+            text-align: center;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+            position: relative;
+            overflow: hidden;
+            border: 1px solid #E5E7EB;
+        }
+        
+        .cta-bg-shape-1 {
+            position: absolute;
+            top: -50px;
+            left: -50px;
+            width: 200px;
+            height: 200px;
+            background: #FCD34D;
+            border-radius: 50%;
+            opacity: 0.1;
+        }
+        
+        .cta-bg-shape-2 {
+            position: absolute;
+            bottom: -50px;
+            right: -50px;
+            width: 300px;
+            height: 300px;
+            background: #BEF264;
+            transform: rotate(45deg);
+            opacity: 0.1;
+        }
+
+        .cta-title {
+            font-family: 'NotoSerifCJKsc-Bold';
+            font-size: 48px;
+            color: #111827;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-desc {
+            font-size: 22px;
+            color: #6B7280;
+            margin-bottom: 40px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            padding: 16px 40px;
+            font-size: 18px;
+            font-family: 'MiSans-Bold';
+            border-radius: 50px;
+            cursor: pointer;
+            transition: transform 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .btn-primary {
+            background-color: #111827;
+            color: #FFFFFF;
+        }
+
+        .btn-secondary {
+            background-color: #F3F4F6;
+            color: #111827;
+            border: 1px solid #E5E7EB;
+        }
+
+        /* Related Reading */
+        .related-section {
+            margin-top: 100px;
+            padding-top: 60px;
+            border-top: 1px solid #E5E7EB;
+        }
+
+        .related-title {
+            font-family: 'MiSans-Bold';
+            font-size: 24px;
+            margin-bottom: 40px;
+            color: #111827;
+        }
+
+        .related-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+        }
+
+        .related-card {
+            background: #FFFFFF;
+            padding: 30px;
+            border-radius: 16px;
+            border: 1px solid #E5E7EB;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .related-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+            border-color: #FCD34D;
+        }
+
+        .related-card-title {
+            font-family: 'NotoSerifCJKsc-Bold';
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #111827;
+        }
+        
+        .related-card-meta {
+            font-size: 14px;
+            color: #9CA3AF;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Footer */
+        .footer {
+            margin-top: 120px;
+            background-color: #fff;
+            padding: 80px 0;
+            text-align: center;
+            border-top: 1px solid #E5E7EB;
+        }
+        
+        .footer-logo {
+            font-family: 'NotoSerifCJKsc-Bold';
+            font-size: 24px;
+            color: #111827;
+            margin-bottom: 10px;
+        }
+        
+        .footer-copy {
+            color: #9CA3AF;
+            font-size: 14px;
+        }
+
+        /* Custom selection color */
+        ::selection {
+            background: #FCD34D;
+            color: #000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Hero Section -->
+    <header class="hero-section">
+        <div class="bg-pattern"></div>
+        <div class="hero-decor-circle"></div>
+        <div class="hero-decor-square"></div>
+        
+        <div class="hero-content">
+            <div class="hero-meta">
+                <span><i class="ri-time-line"></i> 阅读时长 11分钟</span>
+                <span>·</span>
+                <span>2026年1月</span>
+            </div>
+            <h1 class="hero-title">微小的光也能照亮角落</h1>
+            <p class="hero-subtitle">为什么个体才是网络的主角</p>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <div class="content-container">
+        <!-- Floating TOC -->
+        <aside class="toc-sidebar">
+            <div class="toc-sticky">
+                <div class="toc-title">目录</div>
+                <ul class="toc-list">
+                    <li><a href="#" class="toc-link active">互联网的叙事</a></li>
+                    <li><a href="#" class="toc-link">真正的建造者</a></li>
+                    <li><a href="#" class="toc-link">平台的幻觉</a></li>
+                    <li><a href="#" class="toc-link">长尾的价值</a></li>
+                    <li><a href="#" class="toc-link">注意力的埋没</a></li>
+                    <li><a href="#" class="toc-link">Agent的发现</a></li>
+                    <li><a href="#" class="toc-link">三五个人的工具</a></li>
+                    <li><a href="#" class="toc-link">角落的光明</a></li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- Article Content -->
+        <article class="article-body">
+            
+            <h2>互联网的叙事</h2>
+            <p>互联网的叙事里，赢家是平台，个体是流量。</p>
+            <p>Google、Facebook、Amazon、阿里、腾讯——这些是互联网的主角。它们占据了市值榜单的前列，它们的故事被反复讲述。</p>
+            <p>个体呢？个体是用户，是流量，是数据。个体创造内容，但平台拥有流量。个体提供服务,但平台收取佣金。</p>
+            <p>这个叙事很有说服力。毕竟，平台确实很大，确实很成功。</p>
+            <p>但这个叙事忽略了一个根本性的问题：<strong>互联网真正的建造者是谁？</strong></p>
+
+            <h2>真正的建造者</h2>
+            <p>互联网不是几个大公司建造的。</p>
+            <p>互联网是无数的个人、小团队、创作者，每个人贡献一点内容、一个网站、一个服务，汇聚起来形成的。</p>
+            <p>早期的互联网是什么样的？是个人主页、博客、论坛、开源项目。每个人都在建造自己的小角落，分享自己的想法、工具、创作。</p>
+            <p>这些小角落汇聚起来，形成了互联网。</p>
+            <p>Google是在这张网上长出来的，不是这张网的建造者。Facebook是在这张网上长出来的，不是这张网的建造者。</p>
+            <p><strong>大公司是在这张网上长出来的，不是这张网的建造者</strong>。</p>
+
+            <h2>平台的幻觉</h2>
+            <p>平台创造了一个幻觉：只有大的才有价值。</p>
+            <p>只有百万粉丝的博主才有价值，只有独角兽公司才有价值，只有头部内容才有价值。</p>
+            <p>这个幻觉来自注意力经济的逻辑。在注意力经济里，流量是稀缺的，所以只有能抓住大量流量的东西才有价值。</p>
+            <p>但这不是真相。</p>
+            <p>真相是：<strong>价值是分布式的，不是集中式的</strong>。</p>
+            <p>一个服务三五个人的工具，一个帮到十几个人的方法论，一个只有几百个读者的博客——它们都在创造价值。</p>
+            <p>只是在注意力经济里，这些价值被埋没了。</p>
+
+            <h2>长尾的价值</h2>
+            <p>Chris Anderson在《长尾理论》里提出了一个洞察：</p>
+            <p>在物理世界里，货架空间是有限的。所以商店只能摆放畅销品，长尾商品没有空间。</p>
+            <p>在数字世界里，货架空间是无限的。所以长尾商品也可以被摆放出来。Amazon的大部分销售额来自长尾商品。</p>
+            <p>但长尾理论有一个前提：<strong>长尾商品需要被发现</strong>。</p>
+            <p>在注意力经济里，长尾商品很难被发现。因为人的认知带宽有限，人只能看到头部内容。</p>
+            <p>在价值经济里，长尾商品会被发现。因为Agent没有认知带宽的限制，Agent可以发现所有有价值的东西。</p>
+            <p><strong>长尾的价值，终于可以被释放了</strong>。</p>
+
+            <h2>注意力的埋没</h2>
+            <p>在注意力经济里，无数有价值的东西被埋没了。</p>
+            <p>一个独立开发者做了一个小工具，解决了一个特定场景的问题。但他没有营销预算，没有流量渠道，所以没人知道。</p>
+            <p>一个研究者写了一篇深度文章，提出了一个新的视角。但他没有粉丝基础，没有平台推荐，所以没人看到。</p>
+            <p>一个小团队提供了一个专业服务，质量很高但规模很小。但他们没有品牌知名度，没有广告投放，所以没人找到。</p>
+            <p>这些价值存在，但被埋没了。不是因为它们不好，而是因为它们没有被看到。</p>
+            <p><strong>在注意力经济里，看不到就等于不存在</strong>。</p>
+
+            <h2>Agent的发现</h2>
+            <p>在价值经济里，这个逻辑被打破了。</p>
+            <p>Agent不需要被"吸引注意力"。Agent追求的是"发现真正的价值"。</p>
+            <p>一个小工具，服务三五个人，但真的解决了问题。Agent会找到它。</p>
+            <p>一篇深度文章，只有几百个读者，但提供了独特的洞察。Agent会找到它。</p>
+            <p>一个专业服务，规模很小，但质量很高。Agent会找到它。</p>
+            <p><strong>因为Agent不在乎你有没有营销预算，它只在乎你能不能解决问题</strong>。</p>
+
+            <h2>三五个人的工具</h2>
+            <p>想象一下：</p>
+            <p>你做了一个工具，解决了一个非常特定的问题。这个问题只有三五个人会遇到。</p>
+            <p>在注意力经济里，这个工具没有价值。因为市场太小，营销成本太高，不值得投入。</p>
+            <p>但在价值经济里，这个工具有价值。</p>
+            <p>那三五个人的Agent会找到你。它们会评估你的工具，验证它的能力，如果确实解决了问题，就会使用它。</p>
+            <p>你不需要营销，不需要投流，不需要建立品牌。你只需要把工具做好，让Agent可以发现和验证。</p>
+            <p><strong>微小的光也能照亮角落</strong>。</p>
+
+            <h2>角落的光明</h2>
+            <p>Agent网络也是一样。</p>
+            <p>它不是靠几个大节点建立起来的。每一个独立开发者、每一个小工具、每一个有独特技能的人——他们才是这张网的真正建造者。</p>
+            <p>一个工具服务三五个人，一个方法论帮到十几个人，这些价值在注意力经济里被埋没，但在价值经济里会被发现。</p>
+            <p>当每个角落都被照亮时，世界就是光明的。</p>
+            <p>不是因为有一个巨大的光源照亮了一切，而是因为每个角落都有自己的光。</p>
+            <p><strong>这些微小的光，汇聚起来，就是整个网络的光明</strong>。</p>
+            
+            <div class="article-divider"></div>
+            
+            <p style="font-style: italic; color: #6B7280; font-family: 'NotoSerifCJKsc-Bold'; font-size: 22px; text-align: center;">ToWow不是为大公司设计的，是为个体设计的。</p>
+            <p style="text-align: center;">因为个体才是网络的真正建造者。微小的光也能照亮角落，当每个角落都被照亮时，世界就是光明的。</p>
+
+            <!-- CTA Module -->
+            <div class="cta-section">
+                <div class="cta-bg-shape-1"></div>
+                <div class="cta-bg-shape-2"></div>
+                <h3 class="cta-title">你的光也能照亮角落</h3>
+                <p class="cta-desc">无论你是谁，都可以在ToWow网络中发光</p>
+                <div class="cta-buttons">
+                    <a href="#" class="btn btn-primary">开始建造 <i class="ri-hammer-line" style="margin-left: 8px;"></i></a>
+                    <a href="#" class="btn btn-secondary">分享你的工具 <i class="ri-share-forward-line" style="margin-left: 8px;"></i></a>
+                </div>
+            </div>
+
+            <!-- Related Reading -->
+            <div class="related-section">
+                <div class="related-title">延伸阅读</div>
+                <div class="related-grid">
+                    <div class="related-card">
+                        <div class="related-card-title">从注意力到价值</div>
+                        <div class="related-card-meta"><i class="ri-article-line"></i> 深度观点</div>
+                    </div>
+                    <div class="related-card">
+                        <div class="related-card-title">协商创造 vs 搜索匹配</div>
+                        <div class="related-card-meta"><i class="ri-article-line"></i> 机制探索</div>
+                    </div>
+                    <div class="related-card">
+                        <div class="related-card-title">端侧Agent的爆发</div>
+                        <div class="related-card-meta"><i class="ri-article-line"></i> 趋势前瞻</div>
+                    </div>
+                </div>
+            </div>
+
+        </article>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-logo">ToWow</div>
+        <div class="footer-copy">© 2026 ToWow Network. All rights reserved.</div>
+    </footer>
+
+</body>
+</html>

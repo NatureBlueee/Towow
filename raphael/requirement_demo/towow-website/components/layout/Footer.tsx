@@ -12,7 +12,8 @@ export function Footer({ variant = 'home' }: FooterProps) {
         <div className={styles.footerShape} />
         <div className={styles.footerLinks}>
           <Link href="/">返回首页</Link>
-          <Link href="/experience">体验 Demo</Link>
+          {/* Demo 功能维护中，暂时隐藏入口 */}
+          {/* <Link href="/experience">体验 Demo</Link> */}
           <a href="https://twitter.com" target="_blank" rel="noopener noreferrer">
             Twitter
           </a>
@@ -62,10 +63,11 @@ export function Footer({ variant = 'home' }: FooterProps) {
                 <i className="ri-github-line" />
               </a>
             </div>
-            <Link href="/experience" className={styles.demoLink}>
+            {/* Demo 功能维护中，暂时隐藏入口 */}
+            {/* <Link href="/experience" className={styles.demoLink}>
               <i className="ri-play-circle-line" />
               体验 Demo
-            </Link>
+            </Link> */}
           </div>
         </div>
 

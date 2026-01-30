@@ -41,6 +41,10 @@ function reducer(state: ExperienceContextState, action: Action): ExperienceConte
     case 'SET_REQUIREMENT':
       return { ...state, currentRequirement: action.payload };
     case 'ADD_MESSAGE':
+      // Deduplicate: only add if message_id doesn't exist
+      if (state.messages.some(m => m.message_id === action.payload.message_id)) {
+        return state;
+      }
       return { ...state, messages: [...state.messages, action.payload] };
     case 'CLEAR_MESSAGES':
       return { ...state, messages: [] };
