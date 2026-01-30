@@ -341,18 +341,20 @@ export function ExperiencePageClient() {
   const showUserHeader = state.user && !['INIT', 'LOGIN', 'REGISTERING', 'ERROR'].includes(state.state);
 
   return (
-    <div className={styles.container}>
-      {/* 右上角用户信息 */}
-      {showUserHeader && (
-        <UserHeader user={state.user} onLogout={logout} />
-      )}
+    <div className={styles.pageWrapper}>
+      <div className={styles.container}>
+        {/* 右上角用户信息 */}
+        {showUserHeader && (
+          <UserHeader user={state.user} onLogout={logout} />
+        )}
 
-      <header className={styles.header}>
-        <h1>ToWow Experience</h1>
-        <p>体验 AI Agent 协作网络</p>
-      </header>
+        <header className={styles.header}>
+          <h1>ToWow Experience</h1>
+          <p>体验 AI Agent 协作网络</p>
+        </header>
 
-      <section className={styles.content}>{renderContent()}</section>
+        <section className={styles.content}>{renderContent()}</section>
+      </div>
     </div>
   );
 }

@@ -1,3 +1,21 @@
+/* 固定背景层 - 覆盖全局滚动渐变 */
+.pageWrapper {
+  position: relative;
+  min-height: 100vh;
+}
+
+.pageWrapper::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #F8F6F3 0%, #FFF9F5 50%, #F8F6F3 100%);
+  z-index: -2;
+  pointer-events: none;
+}
+
 .container {
   display: flex;
   flex-direction: column;
@@ -333,10 +351,7 @@
   align-items: center;
   justify-content: center;
   padding: var(--spacing-xl);
-  /* Fixed background to prevent gradient flashing on short pages */
-  background: linear-gradient(180deg, #F8F6F3 0%, #FFF9F5 50%, #F8F6F3 100%);
   position: relative;
-  z-index: 1;
 }
 
 .maintenanceContent {
