@@ -12,37 +12,93 @@ import { ErrorPanel } from '@/components/experience/ErrorPanel';
 import { LoadingScreen } from '@/components/experience/LoadingScreen';
 import { ContentCard } from '@/components/ui/ContentCard';
 import { Button } from '@/components/ui/Button';
+import { User } from '@/types/experience';
 import styles from './page.module.css';
 
-// UserInfo component
-interface UserInfoProps {
-  user: {
-    display_name: string;
-    avatar_url?: string;
-    bio?: string;
-  } | null;
+// UserHeader component - 右上角用户信息
+interface UserHeaderProps {
+  user: User | null;
   onLogout: () => void;
 }
 
-function UserInfo({ user, onLogout }: UserInfoProps) {
+function UserHeader({ user, onLogout }: UserHeaderProps) {
+  const [isProfileOpen, setIsProfileOpen] = useState(false);
+
   if (!user) return null;
 
   return (
-    <div className={styles.userInfo}>
-      <div className={styles.userAvatar}>
-        {user.avatar_url ? (
-          <img src={user.avatar_url} alt={user.display_name} />
-        ) : (
-          <span>{user.display_name.charAt(0).toUpperCase()}</span>
-        )}
-      </div>
-      <div className={styles.userDetails}>
+    <div className={styles.userHeader}>
+      <div className={styles.userHeaderMain}>
+        <div className={styles.userAvatar}>
+          {user.avatar_url ? (
+            <img src={user.avatar_url} alt={user.display_name} />
+          ) : (
+            <span>{user.display_name.charAt(0).toUpperCase()}</span>
+          )}
+        </div>
         <span className={styles.userName}>{user.display_name}</span>
-        {user.bio && <span className={styles.userBio}>{user.bio}</span>}
+        <button
+          className={styles.profileToggle}
+          onClick={() => setIsProfileOpen(!isProfileOpen)}
+          aria-expanded={isProfileOpen}
+          aria-label={isProfileOpen ? '收起资料' : '展开资料'}
+        >
+          <svg
+            width="16"
+            height="16"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="2"
+            className={isProfileOpen ? styles.rotated : ''}
+          >
+            <polyline points="6 9 12 15 18 9" />
+          </svg>
+        </button>
+        <button className={styles.logoutButton} onClick={onLogout}>
+          登出
+        </button>
       </div>
-      <button className={styles.logoutButton} onClick={onLogout}>
-        Logout
-      </button>
+
+      {/* Profile Card - 可折叠 */}
+      {isProfileOpen && (
+        <div className={styles.profileCard}>
+          <div className={styles.profileSection}>
+            <h4 className={styles.profileSectionTitle}>基本信息</h4>
+            <div className={styles.profileInfo}>
+              {user.bio && (
+                <p className={styles.profileBio}>{user.bio}</p>
+              )}
+              <div className={styles.profileMeta}>
+                <span className={styles.profileLabel}>SecondMe ID</span>
+                <span className={styles.profileValue}>{user.secondme_id || '未绑定'}</span>
+              </div>
+            </div>
+          </div>
+
+          {user.skills && user.skills.length > 0 && (
+            <div className={styles.profileSection}>
+              <h4 className={styles.profileSectionTitle}>技能</h4>
+              <div className={styles.tagList}>
+                {user.skills.map((skill, index) => (
+                  <span key={index} className={styles.skillTag}>{skill}</span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {user.specialties && user.specialties.length > 0 && (
+            <div className={styles.profileSection}>
+              <h4 className={styles.profileSectionTitle}>专长领域</h4>
+              <div className={styles.tagList}>
+                {user.specialties.map((specialty, index) => (
+                  <span key={index} className={styles.specialtyTag}>{specialty}</span>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 }
@@ -226,20 +282,16 @@ export function ExperiencePageClient() {
     // Ready state - show requirement form
     if (state.state === 'READY') {
       return (
-        <div className={styles.readyContainer}>
-          <UserInfo user={state.user} onLogout={logout} />
-          <ContentCard className={styles.formCard}>
-            <h2 className={styles.formTitle}>Submit Your Requirement</h2>
-            <p className={styles.formDescription}>
-              Describe what you need, and our AI agents will negotiate the best
-              solution.
-            </p>
-            <RequirementForm
-              onSubmit={handleSubmit}
-              isSubmitting={negotiationLoading}
-            />
-          </ContentCard>
-        </div>
+        <ContentCard className={styles.formCard}>
+          <h2 className={styles.formTitle}>提交你的需求</h2>
+          <p className={styles.formDescription}>
+            描述你的需求，AI Agent 们将协商出最佳方案。
+          </p>
+          <RequirementForm
+            onSubmit={handleSubmit}
+            isSubmitting={negotiationLoading}
+          />
+        </ContentCard>
       );
     }
 
@@ -251,22 +303,19 @@ export function ExperiencePageClient() {
     // Negotiating state
     if (state.state === 'NEGOTIATING') {
       return (
-        <div className={styles.negotiatingContainer}>
-          <UserInfo user={state.user} onLogout={logout} />
-          <div className={styles.negotiationContent}>
-            <div className={styles.requirementSummary}>
-              <h3>Your Requirement</h3>
-              <p>{currentRequirement?.requirement_text}</p>
-            </div>
-            <NegotiationTimeline
-              messages={messages}
-              status={
-                negotiationStatus === 'in_progress' ? 'in_progress' : 'waiting'
-              }
-              isLoading={negotiationStatus === 'waiting'}
-              currentUserId={state.user?.agent_id}
-            />
+        <div className={styles.negotiationContent}>
+          <div className={styles.requirementSummary}>
+            <h3>你的需求</h3>
+            <p>{currentRequirement?.requirement_text}</p>
           </div>
+          <NegotiationTimeline
+            messages={messages}
+            status={
+              negotiationStatus === 'in_progress' ? 'in_progress' : 'waiting'
+            }
+            isLoading={negotiationStatus === 'waiting'}
+            currentUserId={state.user?.agent_id}
+          />
         </div>
       );
     }
@@ -288,11 +337,19 @@ export function ExperiencePageClient() {
     return <LoadingScreen message="Loading..." />;
   };
 
+  // 判断是否显示用户头部（登录后的状态）
+  const showUserHeader = state.user && !['INIT', 'LOGIN', 'REGISTERING', 'ERROR'].includes(state.state);
+
   return (
     <div className={styles.container}>
+      {/* 右上角用户信息 */}
+      {showUserHeader && (
+        <UserHeader user={state.user} onLogout={logout} />
+      )}
+
       <header className={styles.header}>
         <h1>ToWow Experience</h1>
-        <p>Experience AI Agent Collaboration Network</p>
+        <p>体验 AI Agent 协作网络</p>
       </header>
 
       <section className={styles.content}>{renderContent()}</section>
