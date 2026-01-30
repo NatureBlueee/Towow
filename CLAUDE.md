@@ -166,3 +166,38 @@ bd update <id> --status in_progress  # Claim work
 bd close <id>         # Complete work
 bd sync               # Sync with git
 ```
+
+## Recent Updates (2026-01-30)
+
+### Redis Session 存储
+实现了分布式 Session 存储架构，支持 Redis 和内存两种后端：
+- `session_store.py` - 抽象接口和工厂函数
+- `session_store_memory.py` - 内存存储（带 TTL 自动清理）
+- `session_store_redis.py` - Redis 存储（连接池、健康检查）
+- 自动降级：优先 Redis，失败时降级到内存
+
+### 演示场景设计
+演示场景配置文件：`raphael/requirement_demo/web/demo_scenario.json`
+
+当前场景：**找技术合伙人**
+- 展示 ToWow 核心价值：协商创造、认知转变、意外发现
+- 7 个 Agent：程序员Alex、程序员小林、外包工作室、Cursor、产品教练老王、Notion模板作者、Bubble
+- 6 个阶段：需求发现 → 初始响应 → 协商讨论 → 深入协商 → 达成共识 → 方案生成
+- 认知转变：用户以为需要"技术合伙人"，发现真正需要的是"快速验证需求的能力"
+
+### WebSocket 跨域修复
+本地开发环境（前端 3000，后端 8080）的 WebSocket 跨域问题：
+- 后端添加 `/ws/demo/{agent_id}` 端点，不需要认证
+- 前端自动检测跨域环境，使用演示模式连接
+- 相关文件：
+  - `web/app.py` - 新增 demo WebSocket 端点
+  - `hooks/useWebSocket.ts` - 支持 demoMode 参数
+  - `hooks/useNegotiation.ts` - 自动检测跨域并启用演示模式
+
+### Experience 页面 UI 优化
+- 用户信息移至右上角（固定位置）
+- 可折叠 Profile 卡片显示 SecondMe 数据（技能、专长）
+- 响应式设计适配移动端
+- 相关文件：
+  - `app/experience/ExperiencePageClient.tsx`
+  - `app/experience/page.module.css`
