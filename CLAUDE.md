@@ -26,6 +26,18 @@ Towow/
 │       ├── features/      # Feature modules (demand, negotiation, dashboard)
 │       ├── stores/        # Zustand state management (demandStore, eventStore)
 │       └── api/           # API client functions
+├── raphael/requirement_demo/  # Demo project with website
+│   ├── towow-website/     # Next.js 16 website (deployed to Vercel)
+│   │   ├── app/           # App Router pages
+│   │   ├── components/    # React components
+│   │   ├── hooks/         # Custom hooks (useAuth, useNegotiation, useWebSocket)
+│   │   └── lib/           # Utilities and API clients
+│   ├── web/               # FastAPI backend for demo
+│   │   ├── app.py         # Main application
+│   │   ├── agent_manager.py  # Agent lifecycle management
+│   │   ├── bridge_agent.py   # OpenAgents network bridge
+│   │   └── websocket_manager.py  # WebSocket connections
+│   └── scripts/           # Startup scripts
 └── docs/                  # Design documents and technical specs
 ```
 
@@ -52,6 +64,24 @@ mypy .                              # Type checking
 # Database
 alembic upgrade head                # Run migrations
 alembic current                     # Check migration status
+```
+
+### Demo Website (raphael/requirement_demo/)
+```bash
+cd raphael/requirement_demo
+
+# Start backend (port 8080)
+source venv/bin/activate
+uvicorn web.app:app --reload --port 8080
+
+# Start frontend (port 3000)
+cd towow-website
+npm install
+npm run dev
+
+# Or use the startup script
+./scripts/start_demo.sh        # Real agents mode
+./scripts/start_demo.sh --sim  # Simulation mode
 ```
 
 ### Frontend (towow-frontend/)
@@ -110,6 +140,21 @@ Key environment variables in `towow/.env`:
 - `DATABASE_URL` - PostgreSQL connection
 - `TOWOW_MAX_NEGOTIATION_ROUNDS` - Max rounds before forcing decision (default: 3)
 - `TOWOW_ENABLE_STAGE_DELAYS` - Enable realistic UX delays (default: true)
+
+Key environment variables in `raphael/requirement_demo/web/.env`:
+- `SECONDME_CLIENT_ID` - SecondMe OAuth2 client ID
+- `SECONDME_CLIENT_SECRET` - SecondMe OAuth2 client secret
+- `SECONDME_REDIRECT_URI` - OAuth2 callback URL
+- `COOKIE_SECURE` - Set to `true` in production for HTTPS-only cookies
+- `USE_REAL_AGENTS` - Set to `true` to use real OpenAgents network
+- `OPENAGENTS_WORKERS_PASSWORD_HASH` - Password hash for OpenAgents workers
+
+## Demo Website Deployment
+
+- **Production URL**: https://towow-website.vercel.app
+- **Vercel Dashboard**: https://vercel.com/natureblueees-projects/towow-website
+
+For China CDN configuration, see `raphael/requirement_demo/towow-website/CDN_CHINA_ACCESS_GUIDE.md`
 
 ## Issue Tracking
 
