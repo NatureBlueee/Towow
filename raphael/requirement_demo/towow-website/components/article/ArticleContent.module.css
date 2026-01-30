@@ -122,3 +122,66 @@
     margin: 60px 0;
   }
 }
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .article {
+    padding-top: 24px;
+  }
+
+  .heading {
+    font-size: 22px;
+    margin-top: 48px;
+    margin-bottom: 20px;
+    padding-left: 24px;
+  }
+
+  .heading::before {
+    left: 0;
+    width: 10px;
+    height: 10px;
+  }
+
+  .content p {
+    font-size: 15px;
+    line-height: 1.75;
+    margin-bottom: 20px;
+  }
+
+  .firstSection p:first-of-type::first-letter {
+    font-size: 40px;
+    padding: 8px 16px 8px 0;
+  }
+
+  .divider {
+    margin: 48px 0;
+  }
+
+  .dividerShape {
+    width: 10px;
+    height: 10px;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .heading {
+    font-size: 20px;
+    margin-top: 40px;
+    margin-bottom: 16px;
+  }
+
+  .content p {
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+
+  .firstSection p:first-of-type::first-letter {
+    font-size: 36px;
+  }
+
+  .divider {
+    margin: 40px 0;
+  }
+}

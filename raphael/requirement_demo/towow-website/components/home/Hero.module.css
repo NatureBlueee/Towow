@@ -98,3 +98,105 @@
     opacity: 0.6;
   }
 }
+
+/* === 响应式 - 平板 === */
+@media (max-width: 768px) {
+  .hero {
+    min-height: 100vh;
+    padding: 80px var(--spacing-md) var(--spacing-xl);
+  }
+
+  .heroContent {
+    max-width: 100%;
+    padding: 0 var(--spacing-sm);
+  }
+
+  .heroTitle {
+    font-size: 42px;
+    line-height: 1.25;
+  }
+
+  .heroSubtitle {
+    font-size: 18px;
+    line-height: 1.7;
+    margin-top: var(--spacing-md);
+  }
+
+  .heroButtons {
+    margin-top: var(--spacing-xl);
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    width: 100%;
+    max-width: 300px;
+  }
+
+  .heroCircle {
+    width: 400px;
+    height: 400px;
+    left: 20%;
+    bottom: -15%;
+  }
+
+  .heroSquare {
+    width: 280px;
+    height: 280px;
+    right: 20%;
+    bottom: -10%;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .hero {
+    padding: 60px var(--spacing-sm) var(--spacing-lg);
+  }
+
+  .heroTitle {
+    font-size: 32px;
+    line-height: 1.3;
+  }
+
+  .heroSubtitle {
+    font-size: 16px;
+    line-height: 1.6;
+  }
+
+  .heroButtons {
+    margin-top: var(--spacing-lg);
+    gap: var(--spacing-xs);
+  }
+
+  .heroCircle {
+    width: 300px;
+    height: 300px;
+    left: 10%;
+    filter: blur(30px);
+  }
+
+  .heroSquare {
+    width: 200px;
+    height: 200px;
+    right: 10%;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .heroTitle {
+    font-size: 28px;
+  }
+
+  .heroSubtitle {
+    font-size: 15px;
+  }
+
+  .heroCircle {
+    width: 250px;
+    height: 250px;
+  }
+
+  .heroSquare {
+    width: 160px;
+    height: 160px;
+  }
+}

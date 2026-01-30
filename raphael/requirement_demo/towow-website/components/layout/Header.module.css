@@ -105,3 +105,162 @@
   background: var(--c-primary);
   transition: width var(--transition-fast);
 }
+
+/* === 汉堡菜单按钮 === */
+.menuButton {
+  display: none;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  padding: 10px;
+  position: relative;
+  z-index: calc(var(--z-mobile-menu) + 1);
+}
+
+.menuIcon {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 5px;
+  width: 24px;
+  height: 24px;
+}
+
+.menuIcon span {
+  display: block;
+  width: 20px;
+  height: 2px;
+  background: var(--c-text-dark);
+  transition: all var(--transition-normal);
+  border-radius: 1px;
+}
+
+/* 汉堡菜单打开状态 */
+.menuButton.open .menuIcon span:nth-child(1) {
+  transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menuButton.open .menuIcon span:nth-child(2) {
+  opacity: 0;
+}
+
+.menuButton.open .menuIcon span:nth-child(3) {
+  transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* === 移动端菜单 === */
+.mobileMenu {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: rgba(248, 246, 243, 0.98);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  z-index: var(--z-mobile-menu);
+  padding: 100px var(--spacing-md) var(--spacing-xl);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-lg);
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity var(--transition-normal), visibility var(--transition-normal);
+}
+
+.mobileMenu.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.mobileNavLink {
+  font-family: var(--f-cn-head);
+  font-size: 24px;
+  color: var(--c-text-dark);
+  text-decoration: none;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  transition: color var(--transition-fast);
+}
+
+.mobileNavLink:hover,
+.mobileNavLink:active {
+  color: var(--c-warm);
+}
+
+/* === 响应式 - 平板及以下 === */
+@media (max-width: 768px) {
+  .header {
+    height: 64px;
+  }
+
+  .headerLogo {
+    font-size: 20px;
+  }
+
+  .headerRight {
+    display: none;
+  }
+
+  .menuButton {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .mobileMenu {
+    display: flex;
+  }
+
+  .backLink span {
+    display: none;
+  }
+
+  .backLink {
+    gap: 6px;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .header {
+    height: 56px;
+    padding: 0 var(--spacing-sm);
+  }
+
+  .headerLogo {
+    font-size: 18px;
+  }
+
+  .logoIcon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .logoIconInner {
+    width: 6px;
+    height: 6px;
+  }
+
+  .mobileNavLink {
+    font-size: 20px;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .header {
+    padding: 0 var(--spacing-xs);
+  }
+
+  .headerLogo {
+    font-size: 16px;
+  }
+}

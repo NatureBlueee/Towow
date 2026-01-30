@@ -46,3 +46,55 @@
   box-shadow: var(--shadow-sm);
   white-space: nowrap;
 }
+
+/* === 响应式 - 平板 === */
+@media (max-width: 768px) {
+  .nodeItem {
+    position: relative;
+  }
+
+  .nodeShape {
+    width: 70px;
+    height: 70px;
+    font-size: 24px;
+  }
+
+  .nodeText {
+    margin-top: 10px;
+    padding: 4px 12px;
+    font-size: 13px;
+  }
+
+  .nodeItem:hover .nodeShape {
+    transform: scale(1.05);
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .nodeShape {
+    width: 56px;
+    height: 56px;
+    font-size: 20px;
+  }
+
+  .nodeText {
+    margin-top: 8px;
+    padding: 3px 10px;
+    font-size: 12px;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .nodeShape {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+  }
+
+  .nodeText {
+    font-size: 11px;
+    padding: 2px 8px;
+  }
+}

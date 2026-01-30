@@ -60,7 +60,41 @@
   --z-base: 1;
   --z-content: 5;
   --z-header: 100;
+  --z-mobile-menu: 150;
   --z-modal: 500;
   --z-noise: 999;
   --z-tooltip: 1000;
+}
+
+/* === 响应式断点 === */
+/* 平板 */
+@media (max-width: 768px) {
+  :root {
+    --spacing-section: 120px;
+    --spacing-3xl: 60px;
+    --spacing-2xl: 48px;
+    --spacing-xl: 36px;
+    --grid-gap: 16px;
+  }
+}
+
+/* 手机 */
+@media (max-width: 480px) {
+  :root {
+    --spacing-section: 80px;
+    --spacing-3xl: 48px;
+    --spacing-2xl: 36px;
+    --spacing-xl: 28px;
+    --spacing-lg: 24px;
+    --grid-gap: 12px;
+  }
+}
+
+/* 小屏手机 */
+@media (max-width: 375px) {
+  :root {
+    --spacing-section: 60px;
+    --spacing-3xl: 40px;
+    --spacing-2xl: 32px;
+  }
 }

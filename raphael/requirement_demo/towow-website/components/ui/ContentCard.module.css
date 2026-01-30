@@ -16,3 +16,24 @@
   transform: none;
   background: transparent;
 }
+
+/* === 响应式 - 平板 === */
+@media (max-width: 768px) {
+  .card {
+    padding: 40px 24px;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .card {
+    padding: 24px 16px;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .card {
+    padding: 20px 12px;
+  }
+}

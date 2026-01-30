@@ -94,3 +94,32 @@
     transform: rotate(360deg);
   }
 }
+
+/* === 响应式 - 平板 === */
+@media (max-width: 768px) {
+  .btn {
+    padding: 16px 36px;
+    font-size: 16px;
+    min-height: 52px;
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .btn {
+    padding: 14px 28px;
+    font-size: 15px;
+    min-height: 48px;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .btn {
+    padding: 12px 24px;
+    font-size: 14px;
+    min-height: 44px;
+  }
+}

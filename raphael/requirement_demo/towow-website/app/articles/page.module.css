@@ -87,6 +87,109 @@
   .page {
     padding-top: 120px;
   }
+
+  .heroSubtitle {
+    font-size: 17px;
+    padding: 0 var(--spacing-sm);
+  }
+
+  .backLink {
+    min-height: 44px;
+    padding: var(--spacing-xs) 0;
+  }
+
+  .articleCard {
+    padding: var(--spacing-lg) 0;
+  }
+
+  .cardTitle {
+    font-size: 22px;
+  }
+
+  .cardExcerpt {
+    font-size: 15px;
+  }
+
+  .readMore {
+    min-height: 44px;
+    padding: var(--spacing-xs) 0;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .page {
+    padding-top: 100px;
+    padding-bottom: var(--spacing-xl);
+  }
+
+  .hero {
+    margin-bottom: var(--spacing-xl);
+  }
+
+  .heroTitle {
+    font-size: 32px;
+  }
+
+  .heroSubtitle {
+    font-size: 15px;
+    line-height: 1.5;
+  }
+
+  .container {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .articlesGrid {
+    gap: var(--spacing-md);
+  }
+
+  .articleCard {
+    padding: var(--spacing-md) 0;
+  }
+
+  .cardMeta {
+    font-size: 13px;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .cardTitle {
+    font-size: 20px;
+    line-height: 1.35;
+  }
+
+  .cardExcerpt {
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  .readMore {
+    font-size: 14px;
+    margin-top: var(--spacing-sm);
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .page {
+    padding-top: 80px;
+  }
+
+  .heroTitle {
+    font-size: 28px;
+  }
+
+  .heroSubtitle {
+    font-size: 14px;
+  }
+
+  .cardTitle {
+    font-size: 18px;
+  }
+
+  .cardExcerpt {
+    font-size: 13px;
+  }
 }
 
 /* Article Card - 去卡片化，改为 Editorial 风格 */

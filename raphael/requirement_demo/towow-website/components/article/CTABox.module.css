@@ -62,3 +62,46 @@
     right: -30px;
   }
 }
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .box {
+    padding: 32px 20px;
+    margin-top: 48px;
+    border-radius: 16px;
+  }
+
+  .title {
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+
+  .description {
+    font-size: 14px;
+    margin-bottom: 20px;
+    line-height: 1.5;
+  }
+
+  .decor {
+    width: 120px;
+    height: 120px;
+    top: -20px;
+    right: -20px;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .box {
+    padding: 28px 16px;
+    margin-top: 40px;
+  }
+
+  .title {
+    font-size: 22px;
+  }
+
+  .description {
+    font-size: 13px;
+  }
+}

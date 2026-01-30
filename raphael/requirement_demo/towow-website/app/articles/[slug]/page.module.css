@@ -116,4 +116,39 @@
   .tocWrapper {
     display: none;
   }
+
+  .mainContent {
+    padding-top: 24px;
+  }
+
+  .ctaWrapper {
+    margin-top: 60px;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .pageWrapper {
+    padding-top: 56px;
+  }
+
+  .container {
+    padding: 0 16px 60px;
+    gap: 24px;
+  }
+
+  .mainContent {
+    padding-top: 16px;
+  }
+
+  .ctaWrapper {
+    margin-top: 40px;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .container {
+    padding: 0 12px 48px;
+  }
 }

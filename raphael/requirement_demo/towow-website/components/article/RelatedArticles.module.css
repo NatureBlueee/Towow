@@ -77,6 +77,7 @@
 
   .card {
     padding: 16px;
+    min-height: 64px;
   }
 
   .icon {
@@ -87,5 +88,65 @@
 
   .text {
     font-size: 16px;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .section {
+    padding: 48px 0;
+    margin-top: 48px;
+  }
+
+  .container {
+    padding: 0 16px;
+  }
+
+  .title {
+    font-size: 12px;
+    letter-spacing: 1.5px;
+    margin-bottom: 28px;
+  }
+
+  .list {
+    gap: 16px;
+  }
+
+  .card {
+    padding: 14px;
+    border-radius: 10px;
+  }
+
+  .icon {
+    width: 32px;
+    height: 32px;
+    margin-right: 12px;
+    font-size: 16px;
+    border-radius: 6px;
+  }
+
+  .text {
+    font-size: 15px;
+    line-height: 1.35;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .section {
+    padding: 40px 0;
+    margin-top: 40px;
+  }
+
+  .container {
+    padding: 0 12px;
+  }
+
+  .card {
+    padding: 12px;
+  }
+
+  .text {
+    font-size: 14px;
   }
 }

@@ -56,3 +56,58 @@
   text-align: justify;
   margin: 0;
 }
+
+/* === 响应式 - 平板 === */
+@media (max-width: 768px) {
+  .section {
+    padding: var(--spacing-section) 0;
+  }
+
+  .gridWrapper {
+    display: block;
+    padding: 0 var(--spacing-md);
+  }
+
+  .contentWrapper {
+    grid-column: 1 / -1 !important;
+    text-align: left !important;
+  }
+
+  .title {
+    font-size: 32px;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .content {
+    font-size: 17px;
+    line-height: 1.7;
+    text-align: left;
+  }
+}
+
+/* === 响应式 - 手机 === */
+@media (max-width: 480px) {
+  .gridWrapper {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .title {
+    font-size: 26px;
+  }
+
+  .content {
+    font-size: 16px;
+    line-height: 1.65;
+  }
+}
+
+/* === 响应式 - 小屏手机 === */
+@media (max-width: 375px) {
+  .title {
+    font-size: 24px;
+  }
+
+  .content {
+    font-size: 15px;
+  }
+}

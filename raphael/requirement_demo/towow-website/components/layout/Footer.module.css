@@ -216,3 +216,151 @@
   position: relative;
   z-index: 1;
 }
+
+/* === 响应式 - Home Footer === */
+@media (max-width: 768px) {
+  .footerHome {
+    padding: 80px 0 40px;
+  }
+
+  .footerTitle {
+    font-size: 26px;
+    margin-bottom: 40px;
+  }
+
+  .footerMain {
+    flex-direction: column;
+    gap: 40px;
+    align-items: center;
+  }
+
+  .qrSection {
+    order: 2;
+  }
+
+  .contactSection {
+    order: 1;
+    text-align: center;
+    padding-top: 0;
+  }
+
+  .contactEmail {
+    justify-content: center;
+  }
+
+  .demoLink {
+    margin-top: var(--spacing-md);
+  }
+
+  .footerBottom {
+    padding-top: 24px;
+    font-size: 13px;
+  }
+
+  /* Article Footer */
+  .footerLinks {
+    flex-wrap: wrap;
+    gap: 24px;
+  }
+
+  .footerLinks a {
+    font-size: 15px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+}
+
+@media (max-width: 480px) {
+  .footerHome {
+    padding: 60px 0 30px;
+  }
+
+  .footerTitle {
+    font-size: 22px;
+    margin-bottom: 32px;
+  }
+
+  .footerMain {
+    gap: 32px;
+    margin-bottom: 40px;
+  }
+
+  .qrCode {
+    width: 120px;
+    height: 120px;
+  }
+
+  .qrText {
+    font-size: 13px;
+  }
+
+  .contactTitle {
+    font-size: 16px;
+    margin-bottom: 16px;
+  }
+
+  .contactEmail {
+    font-size: 14px;
+    margin-bottom: 12px;
+  }
+
+  .contactEmail i {
+    font-size: 18px;
+  }
+
+  .socialLinks a {
+    font-size: 22px;
+    min-width: 44px;
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .demoLink {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+
+  .footerBottom {
+    font-size: 12px;
+  }
+
+  /* Article Footer */
+  .footerArticle {
+    padding: 40px 0;
+  }
+
+  .footerLinks {
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .footerLinks a {
+    font-size: 14px;
+  }
+
+  .footerCopy {
+    font-size: 12px;
+  }
+}
+
+@media (max-width: 375px) {
+  .footerTitle {
+    font-size: 20px;
+  }
+
+  .qrCode {
+    width: 100px;
+    height: 100px;
+  }
+
+  .contactTitle {
+    font-size: 15px;
+  }
+
+  .contactEmail span {
+    font-size: 13px;
+  }
+}
