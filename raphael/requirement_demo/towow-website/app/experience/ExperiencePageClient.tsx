@@ -23,6 +23,7 @@ interface UserHeaderProps {
 
 function UserHeader({ user, onLogout }: UserHeaderProps) {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
 
   if (!user) return null;
 
@@ -63,16 +64,44 @@ function UserHeader({ user, onLogout }: UserHeaderProps) {
       {/* Profile Card - 可折叠 */}
       {isProfileOpen && (
         <div className={styles.profileCard}>
+          {/* 自我介绍 */}
+          {user.self_introduction && (
+            <div className={styles.profileSection}>
+              <h4 className={styles.profileSectionTitle}>自我介绍</h4>
+              <p
+                className={`${styles.profileBio} ${isBioExpanded ? styles.profileBioExpanded : ''}`}
+                onClick={() => setIsBioExpanded(!isBioExpanded)}
+                role="button"
+                tabIndex={0}
+                onKeyDown={(e) => e.key === 'Enter' && setIsBioExpanded(!isBioExpanded)}
+              >
+                {user.self_introduction}
+              </p>
+              {user.self_introduction.length > 100 && (
+                <button
+                  className={styles.expandButton}
+                  onClick={() => setIsBioExpanded(!isBioExpanded)}
+                >
+                  {isBioExpanded ? '收起' : '展开'}
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* 基本信息 */}
           <div className={styles.profileSection}>
             <h4 className={styles.profileSectionTitle}>基本信息</h4>
             <div className={styles.profileInfo}>
-              {user.bio && (
-                <p className={styles.profileBio}>{user.bio}</p>
-              )}
               <div className={styles.profileMeta}>
                 <span className={styles.profileLabel}>SecondMe ID</span>
                 <span className={styles.profileValue}>{user.secondme_id || '未绑定'}</span>
               </div>
+              {user.profile_completeness && (
+                <div className={styles.profileMeta}>
+                  <span className={styles.profileLabel}>资料完整度</span>
+                  <span className={styles.profileValue}>{user.profile_completeness}%</span>
+                </div>
+              )}
             </div>
           </div>
 

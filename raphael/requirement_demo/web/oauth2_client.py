@@ -104,6 +104,9 @@ class UserInfo:
     name: Optional[str] = None
     avatar: Optional[str] = None
     bio: Optional[str] = None
+    self_introduction: Optional[str] = None
+    voice_id: Optional[str] = None
+    profile_completeness: Optional[int] = None
     raw_data: Optional[Dict[str, Any]] = None
 
     def to_dict(self) -> Dict[str, Any]:
@@ -113,6 +116,9 @@ class UserInfo:
             "name": self.name,
             "avatar": self.avatar,
             "bio": self.bio,
+            "self_introduction": self.self_introduction,
+            "voice_id": self.voice_id,
+            "profile_completeness": self.profile_completeness,
         }
 
 
@@ -405,6 +411,9 @@ class SecondMeOAuth2Client:
                 name=data.get("name") or data.get("nickname"),
                 avatar=data.get("avatar") or data.get("avatarUrl"),
                 bio=data.get("bio") or data.get("description"),
+                self_introduction=data.get("selfIntroduction"),
+                voice_id=data.get("voiceId"),
+                profile_completeness=data.get("profileCompleteness"),
                 raw_data=data,
             )
 

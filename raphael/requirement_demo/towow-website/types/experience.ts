@@ -3,6 +3,8 @@ export interface User {
   display_name: string;
   avatar_url?: string;
   bio?: string;
+  self_introduction?: string;
+  profile_completeness?: number;
   skills: string[];
   specialties: string[];
   secondme_id: string;

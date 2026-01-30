@@ -169,6 +169,28 @@
   font-size: 14px;
   color: var(--c-text-sec);
   line-height: 1.5;
+  cursor: pointer;
+}
+
+.profileBioExpanded {
+  display: block !important;
+  -webkit-line-clamp: unset !important;
+  overflow: visible !important;
+}
+
+.expandButton {
+  background: none;
+  border: none;
+  color: var(--c-primary);
+  font-size: 12px;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-top: 4px;
+  transition: var(--transition-fast);
+}
+
+.expandButton:hover {
+  text-decoration: underline;
 }
 
 .profileMeta {
@@ -406,7 +428,7 @@
   color: var(--c-text-main);
 }
 
-/* Responsive */
+/* Responsive - Tablet */
 @media (max-width: 768px) {
   .userHeader {
     position: fixed;
@@ -425,6 +447,23 @@
   .profileCard {
     min-width: 260px;
     max-width: calc(100vw - 32px);
+    padding: var(--spacing-md);
+  }
+
+  .profileBio {
+    font-size: 13px;
+    line-height: 1.5;
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .profileValue {
+    max-width: 140px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 
   .header h1 {
@@ -433,5 +472,152 @@
 
   .header p {
     font-size: 16px;
+  }
+
+  .formCard {
+    padding: var(--spacing-lg);
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 480px) {
+  .userHeader {
+    top: var(--spacing-xs);
+    right: var(--spacing-xs);
+  }
+
+  .userAvatar {
+    width: 32px;
+    height: 32px;
+  }
+
+  .userAvatar span {
+    font-size: 14px;
+  }
+
+  .profileToggle {
+    width: 24px;
+    height: 24px;
+  }
+
+  .logoutButton {
+    padding: 4px var(--spacing-sm);
+    font-size: 12px;
+  }
+
+  .profileCard {
+    min-width: 240px;
+    max-width: calc(100vw - 24px);
+    padding: var(--spacing-sm);
+    right: 0;
+  }
+
+  .profileSection {
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .profileSectionTitle {
+    font-size: 11px;
+    margin-bottom: 6px;
+  }
+
+  .profileBio {
+    font-size: 12px;
+    line-height: 1.4;
+    -webkit-line-clamp: 3;
+  }
+
+  .profileMeta {
+    padding: 6px 0;
+  }
+
+  .profileLabel {
+    font-size: 12px;
+  }
+
+  .profileValue {
+    font-size: 12px;
+    max-width: 100px;
+  }
+
+  .skillTag,
+  .specialtyTag {
+    padding: 3px 8px;
+    font-size: 11px;
+  }
+
+  .tagList {
+    gap: 4px;
+  }
+
+  .header {
+    padding-top: var(--spacing-2xl);
+  }
+
+  .header h1 {
+    font-size: 28px;
+  }
+
+  .header p {
+    font-size: 14px;
+  }
+
+  .formCard {
+    padding: var(--spacing-md);
+  }
+
+  .formTitle {
+    font-size: 20px;
+  }
+
+  .formDescription {
+    font-size: 14px;
+    margin-bottom: var(--spacing-lg);
+  }
+
+  .registrationAvatar {
+    width: 64px;
+    height: 64px;
+  }
+
+  .formGroup label {
+    font-size: 13px;
+  }
+
+  .formGroup input {
+    font-size: 14px;
+    padding: var(--spacing-xs) var(--spacing-sm);
+  }
+
+  .negotiationContent {
+    padding: 0 var(--spacing-xs);
+  }
+
+  .requirementSummary {
+    padding: var(--spacing-md);
+  }
+
+  .requirementSummary h3 {
+    font-size: 14px;
+  }
+
+  .requirementSummary p {
+    font-size: 13px;
+  }
+}
+
+/* Extra small screens */
+@media (max-width: 375px) {
+  .profileCard {
+    min-width: 220px;
+    max-width: calc(100vw - 16px);
+  }
+
+  .profileValue {
+    max-width: 80px;
+  }
+
+  .header h1 {
+    font-size: 24px;
   }
 }

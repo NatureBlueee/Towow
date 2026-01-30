@@ -242,6 +242,8 @@ class CurrentUserResponse(BaseModel):
     display_name: str
     avatar_url: Optional[str] = None
     bio: Optional[str] = None
+    self_introduction: Optional[str] = None
+    profile_completeness: Optional[int] = None
     skills: List[str]
     specialties: List[str]
     secondme_id: str
@@ -722,6 +724,8 @@ async def auth_callback(
                 "name": user_info.name,
                 "avatar": user_info.avatar,
                 "bio": user_info.bio,
+                "self_introduction": user_info.self_introduction,
+                "profile_completeness": user_info.profile_completeness,
             })
             await session_store.set(
                 f"pending_auth:{pending_session_id}",
@@ -916,8 +920,10 @@ async def get_current_user(
     return CurrentUserResponse(
         agent_id=agent_info["agent_id"],
         display_name=agent_info["display_name"],
-        avatar_url=None,  # 目前 agent_info 中没有 avatar_url
+        avatar_url=agent_info.get("avatar_url"),
         bio=agent_info.get("bio"),
+        self_introduction=agent_info.get("self_intro"),
+        profile_completeness=None,  # 暂时不存储
         skills=agent_info.get("skills", []),
         specialties=agent_info.get("specialties", []),
         secondme_id=agent_info.get("secondme_id", ""),
@@ -982,6 +988,8 @@ async def get_pending_auth(request: Request, pending_id: str):
         "name": pending_data.get("name"),
         "avatar": pending_data.get("avatar"),
         "bio": pending_data.get("bio"),
+        "self_introduction": pending_data.get("self_introduction"),
+        "profile_completeness": pending_data.get("profile_completeness"),
         "user_identifier": pending_data.get("user_identifier"),
     }
 
@@ -1026,6 +1034,7 @@ async def complete_pending_registration(
             specialties=specialties_list,
             secondme_id=pending_data.get("user_identifier", ""),
             bio=bio or pending_data.get("bio"),
+            avatar_url=pending_data.get("avatar"),
         )
 
         if result.get("success") and result.get("agent_id"):
