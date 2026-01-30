@@ -1,0 +1,96 @@
+/* components/ui/Button.module.css */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 18px 42px;
+  font-size: 18px;
+  font-family: var(--f-cn-head);
+  cursor: pointer;
+  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  position: relative;
+  overflow: hidden;
+  text-decoration: none;
+  z-index: 10;
+  border: 1px solid #000;
+  will-change: transform;
+}
+
+/* Click feedback animation */
+.btn:active:not(.disabled) {
+  transform: scale(0.97);
+  transition: transform 0.1s ease;
+}
+
+.btn::after {
+  content: '';
+  position: absolute;
+  width: 0%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  background: var(--c-warm-soft);
+  z-index: -1;
+  transition: width 0.3s ease;
+}
+
+.btn:hover::after {
+  width: 100%;
+}
+
+/* Primary variant: black background, white text */
+.primary {
+  background: #000;
+  color: #fff;
+}
+
+.primary:hover {
+  color: #000;
+  border-color: var(--c-warm);
+}
+
+/* Outline variant: transparent background, black border */
+.outline {
+  background: transparent;
+  color: #000;
+}
+
+.outline:hover {
+  border-color: var(--c-warm);
+}
+
+/* Disabled state */
+.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Focus state for accessibility */
+.btn:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+/* Loading state animation */
+.btn.loading {
+  pointer-events: none;
+}
+
+.btn.loading::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border: 2px solid transparent;
+  border-top-color: currentColor;
+  border-radius: 50%;
+  animation: buttonSpin 0.8s linear infinite;
+}
+
+@keyframes buttonSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}

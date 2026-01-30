@@ -1,0 +1,70 @@
+/* styles/typography.css */
+
+/* === 标题样式 === */
+.text-h1 {
+  font-family: var(--f-cn-head);
+  font-size: 66px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.text-h2 {
+  font-family: var(--f-cn-head);
+  font-size: 38px;
+  line-height: 1.3;
+}
+
+.text-h3 {
+  font-family: var(--f-cn-head);
+  font-size: 32px;
+  line-height: 1.4;
+}
+
+/* === 正文样式 === */
+.text-body {
+  font-family: var(--f-cn-body);
+  font-size: 19px;
+  line-height: 1.75;
+}
+
+.text-body-lg {
+  font-family: var(--f-cn-body);
+  font-size: 22px;
+  line-height: 1.8;
+}
+
+.text-caption {
+  font-family: var(--f-cn-body);
+  font-size: 14px;
+  line-height: 1.5;
+  color: var(--c-text-sec);
+}
+
+/* === 英文字体 === */
+.en-font {
+  font-family: var(--f-en-body);
+}
+
+.en-font-bold {
+  font-family: var(--f-en-head);
+}
+
+/* === 文章专用 === */
+.article-title {
+  font-family: var(--f-serif);
+  font-size: 72px;
+  line-height: 1.15;
+  letter-spacing: 0.02em;
+}
+
+.article-body {
+  font-family: var(--f-cn-body);
+  font-size: 19px;
+  line-height: 2;
+  color: var(--c-text-dark);
+}
+
+.article-body strong {
+  background: linear-gradient(to bottom, transparent 60%, var(--c-accent) 60%);
+  font-weight: normal;
+}

@@ -1,0 +1,31 @@
+/* styles/fonts.css */
+
+@font-face {
+  font-family: 'MiSans-Regular';
+  src: url('https://assets-persist.lovart.ai/agent-static-assets/MiSans-Regular.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'MiSans-Demibold';
+  src: url('https://assets-persist.lovart.ai/agent-static-assets/MiSans-Demibold.ttf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NotoSansHans-Regular';
+  src: url('https://assets-persist.lovart.ai/agent-static-assets/NotoSansHans-Regular.otf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NotoSansHans-Medium';
+  src: url('https://assets-persist.lovart.ai/agent-static-assets/NotoSansHans-Medium.otf');
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'NotoSerifCJKsc-Bold';
+  src: url('https://assets-persist.lovart.ai/agent-static-assets/NotoSerifCJKsc-Bold.otf');
+  font-display: swap;
+}

@@ -1,0 +1,124 @@
+/* components/article/ArticleContent.module.css */
+
+.article {
+  font-family: var(--f-cn-body);
+  color: #333;
+  padding-top: 40px;
+}
+
+.section {
+  scroll-margin-top: 100px;
+}
+
+/* Section heading with left decoration block */
+.heading {
+  font-family: var(--f-cn-head);
+  font-size: 32px;
+  margin-top: 80px;
+  margin-bottom: 32px;
+  position: relative;
+  display: inline-block;
+}
+
+.heading::before {
+  content: '';
+  position: absolute;
+  left: -30px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 16px;
+  height: 16px;
+  background-color: var(--c-accent);
+  border-radius: 2px;
+  opacity: 0.6;
+}
+
+/* Content paragraphs */
+.content p {
+  margin-bottom: 32px;
+  font-size: 19px;
+  line-height: 1.85;
+  color: #444;
+}
+
+/* Strong tag with gradient background highlight */
+.content :global(strong) {
+  font-weight: 700;
+  color: #000;
+  background: linear-gradient(
+    120deg,
+    transparent 0%,
+    transparent 60%,
+    var(--c-secondary) 60%,
+    var(--c-secondary) 90%,
+    transparent 90%
+  );
+}
+
+/* First letter decoration for first section */
+.firstSection p:first-of-type::first-letter {
+  float: left;
+  font-size: 64px;
+  line-height: 1;
+  padding: 10px 20px 10px 0;
+  font-family: var(--f-serif);
+  color: var(--c-text-dark);
+  position: relative;
+}
+
+/* Divider between sections */
+.divider {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin: 80px 0;
+  opacity: 0.4;
+}
+
+.dividerShape {
+  width: 12px;
+  height: 12px;
+}
+
+.circle {
+  border-radius: 50%;
+  background: var(--c-primary);
+}
+
+.square {
+  transform: rotate(45deg);
+  background: var(--c-secondary);
+}
+
+.triangle {
+  background: var(--c-accent);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .heading {
+    font-size: 24px;
+    margin-top: 60px;
+    margin-bottom: 24px;
+  }
+
+  .heading::before {
+    left: -20px;
+    width: 12px;
+    height: 12px;
+  }
+
+  .content p {
+    font-size: 16px;
+    margin-bottom: 24px;
+  }
+
+  .firstSection p:first-of-type::first-letter {
+    font-size: 48px;
+  }
+
+  .divider {
+    margin: 60px 0;
+  }
+}

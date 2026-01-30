@@ -1,0 +1,57 @@
+/* components/experience/LoginPanel.module.css */
+
+.loginPanel {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-lg);
+  background: var(--c-secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--c-text-main);
+}
+
+.title {
+  font-family: var(--f-cn-head);
+  font-size: 28px;
+  margin-bottom: var(--spacing-md);
+  color: var(--c-text-main);
+}
+
+.description {
+  font-size: 16px;
+  color: var(--c-text-sec);
+  line-height: 1.8;
+  margin-bottom: var(--spacing-xl);
+}
+
+.hint {
+  font-size: 14px;
+  color: var(--c-text-gray);
+  margin-top: var(--spacing-md);
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-top-color: #fff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin-right: var(--spacing-xs);
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

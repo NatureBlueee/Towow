@@ -1,0 +1,58 @@
+/* components/home/ContentSection.module.css */
+
+.section {
+  position: relative;
+  padding: var(--spacing-section) 0;
+  width: 100%;
+  /* 不在 section 上限制 overflow */
+}
+
+/* Visual Decorations Container */
+.secVisual {
+  position: absolute;
+  z-index: 0;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  /* 不限制 overflow，让装饰图形可以自然显示 */
+}
+
+/* Grid Wrapper */
+.gridWrapper {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: var(--grid-gap);
+  width: var(--container-width);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  position: relative;
+  z-index: 2;
+  padding: 0 var(--spacing-md);
+}
+
+/* Content Wrapper */
+.contentWrapper {
+  position: relative;
+  z-index: var(--z-content);
+}
+
+/* Title */
+.title {
+  font-family: var(--f-cn-head);
+  font-size: 38px;
+  line-height: 1.3;
+  margin: 0 0 var(--spacing-md) 0;
+  letter-spacing: -0.01em;
+}
+
+/* Content Text */
+.content {
+  font-family: var(--f-cn-body);
+  font-size: 19px;
+  line-height: 1.75;
+  color: var(--c-text-sec);
+  text-align: justify;
+  margin: 0;
+}

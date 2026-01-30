@@ -1,0 +1,110 @@
+/* components/home/NetworkJoin.module.css */
+
+.section {
+  position: relative;
+  background: linear-gradient(180deg, var(--c-bg) 0%, #fff 100%);
+  padding: var(--spacing-section) 0;
+}
+
+/* Grid Wrapper */
+.gridWrapper {
+  display: grid;
+  grid-template-columns: repeat(12, 1fr);
+  column-gap: var(--grid-gap);
+  width: var(--container-width);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  height: 800px;
+  align-items: flex-end;
+  position: relative;
+  padding: 0 var(--spacing-md);
+}
+
+/* SVG Connection Lines */
+.connectionLines {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  top: 0;
+  left: 0;
+  z-index: var(--z-base);
+  pointer-events: none;
+}
+
+.connectionLines line {
+  stroke: #ccc;
+  stroke-width: 1;
+  stroke-dasharray: 5, 5;
+}
+
+/* Center Node Container */
+.centerNode {
+  grid-column: 5 / 9;
+  position: relative;
+  z-index: 20;
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+/* ToWow Box */
+.towowBox {
+  width: 140px;
+  height: 140px;
+  background: #222;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-family: var(--f-en-head);
+  font-size: 28px;
+  box-shadow: var(--shadow-lg);
+}
+
+/* Title */
+.title {
+  font-family: var(--f-cn-head);
+  font-size: 32px;
+  line-height: 1.3;
+  margin-top: var(--spacing-lg);
+  margin-bottom: 0;
+}
+
+/* Description */
+.description {
+  font-family: var(--f-cn-body);
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--c-text-sec);
+  text-align: center;
+  margin-top: var(--spacing-sm);
+}
+
+/* Floating Nodes Container */
+.nodesContainer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+/* Floating Node */
+.floatingNode {
+  position: absolute;
+  pointer-events: auto;
+  animation-name: float;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+/* Float Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}

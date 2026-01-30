@@ -1,0 +1,17 @@
+/* components/ui/Shape.module.css */
+
+.shape {
+  position: absolute;
+  z-index: var(--z-base);
+}
+
+.circle {
+  border-radius: 50%;
+}
+
+.square {
+  border-radius: 0;
+}
+
+/* Animation keyframes are defined in animations.css */
+/* These are referenced by animation-name in inline styles */

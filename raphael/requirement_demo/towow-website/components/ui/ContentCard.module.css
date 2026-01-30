@@ -1,0 +1,18 @@
+/* components/ui/ContentCard.module.css */
+/* 去卡片化 - 内容直接浮在页面上 */
+
+.card {
+  padding: 64px;
+  position: relative;
+  z-index: var(--z-content);
+  /* 去掉背景、边框、模糊效果 */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+}
+
+/* 去掉 hover 效果的位移 */
+.card:hover {
+  transform: none;
+  background: transparent;
+}

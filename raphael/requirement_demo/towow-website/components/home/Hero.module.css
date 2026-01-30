@@ -1,0 +1,100 @@
+/* components/home/Hero.module.css */
+
+.hero {
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+  padding: 0;
+  /* 不在这里限制 overflow，让装饰图形可以正常显示 */
+}
+
+/* Background Animation Container */
+.heroBgAnim {
+  position: absolute;
+  bottom: -100px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 100%;
+  height: 100%;
+  z-index: var(--z-base);
+  pointer-events: none;
+  /* 不限制 overflow，让图形可以从底部"冒出来" */
+}
+
+/* Purple Circle */
+.heroCircle {
+  position: absolute;
+  bottom: -10%;
+  left: 30%;
+  width: 600px;
+  height: 600px;
+  background: var(--c-primary);
+  border-radius: 50%;
+  opacity: 0;
+  animation: growUp 1.5s ease-out forwards;
+  filter: blur(20px);
+}
+
+/* Green Square */
+.heroSquare {
+  position: absolute;
+  bottom: -5%;
+  right: 30%;
+  width: 400px;
+  height: 400px;
+  background: var(--c-secondary);
+  opacity: 0;
+  animation: growUp 1.8s ease-out forwards 0.3s;
+  mix-blend-mode: multiply;
+}
+
+/* Content Container */
+.heroContent {
+  position: relative;
+  z-index: 10;
+  max-width: 860px;
+  padding: 0 var(--spacing-md);
+}
+
+/* Title */
+.heroTitle {
+  font-family: var(--f-cn-head);
+  font-size: 66px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: #000;
+  margin: 0;
+}
+
+/* Subtitle */
+.heroSubtitle {
+  font-family: var(--f-cn-body);
+  font-size: 22px;
+  line-height: 1.8;
+  color: #444;
+  margin-top: var(--spacing-lg);
+  text-align: center;
+}
+
+/* Buttons Container */
+.heroButtons {
+  margin-top: 56px;
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}
+
+/* GrowUp Animation */
+@keyframes growUp {
+  0% {
+    transform: translateY(100px) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+}

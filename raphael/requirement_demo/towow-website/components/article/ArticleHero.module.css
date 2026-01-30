@@ -1,0 +1,130 @@
+/* components/article/ArticleHero.module.css */
+
+.hero {
+  height: 70vh;
+  min-height: 600px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  padding-top: 80px;
+  overflow: hidden;
+}
+
+/* Background geometric shapes */
+.shape {
+  position: absolute;
+  z-index: -1;
+  opacity: 0.8;
+}
+
+.shapeCircleLg {
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, var(--c-primary) 0%, transparent 70%);
+  border-radius: 50%;
+  top: -100px;
+  right: -100px;
+  filter: blur(40px);
+}
+
+.shapeSquareLime {
+  width: 300px;
+  height: 300px;
+  background: var(--c-secondary);
+  bottom: 100px;
+  left: -50px;
+  transform: rotate(15deg);
+  opacity: 0.6;
+  filter: blur(20px);
+}
+
+/* Decorative images */
+.decorRight {
+  position: absolute;
+  top: 15%;
+  right: 15%;
+  width: 150px;
+  height: 150px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 50%;
+  opacity: 0.8;
+  mix-blend-mode: multiply;
+}
+
+.decorLeft {
+  position: absolute;
+  bottom: 10%;
+  left: 15%;
+  width: 200px;
+  height: 200px;
+  background-size: cover;
+  background-position: center;
+  border-radius: 20px;
+  transform: rotate(-10deg);
+  opacity: 0.6;
+}
+
+/* Title - serif font 72px */
+.title {
+  font-family: var(--f-serif);
+  font-size: 72px;
+  line-height: 1.2;
+  max-width: 1000px;
+  margin-bottom: 30px;
+  color: var(--c-text-dark);
+  position: relative;
+  z-index: 2;
+}
+
+/* Meta info */
+.meta {
+  font-size: 18px;
+  color: var(--c-text-gray);
+  font-family: var(--f-cn-body);
+  background: rgba(255, 255, 255, 0.5);
+  padding: 8px 20px;
+  border-radius: 20px;
+  backdrop-filter: blur(5px);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.metaIcon {
+  vertical-align: middle;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1200px) {
+  .title {
+    font-size: 56px;
+    max-width: 800px;
+    padding: 0 40px;
+  }
+
+  .decorRight,
+  .decorLeft {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .hero {
+    height: auto;
+    min-height: 400px;
+    padding: 120px 20px 60px;
+  }
+
+  .title {
+    font-size: 36px;
+    max-width: 100%;
+  }
+
+  .meta {
+    font-size: 14px;
+  }
+}

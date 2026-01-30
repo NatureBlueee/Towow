@@ -1,0 +1,66 @@
+/* styles/variables.css */
+
+:root {
+  /* === 颜色系统 === */
+  --c-primary: #D4B8D9;          /* 暖紫/玫瑰紫 - 更柔和亲切 */
+  --c-secondary: #D4F4DD;        /* 薄荷绿 */
+  --c-accent: #FFE4B5;           /* 蜜桃橙 */
+  --c-detail: #E8F3E8;           /* 淡绿 */
+  --c-warm: #F9A87C;             /* 珊瑚橙 - 暖色强调 */
+  --c-warm-soft: #FFD4B8;        /* 柔和珊瑚 */
+  --c-bg: #F8F6F3;               /* 米白背景 - 带暖调 */
+  --c-text-main: #1A1A1A;
+  --c-text-sec: #555555;
+  --c-text-gray: #666666;
+  --c-text-dark: #222222;
+
+  /* === 字体系统 === */
+  --f-cn-head: 'NotoSansHans-Medium', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --f-cn-body: 'NotoSansHans-Regular', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --f-en-head: 'MiSans-Demibold', sans-serif;
+  --f-en-body: 'MiSans-Regular', sans-serif;
+  --f-serif: 'NotoSerifCJKsc-Bold', 'Noto Serif SC', serif;
+
+  /* === 栅格系统 === */
+  --grid-cols: 12;
+  --grid-gap: 24px;
+  /* 响应式容器宽度 - 移动端优先 */
+  --page-width: 95%;
+  --container-width: 90%;
+  --page-max-width: 1440px;
+  --container-max-width: 1200px;
+
+  /* === 间距系统 === */
+  --spacing-xs: 8px;
+  --spacing-sm: 16px;
+  --spacing-md: 24px;
+  --spacing-lg: 32px;
+  --spacing-xl: 48px;
+  --spacing-2xl: 64px;
+  --spacing-3xl: 80px;
+  --spacing-section: 240px;
+
+  /* === 圆角 === */
+  --radius-sm: 8px;              /* 更圆润 */
+  --radius-md: 16px;             /* 更有机 */
+  --radius-lg: 28px;
+  --radius-full: 50px;
+
+  /* === 阴影 - 带暖色调 === */
+  --shadow-sm: 0 5px 15px rgba(180, 140, 100, 0.08);
+  --shadow-md: 0 10px 30px rgba(180, 140, 100, 0.1);
+  --shadow-lg: 0 20px 40px rgba(160, 120, 80, 0.12);
+
+  /* === 过渡 === */
+  --transition-fast: 0.2s ease;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+
+  /* === Z-Index 层级 === */
+  --z-base: 1;
+  --z-content: 5;
+  --z-header: 100;
+  --z-modal: 500;
+  --z-noise: 999;
+  --z-tooltip: 1000;
+}

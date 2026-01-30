@@ -11,6 +11,7 @@ Agent Manager - 管理动态创建的 Worker Agent 生命周期
 import asyncio
 import hashlib
 import logging
+import os
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass, asdict
@@ -245,7 +246,14 @@ class AgentManager:
             )
 
             # workers 组的密码哈希
-            workers_password_hash = "3588bb7219b1faa3d01f132a0c60a394258ccc3049d8e4a243b737e62524d147"
+            # Read from environment variable, fallback to default for development
+            default_hash = "3588bb7219b1faa3d01f132a0c60a394258ccc3049d8e4a243b737e62524d147"
+            workers_password_hash = os.environ.get("OPENAGENTS_WORKERS_PASSWORD_HASH", default_hash)
+            if workers_password_hash == default_hash:
+                logger.warning(
+                    "Using default workers password hash. "
+                    "Set OPENAGENTS_WORKERS_PASSWORD_HASH environment variable for production."
+                )
 
             # 启动 Agent（在后台任务中）
             async def run_agent():

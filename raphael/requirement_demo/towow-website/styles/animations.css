@@ -1,0 +1,263 @@
+/* styles/animations.css */
+
+/* === 动画 CSS 变量 === */
+:root {
+  /* 消息入场动画 */
+  --animation-message-in: slideInUp 0.3s ease-out;
+  /* 脉冲动画 */
+  --animation-pulse: pulse 2s infinite;
+  /* 淡入动画 */
+  --animation-fade-in: fadeIn 0.2s ease-out;
+  /* 骨架屏闪烁 */
+  --animation-shimmer: shimmer 1.5s infinite;
+  /* 默认过渡 */
+  --transition-default: all 0.2s ease;
+  /* 弹性过渡 */
+  --transition-bounce: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  /* 按钮点击反馈 */
+  --transition-button: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* === 关键帧定义 === */
+
+/* 从下往上生长 - 用于 Hero 背景 */
+@keyframes growUp {
+  0% {
+    transform: translateY(100px) scale(0);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 0.6;
+  }
+}
+
+/* 上下浮动 - 用于网络节点 */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* 旋转 - 用于装饰图形 */
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* 脉冲缩放 - 用于几何图形 */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: scale(1.05);
+  }
+}
+
+/* 从下往上滑入 - 用于消息入场 */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 淡入 - 通用淡入效果 */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* 骨架屏闪烁效果 */
+@keyframes shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* 状态指示器脉冲 */
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.3);
+  }
+}
+
+/* 按钮点击缩放 */
+@keyframes buttonPress {
+  0% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(0.97);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* 进度条填充 */
+@keyframes progressFill {
+  from {
+    width: 0%;
+  }
+  to {
+    width: var(--progress-width, 100%);
+  }
+}
+
+/* 步骤完成打勾 */
+@keyframes checkmark {
+  0% {
+    stroke-dashoffset: 24;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* === 动画工具类 === */
+
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+.animate-pulse {
+  animation: pulse 6s infinite;
+}
+
+.animate-spin {
+  animation: spin 60s linear infinite;
+}
+
+.animate-grow-up {
+  animation: growUp 1.5s ease-out forwards;
+}
+
+/* === 动画延迟工具类 === */
+
+.animation-delay-300 {
+  animation-delay: 0.3s;
+}
+
+.animation-delay-500 {
+  animation-delay: 0.5s;
+}
+
+.animation-delay-1000 {
+  animation-delay: 1s;
+}
+
+.animation-delay-1500 {
+  animation-delay: 1.5s;
+}
+
+.animation-delay-2000 {
+  animation-delay: 2s;
+}
+
+/* === 动画时长工具类 === */
+
+.animation-duration-6s {
+  animation-duration: 6s;
+}
+
+.animation-duration-7s {
+  animation-duration: 7s;
+}
+
+.animation-duration-8s {
+  animation-duration: 8s;
+}
+
+/* === 性能优化 === */
+
+.will-change-transform {
+  will-change: transform;
+}
+
+.will-change-opacity {
+  will-change: opacity;
+}
+
+/* === 新增动画工具类 === */
+
+.animate-fade-in {
+  animation: var(--animation-fade-in);
+}
+
+.animate-message-in {
+  animation: var(--animation-message-in);
+}
+
+.animate-shimmer {
+  animation: var(--animation-shimmer);
+  background: linear-gradient(
+    90deg,
+    rgba(0, 0, 0, 0.06) 25%,
+    rgba(0, 0, 0, 0.12) 50%,
+    rgba(0, 0, 0, 0.06) 75%
+  );
+  background-size: 200% 100%;
+}
+
+.animate-status-pulse {
+  animation: statusPulse 1.5s ease-in-out infinite;
+}
+
+/* === 交互反馈类 === */
+
+.interactive-scale {
+  transition: var(--transition-button);
+}
+
+.interactive-scale:hover {
+  transform: scale(1.02);
+}
+
+.interactive-scale:active {
+  transform: scale(0.98);
+}
+
+/* === 平滑滚动 === */
+
+.smooth-scroll {
+  scroll-behavior: smooth;
+}
+
+/* === 减少动画偏好支持 === */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

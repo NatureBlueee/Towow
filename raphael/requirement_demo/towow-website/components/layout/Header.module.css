@@ -1,0 +1,107 @@
+.header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-md);
+  background: rgba(238, 238, 238, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  z-index: var(--z-header);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* 平板及以上增加内边距 */
+@media (min-width: 768px) {
+  .header {
+    padding: 0 var(--spacing-xl);
+  }
+}
+
+/* 桌面增加更多内边距 */
+@media (min-width: 1024px) {
+  .header {
+    padding: 0 60px;
+  }
+}
+
+.headerLeft {
+  flex: 1;
+}
+
+.backLink {
+  text-decoration: none;
+  color: var(--c-text-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 500;
+  transition: opacity var(--transition-normal);
+}
+
+.backLink:hover {
+  opacity: 0.7;
+}
+
+.logoIcon {
+  width: 24px;
+  height: 24px;
+  background: var(--c-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.logoIconInner {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border-radius: 50%;
+}
+
+.headerLogo {
+  font-family: var(--f-cn-head);
+  font-size: 24px;
+  letter-spacing: -1px;
+  font-weight: 700;
+  color: var(--c-text-dark);
+}
+
+.headerRight {
+  flex: 1;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.btnOutline {
+  padding: 10px 24px;
+  border: 1px solid var(--c-text-dark);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--c-text-dark);
+  font-size: 14px;
+  font-weight: 600;
+  font-family: var(--f-cn-head);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+}
+
+.btnOutline:hover {
+  background: var(--c-text-dark);
+  color: #fff;
+}
+
+.progressBar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 4px;
+  background: var(--c-primary);
+  transition: width var(--transition-fast);
+}

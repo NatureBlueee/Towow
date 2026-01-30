@@ -18,11 +18,13 @@ load_dotenv()
 import asyncio
 import logging
 import os
+import secrets
 import uuid
 from contextlib import asynccontextmanager
+from datetime import datetime, timedelta
 from typing import List, Optional, Dict, Any
 
-from fastapi import FastAPI, HTTPException, BackgroundTasks, Query, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, BackgroundTasks, Query, WebSocket, WebSocketDisconnect, Cookie, Response, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import RedirectResponse, JSONResponse
 from pydantic import BaseModel, Field
@@ -231,9 +233,64 @@ class CompleteRegistrationResponse(BaseModel):
     is_new: Optional[bool] = None
 
 
+class CurrentUserResponse(BaseModel):
+    """当前用户信息响应"""
+    agent_id: str
+    display_name: str
+    avatar_url: Optional[str] = None
+    bio: Optional[str] = None
+    skills: List[str]
+    specialties: List[str]
+    secondme_id: str
+
+
 # ============ 临时 Token 存储 ============
 # 生产环境建议使用 Redis 或数据库
+# 存储格式: {session_id: {"data": {...}, "expires_at": datetime}}
 _pending_auth_sessions: Dict[str, Dict[str, Any]] = {}
+PENDING_AUTH_EXPIRE_MINUTES = 15  # pending_auth 会话过期时间（分钟）
+
+# ============ Session 存储 ============
+# 生产环境建议使用 Redis 或数据库
+# session_id -> agent_id
+_sessions: Dict[str, str] = {}
+
+SESSION_COOKIE_NAME = "towow_session"
+SESSION_MAX_AGE = 7 * 24 * 60 * 60  # 7 days in seconds
+
+# Cookie 安全配置：通过环境变量控制
+COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+
+# 是否使用真实 Agent（连接 OpenAgents 网络）
+USE_REAL_AGENTS = os.getenv("USE_REAL_AGENTS", "false").lower() == "true"
+
+# OpenAgents 网络配置
+OPENAGENTS_HOST = os.getenv("OPENAGENTS_HOST", "localhost")
+OPENAGENTS_PORT = int(os.getenv("OPENAGENTS_PORT", "8800"))
+
+
+# ============ Pending Auth 清理任务 ============
+
+async def cleanup_expired_pending_auth():
+    """定期清理过期的 pending_auth 会话"""
+    while True:
+        try:
+            now = datetime.now()
+            expired_keys = [
+                key for key, value in _pending_auth_sessions.items()
+                if value.get("expires_at") and value["expires_at"] < now
+            ]
+            for key in expired_keys:
+                del _pending_auth_sessions[key]
+                logger.debug(f"Cleaned up expired pending_auth session: {key[:20]}...")
+
+            if expired_keys:
+                logger.info(f"Cleaned up {len(expired_keys)} expired pending_auth sessions")
+        except Exception as e:
+            logger.error(f"Error cleaning up pending_auth sessions: {e}")
+
+        # 每 5 分钟清理一次
+        await asyncio.sleep(300)
 
 
 # ============ 应用生命周期 ============
@@ -251,7 +308,43 @@ async def lifespan(app: FastAPI):
 
     logger.info(f"已加载 {len(manager.agents_config)} 个用户配置")
 
+    # 启动 pending_auth 清理任务
+    cleanup_task = asyncio.create_task(cleanup_expired_pending_auth())
+    logger.info("Pending auth cleanup task started")
+
+    # 如果启用真实 Agent，启动 BridgeAgent
+    if USE_REAL_AGENTS:
+        logger.info("USE_REAL_AGENTS=true, starting BridgeAgent...")
+        try:
+            from .bridge_agent import start_bridge_agent
+            await start_bridge_agent(
+                network_host=OPENAGENTS_HOST,
+                network_port=OPENAGENTS_PORT,
+            )
+            logger.info("BridgeAgent started successfully")
+        except Exception as e:
+            logger.error(f"Failed to start BridgeAgent: {e}")
+            logger.warning("Falling back to simulation mode")
+    else:
+        logger.info("USE_REAL_AGENTS=false, using simulation mode")
+
     yield
+
+    # 关闭时：停止清理任务
+    cleanup_task.cancel()
+    try:
+        await cleanup_task
+    except asyncio.CancelledError:
+        pass
+    logger.info("Pending auth cleanup task stopped")
+
+    # 如果启用真实 Agent，停止 BridgeAgent
+    if USE_REAL_AGENTS:
+        try:
+            from .bridge_agent import stop_bridge_agent
+            await stop_bridge_agent()
+        except Exception as e:
+            logger.error(f"Error stopping BridgeAgent: {e}")
 
     # 关闭时：停止所有 Agent 和关闭 OAuth2 客户端
     logger.info("Web 服务关闭中...")
@@ -573,12 +666,12 @@ async def auth_login():
 
 @app.get(
     "/api/auth/callback",
-    response_model=AuthCallbackResponse,
     tags=["认证"],
     summary="处理 OAuth2 回调",
-    description="处理 SecondMe OAuth2 授权回调，用授权码换取 Token 并获取用户信息"
+    description="处理 SecondMe OAuth2 授权回调，用授权码换取 Token 并获取用户信息，然后重定向回前端"
 )
 async def auth_callback(
+    response: Response,
     code: str = Query(..., description="授权码"),
     state: str = Query(..., description="CSRF 防护的 state 参数"),
 ):
@@ -589,16 +682,19 @@ async def auth_callback(
     - code: SecondMe 返回的授权码
     - state: 用于验证请求合法性的 state 参数
 
-    返回用户基本信息，前端可以显示补填页面让用户完善技能信息。
+    处理完成后重定向回前端页面。
     """
+    # 前端 URL（从环境变量读取，默认 localhost:3000）
+    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+
     oauth_client = get_oauth2_client()
 
     # 验证 state（防止 CSRF 攻击）
     if not oauth_client.verify_state(state):
         logger.warning(f"Invalid state in OAuth callback: {state[:20]}...")
-        raise HTTPException(
-            status_code=400,
-            detail="Invalid state parameter. 请重新发起登录流程。"
+        return RedirectResponse(
+            url=f"{frontend_url}/experience?error=invalid_state&error_description=请重新发起登录流程",
+            status_code=302,
         )
 
     try:
@@ -610,38 +706,67 @@ async def auth_callback(
 
         # 3. 检查用户是否已注册
         manager = get_agent_manager()
-        agent_id = manager.generate_agent_id(token_set.open_id)
+        # 使用用户名作为标识符（因为 SecondMe 可能不返回 open_id）
+        user_identifier = token_set.open_id or user_info.name or "unknown"
+        agent_id = manager.generate_agent_id(user_identifier)
         existing_agent = manager.get_agent_info(agent_id)
 
-        needs_registration = existing_agent is None
-
         logger.info(
-            f"OAuth callback success: open_id={token_set.open_id}, "
-            f"name={user_info.name}, needs_registration={needs_registration}"
+            f"OAuth callback success: identifier={user_identifier}, "
+            f"name={user_info.name}, existing_agent={existing_agent is not None}"
         )
 
-        return AuthCallbackResponse(
-            success=True,
-            message="授权成功" if needs_registration else "用户已注册",
-            open_id=token_set.open_id,
-            name=user_info.name,
-            avatar=user_info.avatar,
-            bio=user_info.bio,
-            access_token=token_set.access_token,
-            needs_registration=needs_registration,
-        )
+        if existing_agent:
+            # 用户已注册，创建 session 并重定向到体验页
+            session_id = secrets.token_urlsafe(32)
+            _sessions[session_id] = agent_id
+
+            redirect_response = RedirectResponse(
+                url=f"{frontend_url}/experience",
+                status_code=302,
+            )
+            redirect_response.set_cookie(
+                key=SESSION_COOKIE_NAME,
+                value=session_id,
+                max_age=SESSION_MAX_AGE,
+                httponly=True,
+                samesite="lax",
+                secure=COOKIE_SECURE,
+            )
+            logger.info(f"User logged in: agent_id={agent_id}")
+            return redirect_response
+        else:
+            # 用户需要注册，将信息存储到临时会话，重定向到注册页
+            pending_session_id = secrets.token_urlsafe(32)
+            _pending_auth_sessions[pending_session_id] = {
+                "data": {
+                    "access_token": token_set.access_token,
+                    "user_identifier": user_identifier,
+                    "name": user_info.name,
+                    "avatar": user_info.avatar,
+                    "bio": user_info.bio,
+                },
+                "expires_at": datetime.now() + timedelta(minutes=PENDING_AUTH_EXPIRE_MINUTES),
+            }
+
+            redirect_response = RedirectResponse(
+                url=f"{frontend_url}/experience?pending_auth={pending_session_id}",
+                status_code=302,
+            )
+            logger.info(f"New user needs registration: name={user_info.name}")
+            return redirect_response
 
     except OAuth2Error as e:
         logger.error(f"OAuth2 error: {e.message}, code={e.error_code}")
-        raise HTTPException(
-            status_code=e.status_code or 400,
-            detail="OAuth2 认证失败，请重新尝试登录"
+        return RedirectResponse(
+            url=f"{frontend_url}/experience?error=oauth_error&error_description=OAuth2认证失败",
+            status_code=302,
         )
     except Exception as e:
         logger.error(f"Unexpected error in OAuth callback: {e}")
-        raise HTTPException(
-            status_code=500,
-            detail="处理授权回调时发生错误，请稍后重试"
+        return RedirectResponse(
+            url=f"{frontend_url}/experience?error=server_error&error_description=处理授权回调时发生错误",
+            status_code=302,
         )
 
 
@@ -652,7 +777,7 @@ async def auth_callback(
     summary="完成注册",
     description="用户补填技能信息后完成注册，创建 Worker Agent"
 )
-async def complete_registration(request: CompleteRegistrationRequest):
+async def complete_registration(request: CompleteRegistrationRequest, response: Response):
     """
     完成用户注册
 
@@ -662,6 +787,7 @@ async def complete_registration(request: CompleteRegistrationRequest):
     1. 验证 access_token 有效性（必须，通过获取用户信息并验证 open_id 匹配）
     2. 使用 open_id 和用户提供的技能信息创建 Agent
     3. 启动 Agent 并返回结果
+    4. 设置 session Cookie
     """
     manager = get_agent_manager()
 
@@ -684,6 +810,20 @@ async def complete_registration(request: CompleteRegistrationRequest):
             secondme_id=user_identifier,  # 使用用户标识符
             bio=request.bio,
         )
+
+        # 注册成功后设置 session Cookie
+        if result.get("success") and result.get("agent_id"):
+            session_id = secrets.token_urlsafe(32)
+            _sessions[session_id] = result["agent_id"]
+            response.set_cookie(
+                key=SESSION_COOKIE_NAME,
+                value=session_id,
+                max_age=SESSION_MAX_AGE,
+                httponly=True,
+                samesite="lax",
+                secure=COOKIE_SECURE,
+            )
+            logger.info(f"Session created for agent_id={result['agent_id']}")
 
         return CompleteRegistrationResponse(
             success=result.get("success", False),
@@ -749,6 +889,191 @@ async def refresh_auth_token(request: RefreshTokenRequest):
             status_code=500,
             detail="服务配置错误，请联系管理员"
         )
+
+
+@app.get(
+    "/api/auth/me",
+    response_model=CurrentUserResponse,
+    tags=["认证"],
+    summary="获取当前用户信息",
+    description="通过 session Cookie 获取当前登录用户的信息"
+)
+async def get_current_user(
+    request: Request,
+    towow_session: Optional[str] = Cookie(None, alias=SESSION_COOKIE_NAME),
+):
+    """
+    获取当前登录用户信息
+
+    通过 session Cookie 验证用户身份并返回用户信息。
+    如果用户未登录或 session 无效，返回 401 错误。
+    """
+    if not towow_session:
+        raise HTTPException(status_code=401, detail="未登录")
+
+    agent_id = _sessions.get(towow_session)
+    if not agent_id:
+        raise HTTPException(status_code=401, detail="Session 无效或已过期")
+
+    manager = get_agent_manager()
+    agent_info = manager.get_agent_info(agent_id)
+
+    if not agent_info:
+        # Session 存在但 Agent 不存在，清理无效 session
+        del _sessions[towow_session]
+        raise HTTPException(status_code=401, detail="用户不存在")
+
+    return CurrentUserResponse(
+        agent_id=agent_info["agent_id"],
+        display_name=agent_info["display_name"],
+        avatar_url=None,  # 目前 agent_info 中没有 avatar_url
+        bio=agent_info.get("bio"),
+        skills=agent_info.get("skills", []),
+        specialties=agent_info.get("specialties", []),
+        secondme_id=agent_info.get("secondme_id", ""),
+    )
+
+
+@app.post(
+    "/api/auth/logout",
+    tags=["认证"],
+    summary="用户登出",
+    description="清除用户 session 并删除 Cookie"
+)
+async def logout(
+    response: Response,
+    towow_session: Optional[str] = Cookie(None, alias=SESSION_COOKIE_NAME),
+):
+    """
+    用户登出
+
+    清除服务端 session 并删除客户端 Cookie。
+    """
+    if towow_session and towow_session in _sessions:
+        agent_id = _sessions.pop(towow_session)
+        logger.info(f"User logged out: agent_id={agent_id}")
+
+    # 删除 Cookie
+    response.delete_cookie(
+        key=SESSION_COOKIE_NAME,
+        httponly=True,
+        samesite="lax",
+    )
+
+    return {"success": True, "message": "已登出"}
+
+
+@app.get(
+    "/api/auth/pending/{pending_id}",
+    tags=["认证"],
+    summary="获取待注册用户信息",
+    description="通过 pending_auth ID 获取 OAuth 回调后待注册用户的信息"
+)
+async def get_pending_auth(pending_id: str):
+    """
+    获取待注册用户信息
+
+    OAuth 回调后，如果用户需要注册，会生成一个 pending_auth ID。
+    前端可以用这个 ID 获取用户信息，显示注册表单。
+    """
+    pending_session = _pending_auth_sessions.get(pending_id)
+    if not pending_session:
+        raise HTTPException(status_code=404, detail="待注册会话不存在或已过期")
+
+    # 检查是否过期
+    if pending_session.get("expires_at") and pending_session["expires_at"] < datetime.now():
+        # 清理过期会话
+        del _pending_auth_sessions[pending_id]
+        logger.info(f"Pending auth session expired: {pending_id[:20]}...")
+        raise HTTPException(status_code=404, detail="待注册会话已过期，请重新登录")
+
+    pending_data = pending_session.get("data", pending_session)  # 兼容旧格式
+
+    return {
+        "name": pending_data.get("name"),
+        "avatar": pending_data.get("avatar"),
+        "bio": pending_data.get("bio"),
+        "user_identifier": pending_data.get("user_identifier"),
+    }
+
+
+@app.post(
+    "/api/auth/pending/{pending_id}/complete",
+    tags=["认证"],
+    summary="完成待注册用户的注册",
+    description="使用 pending_auth ID 完成用户注册"
+)
+async def complete_pending_registration(
+    pending_id: str,
+    response: Response,
+    display_name: str = Query(..., description="显示名称"),
+    skills: str = Query(..., description="技能列表，逗号分隔"),
+    specialties: str = Query("", description="专长领域，逗号分隔"),
+    bio: Optional[str] = Query(None, description="个人简介"),
+):
+    """
+    完成待注册用户的注册
+
+    使用 pending_auth ID 和用户填写的技能信息完成注册。
+    """
+    pending_session = _pending_auth_sessions.get(pending_id)
+    if not pending_session:
+        raise HTTPException(status_code=404, detail="待注册会话不存在或已过期")
+
+    # 检查是否过期
+    if pending_session.get("expires_at") and pending_session["expires_at"] < datetime.now():
+        # 清理过期会话
+        del _pending_auth_sessions[pending_id]
+        logger.info(f"Pending auth session expired during registration: {pending_id[:20]}...")
+        raise HTTPException(status_code=404, detail="待注册会话已过期，请重新登录")
+
+    pending_data = pending_session.get("data", pending_session)  # 兼容旧格式
+    manager = get_agent_manager()
+
+    try:
+        # 解析技能和专长
+        skills_list = [s.strip() for s in skills.split(",") if s.strip()]
+        specialties_list = [s.strip() for s in specialties.split(",") if s.strip()] if specialties else []
+
+        result = await manager.register_user(
+            display_name=display_name,
+            skills=skills_list,
+            specialties=specialties_list,
+            secondme_id=pending_data.get("user_identifier", ""),
+            bio=bio or pending_data.get("bio"),
+        )
+
+        if result.get("success") and result.get("agent_id"):
+            # 注册成功，创建 session
+            session_id = secrets.token_urlsafe(32)
+            _sessions[session_id] = result["agent_id"]
+
+            # 清理 pending session
+            del _pending_auth_sessions[pending_id]
+
+            response.set_cookie(
+                key=SESSION_COOKIE_NAME,
+                value=session_id,
+                max_age=SESSION_MAX_AGE,
+                httponly=True,
+                samesite="lax",
+                secure=COOKIE_SECURE,
+            )
+
+            logger.info(f"Registration completed: agent_id={result['agent_id']}")
+
+            return {
+                "success": True,
+                "message": "注册成功",
+                "agent_id": result["agent_id"],
+                "display_name": result.get("display_name"),
+            }
+        else:
+            raise HTTPException(status_code=500, detail="注册失败")
+
+    except Exception as e:
+        logger.error(f"Complete pending registration failed: {e}")
+        raise HTTPException(status_code=500, detail="注册过程中发生错误")
 
 
 # ============ 旧的预留接口（保留兼容性，标记为废弃） ============
@@ -826,7 +1151,37 @@ async def websocket_endpoint(websocket: WebSocket, agent_id: str):
         "type": "message" | "status" | "progress",
         "data": {...}
     }
+
+    认证要求：
+    - 必须携带有效的 session cookie
+    - agent_id 必须与 session 中的用户匹配
     """
+    # 1. 从 WebSocket 请求中获取 session cookie
+    session_id = websocket.cookies.get(SESSION_COOKIE_NAME)
+
+    if not session_id:
+        logger.warning(f"WebSocket connection rejected: no session cookie for agent_id={agent_id}")
+        await websocket.close(code=4001, reason="Unauthorized: no session")
+        return
+
+    # 2. 验证 session 是否有效
+    session_agent_id = _sessions.get(session_id)
+    if not session_agent_id:
+        logger.warning(f"WebSocket connection rejected: invalid session for agent_id={agent_id}")
+        await websocket.close(code=4001, reason="Unauthorized: invalid session")
+        return
+
+    # 3. 验证 agent_id 是否与 session 中的用户匹配
+    if session_agent_id != agent_id:
+        logger.warning(
+            f"WebSocket connection rejected: agent_id mismatch. "
+            f"Requested={agent_id}, Session={session_agent_id}"
+        )
+        await websocket.close(code=4003, reason="Forbidden: agent_id mismatch")
+        return
+
+    logger.info(f"WebSocket connection authenticated: agent_id={agent_id}")
+
     ws_manager = get_websocket_manager()
 
     if not await ws_manager.connect(websocket, agent_id):
@@ -881,6 +1236,110 @@ async def get_ws_stats():
 
 # ============ 需求 API ============
 
+async def simulate_negotiation(requirement_id: str, channel_id: str, requirement_text: str):
+    """
+    模拟协商流程 - 演示用
+
+    发送一系列模拟的协商消息，展示 Agent 协作过程
+    """
+    ws_manager = get_websocket_manager()
+
+    # 演示 Agent 数据
+    demo_agents = [
+        {"id": "agent_alice", "name": "Alice (AI 专家)", "specialty": "AI/ML"},
+        {"id": "agent_bob", "name": "Bob (后端开发)", "specialty": "Backend"},
+        {"id": "agent_carol", "name": "Carol (产品设计)", "specialty": "Product"},
+    ]
+
+    async def send_message(sender_id: str, sender_name: str, content: str, msg_type: str = "text"):
+        msg_id = f"msg_{uuid.uuid4().hex[:12]}"
+        message = {
+            "message_id": msg_id,
+            "channel_id": channel_id,
+            "sender_id": sender_id,
+            "sender_name": sender_name,
+            "message_type": msg_type,
+            "content": content,
+            "timestamp": datetime.now().isoformat(),
+        }
+        await ws_manager.broadcast_all({
+            "type": "message",
+            "payload": message,
+        })
+        logger.info(f"Sent demo message: {sender_name}: {content[:50]}...")
+
+    try:
+        # 阶段 1：系统消息 - 协商开始
+        await asyncio.sleep(1)
+        await send_message("system", "System", f"协商开始：正在为需求 \"{requirement_text[:50]}...\" 寻找合适的 Agent", "system")
+
+        # 阶段 2：Agent 筛选
+        await asyncio.sleep(2)
+        await send_message("coordinator", "Coordinator", f"已识别 {len(demo_agents)} 个相关 Agent，正在邀请参与协商...", "system")
+
+        # 阶段 3：Agent 响应
+        await asyncio.sleep(1.5)
+        await send_message(demo_agents[0]["id"], demo_agents[0]["name"],
+            f"收到需求！作为 {demo_agents[0]['specialty']} 专家，我可以提供技术方案设计和实现建议。")
+
+        await asyncio.sleep(1)
+        await send_message(demo_agents[1]["id"], demo_agents[1]["name"],
+            f"我是 {demo_agents[1]['specialty']} 开发者，可以负责系统架构和 API 设计部分。")
+
+        await asyncio.sleep(1)
+        await send_message(demo_agents[2]["id"], demo_agents[2]["name"],
+            f"作为 {demo_agents[2]['specialty']} 专家，我可以帮助梳理需求优先级和用户体验设计。")
+
+        # 阶段 4：协商讨论
+        await asyncio.sleep(2)
+        await send_message(demo_agents[0]["id"], demo_agents[0]["name"],
+            "建议我们先确定技术栈，然后分工协作。我可以负责核心算法部分。")
+
+        await asyncio.sleep(1.5)
+        await send_message(demo_agents[1]["id"], demo_agents[1]["name"],
+            "同意！我来搭建基础架构，预计需要 2-3 天完成 MVP。")
+
+        await asyncio.sleep(1)
+        await send_message(demo_agents[2]["id"], demo_agents[2]["name"],
+            "我会同步准备产品文档和用户测试计划。")
+
+        # 阶段 5：达成共识
+        await asyncio.sleep(2)
+        await send_message("coordinator", "Coordinator",
+            "各位 Agent 已达成初步共识，正在生成协作方案...", "system")
+
+        await asyncio.sleep(1.5)
+        await send_message("system", "System",
+            "✅ 协商完成！已生成协作方案，包含 3 位 Agent 的分工安排。", "system")
+
+        # 发送完成事件
+        await ws_manager.broadcast_all({
+            "type": "negotiation_complete",
+            "payload": {
+                "requirement_id": requirement_id,
+                "channel_id": channel_id,
+                "status": "completed",
+                "summary": "协商成功完成",
+                "participants": [a["name"] for a in demo_agents],
+                "final_proposal": {
+                    "title": "协作方案",
+                    "tasks": [
+                        {"agent": demo_agents[0]["name"], "task": "核心算法设计与实现"},
+                        {"agent": demo_agents[1]["name"], "task": "系统架构与 API 开发"},
+                        {"agent": demo_agents[2]["name"], "task": "产品设计与用户测试"},
+                    ],
+                    "estimated_time": "3-5 天",
+                }
+            }
+        })
+
+        logger.info(f"Demo negotiation completed for requirement {requirement_id}")
+
+    except Exception as e:
+        logger.error(f"Error in demo negotiation: {e}")
+        await send_message("system", "System", f"协商过程中发生错误: {str(e)}", "system")
+
+
 @app.post(
     "/api/requirements",
     response_model=RequirementResponse,
@@ -888,7 +1347,7 @@ async def get_ws_stats():
     summary="提交需求",
     description="提交一个新的需求"
 )
-async def create_requirement(request: RequirementCreateRequest):
+async def create_requirement(request: RequirementCreateRequest, background_tasks: BackgroundTasks):
     """
     提交新需求
 
@@ -899,6 +1358,7 @@ async def create_requirement(request: RequirementCreateRequest):
     """
     try:
         requirement_id = f"req_{uuid.uuid4().hex[:12]}"
+        channel_id = f"ch_{uuid.uuid4().hex[:12]}"  # 创建协商频道
 
         req = db.create_requirement(
             requirement_id=requirement_id,
@@ -908,14 +1368,50 @@ async def create_requirement(request: RequirementCreateRequest):
             metadata=request.metadata or {},
         )
 
+        # 更新需求的 channel_id
+        db.update_requirement(requirement_id, channel_id=channel_id, status="negotiating")
+
         # 通过 WebSocket 广播新需求
         ws_manager = get_websocket_manager()
         await ws_manager.broadcast_all({
             "type": "new_requirement",
-            "data": req.to_dict(),
+            "data": {**req.to_dict(), "channel_id": channel_id},
         })
 
-        return RequirementResponse(**req.to_dict())
+        requirement_text = f"{request.title}: {request.description}"
+
+        # 根据配置选择使用真实 Agent 还是模拟
+        if USE_REAL_AGENTS:
+            # 使用 BridgeAgent 提交到 OpenAgents 网络
+            logger.info(f"Submitting requirement to OpenAgents network: {requirement_id}")
+            try:
+                from .bridge_agent import get_bridge_agent
+                bridge = await get_bridge_agent()
+                if bridge and bridge.is_connected:
+                    result = await bridge.submit_requirement(
+                        requirement_id=requirement_id,
+                        requirement_text=requirement_text,
+                        channel_id=channel_id,
+                        submitter_id=request.submitter_id,
+                    )
+                    if result.get("success"):
+                        logger.info(f"Requirement submitted to network: {requirement_id}")
+                    else:
+                        logger.warning(f"Failed to submit to network, falling back to simulation: {result.get('error')}")
+                        background_tasks.add_task(simulate_negotiation, requirement_id, channel_id, requirement_text)
+                else:
+                    logger.warning("BridgeAgent not connected, falling back to simulation")
+                    background_tasks.add_task(simulate_negotiation, requirement_id, channel_id, requirement_text)
+            except Exception as e:
+                logger.error(f"Error using BridgeAgent: {e}, falling back to simulation")
+                background_tasks.add_task(simulate_negotiation, requirement_id, channel_id, requirement_text)
+        else:
+            # 使用模拟协商流程
+            background_tasks.add_task(simulate_negotiation, requirement_id, channel_id, requirement_text)
+
+        logger.info(f"Requirement created: {requirement_id}, channel: {channel_id}")
+
+        return RequirementResponse(**{**req.to_dict(), "channel_id": channel_id})
 
     except Exception as e:
         logger.error(f"Create requirement failed: {e}")

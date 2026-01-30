@@ -1,0 +1,82 @@
+/* app/globals.css */
+
+@import '../styles/fonts.css';
+@import '../styles/variables.css';
+@import '../styles/typography.css';
+@import '../styles/animations.css';
+
+/* === 全局重置 === */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* === HTML 基础样式 === */
+html {
+  width: 100%;
+  min-height: 100%;
+}
+
+/* === Body 基础样式 === */
+body {
+  width: 100%;
+  min-height: 100%;
+  background-color: var(--c-bg);
+  color: var(--c-text-main);
+  font-family: var(--f-cn-body);
+  font-size: 16px;
+  line-height: 1.75;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* === Main 容器 === */
+main {
+  overflow-x: hidden;
+  width: 100%;
+}
+
+/* === 标题重置 === */
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--f-cn-head);
+  margin: 0;
+  font-weight: normal;
+}
+
+/* === 链接重置 === */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* === 图片重置 === */
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* === 响应式断点 === */
+/* 平板 (768px+) */
+@media (min-width: 768px) {
+  :root {
+    --container-width: 85%;
+    --page-width: 90%;
+  }
+}
+
+/* 桌面 (1024px+) */
+@media (min-width: 1024px) {
+  :root {
+    --container-width: min(1200px, 80%);
+    --page-width: min(1440px, 90%);
+  }
+}
+
+/* 大屏 (1440px+) */
+@media (min-width: 1440px) {
+  :root {
+    --container-width: 1200px;
+    --page-width: 1400px;
+  }
+}

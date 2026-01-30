@@ -1,0 +1,220 @@
+/* app/articles/page.module.css */
+
+.page {
+  min-height: 100vh;
+  padding-top: 160px;
+  padding-bottom: var(--spacing-section);
+}
+
+/* Hero Section */
+.hero {
+  text-align: center;
+  margin-bottom: var(--spacing-3xl);
+  position: relative;
+}
+
+.heroTitle {
+  font-family: var(--f-cn-head);
+  font-size: 56px;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  color: var(--c-text-main);
+  margin: 0 0 var(--spacing-md) 0;
+}
+
+.heroSubtitle {
+  font-family: var(--f-cn-body);
+  font-size: 20px;
+  line-height: 1.6;
+  color: var(--c-text-sec);
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* Container */
+.container {
+  width: var(--container-width);
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+/* Back Link */
+.backLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--f-cn-body);
+  font-size: 15px;
+  color: var(--c-text-sec);
+  text-decoration: none;
+  margin-bottom: var(--spacing-xl);
+  transition: color var(--transition-fast), gap var(--transition-fast);
+}
+
+.backLink:hover {
+  color: var(--c-warm);
+  gap: 12px;
+}
+
+.backLink i {
+  font-size: 18px;
+  transition: transform var(--transition-fast);
+}
+
+.backLink:hover i {
+  transform: translateX(-4px);
+}
+
+/* Articles Grid - 改为单列 Editorial 布局 */
+.articlesGrid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .articlesGrid {
+    gap: var(--spacing-lg);
+  }
+
+  .heroTitle {
+    font-size: 40px;
+  }
+
+  .page {
+    padding-top: 120px;
+  }
+}
+
+/* Article Card - 去卡片化，改为 Editorial 风格 */
+.articleCard {
+  padding: var(--spacing-xl) 0;
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  /* 去掉背景、边框、模糊 */
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  transition: opacity var(--transition-normal);
+}
+
+.articleCard:hover {
+  opacity: 0.8;
+  transform: none;
+  background: transparent;
+  box-shadow: none;
+}
+
+/* Card Meta */
+.cardMeta {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  font-family: var(--f-cn-body);
+  font-size: 14px;
+  color: var(--c-text-gray);
+}
+
+.cardMeta span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.dot {
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: var(--c-text-gray);
+}
+
+/* Card Title */
+.cardTitle {
+  font-family: var(--f-cn-head);
+  font-size: 24px;
+  line-height: 1.4;
+  color: var(--c-text-main);
+  margin: 0 0 var(--spacing-sm) 0;
+}
+
+/* Card Excerpt */
+.cardExcerpt {
+  font-family: var(--f-cn-body);
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--c-text-sec);
+  margin: 0;
+  flex-grow: 1;
+}
+
+/* Read More */
+.readMore {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: var(--spacing-md);
+  font-family: var(--f-cn-body);
+  font-size: 15px;
+  color: var(--c-text-dark);
+  transition: gap var(--transition-fast), color var(--transition-fast);
+}
+
+.articleCard:hover .readMore {
+  gap: 12px;
+  color: var(--c-warm);
+}
+
+.readMore i {
+  font-size: 18px;
+  transition: transform var(--transition-fast);
+}
+
+.articleCard:hover .readMore i {
+  transform: translateX(4px);
+}
+
+/* Decorative Shapes - 简化，让滚动渐变背景成为主角 */
+.shapes {
+  display: none;
+}
+
+.shape1 {
+  position: absolute;
+  top: 15%;
+  right: 5%;
+  width: 400px;
+  height: 400px;
+  background: var(--c-primary);
+  border-radius: 50%;
+  opacity: 0.4;
+  filter: blur(60px);
+}
+
+.shape2 {
+  position: absolute;
+  bottom: 20%;
+  left: 5%;
+  width: 300px;
+  height: 300px;
+  background: var(--c-secondary);
+  opacity: 0.5;
+  filter: blur(40px);
+}
+
+.shape3 {
+  position: absolute;
+  top: 50%;
+  left: 30%;
+  width: 200px;
+  height: 200px;
+  background: var(--c-accent);
+  opacity: 0.3;
+  filter: blur(50px);
+}

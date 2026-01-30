@@ -1,0 +1,64 @@
+/* components/article/CTABox.module.css */
+
+.box {
+  background: linear-gradient(135deg, var(--c-secondary) 0%, #fff 100%);
+  border-radius: 24px;
+  padding: 60px;
+  text-align: center;
+  margin-top: 100px;
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+/* Decorative gradient shape */
+.decor {
+  position: absolute;
+  width: 200px;
+  height: 200px;
+  background: radial-gradient(circle, var(--c-accent) 0%, transparent 70%);
+  top: -50px;
+  right: -50px;
+  opacity: 0.6;
+  pointer-events: none;
+}
+
+.title {
+  font-family: var(--f-serif);
+  font-size: 36px;
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.description {
+  font-size: 18px;
+  color: var(--c-text-gray);
+  margin-bottom: 32px;
+  position: relative;
+  z-index: 1;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .box {
+    padding: 40px 24px;
+    margin-top: 60px;
+  }
+
+  .title {
+    font-size: 28px;
+  }
+
+  .description {
+    font-size: 16px;
+    margin-bottom: 24px;
+  }
+
+  .decor {
+    width: 150px;
+    height: 150px;
+    top: -30px;
+    right: -30px;
+  }
+}

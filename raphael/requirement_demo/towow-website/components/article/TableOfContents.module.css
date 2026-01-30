@@ -1,0 +1,89 @@
+/* components/article/TableOfContents.module.css */
+
+.toc {
+  position: sticky;
+  top: 120px;
+  width: 240px;
+  margin-left: auto;
+  margin-right: 40px;
+}
+
+.title {
+  font-size: 14px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--c-text-gray);
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.list {
+  list-style: none;
+  position: relative;
+  padding: 0;
+  margin: 0;
+}
+
+/* Vertical connecting line */
+.line {
+  position: absolute;
+  left: 7px;
+  top: 10px;
+  bottom: 10px;
+  width: 1px;
+  background: #ddd;
+  z-index: 0;
+}
+
+.item {
+  margin-bottom: 16px;
+  position: relative;
+  z-index: 1;
+}
+
+.link {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+  text-decoration: none;
+  color: var(--c-text-gray);
+  font-size: 15px;
+  transition: all var(--transition-normal);
+  padding: 4px 0;
+}
+
+.link:hover {
+  color: var(--c-text-dark);
+}
+
+/* Marker dot */
+.marker {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  border: 2px solid #ddd;
+  background: var(--c-bg);
+  transition: all var(--transition-normal);
+  flex-shrink: 0;
+}
+
+/* Active state - purple dot highlight */
+.item.active .marker {
+  background: var(--c-primary);
+  border-color: var(--c-primary);
+  transform: scale(1.2);
+}
+
+.item.active .link {
+  color: var(--c-text-dark);
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1200px) {
+  .toc {
+    display: none;
+  }
+}

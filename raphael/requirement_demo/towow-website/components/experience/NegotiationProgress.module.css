@@ -1,0 +1,170 @@
+/* components/experience/NegotiationProgress.module.css */
+
+.progress {
+  padding: var(--spacing-md) var(--spacing-lg);
+  background: rgba(255, 255, 255, 0.6);
+  backdrop-filter: blur(8px);
+  border-radius: var(--radius-md);
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.stepWrapper {
+  display: flex;
+  align-items: center;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  transition: var(--transition-default);
+}
+
+.stepIcon {
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--f-en-head);
+  font-size: 14px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  will-change: transform, background-color;
+}
+
+/* Pending state */
+.pending .stepIcon {
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--c-text-gray);
+}
+
+/* Active state */
+.active .stepIcon {
+  background: var(--c-primary);
+  color: var(--c-text-main);
+  transform: scale(1.1);
+}
+
+/* Completed state */
+.completed .stepIcon {
+  background: var(--c-secondary);
+  color: var(--c-text-main);
+}
+
+/* Failed state */
+.failed .stepIcon {
+  background: #ffcdd2;
+  color: #c62828;
+}
+
+.stepLabel {
+  font-size: 12px;
+  color: var(--c-text-sec);
+  white-space: nowrap;
+  transition: color 0.2s ease;
+}
+
+.active .stepLabel {
+  color: var(--c-text-main);
+  font-weight: 500;
+}
+
+.completed .stepLabel {
+  color: var(--c-text-main);
+}
+
+/* Pulse animation for active step */
+.pulse {
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: var(--c-primary);
+  opacity: 0;
+  animation: statusPulse 1.5s ease-in-out infinite;
+  pointer-events: none;
+}
+
+@keyframes statusPulse {
+  0%, 100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(1.4);
+  }
+}
+
+/* Checkmark animation */
+.checkmark {
+  width: 16px;
+  height: 16px;
+}
+
+.checkmark path {
+  stroke-dasharray: 24;
+  stroke-dashoffset: 0;
+  animation: checkmarkDraw 0.3s ease-out;
+}
+
+@keyframes checkmarkDraw {
+  from {
+    stroke-dashoffset: 24;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Connector line between steps */
+.connector {
+  width: 60px;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 0 var(--spacing-sm);
+  margin-bottom: 24px;
+  transition: background 0.3s ease;
+}
+
+.connectorActive {
+  background: var(--c-secondary);
+}
+
+/* Round info section */
+.roundInfo {
+  margin-top: var(--spacing-md);
+  padding-top: var(--spacing-md);
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.roundLabel {
+  font-size: 13px;
+  color: var(--c-text-sec);
+  text-align: center;
+}
+
+.roundProgress {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.roundProgressBar {
+  height: 100%;
+  background: var(--c-primary);
+  border-radius: 2px;
+  transition: width 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+}

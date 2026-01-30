@@ -1,0 +1,25 @@
+/* components/ui/QuoteBlock.module.css */
+
+.quoteBlock {
+  background: linear-gradient(135deg, rgba(255, 212, 184, 0.15), rgba(255, 228, 181, 0.2));
+  padding: 40px;
+  margin: 60px 0;
+  border-radius: 0 var(--radius-md) var(--radius-md) 0;
+  border-left: 6px solid var(--c-warm);
+  font-size: 22px;
+  font-style: italic;
+  color: #222;
+  position: relative;
+}
+
+.quoteIcon {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  font-size: 24px;
+  color: var(--c-warm);
+  opacity: 0.6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
