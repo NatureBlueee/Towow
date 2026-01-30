@@ -87,10 +87,11 @@
 .networkContainer {
   position: relative;
   width: 500px;
-  height: 500px;
+  height: 550px;
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-top: 20px;
 }
 
 .svg {
@@ -539,6 +540,59 @@
   font-size: 16px;
   font-weight: 600;
   color: var(--c-text-main);
+}
+
+/* Bio Section */
+.bioSection {
+  margin-bottom: var(--spacing-sm);
+}
+
+.bioHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: var(--spacing-xs);
+  color: var(--c-primary);
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.bioHeader svg {
+  opacity: 0.8;
+}
+
+.bioSummary {
+  font-size: 13px;
+  color: var(--c-text-main);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-xs);
+}
+
+.bioTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-bottom: var(--spacing-xs);
+}
+
+.bioTag {
+  padding: 2px 8px;
+  background: rgba(203, 195, 227, 0.2);
+  color: var(--c-text-sec);
+  border-radius: var(--radius-full);
+  font-size: 10px;
+}
+
+.bioExperience {
+  font-size: 11px;
+  color: var(--c-text-gray);
+  line-height: 1.4;
+}
+
+.responseDivider {
+  height: 1px;
+  background: var(--c-detail);
+  margin: var(--spacing-sm) 0;
 }
 
 /* Peer Chat Bubble */

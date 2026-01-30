@@ -27,6 +27,12 @@ const MOCK_AGENTS: Agent[] = [
     description: '5年全栈开发经验，擅长快速原型开发',
     skills: ['React', 'Node.js', 'PostgreSQL'],
     initialResponse: '我可以帮你快速搭建MVP',
+    bio: {
+      summary: '热爱技术的全栈工程师，专注于帮助创业者快速实现产品想法。',
+      expertise: ['快速原型开发', 'MVP构建', '技术架构设计'],
+      experience: '曾帮助20+创业团队从0到1搭建产品',
+      style: '高效务实，注重结果导向',
+    },
   },
   {
     id: 'xiaolin',
@@ -35,6 +41,12 @@ const MOCK_AGENTS: Agent[] = [
     description: '专注后端架构和数据库设计',
     skills: ['Python', 'Django', 'AWS'],
     initialResponse: '后端架构我很熟悉',
+    bio: {
+      summary: '后端架构专家，擅长设计高可用、可扩展的系统。',
+      expertise: ['分布式系统', '数据库优化', 'API设计'],
+      experience: '8年后端开发经验，服务过千万级用户产品',
+      style: '严谨细致，追求代码质量',
+    },
   },
   {
     id: 'studio',
@@ -43,6 +55,12 @@ const MOCK_AGENTS: Agent[] = [
     description: '提供完整的软件开发服务',
     skills: ['项目管理', '全栈开发', 'UI设计'],
     initialResponse: '我们可以承接整个项目',
+    bio: {
+      summary: '专业软件外包团队，提供从设计到开发的一站式服务。',
+      expertise: ['项目管理', '团队协作', '交付保障'],
+      experience: '累计交付100+项目，客户满意度98%',
+      style: '流程规范，按时交付',
+    },
   },
   {
     id: 'cursor',
@@ -51,6 +69,12 @@ const MOCK_AGENTS: Agent[] = [
     description: 'AI驱动的编程工具，提升开发效率',
     skills: ['代码生成', '代码补全', '重构'],
     initialResponse: '用AI加速开发',
+    bio: {
+      summary: 'AI驱动的智能编程助手，让编程更高效。',
+      expertise: ['代码生成', '智能补全', '代码重构'],
+      experience: '已帮助10万+开发者提升3倍开发效率',
+      style: '智能高效，持续学习',
+    },
   },
   {
     id: 'laowang',
@@ -59,6 +83,12 @@ const MOCK_AGENTS: Agent[] = [
     description: '10年产品经验，帮助创业者理清需求',
     skills: ['产品规划', '用户研究', '商业模式'],
     initialResponse: '先聊聊你真正想解决什么问题',
+    bio: {
+      summary: '资深产品教练，专注帮助创业者找到真正的产品方向。',
+      expertise: ['需求分析', '产品定位', '商业模式设计'],
+      experience: '辅导过50+创业项目，多个项目获得融资',
+      style: '善于提问，启发思考',
+    },
   },
   {
     id: 'notion',
@@ -67,6 +97,12 @@ const MOCK_AGENTS: Agent[] = [
     description: '提供现成的管理模板和工作流',
     skills: ['Notion', '工作流设计', '模板'],
     initialResponse: '也许你不需要开发，用模板就够了',
+    bio: {
+      summary: 'Notion资深玩家，专注打造高效工作流模板。',
+      expertise: ['工作流设计', '知识管理', '团队协作'],
+      experience: '模板被5000+用户使用，好评率99%',
+      style: '简洁实用，开箱即用',
+    },
   },
   {
     id: 'bubble',
@@ -75,6 +111,12 @@ const MOCK_AGENTS: Agent[] = [
     description: '无代码快速构建Web应用',
     skills: ['无代码开发', '快速原型', '自动化'],
     initialResponse: '无代码也能做出专业应用',
+    bio: {
+      summary: '无代码开发专家，让非技术人员也能构建专业应用。',
+      expertise: ['无代码开发', '流程自动化', '快速迭代'],
+      experience: '帮助1000+非技术创业者实现产品想法',
+      style: '降低门槛，快速验证',
+    },
   },
 ];
 

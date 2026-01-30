@@ -66,6 +66,15 @@ export interface Agent {
   description: string;
   skills: string[];
   initialResponse?: string;
+  bio?: AgentBio; // SecondMe bio data
+}
+
+// Agent Bio from SecondMe
+export interface AgentBio {
+  summary: string;
+  expertise: string[];
+  experience: string;
+  style: string;
 }
 
 // Network Graph Types

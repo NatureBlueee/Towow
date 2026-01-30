@@ -104,7 +104,9 @@ The backend service (`../web/`) uses these environment variables:
 # SecondMe OAuth2
 SECONDME_CLIENT_ID=your_client_id
 SECONDME_CLIENT_SECRET=your_client_secret
-SECONDME_REDIRECT_URI=http://localhost:8080/api/auth/callback
+# 本地开发：http://localhost:8080/api/auth/callback
+# 生产环境：https://towow.net/api/auth/callback
+SECONDME_REDIRECT_URI=https://towow.net/api/auth/callback
 
 # Security
 COOKIE_SECURE=false  # Set to true in production

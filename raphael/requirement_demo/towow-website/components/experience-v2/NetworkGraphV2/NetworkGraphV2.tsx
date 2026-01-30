@@ -492,28 +492,54 @@ export function NetworkGraphV2({
                 <span className={styles.loadingDots}>...</span>
               )}
 
-              {/* Response bubble */}
-              {isSelected && agent.response && (
+              {/* Response bubble with bio */}
+              {isSelected && (
                 <div className={styles.responseBubble}>
-                  <div className={styles.responseHeader}>
-                    <span className={styles.responseType} style={{ backgroundColor: `${statusColor}20`, color: statusColor }}>
-                      {getResponseTypeLabel(agent.response.type)}
-                    </span>
-                    <span className={styles.responseTitle}>{agent.response.title}</span>
-                  </div>
-                  <p className={styles.responseContent}>{agent.response.content}</p>
-                  {agent.response.conditions && (
-                    <div className={styles.responseConditions}>
-                      {agent.response.conditions.map((c, i) => (
-                        <span key={i} className={styles.condition}>{c}</span>
-                      ))}
+                  {/* Bio section - from SecondMe */}
+                  {agents.find(a => a.id === agent.id)?.bio && (
+                    <div className={styles.bioSection}>
+                      <div className={styles.bioHeader}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                          <circle cx="12" cy="7" r="4" />
+                        </svg>
+                        <span>来自 SecondMe</span>
+                      </div>
+                      <p className={styles.bioSummary}>{agents.find(a => a.id === agent.id)?.bio?.summary}</p>
+                      <div className={styles.bioTags}>
+                        {agents.find(a => a.id === agent.id)?.bio?.expertise.slice(0, 3).map((tag, i) => (
+                          <span key={i} className={styles.bioTag}>{tag}</span>
+                        ))}
+                      </div>
+                      <p className={styles.bioExperience}>{agents.find(a => a.id === agent.id)?.bio?.experience}</p>
                     </div>
                   )}
-                  {agent.response.price && (
-                    <div className={styles.responsePrice}>
-                      <span className={styles.priceLabel}>报价</span>
-                      <span className={styles.priceValue}>{agent.response.price} 元</span>
-                    </div>
+
+                  {/* Response section */}
+                  {agent.response && (
+                    <>
+                      <div className={styles.responseDivider} />
+                      <div className={styles.responseHeader}>
+                        <span className={styles.responseType} style={{ backgroundColor: `${statusColor}20`, color: statusColor }}>
+                          {getResponseTypeLabel(agent.response.type)}
+                        </span>
+                        <span className={styles.responseTitle}>{agent.response.title}</span>
+                      </div>
+                      <p className={styles.responseContent}>{agent.response.content}</p>
+                      {agent.response.conditions && (
+                        <div className={styles.responseConditions}>
+                          {agent.response.conditions.map((c, i) => (
+                            <span key={i} className={styles.condition}>{c}</span>
+                          ))}
+                        </div>
+                      )}
+                      {agent.response.price && (
+                        <div className={styles.responsePrice}>
+                          <span className={styles.priceLabel}>报价</span>
+                          <span className={styles.priceValue}>{agent.response.price} 元</span>
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
               )}
