@@ -239,6 +239,9 @@
 /* Center Node */
 .centerNode {
   position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -299,6 +302,8 @@
 /* Agent Node */
 .agentNode {
   position: absolute;
+  left: 50%;
+  top: 50%;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -312,11 +317,11 @@
 @keyframes nodeAppear {
   from {
     opacity: 0;
-    transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.3);
+    scale: 0.3;
   }
   to {
     opacity: 1;
-    transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+    scale: 1;
   }
 }
 
@@ -343,11 +348,11 @@
 @keyframes filterOut {
   0% {
     opacity: 1;
-    transform: translate(var(--tx, 0), var(--ty, 0)) scale(1);
+    scale: 1;
   }
   100% {
     opacity: 0;
-    transform: translate(var(--tx, 0), var(--ty, 0)) scale(0.5);
+    scale: 0.5;
   }
 }
 

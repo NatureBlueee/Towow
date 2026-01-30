@@ -36,18 +36,18 @@ function calculateCirclePositions(count: number, radius: number) {
   return positions;
 }
 
-// Phase timing configuration (in ms)
+// Phase timing configuration (in ms) - 放慢动画速度
 const PHASE_TIMING = {
-  launch: 800,
-  broadcast: 2000,
-  scan: 1500,
-  classify: 1200,
-  converge: 1500,
-  respond: 0, // User controlled
-  negotiate: 3000,
-  filter: 1500,
-  deep: 4000,
-  proposal: 0, // User controlled
+  launch: 1500,      // 需求发射动画
+  broadcast: 4000,   // 广播扫描（多波）
+  scan: 3000,        // 发现 Agent（每个 400ms）
+  classify: 2000,    // 分类动画
+  converge: 2500,    // 汇聚动画
+  respond: 0,        // 用户控制
+  negotiate: 4000,   // 信息汇聚
+  filter: 2000,      // 筛选动画
+  deep: 5000,        // 深入协商
+  proposal: 0,       // 用户控制
 };
 
 export function NetworkGraphV2({
@@ -183,7 +183,7 @@ export function NetworkGraphV2({
           clearInterval(interval);
           setPhase('classify');
         }
-      }, 200);
+      }, 400);
       return () => clearInterval(interval);
     }
 
@@ -443,7 +443,7 @@ export function NetworkGraphV2({
                 key={agent.id}
                 className={`${styles.agentNode} ${styles.filtered}`}
                 style={{
-                  transform: `translate(${position.x}px, ${position.y}px)`,
+                  transform: `translate(calc(${position.x}px - 50%), calc(${position.y}px - 50%))`,
                 }}
               >
                 <div
@@ -465,7 +465,7 @@ export function NetworkGraphV2({
               key={agent.id}
               className={`${styles.agentNode} ${shouldShowClassification() ? styles.classified : ''} ${isSelected ? styles.selected : ''} ${isPeerChatting ? styles.chatting : ''}`}
               style={{
-                transform: `translate(${position.x}px, ${position.y}px)`,
+                transform: `translate(calc(${position.x}px - 50%), calc(${position.y}px - 50%))`,
                 '--status-color': statusColor,
               } as React.CSSProperties}
               onClick={() => handleAgentClick(agent.id)}
