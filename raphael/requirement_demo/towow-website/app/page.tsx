@@ -20,7 +20,7 @@ export default function Home() {
         outlineButtonText="了解我们的思考"
         outlineButtonHref="/articles"
         primaryButtonText="体验 Demo"
-        primaryButtonHref="/experience-v2"
+        primaryButtonHref="/experience"
       />
 
       {/* Content Sections */}
