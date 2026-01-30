@@ -6,7 +6,7 @@
 
 - **任务 ID**: TASK-REDIS-002
 - **所属 Epic**: SESSION-REDIS
-- **状态**: pending
+- **状态**: completed
 - **优先级**: P1
 
 ## 任务描述
@@ -15,10 +15,10 @@
 
 ## 验收标准
 
-- [ ] 创建 `web/session_store_memory.py` 文件
-- [ ] 实现 `MemorySessionStore` 类
-- [ ] 支持 TTL 过期
-- [ ] 实现后台清理任务
+- [x] 创建 `web/session_store_memory.py` 文件
+- [x] 实现 `MemorySessionStore` 类
+- [x] 支持 TTL 过期
+- [x] 实现后台清理任务
 - [ ] 单元测试覆盖
 
 ## 依赖关系

@@ -6,7 +6,7 @@
 
 - **任务 ID**: TASK-REDIS-004
 - **所属 Epic**: SESSION-REDIS
-- **状态**: pending
+- **状态**: completed
 - **优先级**: P1
 
 ## 任务描述
@@ -15,10 +15,10 @@
 
 ## 验收标准
 
-- [ ] 移除 `_sessions` 和 `_pending_auth_sessions` 变量
-- [ ] 在 lifespan 中初始化 SessionStore
-- [ ] 修改所有 Session 操作使用 SessionStore
-- [ ] 移除 `cleanup_expired_pending_auth` 任务（由 SessionStore 处理 TTL）
+- [x] 移除 `_sessions` 和 `_pending_auth_sessions` 变量
+- [x] 在 lifespan 中初始化 SessionStore
+- [x] 修改所有 Session 操作使用 SessionStore
+- [x] 移除 `cleanup_expired_pending_auth` 任务（由 SessionStore 处理 TTL）
 - [ ] 功能测试通过
 
 ## 依赖关系

@@ -193,13 +193,17 @@ class SecondMeOAuth2Client:
         return state
 
     async def verify_state(self, state: str) -> bool:
-        """验证 state 是否有效"""
+        """
+        验证 state 是否有效（原子操作，防止竞态条件）
+
+        使用 delete 的返回值作为原子验证：
+        - 如果 state 存在，删除并返回 True
+        - 如果 state 不存在（已被使用或过期），返回 False
+        """
         if self._session_store:
             key = f"oauth_state:{state}"
-            exists = await self._session_store.exists(key)
-            if exists:
-                await self._session_store.delete(key)
-                return True
+            # 原子操作：delete 返回 True 表示键存在并被删除
+            return await self._session_store.delete(key)
         return False
 
     async def build_authorization_url(self, state: Optional[str] = None) -> tuple[str, str]:

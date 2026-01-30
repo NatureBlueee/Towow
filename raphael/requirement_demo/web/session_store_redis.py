@@ -16,7 +16,10 @@
 """
 
 import logging
-from typing import Optional
+from typing import Optional, TYPE_CHECKING
+
+if TYPE_CHECKING:
+    import redis.asyncio as redis
 
 from .session_store import SessionStore
 
@@ -61,7 +64,7 @@ class RedisSessionStore(SessionStore):
         self._max_connections = max_connections
         self._socket_timeout = socket_timeout
         self._socket_connect_timeout = socket_connect_timeout
-        self._client = None
+        self._client: Optional["redis.Redis"] = None
         self._is_available = False
 
     async def connect(self) -> bool:

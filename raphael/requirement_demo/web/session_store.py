@@ -71,7 +71,7 @@ class SessionStore(ABC):
             key: Session 键名
 
         Returns:
-            删除是否成功（键不存在也返回 True）
+            True 如果键存在并被删除，False 如果键不存在
         """
         pass
 

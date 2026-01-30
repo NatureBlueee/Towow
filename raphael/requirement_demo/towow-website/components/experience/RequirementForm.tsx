@@ -1,8 +1,14 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/Button';
 import styles from './RequirementForm.module.css';
+
+// Demo content for one-click experience
+const DEMO_CONTENT = {
+  title: '为独立音乐人打造一场线下演出',
+  description: '我是一个独立音乐人，想在上海办一场 50 人规模的小型演出。我有原创歌曲但没有演出经验，预算有限（5000元），希望能找到场地、做好宣传、处理好版权和演出许可等问题。时间希望在下个月的某个周末。',
+};
 
 interface RequirementFormProps {
   onSubmit: (data: { title: string; description: string }) => Promise<void>;
@@ -18,6 +24,8 @@ export function RequirementForm({
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isTyping, setIsTyping] = useState(false);
+  const typingRef = useRef<{ cancelled: boolean }>({ cancelled: false });
 
   const validate = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -31,19 +39,93 @@ export function RequirementForm({
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!validate() || disabled || isSubmitting) return;
+    if (!validate() || disabled || isSubmitting || isTyping) return;
     await onSubmit({ title, description });
+  };
+
+  // Typewriter effect function
+  const typeText = useCallback(async (
+    text: string,
+    setter: (value: string | ((prev: string) => string)) => void,
+    delay: number = 40
+  ): Promise<void> => {
+    for (let i = 0; i <= text.length; i++) {
+      if (typingRef.current.cancelled) return;
+      setter(text.slice(0, i));
+      await new Promise(resolve => setTimeout(resolve, delay));
+    }
+  }, []);
+
+  // Handle demo button click
+  const handleDemoClick = useCallback(async () => {
+    if (isTyping || isSubmitting || disabled) return;
+
+    // Reset state
+    typingRef.current.cancelled = false;
+    setIsTyping(true);
+    setErrors({});
+    setTitle('');
+    setDescription('');
+
+    try {
+      // Type title first (faster)
+      await typeText(DEMO_CONTENT.title, setTitle, 35);
+
+      if (typingRef.current.cancelled) return;
+
+      // Small pause between title and description
+      await new Promise(resolve => setTimeout(resolve, 200));
+
+      if (typingRef.current.cancelled) return;
+
+      // Type description (slightly slower for longer text)
+      await typeText(DEMO_CONTENT.description, setDescription, 25);
+    } finally {
+      setIsTyping(false);
+    }
+  }, [isTyping, isSubmitting, disabled, typeText]);
+
+  // Cancel typing if user starts editing
+  const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isTyping) {
+      typingRef.current.cancelled = true;
+      setIsTyping(false);
+    }
+    setTitle(e.target.value);
+  };
+
+  const handleDescriptionChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    if (isTyping) {
+      typingRef.current.cancelled = true;
+      setIsTyping(false);
+    }
+    setDescription(e.target.value);
   };
 
   return (
     <form className={styles.form} onSubmit={handleSubmit}>
+      {/* Demo Button */}
+      <button
+        type="button"
+        className={styles.demoButton}
+        onClick={handleDemoClick}
+        disabled={isTyping || isSubmitting || disabled}
+      >
+        <span className={styles.demoIcon}>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polygon points="5 3 19 12 5 21 5 3" />
+          </svg>
+        </span>
+        <span>{isTyping ? '演示中...' : '一键体验'}</span>
+      </button>
+
       <div className={styles.field}>
         <label className={styles.label}>需求标题</label>
         <input
           type="text"
           className={styles.input}
           value={title}
-          onChange={(e) => setTitle(e.target.value)}
+          onChange={handleTitleChange}
           placeholder="简要描述你的需求"
           disabled={disabled || isSubmitting}
           maxLength={100}
@@ -59,7 +141,7 @@ export function RequirementForm({
         <textarea
           className={styles.textarea}
           value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          onChange={handleDescriptionChange}
           placeholder="详细描述你的需求，包括背景、目标、期望结果等"
           disabled={disabled || isSubmitting}
           maxLength={2000}
@@ -74,9 +156,9 @@ export function RequirementForm({
       <Button
         variant="primary"
         type="submit"
-        disabled={disabled || isSubmitting}
+        disabled={disabled || isSubmitting || isTyping}
       >
-        {isSubmitting ? '提交中...' : '提交需求'}
+        {isSubmitting ? '提交中...' : isTyping ? '请等待演示完成' : '提交需求'}
       </Button>
     </form>
   );

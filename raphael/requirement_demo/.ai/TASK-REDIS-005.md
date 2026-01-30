@@ -6,7 +6,7 @@
 
 - **任务 ID**: TASK-REDIS-005
 - **所属 Epic**: SESSION-REDIS
-- **状态**: pending
+- **状态**: completed
 - **优先级**: P1
 
 ## 任务描述
@@ -15,11 +15,11 @@
 
 ## 验收标准
 
-- [ ] 移除 `_pending_states` 变量
-- [ ] 注入 SessionStore 依赖
-- [ ] 修改 `generate_state()` 使用 SessionStore
-- [ ] 修改 `verify_state()` 使用 SessionStore
-- [ ] 移除 `_cleanup_expired_states()` 方法
+- [x] 移除 `_pending_states` 变量
+- [x] 注入 SessionStore 依赖
+- [x] 修改 `generate_state()` 使用 SessionStore
+- [x] 修改 `verify_state()` 使用 SessionStore
+- [x] 移除 `_cleanup_expired_states()` 方法
 - [ ] 功能测试通过
 
 ## 依赖关系

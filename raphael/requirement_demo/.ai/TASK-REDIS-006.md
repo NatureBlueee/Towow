@@ -6,7 +6,7 @@
 
 - **任务 ID**: TASK-REDIS-006
 - **所属 Epic**: SESSION-REDIS
-- **状态**: pending
+- **状态**: in_progress
 - **优先级**: P2
 
 ## 任务描述

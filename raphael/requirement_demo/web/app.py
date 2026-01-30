@@ -1228,15 +1228,172 @@ async def get_ws_stats():
 
 # ============ 需求 API ============
 
+# 加载演示场景配置
+def _load_demo_scenario() -> dict:
+    """加载演示场景配置文件"""
+    scenario_path = os.path.join(os.path.dirname(__file__), "demo_scenario.json")
+    try:
+        with open(scenario_path, "r", encoding="utf-8") as f:
+            return json.load(f)
+    except FileNotFoundError:
+        logger.error(f"Demo scenario file not found: {scenario_path}")
+        return {}
+    except json.JSONDecodeError as e:
+        logger.error(f"Failed to parse demo scenario JSON: {e}")
+        return {}
+
+
+# 缓存演示场景配置
+_demo_scenario_cache: Optional[dict] = None
+
+
+def get_demo_scenario() -> dict:
+    """获取演示场景配置（带缓存）"""
+    global _demo_scenario_cache
+    if _demo_scenario_cache is None:
+        _demo_scenario_cache = _load_demo_scenario()
+    return _demo_scenario_cache
+
+
 async def simulate_negotiation(requirement_id: str, channel_id: str, requirement_text: str):
     """
     模拟协商流程 - 演示用
 
-    发送一系列模拟的协商消息，展示 Agent 协作过程
+    使用 demo_scenario.json 配置文件中的脚本，
+    发送一系列模拟的协商消息，展示 Agent 协作过程。
+    支持 6 个阶段：discovery, initial_response, negotiation, subnet_trigger, consensus, proposal
     """
     ws_manager = get_websocket_manager()
+    scenario = get_demo_scenario()
 
-    # 演示 Agent 数据
+    if not scenario:
+        logger.error("Failed to load demo scenario, using fallback")
+        await _fallback_negotiation(ws_manager, requirement_id, channel_id, requirement_text)
+        return
+
+    # 获取配置数据
+    demo_agents = scenario.get("demoAgents", [])
+    negotiation_script = scenario.get("negotiationScript", [])
+    final_proposal = scenario.get("finalProposal", {})
+
+    # 构建 Agent ID 到 Agent 信息的映射
+    agent_map = {agent["id"]: agent for agent in demo_agents}
+
+    async def send_message(
+        sender_id: str,
+        sender_name: str,
+        content: str,
+        msg_type: str = "text",
+        metadata: Optional[dict] = None
+    ):
+        """发送消息到 WebSocket"""
+        msg_id = f"msg_{uuid.uuid4().hex[:12]}"
+        message = {
+            "message_id": msg_id,
+            "channel_id": channel_id,
+            "sender_id": sender_id,
+            "sender_name": sender_name,
+            "message_type": msg_type,
+            "content": content,
+            "timestamp": datetime.now().isoformat(),
+        }
+        if metadata:
+            message["metadata"] = metadata
+
+        await ws_manager.broadcast_all({
+            "type": "message",
+            "payload": message,
+        })
+        logger.info(f"[Demo] {sender_name}: {content[:50]}...")
+
+    async def send_phase_start(phase_name: str, description: str):
+        """发送阶段开始事件"""
+        await ws_manager.broadcast_all({
+            "type": "phase_start",
+            "payload": {
+                "channel_id": channel_id,
+                "phase_name": phase_name,
+                "description": description,
+                "timestamp": datetime.now().isoformat(),
+            }
+        })
+        logger.info(f"[Demo] Phase started: {phase_name}")
+
+    try:
+        logger.info(f"Starting demo negotiation for requirement {requirement_id}")
+
+        # 遍历协商脚本的每个阶段
+        for phase in negotiation_script:
+            phase_id = phase.get("phase", "unknown")
+            phase_name = phase.get("phase_name", phase_id)
+            phase_description = phase.get("description", "")
+            messages = phase.get("messages", [])
+
+            # 发送阶段开始事件
+            await send_phase_start(phase_name, phase_description)
+
+            # 发送该阶段的所有消息
+            for msg in messages:
+                # 获取延迟时间（毫秒转秒）
+                delay_ms = msg.get("delay_ms", 1000)
+                if delay_ms > 0:
+                    await asyncio.sleep(delay_ms / 1000.0)
+
+                sender = msg.get("sender", "system")
+                sender_name = msg.get("sender_name", "System")
+                content = msg.get("content", "")
+                msg_type = msg.get("type", "text")
+                metadata = msg.get("metadata")
+
+                # 如果 sender 是 agent ID，从 agent_map 获取完整信息
+                if sender in agent_map:
+                    agent_info = agent_map[sender]
+                    # 可以在 metadata 中添加 agent 的额外信息
+                    if metadata is None:
+                        metadata = {}
+                    metadata["agent_type"] = agent_info.get("type", "")
+                    metadata["agent_specialty"] = agent_info.get("specialty", "")
+                    metadata["avatar_emoji"] = agent_info.get("avatar_emoji", "")
+
+                await send_message(sender, sender_name, content, msg_type, metadata)
+
+        # 发送协商完成事件，包含最终方案
+        participants = []
+        for task in final_proposal.get("tasks", []):
+            agent_name = task.get("agent", "")
+            if agent_name and agent_name not in participants:
+                participants.append(agent_name)
+
+        await ws_manager.broadcast_all({
+            "type": "negotiation_complete",
+            "payload": {
+                "requirement_id": requirement_id,
+                "channel_id": channel_id,
+                "status": "completed",
+                "summary": final_proposal.get("summary", "协商成功完成"),
+                "participants": participants,
+                "final_proposal": final_proposal,
+            }
+        })
+
+        logger.info(f"Demo negotiation completed for requirement {requirement_id}")
+
+    except Exception as e:
+        logger.error(f"Error in demo negotiation: {e}", exc_info=True)
+        await send_message("system", "System", f"协商过程中发生错误: {str(e)}", "system")
+
+
+async def _fallback_negotiation(
+    ws_manager: WebSocketManager,
+    requirement_id: str,
+    channel_id: str,
+    requirement_text: str
+):
+    """
+    备用协商流程 - 当配置文件加载失败时使用
+
+    提供简单的硬编码协商流程作为后备方案
+    """
     demo_agents = [
         {"id": "agent_alice", "name": "Alice (AI 专家)", "specialty": "AI/ML"},
         {"id": "agent_bob", "name": "Bob (后端开发)", "specialty": "Backend"},
@@ -1258,78 +1415,38 @@ async def simulate_negotiation(requirement_id: str, channel_id: str, requirement
             "type": "message",
             "payload": message,
         })
-        logger.info(f"Sent demo message: {sender_name}: {content[:50]}...")
 
     try:
-        # 阶段 1：系统消息 - 协商开始
         await asyncio.sleep(1)
-        await send_message("system", "System", f"协商开始：正在为需求 \"{requirement_text[:50]}...\" 寻找合适的 Agent", "system")
+        await send_message("system", "System", f"协商开始：正在为需求寻找合适的 Agent", "system")
 
-        # 阶段 2：Agent 筛选
         await asyncio.sleep(2)
-        await send_message("coordinator", "Coordinator", f"已识别 {len(demo_agents)} 个相关 Agent，正在邀请参与协商...", "system")
+        await send_message("coordinator", "Coordinator", f"已识别 {len(demo_agents)} 个相关 Agent", "system")
 
-        # 阶段 3：Agent 响应
-        await asyncio.sleep(1.5)
-        await send_message(demo_agents[0]["id"], demo_agents[0]["name"],
-            f"收到需求！作为 {demo_agents[0]['specialty']} 专家，我可以提供技术方案设计和实现建议。")
+        for agent in demo_agents:
+            await asyncio.sleep(1)
+            await send_message(agent["id"], agent["name"], f"我可以提供 {agent['specialty']} 方面的支持。")
 
-        await asyncio.sleep(1)
-        await send_message(demo_agents[1]["id"], demo_agents[1]["name"],
-            f"我是 {demo_agents[1]['specialty']} 开发者，可以负责系统架构和 API 设计部分。")
-
-        await asyncio.sleep(1)
-        await send_message(demo_agents[2]["id"], demo_agents[2]["name"],
-            f"作为 {demo_agents[2]['specialty']} 专家，我可以帮助梳理需求优先级和用户体验设计。")
-
-        # 阶段 4：协商讨论
         await asyncio.sleep(2)
-        await send_message(demo_agents[0]["id"], demo_agents[0]["name"],
-            "建议我们先确定技术栈，然后分工协作。我可以负责核心算法部分。")
+        await send_message("system", "System", "协商完成！已生成协作方案。", "system")
 
-        await asyncio.sleep(1.5)
-        await send_message(demo_agents[1]["id"], demo_agents[1]["name"],
-            "同意！我来搭建基础架构，预计需要 2-3 天完成 MVP。")
-
-        await asyncio.sleep(1)
-        await send_message(demo_agents[2]["id"], demo_agents[2]["name"],
-            "我会同步准备产品文档和用户测试计划。")
-
-        # 阶段 5：达成共识
-        await asyncio.sleep(2)
-        await send_message("coordinator", "Coordinator",
-            "各位 Agent 已达成初步共识，正在生成协作方案...", "system")
-
-        await asyncio.sleep(1.5)
-        await send_message("system", "System",
-            "✅ 协商完成！已生成协作方案，包含 3 位 Agent 的分工安排。", "system")
-
-        # 发送完成事件
         await ws_manager.broadcast_all({
             "type": "negotiation_complete",
             "payload": {
                 "requirement_id": requirement_id,
                 "channel_id": channel_id,
                 "status": "completed",
-                "summary": "协商成功完成",
+                "summary": "协商成功完成（备用流程）",
                 "participants": [a["name"] for a in demo_agents],
                 "final_proposal": {
                     "title": "协作方案",
-                    "tasks": [
-                        {"agent": demo_agents[0]["name"], "task": "核心算法设计与实现"},
-                        {"agent": demo_agents[1]["name"], "task": "系统架构与 API 开发"},
-                        {"agent": demo_agents[2]["name"], "task": "产品设计与用户测试"},
-                    ],
-                    "estimated_time": "3-5 天",
+                    "tasks": [{"agent": a["name"], "task": f"{a['specialty']} 支持"} for a in demo_agents],
                 }
             }
         })
 
-        logger.info(f"Demo negotiation completed for requirement {requirement_id}")
-
     except Exception as e:
-        logger.error(f"Error in demo negotiation: {e}")
-        await send_message("system", "System", f"协商过程中发生错误: {str(e)}", "system")
+        logger.error(f"Error in fallback negotiation: {e}")
 
 
 @app.post(
