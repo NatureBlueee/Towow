@@ -498,6 +498,10 @@
   .profileToggle {
     width: 24px;
     height: 24px;
+    /* 使用 padding 扩大触摸区域到 44px */
+    padding: 10px;
+    margin: -10px;
+    box-sizing: content-box;
   }
 
   .logoutButton {
@@ -542,8 +546,8 @@
 
   .skillTag,
   .specialtyTag {
-    padding: 3px 8px;
-    font-size: 11px;
+    padding: 4px 10px;
+    font-size: 12px;
   }
 
   .tagList {

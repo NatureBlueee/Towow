@@ -23,6 +23,23 @@ export function Header({ progress = 0 }: HeaderProps) {
     };
   }, [isMenuOpen]);
 
+  // Escape 键关闭菜单
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isMenuOpen) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('keydown', handleKeyDown);
+    }
+
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMenuOpen]);
+
   const handleLinkClick = () => {
     setIsMenuOpen(false);
   };
@@ -51,6 +68,7 @@ export function Header({ progress = 0 }: HeaderProps) {
         onClick={() => setIsMenuOpen(!isMenuOpen)}
         aria-label={isMenuOpen ? '关闭菜单' : '打开菜单'}
         aria-expanded={isMenuOpen}
+        aria-controls="mobile-menu"
       >
         <div className={styles.menuIcon}>
           <span />
@@ -60,7 +78,10 @@ export function Header({ progress = 0 }: HeaderProps) {
       </button>
 
       {/* 移动端菜单 */}
-      <nav className={`${styles.mobileMenu} ${isMenuOpen ? styles.open : ''}`}>
+      <nav
+        id="mobile-menu"
+        className={`${styles.mobileMenu} ${isMenuOpen ? styles.open : ''}`}
+      >
         <Link href="/" className={styles.mobileNavLink} onClick={handleLinkClick}>
           首页
         </Link>

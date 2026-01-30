@@ -1,0 +1,137 @@
+/* StageIndicator.module.css */
+
+.container {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-header);
+  background: rgba(248, 246, 243, 0.95);
+  backdrop-filter: blur(12px);
+  padding: var(--spacing-sm) 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.track {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 0 var(--spacing-md);
+}
+
+.stageWrapper {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  max-width: 120px;
+}
+
+.stageWrapper:first-child {
+  flex: 0;
+}
+
+.connector {
+  flex: 1;
+  height: 2px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 0 var(--spacing-xs);
+  transition: background var(--transition-normal);
+}
+
+.connectorActive {
+  background: var(--c-primary);
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: var(--spacing-xs);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: var(--transition-fast);
+  border-radius: var(--radius-sm);
+}
+
+.stage:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.stage:not(:disabled):hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.stage:focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+}
+
+.stageNumber {
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.08);
+  color: var(--c-text-gray);
+  font-size: 13px;
+  font-weight: 600;
+  transition: var(--transition-fast);
+}
+
+.stageCurrent .stageNumber {
+  background: var(--c-primary);
+  color: var(--c-text-main);
+  box-shadow: 0 0 0 4px rgba(212, 184, 217, 0.3);
+}
+
+.stageCompleted .stageNumber {
+  background: var(--c-secondary);
+  color: #10B981;
+}
+
+.stageLabel {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-gray);
+  white-space: nowrap;
+  transition: color var(--transition-fast);
+}
+
+.stageCurrent .stageLabel {
+  color: var(--c-text-main);
+  font-weight: 600;
+}
+
+.stageCompleted .stageLabel {
+  color: var(--c-text-sec);
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .track {
+    padding: 0 var(--spacing-sm);
+  }
+
+  .stageWrapper {
+    max-width: 80px;
+  }
+
+  .stageNumber {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+
+  .stageLabel {
+    font-size: 10px;
+  }
+
+  .connector {
+    margin: 0 2px;
+  }
+}
