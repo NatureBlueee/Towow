@@ -212,12 +212,17 @@ class SecondMeOAuth2Client:
             return await self._session_store.delete(key)
         return False
 
-    async def build_authorization_url(self, state: Optional[str] = None) -> tuple[str, str]:
+    async def build_authorization_url(
+        self,
+        state: Optional[str] = None,
+        redirect_uri: Optional[str] = None
+    ) -> tuple[str, str]:
         """
         构建授权 URL
 
         Args:
             state: 可选的 state 参数，如果不提供则自动生成
+            redirect_uri: 可选的回调地址，如果不提供则使用配置中的默认值
 
         Returns:
             (authorization_url, state) 元组
@@ -225,22 +230,25 @@ class SecondMeOAuth2Client:
         if state is None:
             state = await self.generate_state()
 
+        uri = redirect_uri or self.config.redirect_uri
+
         # 不对 redirect_uri 进行编码，SecondMe 可能会自行处理
         url = (
             f"{self.config.auth_url}"
             f"?client_id={self.config.client_id}"
-            f"&redirect_uri={self.config.redirect_uri}"
+            f"&redirect_uri={uri}"
             f"&response_type=code"
             f"&state={state}"
         )
         return url, state
 
-    async def exchange_token(self, code: str) -> TokenSet:
+    async def exchange_token(self, code: str, redirect_uri: Optional[str] = None) -> TokenSet:
         """
         用授权码交换 Token
 
         Args:
             code: 授权码
+            redirect_uri: 可选的回调地址，如果不提供则使用配置中的默认值
 
         Returns:
             TokenSet 对象
@@ -250,10 +258,12 @@ class SecondMeOAuth2Client:
         """
         url = f"{self.config.api_base_url}/gate/lab/api/oauth/token/code"
 
+        uri = redirect_uri or self.config.redirect_uri
+
         data = {
             "grant_type": "authorization_code",
             "code": code,
-            "redirect_uri": self.config.redirect_uri,
+            "redirect_uri": uri,
             "client_id": self.config.client_id,
             "client_secret": self.config.client_secret,
         }

@@ -266,6 +266,30 @@ USE_REAL_AGENTS = os.getenv("USE_REAL_AGENTS", "false").lower() == "true"
 OPENAGENTS_HOST = os.getenv("OPENAGENTS_HOST", "localhost")
 OPENAGENTS_PORT = int(os.getenv("OPENAGENTS_PORT", "8800"))
 
+# 回调地址映射（根据请求 Host 选择）
+# 格式: { "host": "redirect_uri" }
+REDIRECT_URI_MAP = {
+    "localhost:8080": "http://localhost:8080/api/auth/callback",
+    "127.0.0.1:8080": "http://localhost:8080/api/auth/callback",
+    "towow-api-production.up.railway.app": "https://towow.net/api/auth/callback",
+}
+
+def get_redirect_uri_for_host(host: str) -> str:
+    """根据请求 Host 获取对应的回调地址"""
+    # 移除端口号后的路径（如果有）
+    host_without_path = host.split("/")[0]
+    return REDIRECT_URI_MAP.get(
+        host_without_path,
+        os.getenv("SECONDME_REDIRECT_URI", "http://localhost:8080/api/auth/callback")
+    )
+
+def get_frontend_url_for_host(host: str) -> str:
+    """根据请求 Host 获取对应的前端 URL"""
+    host_without_path = host.split("/")[0]
+    if "localhost" in host_without_path or "127.0.0.1" in host_without_path:
+        return "http://localhost:3000"
+    return "https://towow.net"
+
 
 # ============ 应用生命周期 ============
 
@@ -605,7 +629,7 @@ async def stop_all_agents():
     summary="获取 SecondMe 登录 URL",
     description="返回 SecondMe OAuth2 授权页面 URL，前端可以重定向用户到该 URL 进行授权"
 )
-async def auth_login():
+async def auth_login(request: Request):
     """
     获取 SecondMe OAuth2 授权 URL
 
@@ -620,9 +644,14 @@ async def auth_login():
     - state: CSRF 防护的 state 参数，需要在 callback 中验证
     """
     try:
+        # 根据请求 Host 选择回调地址
+        host = request.headers.get("host", "localhost:8080")
+        redirect_uri = get_redirect_uri_for_host(host)
+        logger.info(f"Auth login from host={host}, using redirect_uri={redirect_uri}")
+
         session_store = await get_session_store()
         oauth_client = await get_oauth2_client(session_store)
-        auth_url, state = await oauth_client.build_authorization_url()
+        auth_url, state = await oauth_client.build_authorization_url(redirect_uri=redirect_uri)
 
         return AuthLoginResponse(
             authorization_url=auth_url,
@@ -657,8 +686,11 @@ async def auth_callback(
 
     处理完成后重定向回前端页面。
     """
-    # 前端 URL（从环境变量读取，默认 localhost:3000）
-    frontend_url = os.getenv("FRONTEND_URL", "http://localhost:3000")
+    # 根据请求 Host 动态选择前端 URL 和回调地址
+    host = request.headers.get("host", "localhost:8080")
+    frontend_url = get_frontend_url_for_host(host)
+    redirect_uri = get_redirect_uri_for_host(host)
+    logger.info(f"Auth callback from host={host}, frontend_url={frontend_url}, redirect_uri={redirect_uri}")
 
     session_store = await get_session_store()
     oauth_client = await get_oauth2_client(session_store)
@@ -667,13 +699,13 @@ async def auth_callback(
     if not await oauth_client.verify_state(state):
         logger.warning(f"Invalid state in OAuth callback: {state[:20]}...")
         return RedirectResponse(
-            url=f"{frontend_url}/experience?error=invalid_state&error_description=请重新发起登录流程",
+            url=f"{frontend_url}/experience-v2?error=invalid_state&error_description=请重新发起登录流程",
             status_code=302,
         )
 
     try:
         # 1. 用授权码换取 Token
-        token_set = await oauth_client.exchange_token(code)
+        token_set = await oauth_client.exchange_token(code, redirect_uri=redirect_uri)
 
         # 2. 获取用户信息
         user_info = await oauth_client.get_user_info(token_set.access_token)
@@ -701,7 +733,7 @@ async def auth_callback(
             )
 
             redirect_response = RedirectResponse(
-                url=f"{frontend_url}/experience",
+                url=f"{frontend_url}/experience-v2",
                 status_code=302,
             )
             redirect_response.set_cookie(
@@ -734,7 +766,7 @@ async def auth_callback(
             )
 
             redirect_response = RedirectResponse(
-                url=f"{frontend_url}/experience?pending_auth={pending_session_id}",
+                url=f"{frontend_url}/experience-v2?pending_auth={pending_session_id}",
                 status_code=302,
             )
             logger.info(f"New user needs registration: name={user_info.name}")
@@ -743,13 +775,13 @@ async def auth_callback(
     except OAuth2Error as e:
         logger.error(f"OAuth2 error: {e.message}, code={e.error_code}")
         return RedirectResponse(
-            url=f"{frontend_url}/experience?error=oauth_error&error_description=OAuth2认证失败",
+            url=f"{frontend_url}/experience-v2?error=oauth_error&error_description=OAuth2认证失败",
             status_code=302,
         )
     except Exception as e:
         logger.error(f"Unexpected error in OAuth callback: {e}")
         return RedirectResponse(
-            url=f"{frontend_url}/experience?error=server_error&error_description=处理授权回调时发生错误",
+            url=f"{frontend_url}/experience-v2?error=server_error&error_description=处理授权回调时发生错误",
             status_code=302,
         )
 
