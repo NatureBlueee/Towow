@@ -16,7 +16,7 @@ const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
 const DEMO_USER = {
   agent_id: 'demo_user',
   display_name: '演示用户',
-  avatar_url: null,
+  avatar_url: undefined,
   bio: '这是一个演示账户',
   self_introduction: '欢迎体验 ToWow AI Agent 协作网络',
   profile_completeness: 100,
