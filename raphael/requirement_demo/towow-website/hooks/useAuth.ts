@@ -6,7 +6,8 @@ import { useExperienceContext } from '@/context/ExperienceContext';
 import { getAuthUrl, getCurrentUser, logout as logoutApi } from '@/lib/api/auth';
 import { handleApiError, OAuth2Errors, ApiError } from '@/lib/errors';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// 使用相对路径，通过 Next.js rewrites 代理到后端
+const API_BASE = '';
 
 interface PendingAuthData {
   name: string;

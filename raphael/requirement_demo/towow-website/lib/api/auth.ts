@@ -1,4 +1,5 @@
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// 使用相对路径，通过 Next.js rewrites 代理到后端
+const API_BASE = '';
 
 export async function getAuthUrl(): Promise<string> {
   const response = await fetch(`${API_BASE}/api/auth/login`);

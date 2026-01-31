@@ -1,6 +1,7 @@
 import { RequirementInput, Requirement } from '@/types/experience';
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8080';
+// 使用相对路径，通过 Next.js rewrites 代理到后端
+const API_BASE = '';
 
 export interface NegotiationResult {
   requirement_id: string;
