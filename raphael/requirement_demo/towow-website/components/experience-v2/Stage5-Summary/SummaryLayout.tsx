@@ -38,9 +38,16 @@ export function SummaryLayout({
 }: SummaryLayoutProps) {
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>协商汇总</h2>
-
-      {/* Timeline */}
+      <div className={styles.header}>
+        <h2 className={styles.title}>Towow.net</h2>
+        <div className={styles.qrWrapper}>
+          <img
+            src="/towow-wechat-qr.jpg"
+            alt="Towow WeChat Group QR Code"
+            className={styles.qrCode}
+          />
+        </div>
+      </div>
       <section className={styles.section}>
         <h3 className={styles.sectionTitle}>协商时间线</h3>
         <div className={styles.timeline}>
@@ -52,15 +59,13 @@ export function SummaryLayout({
               <div key={stage.id} className={styles.timelineItem}>
                 {index > 0 && (
                   <div
-                    className={`${styles.timelineConnector} ${
-                      isCompleted ? styles.timelineConnectorActive : ''
-                    }`}
+                    className={`${styles.timelineConnector} ${isCompleted ? styles.timelineConnectorActive : ''
+                      }`}
                   />
                 )}
                 <div
-                  className={`${styles.timelineNode} ${
-                    isCompleted ? styles.timelineNodeActive : ''
-                  }`}
+                  className={`${styles.timelineNode} ${isCompleted ? styles.timelineNodeActive : ''
+                    }`}
                 >
                   {isCompleted ? (
                     <svg
@@ -233,7 +238,7 @@ export function SummaryLayout({
           了解更多
         </button>
       </div>
-    </div>
+    </div >
   );
 }
 
