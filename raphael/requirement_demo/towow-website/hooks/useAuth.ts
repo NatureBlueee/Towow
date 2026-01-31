@@ -9,6 +9,22 @@ import { handleApiError, OAuth2Errors, ApiError } from '@/lib/errors';
 // 使用相对路径，通过 Next.js rewrites 代理到后端
 const API_BASE = '';
 
+// 是否跳过登录（用于线上演示）
+const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
+
+// 模拟用户（跳过登录时使用）
+const DEMO_USER = {
+  agent_id: 'demo_user',
+  display_name: '演示用户',
+  avatar_url: null,
+  bio: '这是一个演示账户',
+  self_introduction: '欢迎体验 ToWow AI Agent 协作网络',
+  profile_completeness: 100,
+  skills: ['产品设计', '需求分析'],
+  specialties: ['AI 产品'],
+  secondme_id: 'demo',
+};
+
 interface PendingAuthData {
   name: string;
   avatar: string | null;
@@ -136,6 +152,14 @@ export function useAuth(): UseAuthReturn {
   }, [dispatch]);
 
   const checkAuth = useCallback(async () => {
+    // 如果跳过登录，直接设置演示用户
+    if (SKIP_AUTH) {
+      dispatch({ type: 'SET_USER', payload: DEMO_USER });
+      dispatch({ type: 'SET_STATE', payload: 'READY' });
+      dispatch({ type: 'SET_LOADING', payload: false });
+      return;
+    }
+
     // 如果正在处理 pending_auth，不要检查认证状态
     if (pendingAuthId || pendingAuth) return;
 
@@ -175,6 +199,13 @@ export function useAuth(): UseAuthReturn {
   }, [dispatch]);
 
   const logout = useCallback(async () => {
+    // 跳过登录模式下，登出只是重置状态
+    if (SKIP_AUTH) {
+      dispatch({ type: 'SET_USER', payload: DEMO_USER });
+      dispatch({ type: 'SET_STATE', payload: 'READY' });
+      return;
+    }
+
     setError(null);
 
     try {
