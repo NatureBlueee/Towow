@@ -59,6 +59,7 @@ export function Footer({ variant = 'home' }: FooterProps) {
               <i className="ri-play-circle-line" />
               体验 Demo
             </Link>
+            <span className={styles.demoHint}>早期概念演示，持续迭代中</span>
           </div>
         </div>
 
