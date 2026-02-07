@@ -1,0 +1,236 @@
+/* TeamProposalCard.module.css */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  transition: border-color 250ms ease, box-shadow 250ms ease;
+  animation: tm-card-reveal 500ms ease-out both;
+  cursor: default;
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* Type badge */
+.typeBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid currentColor;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 500;
+  width: fit-content;
+  opacity: 0.8;
+}
+
+.typeBadge i {
+  font-size: 14px;
+}
+
+/* Header */
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #F1F5F9;
+  margin: 0;
+  letter-spacing: -0.3px;
+}
+
+.description {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Members preview (avatar stack) */
+.membersPreview {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatarStack {
+  display: flex;
+}
+
+.avatarStackItem {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  border: 2px solid #12131E;
+  margin-left: -8px;
+}
+
+.avatarStackItem:first-child {
+  margin-left: 0;
+}
+
+.memberCount {
+  font-size: 13px;
+  color: #94A3B8;
+}
+
+/* Unexpected combinations */
+.unexpectedSection {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.06), rgba(249, 115, 22, 0.04));
+  border: 1px solid rgba(245, 158, 11, 0.15);
+  border-radius: 12px;
+}
+
+.unexpectedHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FBBF24;
+}
+
+.unexpectedHeader i {
+  font-size: 16px;
+}
+
+.unexpectedText {
+  font-size: 13px;
+  color: #CBD5E1;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Members detail (expanded) */
+.membersDetail {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  animation: tm-fly-in-up 300ms ease-out;
+}
+
+.membersTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #CBD5E1;
+  margin: 0;
+}
+
+.membersGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* Actions */
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.expandBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  color: #94A3B8;
+  font-size: 13px;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.expandBtn i {
+  font-size: 16px;
+}
+
+.expandBtn:hover {
+  background: rgba(255, 255, 255, 0.06);
+  color: #E2E8F0;
+}
+
+.selectBtn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border: none;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 250ms ease;
+  box-shadow: 0 2px 12px rgba(99, 102, 241, 0.25);
+}
+
+.selectBtn i {
+  font-size: 16px;
+}
+
+.selectBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 20px rgba(99, 102, 241, 0.35);
+}
+
+.selectBtn:active {
+  transform: translateY(0);
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .card {
+    padding: 18px;
+    gap: 16px;
+  }
+
+  .title {
+    font-size: 18px;
+  }
+
+  .actions {
+    flex-direction: column;
+  }
+
+  .expandBtn,
+  .selectBtn {
+    width: 100%;
+    justify-content: center;
+  }
+}

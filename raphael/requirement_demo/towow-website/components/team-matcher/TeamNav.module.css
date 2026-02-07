@@ -1,0 +1,112 @@
+/* TeamNav.module.css */
+
+.nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 24px;
+  background: rgba(10, 11, 20, 0.8);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.logoBtn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: none;
+  border: none;
+  color: var(--tm-text-secondary, #94A3B8);
+  font-size: 14px;
+  cursor: pointer;
+  padding: 6px 12px;
+  border-radius: 8px;
+  transition: color 150ms ease, background 150ms ease;
+  min-width: 80px;
+}
+
+.logoBtn:hover {
+  color: var(--tm-text-primary, #F1F5F9);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.logoBtn i {
+  font-size: 18px;
+}
+
+.logoText {
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.steps {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.step {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+
+.stepDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.15);
+  transition: background 250ms ease, box-shadow 250ms ease;
+}
+
+.stepLabel {
+  font-size: 13px;
+  color: var(--tm-text-muted, #64748B);
+  transition: color 250ms ease;
+  white-space: nowrap;
+}
+
+.step.active .stepDot {
+  background: #6366F1;
+  box-shadow: 0 0 10px rgba(99, 102, 241, 0.5);
+}
+
+.step.active .stepLabel {
+  color: var(--tm-text-primary, #F1F5F9);
+}
+
+.stepLine {
+  width: 24px;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.spacer {
+  min-width: 80px;
+}
+
+/* Mobile */
+@media (max-width: 640px) {
+  .nav {
+    padding: 12px 16px;
+  }
+
+  .stepLabel {
+    display: none;
+  }
+
+  .stepLine {
+    width: 16px;
+  }
+
+  .logoText {
+    display: none;
+  }
+}

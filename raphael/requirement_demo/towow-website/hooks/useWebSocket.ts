@@ -45,6 +45,16 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
   const retryCountRef = useRef(0);
   const retryTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const subscribedChannelsRef = useRef<Set<string>>(new Set());
+  // Use ref to store connect function to avoid useEffect dependency issues
+  const connectRef = useRef<(() => void) | null>(null);
+  // Track if we're currently connecting to prevent duplicate connections
+  const isConnectingRef = useRef(false);
+  // Track the current agentId to detect changes
+  const currentAgentIdRef = useRef<string | null>(null);
+  // Store the connection timeout ID for cleanup
+  const connectionTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Track if component is mounted to prevent state updates after unmount
+  const isMountedRef = useRef(true);
 
   // Exponential backoff calculation
   const getRetryDelay = useCallback(() => {
@@ -54,16 +64,31 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
 
   // Connect WebSocket
   const connect = useCallback(() => {
-    if (!agentId || wsRef.current?.readyState === WebSocket.OPEN) return;
+    // Prevent duplicate connections
+    if (!agentId || isConnectingRef.current || wsRef.current?.readyState === WebSocket.OPEN) {
+      return;
+    }
+
+    // Also check if WebSocket is in CONNECTING state
+    if (wsRef.current?.readyState === WebSocket.CONNECTING) {
+      return;
+    }
+
+    // Don't connect if component is unmounted
+    if (!isMountedRef.current) {
+      return;
+    }
+
+    isConnectingRef.current = true;
 
     // 清除之前的错误状态
-    setError(null);
+    if (isMountedRef.current) setError(null);
 
     // 设置连接状态
     if (retryCountRef.current > 0) {
-      setStatus('reconnecting');
+      if (isMountedRef.current) setStatus('reconnecting');
     } else {
-      setStatus('connecting');
+      if (isMountedRef.current) setStatus('connecting');
     }
 
     try {
@@ -72,10 +97,13 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
       const ws = new WebSocket(`${WS_BASE}${wsPath}`);
 
       ws.onopen = () => {
-        setStatus('connected');
-        setError(null);
+        isConnectingRef.current = false;
+        if (isMountedRef.current) {
+          setStatus('connected');
+          setError(null);
+          setRetryCount(0);
+        }
         retryCountRef.current = 0;
-        setRetryCount(0);
 
         // 重新订阅之前的频道
         subscribedChannelsRef.current.forEach((channelId) => {
@@ -90,12 +118,16 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
         try {
           const data = JSON.parse(event.data);
           if (data.type === 'message' && data.payload) {
-            setMessages((prev) => [...prev, data.payload as NegotiationMessage]);
+            if (isMountedRef.current) {
+              setMessages((prev) => [...prev, data.payload as NegotiationMessage]);
+            }
           } else if (data.type === 'error') {
-            setError({
-              code: 'WEBSOCKET_ERROR',
-              message: data.message || 'WebSocket 收到错误消息',
-            });
+            if (isMountedRef.current) {
+              setError({
+                code: 'WEBSOCKET_ERROR',
+                message: data.message || 'WebSocket 收到错误消息',
+              });
+            }
           }
         } catch (e) {
           console.error('Failed to parse WebSocket message:', e);
@@ -103,21 +135,24 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
       };
 
       ws.onerror = () => {
-        setStatus('error');
-        setError(WebSocketErrors.ERROR);
+        if (isMountedRef.current) {
+          setStatus('error');
+          setError(WebSocketErrors.ERROR);
+        }
       };
 
       ws.onclose = (event) => {
         wsRef.current = null;
+        isConnectingRef.current = false;
 
         // 正常关闭
         if (event.code === 1000) {
-          setStatus('disconnected');
+          if (isMountedRef.current) setStatus('disconnected');
           return;
         }
 
         // 非正常关闭，尝试重连
-        if (retryCountRef.current < MAX_RETRIES) {
+        if (retryCountRef.current < MAX_RETRIES && isMountedRef.current) {
           setStatus('reconnecting');
           setError({
             code: 'WEBSOCKET_CLOSED',
@@ -128,7 +163,7 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
           retryCountRef.current += 1;
           setRetryCount(retryCountRef.current);
           retryTimeoutRef.current = setTimeout(connect, delay);
-        } else {
+        } else if (isMountedRef.current) {
           setStatus('error');
           setError(WebSocketErrors.MAX_RETRIES);
         }
@@ -136,14 +171,21 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
 
       wsRef.current = ws;
     } catch (err) {
-      setStatus('error');
-      setError({
-        code: 'WEBSOCKET_ERROR',
-        message: '无法建立 WebSocket 连接',
-        details: { error: String(err) },
-      });
+      if (isMountedRef.current) {
+        setStatus('error');
+        setError({
+          code: 'WEBSOCKET_ERROR',
+          message: '无法建立 WebSocket 连接',
+          details: { error: String(err) },
+        });
+      }
     }
   }, [agentId, demoMode, getRetryDelay]);
+
+  // Keep connectRef in sync with connect function
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   // 手动重连
   const reconnect = useCallback(() => {
@@ -157,10 +199,11 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
       wsRef.current = null;
     }
 
-    // 重置重试计数
+    // 重置状态
     retryCountRef.current = 0;
     setRetryCount(0);
     setError(null);
+    isConnectingRef.current = false;
 
     // 重新连接
     connect();
@@ -194,11 +237,47 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
   }, []);
 
   // Connection management
+  // Note: We use connectRef to avoid recreating the effect when connect changes
   useEffect(() => {
+    isMountedRef.current = true;
+
     if (agentId) {
-      connect();
+      // Check if agentId changed - if so, close existing connection first
+      if (currentAgentIdRef.current && currentAgentIdRef.current !== agentId) {
+        if (wsRef.current) {
+          wsRef.current.close();
+          wsRef.current = null;
+        }
+        isConnectingRef.current = false;
+      }
+      currentAgentIdRef.current = agentId;
+
+      // Clear any pending connection timeout
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+
+      // Use a delay to debounce rapid mount/unmount cycles (React Strict Mode)
+      connectionTimeoutRef.current = setTimeout(() => {
+        if (isMountedRef.current) {
+          connectRef.current?.();
+        }
+      }, 50);
     }
 
+    return () => {
+      isMountedRef.current = false;
+      // Clear the connection timeout on cleanup
+      if (connectionTimeoutRef.current) {
+        clearTimeout(connectionTimeoutRef.current);
+        connectionTimeoutRef.current = null;
+      }
+    };
+  }, [agentId]);
+
+  // Cleanup on unmount only
+  useEffect(() => {
     return () => {
       if (retryTimeoutRef.current) {
         clearTimeout(retryTimeoutRef.current);
@@ -208,7 +287,7 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
         wsRef.current = null;
       }
     };
-  }, [agentId, connect]);
+  }, []);
 
   // Reconnect when page becomes visible
   useEffect(() => {
@@ -216,13 +295,13 @@ export function useWebSocket(agentId: string | null, options?: UseWebSocketOptio
       if (document.visibilityState === 'visible' && status === 'disconnected' && agentId) {
         retryCountRef.current = 0;
         setRetryCount(0);
-        connect();
+        connectRef.current?.();
       }
     };
 
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => document.removeEventListener('visibilitychange', handleVisibilityChange);
-  }, [status, agentId, connect]);
+  }, [status, agentId]);
 
   // 网络状态监听
   useEffect(() => {

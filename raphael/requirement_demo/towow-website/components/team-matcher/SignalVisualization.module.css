@@ -1,0 +1,261 @@
+/* SignalVisualization.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 36px;
+  width: 100%;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+/* === Center Node === */
+.centerNode {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100px;
+  height: 100px;
+}
+
+.centerIcon {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 72px;
+  height: 72px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border-radius: 50%;
+  box-shadow: 0 0 30px rgba(99, 102, 241, 0.4);
+}
+
+.centerIcon i {
+  font-size: 32px;
+  color: #FFFFFF;
+}
+
+/* Pulse rings for broadcasting */
+.pulseRing {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  border: 2px solid rgba(99, 102, 241, 0.4);
+  border-radius: 50%;
+  animation: tm-signal-pulse 3s ease-out infinite;
+}
+
+.ring1 {
+  animation-delay: 0s;
+}
+
+.ring2 {
+  animation-delay: 1s;
+}
+
+.ring3 {
+  animation-delay: 2s;
+}
+
+/* Generate glow */
+.generateGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(139, 92, 246, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: tm-breathe 2s ease-in-out infinite;
+}
+
+/* Complete glow */
+.completeGlow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  background: radial-gradient(circle, rgba(16, 185, 129, 0.3) 0%, transparent 70%);
+  border-radius: 50%;
+}
+
+/* === Stage Info === */
+.stageInfo {
+  text-align: center;
+}
+
+.stageTitle {
+  font-size: 22px;
+  font-weight: 600;
+  color: #F1F5F9;
+  margin: 0 0 8px;
+  letter-spacing: -0.3px;
+}
+
+.countHighlight {
+  display: inline-block;
+  font-size: 28px;
+  font-weight: 700;
+  background: linear-gradient(135deg, #F59E0B, #F97316);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: tm-count-up 400ms ease-out;
+}
+
+.stageDesc {
+  font-size: 14px;
+  color: #94A3B8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* === Offer List === */
+.offerList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.offerCard {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 12px;
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: all 400ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.offerVisible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.offerAvatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.3), rgba(139, 92, 246, 0.3));
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #A5B4FC;
+}
+
+.offerContent {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.offerName {
+  font-size: 14px;
+  font-weight: 500;
+  color: #E2E8F0;
+}
+
+.offerBrief {
+  font-size: 12px;
+  color: #64748B;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.offerSkills {
+  display: flex;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.offerSkillTag {
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #94A3B8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.offerSkillMore {
+  padding: 2px 6px;
+  font-size: 11px;
+  color: #64748B;
+}
+
+/* === Progress Bar === */
+.progressContainer {
+  width: 100%;
+  margin-top: 12px;
+}
+
+.progressTrack {
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #6366F1, #8B5CF6, #A855F7);
+  border-radius: 2px;
+  transition: width 800ms cubic-bezier(0.4, 0, 0.2, 1);
+  animation: tm-progress-glow 2s ease-in-out infinite;
+}
+
+.progressSteps {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.progressStep {
+  font-size: 12px;
+  color: #475569;
+  transition: color 300ms ease;
+}
+
+.progressStepActive {
+  color: #A5B4FC;
+  font-weight: 500;
+}
+
+.progressStepDone {
+  color: #10B981;
+}
+
+/* === Mobile === */
+@media (max-width: 640px) {
+  .container {
+    gap: 28px;
+  }
+
+  .stageTitle {
+    font-size: 18px;
+  }
+
+  .offerSkills {
+    display: none;
+  }
+}

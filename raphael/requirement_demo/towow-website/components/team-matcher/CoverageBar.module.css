@@ -1,0 +1,104 @@
+/* CoverageBar.module.css */
+
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Scores */
+.scores {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.scoreItem {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.scoreLabel {
+  font-size: 12px;
+  color: #94A3B8;
+  min-width: 48px;
+}
+
+.scoreBar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.scoreFill {
+  height: 100%;
+  border-radius: 3px;
+  transition: width 800ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.scoreValue {
+  font-size: 13px;
+  font-weight: 600;
+  color: #E2E8F0;
+  min-width: 36px;
+  text-align: right;
+}
+
+/* Roles */
+.roles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.roleItem {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px 4px 6px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 6px;
+}
+
+.roleStatus {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.roleStatus i {
+  font-size: 12px;
+}
+
+.roleStatusCovered {
+  background: rgba(16, 185, 129, 0.15);
+  color: #10B981;
+}
+
+.roleStatusPartial {
+  background: rgba(245, 158, 11, 0.15);
+  color: #F59E0B;
+}
+
+.roleStatusMissing {
+  background: rgba(244, 63, 94, 0.15);
+  color: #F43F5E;
+}
+
+.roleName {
+  font-size: 12px;
+  color: #CBD5E1;
+}
+
+.roleCoveredBy {
+  font-size: 11px;
+  color: #64748B;
+}

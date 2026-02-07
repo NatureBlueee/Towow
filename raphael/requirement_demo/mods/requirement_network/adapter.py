@@ -114,6 +114,10 @@ class RequirementNetworkAdapter(BaseModAdapter):
 
             if response and response.success:
                 logger.info(f"Requirement submitted: {response.data}")
+                # Handle case where response.data is None (mod not installed on network)
+                if response.data is None:
+                    logger.warning("Response data is None - requirement_network mod may not be installed on the network")
+                    return {"success": False, "error": "requirement_network mod not available"}
                 return {
                     "success": True,
                     "channel_id": response.data.get("channel_id"),

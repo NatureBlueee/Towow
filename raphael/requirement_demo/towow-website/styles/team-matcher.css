@@ -1,0 +1,256 @@
+/* styles/team-matcher.css */
+/* Team Matcher - Dark Glassmorphism Design System */
+
+/* === Dark Theme Variables === */
+.team-matcher-root {
+  /* Core Colors */
+  --tm-bg-deep: #0A0B14;
+  --tm-bg-surface: #12131E;
+  --tm-bg-elevated: #1A1B2E;
+
+  /* Glass */
+  --tm-glass-bg: rgba(255, 255, 255, 0.04);
+  --tm-glass-bg-hover: rgba(255, 255, 255, 0.08);
+  --tm-glass-border: rgba(255, 255, 255, 0.08);
+  --tm-glass-border-hover: rgba(255, 255, 255, 0.15);
+  --tm-glass-blur: 20px;
+
+  /* Gradient: Blue-Purple */
+  --tm-gradient-primary: linear-gradient(135deg, #6366F1, #8B5CF6, #A855F7);
+  --tm-gradient-warm: linear-gradient(135deg, #F59E0B, #F97316);
+  --tm-gradient-cool: linear-gradient(135deg, #3B82F6, #6366F1);
+  --tm-gradient-surface: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+
+  /* Accent Colors */
+  --tm-accent-indigo: #6366F1;
+  --tm-accent-violet: #8B5CF6;
+  --tm-accent-purple: #A855F7;
+  --tm-accent-amber: #F59E0B;
+  --tm-accent-orange: #F97316;
+  --tm-accent-emerald: #10B981;
+  --tm-accent-rose: #F43F5E;
+  --tm-accent-cyan: #06B6D4;
+
+  /* Text */
+  --tm-text-primary: #F1F5F9;
+  --tm-text-secondary: #94A3B8;
+  --tm-text-muted: #64748B;
+  --tm-text-accent: #A5B4FC;
+
+  /* Glow Effects */
+  --tm-glow-indigo: 0 0 20px rgba(99, 102, 241, 0.3);
+  --tm-glow-violet: 0 0 20px rgba(139, 92, 246, 0.3);
+  --tm-glow-amber: 0 0 20px rgba(245, 158, 11, 0.3);
+  --tm-glow-soft: 0 0 40px rgba(99, 102, 241, 0.15);
+
+  /* Shadows */
+  --tm-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
+  --tm-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
+  --tm-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
+  --tm-shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+
+  /* Spacing */
+  --tm-spacing-xs: 4px;
+  --tm-spacing-sm: 8px;
+  --tm-spacing-md: 16px;
+  --tm-spacing-lg: 24px;
+  --tm-spacing-xl: 32px;
+  --tm-spacing-2xl: 48px;
+  --tm-spacing-3xl: 64px;
+
+  /* Radius */
+  --tm-radius-sm: 8px;
+  --tm-radius-md: 12px;
+  --tm-radius-lg: 16px;
+  --tm-radius-xl: 24px;
+  --tm-radius-full: 9999px;
+
+  /* Transitions */
+  --tm-transition-fast: 150ms ease;
+  --tm-transition-normal: 250ms ease;
+  --tm-transition-slow: 400ms cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Z-Index */
+  --tm-z-background: -1;
+  --tm-z-base: 1;
+  --tm-z-card: 10;
+  --tm-z-overlay: 50;
+  --tm-z-modal: 100;
+}
+
+/* === Team Matcher Keyframe Animations === */
+
+/* Signal pulse rings expanding outward */
+@keyframes tm-signal-pulse {
+  0% {
+    transform: translate(-50%, -50%) scale(0.2);
+    opacity: 0.8;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(3);
+    opacity: 0;
+  }
+}
+
+/* Offer card fly-in from different directions */
+@keyframes tm-fly-in-left {
+  0% {
+    transform: translateX(-60px) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tm-fly-in-right {
+  0% {
+    transform: translateX(60px) scale(0.9);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes tm-fly-in-up {
+  0% {
+    transform: translateY(40px) scale(0.95);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Gentle floating for background elements */
+@keyframes tm-float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-12px) rotate(1deg);
+  }
+}
+
+/* Gradient orb movement */
+@keyframes tm-orb-drift {
+  0% {
+    transform: translate(0, 0) scale(1);
+  }
+  33% {
+    transform: translate(30px, -20px) scale(1.05);
+  }
+  66% {
+    transform: translate(-20px, 10px) scale(0.95);
+  }
+  100% {
+    transform: translate(0, 0) scale(1);
+  }
+}
+
+/* Shimmer across glass surfaces */
+@keyframes tm-shimmer {
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+/* Slow rotation for decorative elements */
+@keyframes tm-rotate-slow {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Score counter climbing */
+@keyframes tm-count-up {
+  0% {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Proposal card reveal */
+@keyframes tm-card-reveal {
+  0% {
+    transform: translateY(30px) scale(0.96);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-4px) scale(1.01);
+  }
+  100% {
+    transform: translateY(0) scale(1);
+    opacity: 1;
+  }
+}
+
+/* Dot connection line draw */
+@keyframes tm-line-draw {
+  0% {
+    stroke-dashoffset: 100;
+  }
+  100% {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Progress bar fill with glow */
+@keyframes tm-progress-glow {
+  0%, 100% {
+    box-shadow: 0 0 8px rgba(99, 102, 241, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 16px rgba(99, 102, 241, 0.6);
+  }
+}
+
+/* Gentle breathing for active states */
+@keyframes tm-breathe {
+  0%, 100% {
+    opacity: 0.6;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.03);
+  }
+}
+
+/* Badge notification pop */
+@keyframes tm-badge-pop {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* === Reduced Motion === */
+@media (prefers-reduced-motion: reduce) {
+  .team-matcher-root *,
+  .team-matcher-root *::before,
+  .team-matcher-root *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

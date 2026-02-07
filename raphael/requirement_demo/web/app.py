@@ -1179,6 +1179,9 @@ async def _handle_websocket_connection(websocket: WebSocket, agent_id: str):
     if not await ws_manager.connect(websocket, agent_id):
         return
 
+    # 获取连接 ID（在 connect 中设置）
+    connection_id = getattr(websocket.state, 'connection_id', None)
+
     try:
         while True:
             # 接收客户端消息
@@ -1189,7 +1192,7 @@ async def _handle_websocket_connection(websocket: WebSocket, agent_id: str):
             if action == "subscribe":
                 channel_id = data.get("channel_id")
                 if channel_id:
-                    await ws_manager.subscribe_channel(agent_id, channel_id)
+                    await ws_manager.subscribe_channel(agent_id, channel_id, connection_id)
                     await websocket.send_json({
                         "type": "subscribed",
                         "channel_id": channel_id,
@@ -1198,7 +1201,7 @@ async def _handle_websocket_connection(websocket: WebSocket, agent_id: str):
             elif action == "unsubscribe":
                 channel_id = data.get("channel_id")
                 if channel_id:
-                    await ws_manager.unsubscribe_channel(agent_id, channel_id)
+                    await ws_manager.unsubscribe_channel(agent_id, channel_id, connection_id)
                     await websocket.send_json({
                         "type": "unsubscribed",
                         "channel_id": channel_id,
@@ -1208,10 +1211,10 @@ async def _handle_websocket_connection(websocket: WebSocket, agent_id: str):
                 await websocket.send_json({"type": "pong"})
 
     except WebSocketDisconnect:
-        await ws_manager.disconnect(agent_id)
+        await ws_manager.disconnect(agent_id, connection_id)
     except Exception as e:
         logger.error(f"WebSocket error for {agent_id}: {e}")
-        await ws_manager.disconnect(agent_id)
+        await ws_manager.disconnect(agent_id, connection_id)
 
 
 @app.websocket("/ws/{agent_id}")
@@ -1749,6 +1752,470 @@ async def send_channel_message(channel_id: str, request: MessageCreateRequest):
     except Exception as e:
         logger.error(f"Send message failed: {e}")
         raise HTTPException(status_code=500, detail="发送消息失败")
+
+
+# ============ Team Matcher API ============
+
+from .team_match_service import (
+    get_team_match_service,
+    TeamMatchService,
+    TeamRequestStatus,
+)
+
+
+class TeamRequestCreateRequest(BaseModel):
+    """创建组队请求（适配前端Schema）"""
+    # 前端友好字段
+    user_id: str = Field(..., description="用户 ID (前端发送)")
+    project_idea: str = Field(..., min_length=1, description="项目想法（作为标题和描述）")
+    skills: List[str] = Field(..., description="用户技能")
+    availability: str = Field(..., description="可用时间")
+    roles_needed: List[str] = Field(..., min_items=1, description="需要的角色")
+    context: Optional[Dict[str, Any]] = Field(default={}, description="额外上下文")
+
+    # 可选的后端字段（向后兼容）
+    title: Optional[str] = Field(None, description="组队标题（可选）")
+    description: Optional[str] = Field(None, description="组队描述（可选）")
+    submitter_id: Optional[str] = Field(None, description="提交者 ID（可选）")
+    required_roles: Optional[List[str]] = Field(None, description="需要的角色（可选）")
+    team_size: Optional[int] = Field(None, ge=2, le=10, description="期望团队规模（可选）")
+    metadata: Optional[Dict[str, Any]] = Field(None, description="额外元数据（可选）")
+
+    def to_internal_format(self) -> Dict[str, Any]:
+        """转换为内部格式"""
+        # 优先使用后端字段（向后兼容），否则从前端字段生成
+        return {
+            "title": self.title or f"寻找队友：{self.project_idea[:50]}",
+            "description": self.description or f"{self.project_idea}\n\n可用时间：{self.availability}\n我的技能：{', '.join(self.skills)}",
+            "submitter_id": self.submitter_id or self.user_id,
+            "required_roles": self.required_roles or self.roles_needed,
+            "team_size": self.team_size or (len(self.roles_needed) + 1),  # 默认=角色数+提交者
+            "metadata": {
+                **(self.metadata or {}),
+                **(self.context or {}),
+                "frontend_schema": {
+                    "project_idea": self.project_idea,
+                    "skills": self.skills,
+                    "availability": self.availability,
+                }
+            }
+        }
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "user_id": "user_alice",
+                "project_idea": "AI健康助手黑客松项目",
+                "skills": ["Python", "React"],
+                "availability": "weekend",
+                "roles_needed": ["前端开发", "UI设计"],
+                "context": {"hackathon": "A2A Hackathon 2026"}
+            }
+        }
+
+
+class TeamRequestResponse(BaseModel):
+    """组队请求响应"""
+    request_id: str
+    title: str
+    description: str
+    submitter_id: str
+    required_roles: List[str]
+    team_size: int
+    status: str
+    channel_id: Optional[str]
+    metadata: Dict[str, Any]
+    created_at: str
+
+
+class MatchOfferCreateRequest(BaseModel):
+    """提交参与意向"""
+    request_id: str = Field(..., description="组队请求 ID")
+    agent_id: str = Field(..., description="Agent ID")
+    agent_name: str = Field(..., description="Agent 名称")
+    role: str = Field(..., description="角色定位")
+    skills: List[str] = Field(..., min_items=1, description="技能列表")
+    specialties: List[str] = Field(default=[], description="专长领域")
+    motivation: str = Field(..., description="参与动机")
+    availability: str = Field(..., description="可用时间")
+    metadata: Optional[Dict[str, Any]] = Field(default={}, description="额外元数据")
+
+    class Config:
+        json_schema_extra = {
+            "example": {
+                "request_id": "team_req_abc123",
+                "agent_id": "user_bob",
+                "agent_name": "Bob",
+                "role": "前端开发",
+                "skills": ["React", "TypeScript", "UI设计"],
+                "specialties": ["web-development", "frontend"],
+                "motivation": "想学习 AI 应用开发",
+                "availability": "周末全天",
+            }
+        }
+
+
+class MatchOfferResponse(BaseModel):
+    """参与意向响应"""
+    offer_id: str
+    request_id: str
+    agent_id: str
+    agent_name: str
+    role: str
+    skills: List[str]
+    specialties: List[str]
+    motivation: str
+    availability: str
+    metadata: Dict[str, Any]
+    created_at: str
+
+
+class TeamProposalResponse(BaseModel):
+    """团队方案响应"""
+    proposal_id: str
+    request_id: str
+    title: str
+    members: List[Dict[str, Any]]
+    coverage_score: float
+    synergy_score: float
+    unexpected_combinations: List[str]
+    reasoning: str
+    metadata: Dict[str, Any]
+    created_at: str
+
+
+@app.post(
+    "/api/team/request",
+    response_model=TeamRequestResponse,
+    tags=["Team Matcher"],
+    summary="创建组队请求",
+    description="发布组队请求，寻找团队成员"
+)
+async def create_team_request(
+    http_request: Request,
+    request: TeamRequestCreateRequest,
+    background_tasks: BackgroundTasks,
+):
+    """
+    创建组队请求（支持前端友好Schema）
+
+    前端发送：
+    - **user_id**: 用户 ID
+    - **project_idea**: 项目想法
+    - **skills**: 用户技能列表
+    - **availability**: 可用时间
+    - **roles_needed**: 需要的角色列表
+    - **context**: 额外上下文
+    """
+    try:
+        service = get_team_match_service()
+
+        # 转换为内部格式
+        internal_data = request.to_internal_format()
+
+        team_request = await service.create_team_request(
+            title=internal_data["title"],
+            description=internal_data["description"],
+            submitter_id=internal_data["submitter_id"],
+            required_roles=internal_data["required_roles"],
+            team_size=internal_data["team_size"],
+            metadata=internal_data["metadata"],
+        )
+
+        # 通过 WebSocket 广播新组队请求
+        ws_manager = get_websocket_manager()
+        await ws_manager.broadcast_all({
+            "type": "team_request_created",
+            "payload": {
+                "request_id": team_request.request_id,
+                "title": team_request.title,
+                "description": team_request.description,
+                "required_roles": team_request.required_roles,
+                "team_size": team_request.team_size,
+                "channel_id": team_request.channel_id,
+            }
+        })
+
+        logger.info(f"Team request created: {team_request.request_id}")
+
+        return TeamRequestResponse(
+            request_id=team_request.request_id,
+            title=team_request.title,
+            description=team_request.description,
+            submitter_id=team_request.submitter_id,
+            required_roles=team_request.required_roles,
+            team_size=team_request.team_size,
+            status=team_request.status.value,
+            channel_id=team_request.channel_id,
+            metadata=team_request.metadata,
+            created_at=team_request.created_at.isoformat(),
+        )
+
+    except ValueError as e:
+        logger.error(f"Invalid team request: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Create team request failed: {e}")
+        raise HTTPException(status_code=500, detail="创建组队请求失败")
+
+
+@app.post(
+    "/api/team/offer",
+    response_model=MatchOfferResponse,
+    tags=["Team Matcher"],
+    summary="提交参与意向",
+    description="响应组队请求，提交参与意向"
+)
+async def submit_match_offer(
+    http_request: Request,
+    offer_request: MatchOfferCreateRequest,
+):
+    """
+    提交参与意向
+
+    - **request_id**: 组队请求 ID
+    - **agent_id**: Agent ID
+    - **agent_name**: Agent 名称
+    - **role**: 角色定位（如 "前端开发"）
+    - **skills**: 技能列表
+    - **specialties**: 专长领域
+    - **motivation**: 参与动机
+    - **availability**: 可用时间
+    """
+    try:
+        service = get_team_match_service()
+
+        offer = await service.submit_match_offer(
+            request_id=offer_request.request_id,
+            agent_id=offer_request.agent_id,
+            agent_name=offer_request.agent_name,
+            role=offer_request.role,
+            skills=offer_request.skills,
+            specialties=offer_request.specialties,
+            motivation=offer_request.motivation,
+            availability=offer_request.availability,
+            metadata=offer_request.metadata,
+        )
+
+        # 通过 WebSocket 通知组队请求频道
+        ws_manager = get_websocket_manager()
+        team_request = service.get_team_request(offer_request.request_id)
+        if team_request and team_request.channel_id:
+            await ws_manager.broadcast_to_channel(
+                channel_id=team_request.channel_id,
+                message={
+                    "type": "match_offer_received",
+                    "payload": {
+                        "offer_id": offer.offer_id,
+                        "request_id": offer.request_id,
+                        "agent_name": offer.agent_name,
+                        "role": offer.role,
+                        "skills": offer.skills,
+                    }
+                }
+            )
+
+        logger.info(
+            f"Match offer submitted: {offer.offer_id} "
+            f"for request {offer_request.request_id}"
+        )
+
+        return MatchOfferResponse(
+            offer_id=offer.offer_id,
+            request_id=offer.request_id,
+            agent_id=offer.agent_id,
+            agent_name=offer.agent_name,
+            role=offer.role,
+            skills=offer.skills,
+            specialties=offer.specialties,
+            motivation=offer.motivation,
+            availability=offer.availability,
+            metadata=offer.metadata,
+            created_at=offer.created_at.isoformat(),
+        )
+
+    except ValueError as e:
+        logger.error(f"Invalid match offer: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Submit match offer failed: {e}")
+        raise HTTPException(status_code=500, detail="提交参与意向失败")
+
+
+@app.post(
+    "/api/team/proposals/{request_id}",
+    response_model=List[TeamProposalResponse],
+    tags=["Team Matcher"],
+    summary="生成团队方案",
+    description="根据收集的参与意向生成团队组合方案"
+)
+async def generate_team_proposals(
+    request_id: str,
+    max_proposals: int = Query(3, ge=1, le=10, description="最多生成几个方案"),
+):
+    """
+    生成团队方案
+
+    根据收集到的参与意向（Match Offer），生成多个不同的团队组合方案。
+
+    - **request_id**: 组队请求 ID
+    - **max_proposals**: 最多生成几个方案（默认 3）
+
+    返回按评分排序的团队方案列表，每个方案包含：
+    - 团队成员组合
+    - 角色覆盖度评分
+    - 技能互补度评分
+    - 意外组合标注（跨域发现）
+    """
+    try:
+        service = get_team_match_service()
+
+        # 生成方案
+        proposals = await service.generate_team_proposals(
+            request_id=request_id,
+            max_proposals=max_proposals,
+        )
+
+        # 通过 WebSocket 通知
+        ws_manager = get_websocket_manager()
+        team_request = service.get_team_request(request_id)
+        if team_request and team_request.channel_id:
+            await ws_manager.broadcast_to_channel(
+                channel_id=team_request.channel_id,
+                message={
+                    "type": "proposals_ready",
+                    "payload": {
+                        "request_id": request_id,
+                        "proposal_count": len(proposals),
+                    }
+                }
+            )
+
+        logger.info(
+            f"Generated {len(proposals)} proposals for request {request_id}"
+        )
+
+        return [
+            TeamProposalResponse(**proposal.to_dict())
+            for proposal in proposals
+        ]
+
+    except ValueError as e:
+        logger.error(f"Invalid request: {e}")
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        logger.error(f"Generate proposals failed: {e}")
+        raise HTTPException(status_code=500, detail="生成团队方案失败")
+
+
+@app.get(
+    "/api/team/request/{request_id}",
+    response_model=TeamRequestResponse,
+    tags=["Team Matcher"],
+    summary="获取组队请求详情",
+    description="获取指定组队请求的详细信息"
+)
+async def get_team_request_details(request_id: str):
+    """获取组队请求详情"""
+    service = get_team_match_service()
+    team_request = service.get_team_request(request_id)
+
+    if not team_request:
+        raise HTTPException(
+            status_code=404,
+            detail=f"组队请求 {request_id} 不存在"
+        )
+
+    return TeamRequestResponse(
+        request_id=team_request.request_id,
+        title=team_request.title,
+        description=team_request.description,
+        submitter_id=team_request.submitter_id,
+        required_roles=team_request.required_roles,
+        team_size=team_request.team_size,
+        status=team_request.status.value,
+        channel_id=team_request.channel_id,
+        metadata=team_request.metadata,
+        created_at=team_request.created_at.isoformat(),
+    )
+
+
+@app.get(
+    "/api/team/request/{request_id}/offers",
+    response_model=List[MatchOfferResponse],
+    tags=["Team Matcher"],
+    summary="获取参与意向列表",
+    description="获取指定组队请求的所有参与意向"
+)
+async def get_match_offers(request_id: str):
+    """获取参与意向列表"""
+    service = get_team_match_service()
+
+    # 验证请求存在
+    team_request = service.get_team_request(request_id)
+    if not team_request:
+        raise HTTPException(
+            status_code=404,
+            detail=f"组队请求 {request_id} 不存在"
+        )
+
+    offers = service.get_match_offers(request_id)
+
+    return [
+        MatchOfferResponse(
+            offer_id=offer.offer_id,
+            request_id=offer.request_id,
+            agent_id=offer.agent_id,
+            agent_name=offer.agent_name,
+            role=offer.role,
+            skills=offer.skills,
+            specialties=offer.specialties,
+            motivation=offer.motivation,
+            availability=offer.availability,
+            metadata=offer.metadata,
+            created_at=offer.created_at.isoformat(),
+        )
+        for offer in offers
+    ]
+
+
+@app.get(
+    "/api/team/request/{request_id}/proposals",
+    response_model=List[TeamProposalResponse],
+    tags=["Team Matcher"],
+    summary="获取团队方案列表",
+    description="获取指定组队请求的所有团队方案"
+)
+async def get_team_proposals(request_id: str):
+    """获取团队方案列表"""
+    service = get_team_match_service()
+
+    # 验证请求存在
+    team_request = service.get_team_request(request_id)
+    if not team_request:
+        raise HTTPException(
+            status_code=404,
+            detail=f"组队请求 {request_id} 不存在"
+        )
+
+    proposals = service.get_team_proposals(request_id)
+
+    return [
+        TeamProposalResponse(**proposal.to_dict())
+        for proposal in proposals
+    ]
+
+
+@app.get(
+    "/api/team/stats",
+    tags=["Team Matcher"],
+    summary="获取 Team Matcher 统计",
+    description="获取 Team Matcher 的运行统计信息"
+)
+async def get_team_matcher_stats():
+    """获取 Team Matcher 统计信息"""
+    service = get_team_match_service()
+    return service.get_stats()
 
 
 # ============ 直接运行入口 ============

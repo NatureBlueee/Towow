@@ -1,0 +1,114 @@
+/* MemberCard.module.css */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  transition: border-color 200ms ease, background 200ms ease;
+  animation: tm-fly-in-up 400ms ease-out both;
+}
+
+.card:hover {
+  border-color: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+/* Header */
+.header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  min-width: 0;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #E2E8F0;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.role {
+  font-size: 12px;
+  color: #A5B4FC;
+}
+
+/* Intro */
+.intro {
+  font-size: 13px;
+  color: #94A3B8;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* Skills */
+.skills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.skillTag {
+  padding: 2px 8px;
+  font-size: 11px;
+  color: #94A3B8;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.skillMore {
+  font-size: 11px;
+  color: #64748B;
+  padding: 2px 4px;
+}
+
+/* Match reason */
+.matchReason {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  padding: 8px 10px;
+  background: rgba(99, 102, 241, 0.06);
+  border-radius: 8px;
+}
+
+.matchReason i {
+  font-size: 14px;
+  color: #818CF8;
+  margin-top: 1px;
+  flex-shrink: 0;
+}
+
+.matchReason span {
+  font-size: 12px;
+  color: #94A3B8;
+  line-height: 1.5;
+}
