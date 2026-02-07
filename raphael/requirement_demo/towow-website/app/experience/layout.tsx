@@ -1,6 +1,6 @@
-import { NoiseTexture } from '@/components/layout/NoiseTexture';
-import { GridLines } from '@/components/layout/GridLines';
-import styles from './layout.module.css';
+// app/experience/layout.tsx
+import { Header } from '@/components/layout/Header';
+import { Footer } from '@/components/layout/Footer';
 
 export default function ExperienceLayout({
   children,
@@ -8,10 +8,10 @@ export default function ExperienceLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className={styles.experienceLayout}>
-      <NoiseTexture />
-      <GridLines />
-      <main className={styles.main}>{children}</main>
-    </div>
+    <>
+      <Header />
+      <main>{children}</main>
+      <Footer />
+    </>
   );
 }

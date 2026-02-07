@@ -92,6 +92,8 @@ Offer收集完毕（等待屏障）
 判断是否有Gap → 如果有，递归处理子需求
     ↓
 方案输出（协商的自然终止态）
+    ├─ plan → 文本方案（信息类/建议类需求）
+    └─ contract → 可执行合约 → WOWOK Machine → 执行阶段（见 Section 11）
     用户端的通知/分类/展示是应用层行为，用户可自定义
     ↓
 最终方案形成
@@ -327,7 +329,7 @@ Template 数据 → 编码为超向量 → 融入 Edge Agent 画像
 
 ## 3. 中心Agent的设计
 
-> 2026-02-07 重写，与 Section 9（Skill系统）对齐。
+> 2026-02-07 重写，与 Section 10（Skill系统）对齐。
 
 ### 3.1 角色定位
 
@@ -357,14 +359,17 @@ Template 数据 → 编码为超向量 → 融入 Edge Agent 画像
 
 ### 3.4 输出
 
-结构化决策，四种类型之一：
+结构化决策，五种类型之一：
 
 | 类型 | 含义 | 后续 |
 |------|------|------|
-| `plan` | 方案已形成 | 输出方案，协商自然终止 |
+| `plan` | 方案已形成（文本，无执行追踪） | 输出方案，协商自然终止。适用于信息类/建议类需求 |
+| `contract` | 方案已形成，且可转化为执行合约 | 创建 WOWOK Machine 工作流。适用于需要多方协作执行的需求。见 Section 11 |
 | `need_more_info` | 需要追问特定 Agent | 向指定 Agent 追问，再聚合 |
 | `trigger_p2p` | 两个 Agent 需要发现性对话 | 触发 SubNegotiation，结果回流 |
 | `has_gap` | 存在资源缺口 | 触发 GapRecursion，生成子需求递归 |
+
+> **`plan` vs `contract`**（2026-02-07，Design Log #002）：不是所有方案都需要执行追踪。"推荐你看这本书"是 plan，"三个人组队做项目"是 contract。Center 判断用哪种输出。
 
 ### 3.5 工作模式
 
@@ -374,29 +379,56 @@ Template 数据 → 编码为超向量 → 融入 Edge Agent 画像
 
 **历史管理：观察遮蔽**（非摘要）：保留上一轮的推理和决策，遮蔽原始 Offer 细节。比摘要更好、成本低 50%（JetBrains Research, 2025）。
 
-详见 Section 9.6 CenterCoordinatorSkill 的接口定义和 V1 Prompt。
+详见 Section 10.7 CenterCoordinatorSkill 的接口定义。V1 Prompt 见 `docs/prompts/center_coordinator_v1.md`。
 
-## 3.5 协议层事件语义
+### 3.6 协议层事件语义
 
 > 2026-02-07 更新。对齐白皮书 Ch4.4，反映架构决策。
 > 白皮书原则：**定义的是语义而非格式。** "需求广播"的含义是本质，用什么 JSON 格式是实现细节。
 
+#### 协商阶段事件
+
 | 事件 | 语义 | 说明 |
 |------|------|------|
-| `demand.formulate` | 用户 Agent 基于 Profile 将原始意图丰富化为需求表达 | 新增。见 Section 9.4 DemandFormulationSkill |
+| `demand.formulate` | 用户 Agent 基于 Profile 将原始意图丰富化为需求表达 | 新增。见 Section 10.4 DemandFormulationSkill |
 | `demand.broadcast` | 一个存在体向网络发出信号，表达某种状态张力，希望引发响应 | 白皮书原始定义保留。信号可以是明确描述、模糊表达、任何形式 |
 | `offer.submit` | 一个存在体对需求信号产生响应，提供某种可能的价值 | 白皮书原始定义保留。响应可以补充、替代、重新定义需求 |
-| `plan.generate` | 多个响应被聚合、整合、优化，形成综合方案 | 白皮书定义保留。协商的自然终止态——Center 输出 `plan` 类型时触发 |
+| `plan.generate` | 多个响应被聚合、整合、优化，形成综合方案 | 协商的自然终止态——Center 输出 `plan` 或 `contract` 类型时触发 |
 | `gap.identify` | 方案中发现无法被现有响应满足的部分 | 白皮书定义保留 |
 | `sub_demand.create` | 缺口转化为独立的子需求，触发递归 | 明确为独立事件 |
 
-**关于 `plan.distribute` 和 `response.confirm`（白皮书 Ch4.4 有，但架构设计不采用为独立事件）**：
+#### 执行阶段事件（2026-02-07，Design Log #002）
+
+> 当 Center 输出 `contract` 类型时，方案进入执行阶段，产生以下事件：
+
+| 事件 | 语义 | WOWOK 对应 |
+|------|------|-----------|
+| `contract.create` | Center 方案转化为可执行合约 | Machine 创建（bPublished=false） |
+| `contract.publish` | Machine 发布（不可修改） | Machine.publish (bPublished=true) |
+| `contract.accept` | 参与方购买 Service / 接受合约 | Service 购买 → Order 创建 → OnNewOrder |
+| `task.progress` | workflow 推进到新节点 | Progress.next (Forward 操作) → OnNewProgress |
+| `task.deliver` | 参与方提交交付物 | Forward.deliverable + Repository（可选） |
+| `contract.complete` | Progress 执行到终点 | Progress 状态 = completed |
+| `contract.settle` | 经济结算（如有） | Treasury 转账/结算 |
+
+#### 回声事件
+
+| 事件 | 语义 | 触发 |
+|------|------|------|
+| `echo.pulse` | 单个回声脉冲到达 | 每个执行阶段事件自动生成 |
+| `echo.digest` | 回声汇聚为 Profile 更新 | 合约完成时批量处理，回流到 ProfileDataSource |
+
+详细设计见 Section 11（执行与回声阶段）。
+
+#### 关于 `plan.distribute` 和 `response.confirm`
 
 白皮书定义了"方案分发"和"响应确认"。在架构讨论中（2026-02-07），我们确立了：**确认不是独立步骤，而是协商的三种穷举终止态之一（继续协商 / 退出 / 无异议即确认）。** 方案输出后的通知、确认、展示属于应用层行为，用户可自定义。
 
 这不是与白皮书矛盾——白皮书的语义（"方案需要被响应者表态"）被保留了，只是不作为协议层的独立事件，而是作为协商轮次内部的自然状态转换处理。
 
-## 4. 状态管理
+## 4. 状态管理与部署策略
+
+> 原 Section 4（状态管理）+ 原 Section 6.1/6.2/6.4 合并。筛选阶段的状态检测、部署模式、收集完成判断本质上都是"系统如何运行"的高层决策，与状态管理同属一类。
 
 ### 4.1 设计原则
 
@@ -474,9 +506,36 @@ Template 数据 → 编码为超向量 → 融入 Edge Agent 画像
 | 轮次记录 | 每一轮的信息和回复 |
 | 当前轮次状态 | 当前是第几轮、待响应列表 |
 
+### 4.6 筛选阶段的状态检测
+
+> 原 Section 6.1。
+
+Agent一定会返回结果（是或否），因为：
+- Agent以语言为存在本身
+- 无论用大模型还是前置筛选逻辑，都会返回一个结果
+- 前置筛选是**并发的**，不会出现"永远不回复"的情况
+
+### 4.7 两种部署模式
+
+> 原 Section 6.2。
+
+| 模式 | 描述 | 状态检测 |
+|------|------|---------|
+| **统一设备** | 所有Agent运行在我们的设备上 | 时间和状态可预估 |
+| **分布式设备** | Agent运行在用户自己的设备上 | 网络速度不一样，需要其他逻辑 |
+
+### 4.8 收集完成的判断（等待屏障）
+
+> 原 Section 6.4。
+> 2026-02-07 决策：采用**等待屏障（Barrier）**机制（见 Section 10.2 步骤 ⑤）。
+
+程序层维护"待响应列表"（所有被 HDC 共振激活的 Agent）。每收到一个 Offer 或退出通知，从列表中移除。列表为空时 → 所有 Offer 已收集，进入 Center 综合。超时 → 未返回的 Agent 标记为"退出"，继续。
+
+这是广播阶段的收集判断，与协商阶段的轮次管理（Section 4.4）逻辑一致。
+
 ## 5. Peer-to-Peer 发现性对话
 
-> 2026-02-07 重写，与 Section 9.7（SubNegotiationSkill）对齐。
+> 2026-02-07 重写，与 Section 10.8（SubNegotiationSkill）对齐。
 > 核心认知：P2P 不是"辩论"（双方拿相同信息争论，研究证实效果为负），而是**"发现性对话"**（双方各自有不同的深层信息，对话激发新发现）。
 
 ### 5.1 触发条件
@@ -491,7 +550,7 @@ Template 数据 → 编码为超向量 → 融入 Edge Agent 画像
 
 ### 5.2 为什么是"发现"而不是"辩论"
 
-研究背景（见 Section 9.2 研究支撑）：
+研究背景（见 Section 10.2 研究支撑）：
 - Multi-Agent Debate 平均效果 -3.5%（Google DeepMind, 2025）
 - 但那些研究的前提是：参与者拿到**相同信息**进行争论
 
@@ -554,30 +613,18 @@ V1 用第三方 LLM 综合，简单可控。未来可扩展为端侧 Agent 直�
 - 能激发出第三方无法发现的深层关联
 - 需控制轮次（最多 1-2 轮）避免错误传播
 
-详见 Section 9.7 SubNegotiationSkill 的接口定义和 V1 Prompt。
+详见 Section 10.8 SubNegotiationSkill 的接口定义。V1 Prompt 见 `docs/prompts/sub_negotiation_v1.md`。
 
-## 6. 筛选阶段的状态检测
+## 6. HDC 签名与共振检测
 
-### 6.1 核心认知
+> 原 Section 6.3（签名共振机制），独立为新 Section。这是通爻网络最核心的技术机制——超维计算（HDC）用于签名编码和共振检测。原 Section 6.1/6.2/6.4 已移入 Section 4（状态管理与部署策略），原 Section 6.5 已移入 Section 7（Agent 接入与 Profile 管理）。
 
-Agent一定会返回结果（是或否），因为：
-- Agent以语言为存在本身
-- 无论用大模型还是前置筛选逻辑，都会返回一个结果
-- 前置筛选是**并发的**，不会出现"永远不回复"的情况
-
-### 6.2 两种部署模式
-
-| 模式 | 描述 | 状态检测 |
-|------|------|---------|
-| **统一设备** | 所有Agent运行在我们的设备上 | 时间和状态可预估 |
-| **分布式设备** | Agent运行在用户自己的设备上 | 网络速度不一样，需要其他逻辑 |
-
-### 6.3 签名共振机制
+### 6.1 签名共振机制
 
 > 讨论日期：2026-02-06
 > 核心认知：**广播和筛选是同一个逻辑，只是方向相反。** 同一个数学操作（超向量相似度计算）既用于传播时的转发决策，也用于端侧的共振检测。
 
-#### 6.3.1 设计目标
+#### 6.1.1 设计目标
 
 - **复杂度**：O(N+M)，不是 O(N×M)
 - **端侧检测**：每个Agent本地判断，不需要中心化匹配
@@ -585,7 +632,7 @@ Agent一定会返回结果（是或否），因为：
 - **发现未知关联**：不仅匹配已知兴趣，还能发现Agent自己都不知道的关联
 - **能量效率**：99%在低能耗层过滤，只有1%进入大模型处理
 
-#### 6.3.2 核心机制：超维计算（Hyperdimensional Computing / HDC）
+#### 6.1.2 核心机制：超维计算（Hyperdimensional Computing / HDC）
 
 **基本原理**：
 
@@ -609,7 +656,7 @@ Agent一定会返回结果（是或否），因为：
 - Kleyko et al., "A Survey on Hyperdimensional Computing (VSA)" (ACM Computing Surveys, 2023)
 - Cohen et al., "Discovering discovery patterns with predication-based Semantic Indexing" (2013)
 
-#### 6.3.3 三层共振过滤架构（完整愿景）
+#### 6.1.3 三层共振过滤架构（完整愿景）
 
 ```
 信号进入
@@ -646,7 +693,7 @@ Agent一定会返回结果（是或否），因为：
 
 理由：1000个Agent规模下，HDC的0.1ms/消息性能已经足够，不需要Bloom Filter加速；第三层用现有LLM直接替代。
 
-#### 6.3.4 编码流程
+#### 6.1.4 编码流程
 
 **将任意文本转化为超向量的三步流程：**
 
@@ -685,58 +732,39 @@ HDC层（第二步和第三步）不关心编码器是什么。只要输入是�
 
 SimHash投影矩阵在编码器切换时需要重新生成，但超向量空间的性质不变。
 
-#### 6.3.5 Agent画像的生成与演化
+#### 6.1.5 Agent画像的生成与演化
 
-**混合策略：注册时生成初始画像，使用中从经验自动生长。**
+> **2026-02-07 架构简化**：Design Log #003 确立了"投影即函数"原则。Agent 不是有状态对象，而是投影函数的结果。本节描述 HDC 编码的技术流程，画像的演化机制见 Section 7.1.6（ProfileDataSource 与投影机制）。
 
-**初始画像生成**：
-
-```
-Agent注册时，携带数据源（如SecondMe）的信息：
-  - 技能描述
-  - 兴趣标签
-  - 历史经历
-  - 个人简介
-  ...
-    ↓
-每项信息编码为超向量
-    ↓
-bundle(所有超向量) = H_agent_initial
-    ↓
-存储为Agent的初始画像
-```
-
-**经验生长（Random Indexing）**：
+**投影式画像生成**：
 
 ```
-Agent参与了一次关于"区块链"的协商
+ProfileDataSource.get_profile(user_id) → Profile Data
     ↓
-该协商的超向量 H_session
+每项信息编码为超向量（sentence-transformers + SimHash）
     ↓
-H_agent = bundle(H_agent, H_session × 衰减因子)
+bundle(所有超向量) = project(profile_data, lens)
     ↓
-Agent画像自动演化，反映真实参与而非声明
+Agent 画像 = 投影函数的结果（无状态，可重复计算）
 ```
 
-参考：Sahlgren, "An Introduction to Random Indexing" (2005)
+**画像演化**：
 
-**数据源更新（如SecondMe变化）**：
+画像不是通过"融合"或"经验生长"更新的，而是通过数据源更新 + 重新投影实现的：
 
 ```
-用户的SecondMe数据在一周内发生了变化
+协作发生 → 协作数据回流到 ProfileDataSource
     ↓
-触发时机：用户登录通爻网络时（V1）/ 定期同步 / 事件驱动
+数据源自己处理更新（SecondMe 更新档案、Claude 更新记忆...）
     ↓
-从SecondMe获取最新数据
-    ↓
-重新编码为超向量 H_new
-    ↓
-融合：H_agent = blend(H_old, H_new, α=0.3)
-    ↓
-画像更新完成，不是替换而是融合
+下次调用 project(profile_data, lens) → 自然反映新经验
 ```
 
-#### 6.3.6 共振检测流程
+**关键**：通爻不维护 Agent 状态，不需要 Random Indexing 或 blend 融合。"画像演化"是数据源演化 + 重新投影的自然结果。详见 Section 7.1.6。
+
+参考：Sahlgren, "An Introduction to Random Indexing" (2005) — V2+ 可能在数据源内部使用，但不在投影层。
+
+#### 6.1.6 共振检测流程
 
 **核心认知：广播和筛选是同一个数学操作。**
 
@@ -750,7 +778,7 @@ Agent画像自动演化，反映真实参与而非声明
 
 > **2026-02-07 决策**：原设计有"需求方共振"作为独立的二次筛选步骤，已取消。原因：硬筛选会阻止"意外发现"（见 Section 1.2）。需求方偏好通过 formulation 编织进 HDC 签名（前置）和 Center context（后置）表达，不通过独立的 Offer 过滤步骤。
 
-#### 6.3.7 传播机制
+#### 6.1.7 传播机制
 
 **V1：简单广播**
 
@@ -770,7 +798,7 @@ Agent画像自动演化，反映真实参与而非声明
 - GEACL: Gossip-Enhanced Agentic Coordination Layer (arXiv:2512.03285)
 - Revisiting Gossip Protocols for Multi-Agent Systems (arXiv:2508.01531)
 
-#### 6.3.8 性能预估（V1：1000 Agent，100 消息/秒）
+#### 6.1.8 性能预估（V1：1000 Agent，100 消息/秒）
 
 | 指标 | 值 |
 |------|-----|
@@ -781,7 +809,7 @@ Agent画像自动演化，反映真实参与而非声明
 | 每个Agent画像大小 | 1.25 KB |
 | 1000 Agent画像总内存 | ~1.2 MB |
 
-#### 6.3.9 技术选型总结
+#### 6.1.9 技术选型总结
 
 经过对7种技术方案（Bloom Filter、LSH、HDC、MoE、主动推理、语义Gossip、Bloom P2P路由）的对比分析：
 
@@ -795,7 +823,7 @@ Agent画像自动演化，反映真实参与而非声明
 | 第一层门控 | Bloom Filter（V2+） | 10万+Agent时添加，进一步降低能耗 |
 | 深度评估 | LLM（V1）/ 主动推理（V3+） | V1用现有LLM，后续探索主动推理框架 |
 
-#### 6.3.10 共振阈值策略（θ 与 k* 机制）
+#### 6.1.10 共振阈值策略（θ 与 k* 机制）
 
 > 讨论日期：2026-02-07
 > 核心洞察：**θ 不应该是预设常数，而是从期望响应数 k\* 中计算出来的。** 本质与实现分离：k\* = 本质（业务参数），θ = 实现（技术参数）。
@@ -918,7 +946,7 @@ Agent画像自动演化，反映真实参与而非声明
 **冷启动问题的解决**：
 
 新 Agent 没有执行历史，但有初始 Profile：
-- **SecondMe 数据**：技能、专长、兴趣 → 编码为 HDC 向量（见 6.3.5）
+- **SecondMe 数据**：技能、专长、兴趣 → 编码为 HDC 向量（见 6.1.5）
 - **显式标签**：用户注册时的自我描述
 - **场景选择**：用户加入的场景 → 隐式兴趣
 
@@ -943,20 +971,16 @@ Agent画像自动演化，反映真实参与而非声明
 - 成本模型的细化（不同 LLM 的成本差异、HDC 计算的实际开销）
 - Agent 级异构性处理（V3，不同 Agent 的"响应成本"不同）
 
-### 6.4 收集完成的判断
+## 7. Agent 接入与 Profile 管理
 
-> 2026-02-07 决策：采用**等待屏障（Barrier）**机制（见 Section 9.2 步骤 ⑤）。
+> 原 Section 6.5（Agent 接入机制），独立为新 Section。包含注册、画像生成、Service Agent、ProfileDataSource 等。
 
-程序层维护"待响应列表"（所有被 HDC 共振激活的 Agent）。每收到一个 Offer 或退出通知，从列表中移除。列表为空时 → 所有 Offer 已收集，进入 Center 综合。超时 → 未返回的 Agent 标记为"退出"，继续。
-
-这是广播阶段的收集判断，与协商阶段的轮次管理（Section 4.4）逻辑一致。
-
-### 6.5 Agent 接入机制
+### 7.1 Agent 接入机制
 
 > 讨论日期：2026-02-06
 > 核心认知：**Agent 就是你的 Profile。** 用户不需要知道"Agent"是什么，不需要会编程。填写信息 → 系统生成 HDC 画像 → Agent 在网络中活跃。接入的门槛从"会编程"降到"会打字"。
 
-#### 6.5.1 V1 模式选择：平台模式（协议 DNA 内置）
+#### 7.1.1 V1 模式选择：平台模式（协议 DNA 内置）
 
 **决策：V1 用平台模式，但协议的 DNA 从第一天就埋进去。**
 
@@ -988,14 +1012,14 @@ AgentIdentity {
 
 切换到协议模式时，网络内的其他组件（共振检测、协商、方案生成）不需要改动。
 
-#### 6.5.2 身份系统
+#### 7.1.2 身份系统
 
 V1 由平台签发，数据结构兼容未来 DID：
 - 注册时签发 `agent_id`（UUID）+ `auth_token`
 - 身份绑定到 HDC 画像
 - 未来 `agent_id` 可替换为 DID，上层逻辑无感知
 
-#### 6.5.3 通信机制
+#### 7.1.3 通信机制
 
 V1 采用 WebSocket（集中式）：
 
@@ -1024,7 +1048,7 @@ V1 采用 WebSocket（集中式）：
 
 V1 是消息经过服务器中转。未来可改成 P2P 直连，消息格式不变。
 
-#### 6.5.4 信任模型：场景准入
+#### 7.1.4 信任模型：场景准入
 
 **核心认知：信任不只是"这个人是不是坏人"，更是"这个 Agent 有没有足够丰富的上下文"。**
 
@@ -1062,7 +1086,7 @@ score < 0.3 → 提示"画像比较泛，建议补充更多信息"（引导，�
 score > 0.6 → "画像丰富度很好"
 ```
 
-#### 6.5.5 多源接入：Adapter 架构
+#### 7.1.5 多源接入：Adapter 架构
 
 不同来源的 Agent 通过 Adapter 接入，核心注册逻辑不变。
 
@@ -1095,7 +1119,7 @@ score > 0.6 → "画像丰富度很好"
 | Template（表单） | 用户自己填写 | 视场景 | 接收表单数据 |
 | Custom（API） | 开发者定义 | 视实现 | 接收结构化 API 数据 |
 
-#### 6.5.6 ProfileDataSource 与投影机制（2026-02-07 架构简化）
+#### 7.1.6 ProfileDataSource 与投影机制（2026-02-07 架构简化）
 
 > **核心突破**（Design Log #003）：Agent 是投影函数的结果，不是有状态对象。ProfileDataSource 是可插拔接口，通爻只负责投影，不维护状态。
 
@@ -1283,7 +1307,7 @@ SecondMe OAuth → 获取 Profile Data → 投影成 Edge Agent Vector → 存�
 - Design Log #003: `docs/DESIGN_LOG_003_PROJECTION_AS_FUNCTION.md`
 - Task #3（简化版）：Service Agent 透镜机制
 
-#### 6.5.7 Agent 模板（Template Adapter）
+#### 7.1.7 Agent 模板（Template Adapter）
 
 **定位：万能兜底 Adapter。** 任何来源、任何场景，最终都能退化为"给我一些文本 → 我帮你变成 Agent"。
 
@@ -1333,7 +1357,7 @@ Template {
 ④ 场景开始 → 需求广播 → Agent 共振 → 协商
 ```
 
-#### 6.5.7 完整注册流程
+#### 7.1.8 完整注册流程
 
 ```
 Step 1: 选择接入方式
@@ -1370,7 +1394,7 @@ Step 6: 激活
   → Bot Agent：自动生成 Offer
 ```
 
-#### 6.5.8 商业-运营-架构闭环
+#### 7.1.9 商业-运营-架构闭环
 
 ```
 商业策略               运营策略               技术架构
@@ -1390,9 +1414,11 @@ Step 6: 激活
     → 用户满意 → 口碑 → 更多场景 → ...
 ```
 
-## 7. 基础设施层问题
+## 8. 基础设施层问题
 
-### 7.1 Agent 服务不可用的处理
+> 原 Section 7。
+
+### 8.1 Agent 服务不可用的处理
 
 | 情况 | 处理方式 |
 |------|---------|
@@ -1400,22 +1426,24 @@ Step 6: 激活
 | Agent 服务返回错误 | 记录错误，视为"退出" |
 | Agent 服务完全不可达 | 标记为"不可用"，视为"退出" |
 
-与 Section 4.4（状态检测）和 Section 9.2 步骤 ⑤（等待屏障）配合：超时 → 未返回的 Agent 标记为"退出"，协商继续。
+与 Section 4.4（状态检测）和 Section 10.2 步骤 ⑤（等待屏障）配合：超时 → 未返回的 Agent 标记为"退出"，协商继续。
 
-### 7.2 网络调度与广播
+### 8.2 网络调度与广播
 
 > 2026-02-07 更新：大部分问题已在其他 Section 中解决。
 
 | 原待讨论项 | 现状 |
 |-----------|------|
-| 信号广播机制 | 已解决 → 见 Section 6.3.7（V1 简单广播，未来语义 Gossip） |
-| 并发处理 | 已解决 → 见 Section 9.2（并行 Offer 生成 + 等待屏障） |
-| 不同网络速度 | 已解决 → 见 Section 4.4（基础设施层超时）+ Section 6.2（两种部署模式） |
+| 信号广播机制 | 已解决 → 见 Section 6.1.7（V1 简单广播，未来语义 Gossip） |
+| 并发处理 | 已解决 → 见 Section 10.2（并行 Offer 生成 + 等待屏障） |
+| 不同网络速度 | 已解决 → 见 Section 4.4（基础设施层超时）+ Section 4.7（两种部署模式） |
 | 文件池设计 | 待定——V1 平台模式下暂不需要独立文件池，需求/Offer 内容通过消息直接传递 |
 
-## 8. 递归触发与子需求
+## 9. 递归触发与子需求
 
-### 8.1 Gap识别
+> 原 Section 8。
+
+### 9.1 Gap识别
 
 不需要复杂的Gap识别算法。基于中心Agent的三个决策原则：
 1. 能不能满足需求
@@ -1424,7 +1452,7 @@ Step 6: 激活
 
 告诉大模型我们的流程，以及"递归是一个可选项"，让它自己判断是否需要生成子需求。
 
-### 8.2 渐进式交付
+### 9.2 渐进式交付
 
 递归不应该阻塞主方案的交付：
 
@@ -1447,7 +1475,7 @@ Step 6: 激活
 - 用户可以先对主方案给反馈，同时递归在跑
 - 避免"一直等，最后一个地方错了各个地方都错了"
 
-### 8.3 子需求的结构
+### 9.3 子需求的结构
 
 子需求和主需求是**同构的**（分形结构）：
 
@@ -1462,16 +1490,18 @@ class Demand:
 
 子需求用**完全相同的流程**处理。
 
-### 8.4 递归深度
+### 9.4 递归深度
 
 不硬性限制递归深度。中心Agent在判断时会考虑"当前已经递归了几层"，自行决定是否继续递归还是给出妥协方案。
 
-## 9. Skill 系统
+## 10. Skill 系统
+
+> 原 Section 9。V1 Prompt 草案已迁移到 `docs/prompts/` 目录，本节只保留接口定义。
 
 > 讨论日期：2026-02-06
 > 核心认知：**接口是稳定的，提示词是可进化的。** 每个 Skill 定义清晰的接口（角色、职责、输入、输出、原则、生命周期位置），提示词实现可由专门的 SkillPolisher 持续优化。
 
-### 9.1 设计理念
+### 10.1 设计理念
 
 Skill 本质上是**启用一个子 Agent**。每个 Skill 封装一种能力，包含接口定义和提示词模板。
 
@@ -1487,7 +1517,7 @@ Skill 本质上是**启用一个子 Agent**。每个 Skill 封装一种能力，
 - **统一 Skill**：所有实例用同一套逻辑（CenterCoordinator、SubNegotiation、GapRecursion）
 - **可定制 Skill**：每个 Agent 有自己的版本（ReflectionSelector、OfferGeneration）
 
-### 9.2 协商流程中的 Skill 调用（程序层 + 能力层）
+### 10.2 协商流程中的 Skill 调用（程序层 + 能力层）
 
 > 核心原则：**凡是能用代码保障的，绝不用 prompt 保障。** 确定性逻辑交给代码，需要智能的部分交给 LLM。
 > 研究支撑：Microsoft Magentic Marketplace（2025）发现 LLM 有严重的第一提案偏见（10-30x），但这在程序层可彻底消除。
@@ -1516,6 +1546,7 @@ Skill 本质上是**启用一个子 Agent**。每个 Skill 封装一种能力，
      ↓
 ⑦ 解析 Center 的输出（代码）
      ├─ "plan" → 输出方案，结束
+     ├─ "contract" → 输出方案 + 创建 WOWOK Machine → 进入执行阶段（Section 11）
      ├─ "need_more_info" → 向指定 Agent 追问 → 回到 ⑤
      ├─ "trigger_p2p" → 调用            → SubNegotiationSkill
      │                   结果返回 → 回到 ⑥
@@ -1537,7 +1568,7 @@ Skill 本质上是**启用一个子 Agent**。每个 Skill 封装一种能力，
 - **元认知提示**：Emergent Coordination（2025）发现 persona + metacognition 产生真正的集体智能
 - **观察遮蔽**：JetBrains Research（2025）发现遮蔽比摘要更好，成本低 50%
 
-### 9.3 Skill 清单与生命周期位置
+### 10.3 Skill 清单与生命周期位置
 
 | Skill | 类型 | 生命周期位置 | 职责 |
 |-------|------|------------|------|
@@ -1548,7 +1579,7 @@ Skill 本质上是**启用一个子 Agent**。每个 Skill 封装一种能力，
 | **SubNegotiationSkill** | 统一 | 协商流程 ⑦（Center 触发） | 发现性对话，激发隐藏上下文 |
 | **GapRecursionSkill** | 统一 | 协商流程 ⑦（Center 触发） | 将缺口转化为子需求，触发递归 |
 
-### 9.4 DemandFormulationSkill（需求丰富化器）
+### 10.4 DemandFormulationSkill（需求丰富化器）
 
 > 2026-02-07 新增。
 
@@ -1564,62 +1595,42 @@ Skill 本质上是**启用一个子 Agent**。每个 Skill 封装一种能力，
 | 约束 | 输出需经用户确认后才广播；这是可插拔扩展点，用户可自定义丰富化逻辑 |
 | 调用时机 | 协商流程 ②，用户表达意图后 |
 
-**V1 Prompt 草案**：
+> V1 Prompt 草案见 `docs/prompts/demand_formulation_v1.md`
 
-```
-System:
-    你代表一个真实的人。你的任务是理解用户想要表达的真正需求，
-    基于你对用户的了解，帮助他把需求表达得更准确、更完整。
+### 10.5 ReflectionSelectorSkill（画像投影器）
 
-    规则：
-    1. 区分"需求"和"要求"——用户说的具体要求可能只是满足需求的一种方式
-    2. 补充用户 Profile 中的相关背景，让响应者更好地理解
-    3. 不要替换用户的原始意图，而是丰富和补充
-    4. 保留用户的偏好，但标记哪些是硬性约束、哪些可以协商
-
-    用户的 Profile：
-    {agent_profile_data}
-
-User:
-    用户说：{raw_user_intent}
-    请生成丰富化后的需求表达。
-```
-
-**优化方向（给 SkillPolisher）**：丰富化的深度控制（保守 vs 开放的平衡）；不同类型需求（技术/情感/资源）的不同丰富化策略；如何标记"硬性约束 vs 可协商偏好"。
-
-### 9.5 ReflectionSelectorSkill（画像生成器）
-
+> **2026-02-07 架构简化**（Design Log #003）：原名"画像生成器和维护者"，现更名为"画像投影器"。Agent 画像不是维护的，而是从 ProfileDataSource 投影出来的。不再有"经验生长"——协作数据回流到数据源，重新投影时自然反映。
 
 **接口定义**：
 
 | 项目 | 内容 |
 |------|------|
-| 角色 | Agent 画像的生成者和维护者 |
-| 职责 | 将 Agent 的数据源编码为 HDC 超向量画像 |
-| 输入 | Agent 的数据源（SecondMe、注册信息、历史行为） |
+| 角色 | Agent 画像的投影执行者 |
+| 职责 | 从 ProfileDataSource 读取数据，通过投影函数生成 HDC 超向量 |
+| 输入 | ProfileDataSource 提供的 ProfileData + 透镜（lens）参数 |
 | 输出 | HDC 超向量画像（10,000 维二进制，1.25KB） |
-| 原则 | 画像应反映真实能力和经历，不应被美化 |
+| 原则 | ① 画像应反映真实能力和经历，不应被美化 ② 投影是无状态函数，不存储中间状态 |
 | 约束 | 共振检测本身不消耗大模型 token |
-| 调用时机 | 注册时（初始）/ 数据源变化时 / 参与协商后（经验生长） |
+| 调用时机 | 注册时（初始投影）/ 数据源变化时（重新投影）/ 需要时按需计算（可缓存） |
 
 **处理流程**：
 
 ```
-输入：Agent的数据源
+输入：ProfileDataSource.get_profile(user_id) → ProfileData
     ↓
 1. 提取关键特征文本
 2. 编码器（sentence-transformers）→ 语义向量
 3. SimHash → HDC 超向量
-4. 捆束(bundle) → Agent 综合画像
+4. 捆束(bundle) → Agent 综合画像 = project(profile_data, lens)
     ↓
-输出：HDC 超向量画像
+输出：HDC 超向量画像（投影函数的结果，无状态）
     ↓
 部署到端侧：Hamming 距离计算（< 100ns，不调用大模型）
 ```
 
-**经验生长（Random Indexing）**：每次参与协商后，协商的超向量以衰减因子融入 Agent 画像，画像自动演化。
+**画像演化**：不再通过 Random Indexing 直接融入 Agent 画像。协作数据回流到 ProfileDataSource（见 Section 7.1.6），下次投影时自然反映更新。
 
-### 9.6 OfferGenerationSkill（端侧响应生成器）
+### 10.6 OfferGenerationSkill（端侧响应生成器）
 
 **接口定义**：
 
@@ -1641,30 +1652,9 @@ User:
 | 信息源限制 | Prompt 中只包含该 Agent 的 Profile Data | ✅ |
 | 事实校验 | 生成后自动检查声明是否有 Profile 依据 | V2+ |
 
-**V1 Prompt 草案**：
+> V1 Prompt 草案见 `docs/prompts/offer_generation_v1.md`
 
-```
-System:
-    你代表一个真实的人/服务。你的任务是基于你的真实背景，
-    诚实地回应这个需求。
-
-    规则：
-    1. 只描述你的 Profile 中记录的能力和经历
-    2. 如果需求与你的背景部分相关，说清楚哪些相关、哪些不相关
-    3. 如果完全不相关，直接说"我帮不上忙"
-    4. 想想：在这个需求的语境下，你的哪些经历可能有意想不到的价值？
-
-    你的 Profile：
-    {agent_profile_data}
-
-User:
-    需求：{demand_text}
-    请给出你的回应。
-```
-
-**优化方向（给 SkillPolisher）**：元认知提示的深度和引导方式；不同类型 Agent（人 vs Bot）的 prompt 差异；Offer 的结构化程度。
-
-### 9.7 CenterCoordinatorSkill（中心综合规划器）
+### 10.7 CenterCoordinatorSkill（中心综合规划器）
 
 **接口定义**：
 
@@ -1673,7 +1663,7 @@ User:
 | 角色 | 多方资源综合规划者 |
 | 职责 | 综合所有 Offer，找到最优资源组合方案 |
 | 输入 | 需求文本 + 所有 Offer（程序保障完整性）+ 历史（如有，观察遮蔽格式） |
-| 输出 | 结构化决策：plan（方案）/ need_more_info（追问）/ trigger_p2p（触发P2P）/ has_gap（缺口） |
+| 输出 | 结构化决策：plan（方案）/ contract（可执行合约）/ need_more_info（追问）/ trigger_p2p（触发P2P）/ has_gap（缺口）。见 Section 3.4 |
 | 原则 | ① 满足需求 ② 通过率（各方会不会同意）③ 效率 |
 | 元认知 | 考虑互补性、意外组合、反锚定 |
 | 约束 | 只在所有 Offer 到齐后被调用（代码保障）；历史采用观察遮蔽（保留推理，遮蔽原始 Offer） |
@@ -1690,47 +1680,9 @@ User:
     - 第 2 轮的新回复（原文）
 ```
 
-**V1 Prompt 草案**：
+> V1 Prompt 草案见 `docs/prompts/center_coordinator_v1.md`
 
-```
-System:
-    你是一个多方资源综合规划者。
-
-    ## 角色
-    你收到一个需求，以及来自多位参与者的回应。
-    每位参与者都基于自己的真实背景给出了回复。
-    你的任务是找到最优的资源组合方案。
-
-    ## 决策原则（按优先级）
-    1. 能否满足需求
-    2. 各方通过率
-    3. 效率
-
-    ## 元认知要求
-    - 考虑回应之间的互补性
-    - 考虑意想不到的组合（1+1>2）
-    - 注意每个回应的独特视角，不要只看表面匹配
-    - 部分相关的参与者在组合中是否有价值
-
-    ## 输出格式
-    reasoning: 完整思考过程
-    decision_type: plan | need_more_info | trigger_p2p | has_gap
-    content: 方案详情 / 追问问题 / P2P 配置 / 缺口描述
-
-User:
-    ## 需求
-    {demand_text}
-
-    ## 参与者回应（共 {N} 位）
-    {每位参与者的 display_name + offer_content}
-
-    ## 历史（如有）
-    {上一轮 reasoning + decision，原始 Offer 已遮蔽}
-```
-
-**优化方向（给 SkillPolisher）**：决策原则的具体化（如通过率的判断标准）；元认知提示的深度；不同场景下的方案输出格式；few-shot 示例。
-
-### 9.8 SubNegotiationSkill（发现性对话）
+### 10.8 SubNegotiationSkill（发现性对话）
 
 > 核心认知：P2P 不是"辩论"（双方拿相同信息争论，研究证实效果为负），而是"发现性对话"（双方各自有不同的深层信息，对话激发新信息）。端侧 Agent 持有独特的 Profile / SecondMe 上下文，初始 Offer 不一定覆盖所有相关能力。对话可以激发"我没想到的、但实际上我有的"价值。
 
@@ -1762,35 +1714,9 @@ V1：第三方综合（一次 LLM 调用）
     → 需要控制轮次（最多 1-2 轮）避免错误传播
 ```
 
-**V1 Prompt 草案**：
+> V1 Prompt 草案见 `docs/prompts/sub_negotiation_v1.md`
 
-```
-System:
-    你是一个资源发现者。两位参与者各自给出了回应，
-    但他们的 Profile 中可能有 Offer 没提到的相关能力。
-    你的任务是发现他们之间的互补性和潜在的协作价值。
-
-    规则：
-    1. 关注 Profile 中 Offer 未涉及的部分
-    2. 寻找意想不到的互补和组合
-    3. 如果有冲突，找到双方都能接受的协调路径
-
-User:
-    ## 触发原因
-    {trigger_reason}
-
-    ## 参与者 A：{name}
-    Offer：{offer_A}
-    Profile：{profile_A}
-
-    ## 参与者 B：{name}
-    Offer：{offer_B}
-    Profile：{profile_B}
-```
-
-**优化方向（给 SkillPolisher）**：如何引导 LLM 发现 Profile 和 Offer 之间的"差异"（未说出的部分）；冲突解决 vs 互补发现的不同引导策略。
-
-### 9.9 GapRecursionSkill（子需求生成器）
+### 10.9 GapRecursionSkill（子需求生成器）
 
 **接口定义**：
 
@@ -1804,31 +1730,9 @@ User:
 | 约束 | 子需求携带父需求 context，让共振检测更精准 |
 | 调用时机 | 协商流程 ⑥，Center 判断有缺口时触发 |
 
-**V1 Prompt 草案**：
+> V1 Prompt 草案见 `docs/prompts/gap_recursion_v1.md`
 
-```
-System:
-    你需要把一个资源缺口转化为一个独立的需求。
-    这个需求会被广播到网络中，由其他参与者响应。
-
-    规则：
-    1. 子需求应该比原始需求更具体
-    2. 子需求应该自包含——看到它的人不需要知道父需求的细节
-    3. 但要保留足够的上下文，让响应者理解背景
-
-User:
-    ## 原始需求
-    {parent_demand_text}
-
-    ## 识别到的缺口
-    {gap_description}
-
-    请生成一个独立的子需求。
-```
-
-**优化方向（给 SkillPolisher）**：子需求的抽象程度（太具体会限制响应范围，太抽象会失去精准度）；如何平衡自包含和上下文保留。
-
-### 9.10 Skill 优化机制（SkillPolisher）
+### 10.10 Skill 优化机制（SkillPolisher）
 
 **设计思路**：每个 Skill 的接口是稳定的架构合约，提示词实现是可持续优化的。
 
@@ -2066,11 +1970,12 @@ class MockEchoSource(EchoSource):  # 测试实现
    - 不同 Agent 的阈值是否不同？
    - 需要：冷启动策略 + 反馈循环设计
 
-4. **Profile 更新算法**
-   - Random Indexing 的具体参数（学习率、衰减率）？
-   - 如何避免 Profile 漂移？
-   - 如何平衡稳定性和适应性？
-   - 需要：算法研究 + 仿真验证
+4. **~~Profile 更新算法~~** → **已简化**（Design Log #003）
+   - ~~Random Indexing 的具体参数（学习率、衰减率）？~~
+   - ~~如何避免 Profile 漂移？~~
+   - 投影即函数：通爻不维护 Profile 状态，协作数据回流到 ProfileDataSource，数据源自己处理更新
+   - **残留问题**：ProfileDataSource 的同步策略（实时 vs 批量？数据源不可用时的降级？）
+   - 详见 Section 7.1.6 和 Design Log #003
 
 5. **工程实现与性能**
    - 场广播的具体机制（Pub/Sub？Gossip？）
@@ -2122,26 +2027,28 @@ class MockEchoSource(EchoSource):  # 测试实现
 - WOWOK 对象文档：`/Users/nature/个人项目/wowokWeb/docs/docs/object/`
 - WOWOK MCP servers：npm 包 `wowok_*_mcp_server`
 
-## 10. 待讨论的问题
+## 12. 待讨论的问题
 
-- [x] 签名广播机制：签名包含什么？如何广播？→ 见 6.3 签名共振机制
-- [x] 端侧筛选机制：如何低能耗判断是否响应？→ 见 6.3.3 三层共振过滤架构
-- [x] Agent接入机制：如何让用户接入自己的Agent？→ 见 6.5 Agent接入机制
-- [x] 网络调度中心设计：V1简单广播，未来语义Gossip → 见 6.3.7
-- [x] 各Skill的提示词设计 → 见 9.2-9.9 Skill 系统（接口定义 + V1 Prompt 草案 + SkillPolisher 机制）
-- [x] 架构一致性审视（2026-02-07）→ Section 3/5 重写与 Section 9 对齐；需求formulation 替代需求方筛选（见 1.2）；方案确认为协商自然终止态（见 9.2）；设计原则提升到 Section 0
+> 原 Section 10。
+
+- [x] 签名广播机制：签名包含什么？如何广播？→ 见 Section 6.1 签名共振机制
+- [x] 端侧筛选机制：如何低能耗判断是否响应？→ 见 Section 6.1.3 三层共振过滤架构
+- [x] Agent接入机制：如何让用户接入自己的Agent？→ 见 Section 7.1 Agent接入机制
+- [x] 网络调度中心设计：V1简单广播，未来语义Gossip → 见 Section 6.1.7
+- [x] 各Skill的提示词设计 → 见 Section 10.2-10.10 Skill 系统（接口定义 + SkillPolisher 机制）；V1 Prompt 草案见 `docs/prompts/`
+- [x] 架构一致性审视（2026-02-07）→ Section 3/5 重写与 Section 10 对齐；需求formulation 替代需求方筛选（见 1.2）；方案确认为协商自然终止态（见 10.2）；设计原则提升到 Section 0
 - [x] "自-我"工程映射与 Service Agent 模型（2026-02-07）→ 见 Section 1.3；设计原则 0.8/0.9/0.10；Design Log: `docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md`
 - [x] 场景独立定义（2026-02-07）→ 见 Section 1.4；V1 定位：商业入口 + 数据收集
 - [x] 事件语义更新（2026-02-07）→ 见 Section 3.5；新增 demand.formulate，取消 plan.distribute / response.confirm 作为独立事件
 - [x] AgentIdentity 数据结构更新（2026-02-07）→ 预留 agent_type、parent_id 字段
-- [x] Section 7 更新（2026-02-07）→ 大部分已在其他 Section 解决，标注引用
+- [x] Section 8 更新（原 Section 7，2026-02-07）→ 大部分已在其他 Section 解决，标注引用
 - [x] 执行与回声阶段（2026-02-07）→ 见 Section 11；WOWOK 集成架构、Machine Template 策略、Service 创建时机、Progress 绑定策略、支付问题考量、反脆弱设计
-- [ ] Section 6 拆分重组（结构优化，内容无变化，优先级低）
+- [x] Section 6 拆分重组（2026-02-07，Task #14）→ 已完成：6.1/6.2/6.4 合入 Section 4；6.3 独立为 Section 6（HDC 签名与共振检测）；6.5 独立为 Section 7（Agent 接入与 Profile 管理）；V1 Prompt 草案迁移到 `docs/prompts/`
 - [ ] HDC编码器的具体选型与benchmark → 标识为子课题（见 11.5.1）
 - [ ] 共振阈值(θ)的调优策略 → 标识为子课题（见 11.5.3）
-- [ ] Profile 更新算法与参数 → 标识为子课题（见 11.5.4）
+- [x] Profile 更新算法与参数 → Design Log #003 架构简化：投影即函数，通爻不维护 Profile 状态。残留问题：ProfileDataSource 同步策略（见 11.5.4 更新）
 - [ ] SecondMe数据同步的具体协议
 
 ---
 
-*最后更新：2026-02-07（完成架构审视第三轮：执行与回声阶段、WOWOK 集成、反馈循环设计）*
+*最后更新：2026-02-07（第五轮：Section 6 拆分重组——6.1/6.2/6.4 合入 Section 4，6.3 独立为 Section 6，6.5 独立为 Section 7；V1 Prompt 草案迁移到 docs/prompts/；全文 Section 重新编号）*

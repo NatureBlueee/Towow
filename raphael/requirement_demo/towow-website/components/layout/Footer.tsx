@@ -13,7 +13,7 @@ export function Footer({ variant = 'home' }: FooterProps) {
         <div className={styles.footerShape} />
         <div className={styles.footerLinks}>
           <Link href="/">返回首页</Link>
-          <Link href="/experience-v2">体验 Demo</Link>
+          <Link href="/experience">应用目录</Link>
         </div>
         <div className={styles.footerCopy}>
           &copy; {new Date().getFullYear()} ToWow Network. All rights reserved.
@@ -55,11 +55,11 @@ export function Footer({ variant = 'home' }: FooterProps) {
               <i className="ri-mail-send-line" />
               <span>hi@natureblueee.com</span>
             </a>
-            <Link href="/experience-v2" className={styles.demoLink}>
+            <Link href="/experience" className={styles.demoLink}>
               <i className="ri-play-circle-line" />
-              体验 Demo
+              探索应用
             </Link>
-            <span className={styles.demoHint}>早期概念演示，持续迭代中</span>
+            <span className={styles.demoHint}>多个应用持续迭代中</span>
           </div>
         </div>
 

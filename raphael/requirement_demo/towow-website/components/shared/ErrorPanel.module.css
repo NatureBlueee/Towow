@@ -1,0 +1,40 @@
+/* components/experience/ErrorPanel.module.css */
+
+.errorPanel {
+  text-align: center;
+  padding: var(--spacing-2xl) var(--spacing-xl);
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.icon {
+  width: 80px;
+  height: 80px;
+  margin: 0 auto var(--spacing-lg);
+  background: #ffebee;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #c62828;
+}
+
+.title {
+  font-family: var(--f-cn-head);
+  font-size: 28px;
+  margin-bottom: var(--spacing-md);
+  color: var(--c-text-main);
+}
+
+.message {
+  font-size: 16px;
+  color: var(--c-text-sec);
+  line-height: 1.8;
+  margin-bottom: var(--spacing-xl);
+}
+
+.actions {
+  display: flex;
+  gap: var(--spacing-md);
+  justify-content: center;
+}

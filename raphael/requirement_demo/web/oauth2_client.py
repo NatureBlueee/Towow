@@ -9,10 +9,11 @@ SecondMe OAuth2 Client - 处理 SecondMe OAuth2 认证流程
 """
 
 import os
+import json
 import secrets
 import logging
 import threading
-from typing import Optional, Dict, Any, TYPE_CHECKING
+from typing import Optional, Dict, Any, AsyncGenerator, TYPE_CHECKING
 from dataclasses import dataclass
 from datetime import datetime, timedelta
 from urllib.parse import urlencode
@@ -137,6 +138,11 @@ class OAuth2Error(Exception):
         self.response_body = response_body
 
 
+class ChatError(OAuth2Error):
+    """Chat API 错误"""
+    pass
+
+
 class SecondMeOAuth2Client:
     """
     SecondMe OAuth2 客户端
@@ -232,7 +238,8 @@ class SecondMeOAuth2Client:
 
         uri = redirect_uri or self.config.redirect_uri
 
-        # 不对 redirect_uri 进行编码，SecondMe 可能会自行处理
+        # 不对 redirect_uri 进行编码 — SecondMe 要求原始 URL，
+        # 编码后会返回 "Application not found"
         url = (
             f"{self.config.auth_url}"
             f"?client_id={self.config.client_id}"
@@ -437,6 +444,176 @@ class SecondMeOAuth2Client:
             raise OAuth2Error(
                 message=f"Network error: {str(e)}",
                 error_code="network_error",
+            )
+
+    async def chat_stream(
+        self,
+        access_token: str,
+        messages: list[dict[str, str]],
+        system_prompt: Optional[str] = None,
+        session_id: Optional[str] = None,
+        enable_web_search: bool = False,
+    ) -> AsyncGenerator[dict[str, Any], None]:
+        """
+        调用 SecondMe Chat API（流式）
+
+        通过 SSE 流式接收 LLM 回复，支持 session 管理、工具调用等事件。
+
+        Args:
+            access_token: Access Token
+            messages: 消息列表，格式为 [{"role": "user", "content": "..."}]
+            system_prompt: 可选的系统提示词
+            session_id: 可选的会话 ID（用于上下文关联）
+            enable_web_search: 是否启用网络搜索，默认 False
+
+        Yields:
+            dict: 解析后的 SSE 事件，包含 "type" 字段：
+                - {"type": "session", "sessionId": "..."}
+                - {"type": "data", "content": "text chunk"}
+                - {"type": "tool_call", "name": "...", "parameters": "..."}
+                - {"type": "tool_result", "name": "...", "result": "..."}
+                - {"type": "done"}
+
+        Raises:
+            ChatError: Chat API 调用失败
+        """
+        url = f"{self.config.api_base_url}/gate/lab/api/secondme/chat/stream"
+
+        payload: Dict[str, Any] = {
+            "messages": messages,
+            "enableWebSearch": enable_web_search,
+        }
+        if system_prompt is not None:
+            payload["systemPrompt"] = system_prompt
+        if session_id is not None:
+            payload["sessionId"] = session_id
+
+        # 脱敏日志：只记录消息数量和首条消息摘要
+        first_msg = messages[0]["content"][:50] if messages else ""
+        logger.info(
+            f"Starting chat stream: {len(messages)} messages, "
+            f"first_msg={first_msg!r}..."
+        )
+
+        try:
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(120.0, connect=30.0),
+                follow_redirects=True,
+            ) as stream_client:
+                async with stream_client.stream(
+                    "POST",
+                    url,
+                    json=payload,
+                    headers={
+                        "Authorization": f"Bearer {access_token}",
+                        "Content-Type": "application/json",
+                        "Accept": "text/event-stream",
+                    },
+                ) as response:
+                    if response.status_code != 200:
+                        # 读取错误响应体
+                        error_body = b""
+                        async for chunk in response.aiter_bytes():
+                            error_body += chunk
+                        try:
+                            body = json.loads(error_body.decode("utf-8"))
+                            error_msg = body.get("message", "Chat stream request failed")
+                        except (json.JSONDecodeError, UnicodeDecodeError):
+                            error_msg = f"Chat stream request failed with status {response.status_code}"
+                            body = None
+
+                        logger.error(
+                            f"Chat stream failed: status={response.status_code}, "
+                            f"error={error_msg}"
+                        )
+                        raise ChatError(
+                            message=error_msg,
+                            error_code="chat_stream_error",
+                            status_code=response.status_code,
+                            response_body=body,
+                        )
+
+                    # 解析 SSE 流
+                    current_event_type = None
+                    async for line in response.aiter_lines():
+                        line = line.strip()
+
+                        # 空行表示事件结束
+                        if not line:
+                            current_event_type = None
+                            continue
+
+                        # 解析 event: 行
+                        if line.startswith("event:"):
+                            current_event_type = line[len("event:"):].strip()
+                            logger.debug(f"SSE event type: {current_event_type}")
+                            continue
+
+                        # 解析 data: 行
+                        if line.startswith("data:"):
+                            data_str = line[len("data:"):].strip()
+
+                            # 检查流结束标记
+                            if data_str == "[DONE]":
+                                logger.info("Chat stream completed")
+                                yield {"type": "done"}
+                                return
+
+                            # 尝试解析 JSON 数据
+                            try:
+                                data = json.loads(data_str)
+                            except json.JSONDecodeError:
+                                logger.debug(f"Non-JSON data line: {data_str[:100]}")
+                                # 非 JSON 数据作为纯文本 data 事件
+                                if current_event_type:
+                                    yield {"type": current_event_type, "raw": data_str}
+                                continue
+
+                            # 根据事件类型构造输出
+                            event_type = current_event_type or "data"
+
+                            if event_type == "session":
+                                yield {
+                                    "type": "session",
+                                    "sessionId": data.get("sessionId", ""),
+                                }
+                            elif event_type == "data":
+                                yield {
+                                    "type": "data",
+                                    "content": data.get("content", ""),
+                                }
+                            elif event_type == "tool_call":
+                                yield {
+                                    "type": "tool_call",
+                                    "name": data.get("name", ""),
+                                    "parameters": data.get("parameters", ""),
+                                }
+                            elif event_type == "tool_result":
+                                yield {
+                                    "type": "tool_result",
+                                    "name": data.get("name", ""),
+                                    "result": data.get("result", ""),
+                                }
+                            else:
+                                # 未知事件类型，透传
+                                yield {"type": event_type, **data}
+
+                            logger.debug(f"SSE event yielded: type={event_type}")
+
+        except ChatError:
+            # 已处理的 ChatError，直接向上抛出
+            raise
+        except httpx.RequestError as e:
+            logger.error(f"Network error during chat stream: {e}")
+            raise ChatError(
+                message=f"Network error: {str(e)}",
+                error_code="network_error",
+            )
+        except Exception as e:
+            logger.error(f"Unexpected error during chat stream: {e}")
+            raise ChatError(
+                message=f"Chat stream error: {str(e)}",
+                error_code="chat_error",
             )
 
 

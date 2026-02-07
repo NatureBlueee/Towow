@@ -57,6 +57,115 @@
   margin: 0;
 }
 
+/* Login prompt */
+.loginPrompt {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 14px;
+}
+
+.loginPromptIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  background: rgba(99, 102, 241, 0.12);
+  border-radius: 10px;
+}
+
+.loginPromptIcon i {
+  font-size: 20px;
+  color: #818CF8;
+}
+
+.loginPromptText {
+  flex: 1;
+  min-width: 0;
+}
+
+.loginPromptTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #C7D2FE;
+  margin: 0 0 2px;
+}
+
+.loginPromptDesc {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0;
+  line-height: 1.4;
+}
+
+.loginBtn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+  padding: 10px 18px;
+  background: linear-gradient(135deg, #6366F1, #8B5CF6);
+  border: none;
+  border-radius: 10px;
+  color: #FFFFFF;
+  font-size: 13px;
+  font-weight: 600;
+  font-family: inherit;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 200ms ease;
+}
+
+.loginBtn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(99, 102, 241, 0.35);
+}
+
+.loginBtn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.loginBtn i {
+  font-size: 16px;
+}
+
+.loginError {
+  width: 100%;
+  margin: 8px 0 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  color: #FCA5A5;
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.15);
+  border-radius: 8px;
+  line-height: 1.4;
+}
+
+/* Logged in banner */
+.loggedInBanner {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: rgba(34, 197, 94, 0.06);
+  border: 1px solid rgba(34, 197, 94, 0.15);
+  border-radius: 10px;
+  font-size: 13px;
+  color: #86EFAC;
+}
+
+.loggedInBanner i {
+  font-size: 16px;
+  color: #4ADE80;
+}
+
 /* Fields */
 .field {
   display: flex;
@@ -248,6 +357,80 @@
   color: #475569;
   margin: 0;
   line-height: 1.5;
+}
+
+/* SecondMe suggesting animation */
+.suggestingBanner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 14px;
+  font-size: 14px;
+  color: #A5B4FC;
+  animation: tm-fly-in-up 400ms ease-out;
+}
+
+.suggestingPulse {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #818CF8;
+  flex-shrink: 0;
+  animation: suggestPulse 1.5s ease-in-out infinite;
+}
+
+@keyframes suggestPulse {
+  0%, 100% { opacity: 0.4; transform: scale(0.8); }
+  50% { opacity: 1; transform: scale(1.2); }
+}
+
+/* SecondMe message bubble */
+.secondMeMessage {
+  display: flex;
+  gap: 12px;
+  padding: 16px 20px;
+  background: rgba(99, 102, 241, 0.06);
+  border: 1px solid rgba(99, 102, 241, 0.15);
+  border-radius: 14px;
+  animation: tm-fly-in-up 400ms ease-out;
+}
+
+.secondMeAvatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(99, 102, 241, 0.2), rgba(139, 92, 246, 0.2));
+  border-radius: 50%;
+}
+
+.secondMeAvatar i {
+  font-size: 18px;
+  color: #A5B4FC;
+}
+
+.secondMeBubble {
+  flex: 1;
+  min-width: 0;
+}
+
+.secondMeLabel {
+  font-size: 12px;
+  color: #64748B;
+  margin: 0 0 4px;
+  font-weight: 500;
+}
+
+.secondMeText {
+  font-size: 14px;
+  color: #C7D2FE;
+  margin: 0;
+  line-height: 1.6;
 }
 
 /* Mobile */

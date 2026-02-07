@@ -1,5 +1,9 @@
 # ToWow Demo V2 - Design System
 
+> **Note**: This design doc references legacy paths. The V2 components have been migrated to
+> `components/demand-negotiation/` and the page route is now `/apps/demand-negotiation`.
+> Old versions are archived in `archive/experience-v2/`.
+
 ## Overview
 
 ToWow Demo 的新交互架构，包含5个阶段的沉浸式体验流程。

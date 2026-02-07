@@ -1,16 +1,47 @@
 // lib/team-matcher/types.ts
 // Team Matcher type definitions
 
-/** A team matching request submitted by a user */
+/** A team matching request submitted by a user (legacy shape) */
 export interface TeamRequest {
   request_id: string;
   user_id: string;
   project_idea: string;
   skills: string[];
-  available_time: string;
+  availability: string;
   roles_needed: string[];
-  status: 'pending' | 'matching' | 'proposals_ready' | 'completed';
+  status: 'pending' | 'collecting' | 'generating' | 'completed' | 'failed';
+  channel_id?: string;
   created_at: string;
+}
+
+/** Team request detail as returned by the backend GET /api/team/request/:id */
+export interface TeamRequestDetail {
+  request_id: string;
+  title: string;
+  description: string;
+  submitter_id: string;
+  required_roles: string[];
+  team_size: number;
+  status: 'pending' | 'collecting' | 'generating' | 'completed' | 'failed';
+  channel_id?: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  offer_count: number;
+}
+
+/** A team request item from the browse list (GET /api/team/requests) */
+export interface TeamRequestListItem {
+  request_id: string;
+  title: string;
+  description: string;
+  submitter_id: string;
+  required_roles: string[];
+  team_size: number;
+  status: string;
+  channel_id?: string;
+  metadata: Record<string, unknown>;
+  created_at: string;
+  offer_count: number;
 }
 
 /** An offer from an agent responding to a team request */
@@ -60,6 +91,7 @@ export interface TeamProposal {
 /** Response from POST /api/team/request */
 export interface CreateRequestResponse {
   request_id: string;
+  channel_id?: string;
   status: 'pending';
 }
 
@@ -90,7 +122,7 @@ export interface TeamWSMessage {
 export interface TeamRequestFormData {
   project_idea: string;
   skills: string[];
-  available_time: string;
+  availability: string;
   roles_needed: string[];
 }
 
@@ -113,31 +145,44 @@ export interface OfferSummary {
   timestamp: string;
 }
 
-/** Predefined skill options */
+/** Predefined skill options — grouped by category */
 export const SKILL_OPTIONS = [
+  // AI Native
+  'Prompt Engineering', 'AI Agent 开发', 'LLM 应用', 'RAG', 'Fine-tuning',
+  'Multi-Agent 系统', 'AI Workflow', 'MCP', 'LangChain', 'CrewAI',
+  // Engineering
   'React', 'Vue', 'Next.js', 'TypeScript', 'Node.js',
   'Python', 'Go', 'Rust', 'Java', 'Swift',
-  'UI/UX', 'Figma', 'Product Design',
-  'Machine Learning', 'LLM', 'Data Science',
-  'DevOps', 'AWS', 'Docker', 'Kubernetes',
-  'Blockchain', 'Smart Contract', 'Solidity',
-  'Marketing', 'Growth', 'Content Writing',
-  'Project Management', 'Business Strategy',
+  'DevOps', 'Docker', 'Kubernetes', 'AWS',
+  // Data & ML
+  'Machine Learning', 'Data Science', 'Computer Vision', 'NLP',
+  // Web3
+  'Blockchain', 'Smart Contract', 'Solidity', 'Move', 'Sui',
+  // Design & Product
+  'UI/UX', 'Figma', 'Product Design', '交互设计', '用户研究',
+  // Creative & Content
+  'Content Writing', '视频制作', '短视频运营', 'Copywriting',
+  // Business & Strategy
+  'Marketing', 'Growth Hacking', '商业模式设计', '融资 & Pitch',
+  'Project Management', 'Business Strategy', '社区运营',
+  // Domain Expertise
+  '医疗健康', '教育', '金融', '游戏', '音乐', '电商',
 ] as const;
 
 /** Predefined role options */
 export const ROLE_OPTIONS = [
+  'AI Engineer',
+  'Full Stack Developer',
   'Frontend Developer',
   'Backend Developer',
-  'Full Stack Developer',
   'UI/UX Designer',
   'Product Manager',
   'Data Scientist',
-  'DevOps Engineer',
-  'Mobile Developer',
   'Blockchain Developer',
+  'Creative / Content',
   'Marketing / Growth',
   'Business Strategist',
+  'Domain Expert',
 ] as const;
 
 /** Predefined availability options */

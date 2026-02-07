@@ -18,7 +18,8 @@ Team Composition Engine - 团队组合引擎
 """
 
 import logging
-from typing import List, Dict, Set, Any, Optional
+import uuid
+from typing import List, Dict, Set, Any, Optional, Callable, Awaitable
 from itertools import combinations
 
 from .team_match_service import (
@@ -27,11 +28,221 @@ from .team_match_service import (
     TeamProposal,
     TeamMember,
 )
+from .team_prompts import (
+    team_composition_system_prompt,
+    team_composition_user_prompt,
+    parse_llm_team_response,
+)
+from .oauth2_client import get_oauth2_client, ChatError
 
 logger = logging.getLogger(__name__)
 
 
-# ============ 核心函数 ============
+# ============ LLM 团队组合 ============
+
+async def llm_compose_teams(
+    request: TeamRequest,
+    offers: List[MatchOffer],
+    access_token: str,
+    max_proposals: int = 3,
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None,
+) -> List[TeamProposal]:
+    """
+    使用 SecondMe Chat API 生成团队方案（LLM 驱动，取代纯算法组合）
+
+    Raises: ChatError（LLM 调用失败）, ValueError（解析失败/无有效方案）
+    """
+    logger.info(
+        f"LLM compose teams: {len(offers)} offers, "
+        f"max_proposals={max_proposals}"
+    )
+
+    # 1. 转换数据为 dict 格式
+    request_data = _request_to_dict(request)
+    offers_data = [_offer_to_dict(o) for o in offers]
+
+    # 2. 构建 prompt
+    system_prompt = team_composition_system_prompt()
+    user_prompt = team_composition_user_prompt(request_data, offers_data)
+    messages = [{"role": "user", "content": user_prompt}]
+
+    # 3. 调用 LLM 流式接口
+    full_response = await _stream_llm_response(
+        access_token, messages, system_prompt, progress_callback
+    )
+
+    # 4. 解析 LLM 响应
+    parsed = parse_llm_team_response(full_response)
+    if parsed is None:
+        raise ValueError("LLM 响应解析失败")
+
+    # 5. 转换为 TeamProposal 列表
+    proposals = _llm_result_to_proposals(parsed, offers, request)
+    if not proposals:
+        raise ValueError("LLM 未生成有效方案")
+
+    logger.info(f"LLM composed {len(proposals)} team proposals")
+    return proposals[:max_proposals]
+
+
+async def _stream_llm_response(
+    access_token: str,
+    messages: list,
+    system_prompt: str,
+    progress_callback: Optional[Callable[[str], Awaitable[None]]] = None,
+) -> str:
+    """
+    流式调用 SecondMe Chat API 并累积完整响应
+
+    Args:
+        access_token: SecondMe Access Token
+        messages: 消息列表
+        system_prompt: 系统提示词
+        progress_callback: 可选的进度回调
+
+    Returns:
+        str: 完整的 LLM 响应文本
+
+    Raises:
+        ChatError: LLM 调用失败
+    """
+    client = await get_oauth2_client()
+    full_response = ""
+    first_token_logged = False
+
+    async for event in client.chat_stream(
+        access_token, messages, system_prompt
+    ):
+        if event.get("type") == "data":
+            content = event.get("content", "")
+            full_response += content
+
+            if not first_token_logged and content:
+                logger.info("LLM first token received")
+                first_token_logged = True
+
+            if progress_callback and content:
+                await progress_callback(content)
+
+    logger.info(
+        f"LLM stream complete, response length: {len(full_response)}"
+    )
+    return full_response
+
+
+def _request_to_dict(request: TeamRequest) -> dict:
+    """将 TeamRequest 转换为 dict 格式供 prompt 使用"""
+    return {
+        "title": request.title,
+        "description": request.description,
+        "required_roles": request.required_roles,
+        "team_size": request.team_size,
+        "metadata": request.metadata,
+    }
+
+
+def _offer_to_dict(offer: MatchOffer) -> dict:
+    """将 MatchOffer 转换为 dict 格式供 prompt 使用"""
+    return {
+        "offer_id": offer.offer_id,
+        "agent_name": offer.agent_name,
+        "role": offer.role,
+        "skills": offer.skills,
+        "specialties": offer.specialties,
+        "motivation": offer.motivation,
+        "availability": offer.availability,
+        "metadata": offer.metadata,
+    }
+
+
+def _llm_result_to_proposals(
+    parsed: Dict[str, Any],
+    offers: List[MatchOffer],
+    request: TeamRequest,
+) -> List[TeamProposal]:
+    """
+    将 LLM 解析结果转换为 TeamProposal 列表
+
+    Args:
+        parsed: parse_llm_team_response() 返回的结构化数据
+        offers: 原始 MatchOffer 列表（用于查找成员详情）
+        request: 原始组队请求
+
+    Returns:
+        List[TeamProposal]: 转换后的团队方案列表
+    """
+    offer_map = {o.offer_id: o for o in offers}
+    proposals = []
+
+    for raw_proposal in parsed.get("proposals", []):
+        proposal = _build_llm_proposal(raw_proposal, offer_map, request)
+        if proposal is not None:
+            proposals.append(proposal)
+
+    return proposals
+
+
+def _build_llm_proposal(
+    raw: Dict[str, Any],
+    offer_map: Dict[str, MatchOffer],
+    request: TeamRequest,
+) -> Optional[TeamProposal]:
+    """从单个 LLM 方案数据构建 TeamProposal，成员全部查找失败时返回 None"""
+    members = _build_llm_members(raw, offer_map)
+    if not members:
+        logger.warning(f"No valid members for proposal: {raw.get('proposal_label')}")
+        return None
+
+    unexpected = [raw["unexpected_insight"]] if raw.get("unexpected_insight") else []
+
+    return TeamProposal(
+        proposal_id=f"proposal_{uuid.uuid4().hex[:8]}",
+        request_id=request.request_id,
+        title=raw.get("proposal_label", "LLM 方案"),
+        members=members,
+        coverage_score=0.0,
+        synergy_score=0.0,
+        unexpected_combinations=unexpected,
+        reasoning=raw.get("reasoning", ""),
+        metadata={
+            "proposal_type": raw.get("proposal_type", ""),
+            "coverage_analysis": raw.get("coverage_analysis", {}),
+            "source": "llm",
+        },
+    )
+
+
+def _build_llm_members(
+    raw: Dict[str, Any],
+    offer_map: Dict[str, MatchOffer],
+) -> List[TeamMember]:
+    """从 LLM 方案数据中构建 TeamMember 列表，跳过无法匹配的 offer_id"""
+    member_ids = raw.get("members", [])
+    member_roles = raw.get("member_roles", {})
+    member_reasons = raw.get("member_match_reasons", {})
+
+    members = []
+    for offer_id in member_ids:
+        offer = offer_map.get(offer_id)
+        if offer is None:
+            logger.warning(f"Offer not found for id: {offer_id}, skipping")
+            continue
+
+        role = member_roles.get(offer_id, offer.role)
+        contribution = member_reasons.get(offer_id, f"{role}方面的专业支持")
+        members.append(TeamMember(
+            agent_id=offer.agent_id,
+            agent_name=offer.agent_name,
+            role=role,
+            skills=offer.skills,
+            specialties=offer.specialties,
+            contribution=contribution,
+        ))
+
+    return members
+
+
+# ============ 算法组合（Fallback） ============
 
 async def generate_team_combinations(
     request: TeamRequest,
@@ -299,8 +510,6 @@ def _build_team_proposal(
     Returns:
         TeamProposal: 团队方案
     """
-    import uuid
-
     combo = combo_data["combo"]
     coverage_score = combo_data["coverage_score"]
     synergy_score = combo_data["synergy_score"]

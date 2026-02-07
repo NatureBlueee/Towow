@@ -1,0 +1,19 @@
+任务编号,任务名称,一句话描述,主线,优先级,状态,适合背景,子任务数,PRD文件名,依赖任务,标签
+H4,最小验证实验设计,设计最小实验量化通爻5个核心假设的实际效果,核心验证,Tier 1,待认领,有实验设计能力的人,5,H4_minimum_validation_experiments.md,无,研究;实验
+A1,HDC编码策略验证,对比不同编码方法找到最优的文本到超向量编码策略,核心验证,Tier 1,待认领,懂NLP/ML的开发者或研究生,5,A1_hdc_encoding.md,无,ML;HDC
+H5,超向量空间可视化,让人看到HDC空间中Agent的分布和共振效果,核心验证,Tier 2,待认领,有前端和数据可视化经验的开发者,5,H5_hypervector_visualization.md,A1,可视化;前端
+A5,竞品/参考系统对标分析,通爻和AutoGen/推荐系统/Fetch.ai等的范式级差异,定位与传播,Tier 1,待认领,了解AI Agent生态的人,5,A5_competitive_analysis.md,无,分析;AI
+D1,响应范式vs搜索范式科普文章,零技术门槛3分钟让人理解搜索和响应的根本区别,定位与传播,Tier 1,待认领,写作能力强的人,5,D1_response_paradigm_article.md,A5,写作;科普
+H1,概念翻译（跨领域）,让招聘/区块链/投资/产品领域的人用自己的语言理解通爻,定位与传播,Tier 1,待认领,跨领域背景的人,6,H1_concept_translation.md,无,翻译;跨域
+C1,核心概念术语表（中英双语）,30-40个核心术语的中英双语对照保留技术含义和哲学内涵,定位与传播,Tier 2,待认领,懂技术英文理解哲学概念的人,5,C1_glossary.md,无,翻译;术语
+D2,投影即函数技术博客,面向技术读者讲清楚Agent是函数不是对象的核心洞察,定位与传播,Tier 2,待认领,有技术写作能力的开发者,5,D2_projection_as_function_blog.md,D1,写作;技术
+D5,从需求到发现案例故事,一个完整的故事让人感受到响应范式发现意外价值的力量,定位与传播,Tier 2,待认领,有叙事能力的人,5,D5_demand_to_discovery_story.md,无,写作;故事
+B1,黑客松组队场景完整建模,系统化分析找队友到组成团队的用户旅程和决策因素,场景与产品,Tier 1,待认领,参加过黑客松的人/产品经理,5,B1_hackathon_teaming.md,无,产品;场景
+H2,Prompt工程研究,系统化优化通爻6个核心Skill的LLM Prompt,场景与产品,Tier 1,待认领,有Prompt工程经验的开发者,6,H2_prompt_engineering.md,无,LLM;Prompt
+T1,场景建模模板,为新领域共建者生成场景建模任务的模板,场景与产品,模板,待认领,任何领域的人,5,T1_scene_modeling_template.md,B1,模板;场景
+T2,独立场景小应用模板,用通爻理念做实际产品的任务模板,场景与产品,模板,待认领,有开发能力的人,5,T2_indie_app_template.md,T1+H3,模板;开发
+A2,分布式共振网络学术调研,V1用中心化广播长期需要分布式学术综述是知识储备,前沿探索,Tier 2,待认领,有学术研究能力的人,5,A2_distributed_resonance_survey.md,无,研究;分布式
+A3,经济激励模型方向探索,网络需要激励机制让人参与梳理可选方向和trade-off,前沿探索,Tier 2,待认领,懂经济学/博弈论或Token设计的人,5,A3_economic_incentive_model.md,无,经济;博弈论
+A4,安全模型与数据所有权调研,通爻涉及个人数据和Agent行为安全和隐私怎么保障,前沿探索,Tier 2,待认领,有安全/隐私研究背景的人,5,A4_security_data_ownership.md,无,安全;隐私
+A6,Sui链数据成本与性能实测,WOWOK在Sui上实测链上操作的成本和性能,前沿探索,Tier 2,待认领,有Sui/Move开发经验的人,5,A6_sui_chain_benchmark.md,无,区块链;Sui
+H3,开发者入门套件,让开发者30分钟内理解通爻并开始构建,开发者生态,Tier 1,待认领,有开发经验且理解通爻理念的人,5,H3_developer_starter_kit.md,无,开发;文档

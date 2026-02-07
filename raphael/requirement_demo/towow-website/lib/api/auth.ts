@@ -1,10 +1,16 @@
 // 使用相对路径，通过 Next.js rewrites 代理到后端
 const API_BASE = '';
 
-export async function getAuthUrl(): Promise<string> {
-  const response = await fetch(`${API_BASE}/api/auth/login`);
+export async function getAuthUrl(returnTo?: string): Promise<string> {
+  const params = returnTo ? `?return_to=${encodeURIComponent(returnTo)}` : '';
+  const response = await fetch(`${API_BASE}/api/auth/login${params}`);
+  if (!response.ok) {
+    throw new Error(`Auth API error: ${response.status}`);
+  }
   const data = await response.json();
-  // 后端返回的是 authorization_url
+  if (!data.authorization_url) {
+    throw new Error('No authorization_url in response');
+  }
   return data.authorization_url;
 }
 

@@ -4,7 +4,7 @@ import { useRouter } from 'next/navigation';
 import styles from './TeamNav.module.css';
 
 interface TeamNavProps {
-  currentStep?: 'request' | 'progress' | 'proposals';
+  currentStep?: 'request' | 'browse' | 'progress' | 'proposals';
 }
 
 export function TeamNav({ currentStep = 'request' }: TeamNavProps) {
@@ -25,6 +25,11 @@ export function TeamNav({ currentStep = 'request' }: TeamNavProps) {
         <div className={`${styles.step} ${currentStep === 'request' ? styles.active : ''}`}>
           <span className={styles.stepDot} />
           <span className={styles.stepLabel}>发出信号</span>
+        </div>
+        <div className={styles.stepLine} />
+        <div className={`${styles.step} ${currentStep === 'browse' ? styles.active : ''}`}>
+          <span className={styles.stepDot} />
+          <span className={styles.stepLabel}>浏览请求</span>
         </div>
         <div className={styles.stepLine} />
         <div className={`${styles.step} ${currentStep === 'progress' ? styles.active : ''}`}>

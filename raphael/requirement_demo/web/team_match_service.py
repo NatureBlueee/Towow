@@ -347,6 +347,27 @@ class TeamMatchService:
         """获取团队方案列表"""
         return self._proposals.get(request_id, [])
 
+    def list_requests(self, status: Optional[str] = None) -> List[Dict[str, Any]]:
+        """
+        获取所有组队请求列表
+
+        Args:
+            status: 可选状态筛选（如 "pending", "collecting", "completed"）
+
+        Returns:
+            List[Dict]: 请求列表，每个包含 offer_count
+        """
+        results = []
+        for req in self._requests.values():
+            if status and req.status.value != status:
+                continue
+            offer_count = len(self._offers.get(req.request_id, []))
+            results.append({
+                "request": req,
+                "offer_count": offer_count,
+            })
+        return results
+
     def get_stats(self) -> Dict[str, Any]:
         """获取统计信息"""
         return {

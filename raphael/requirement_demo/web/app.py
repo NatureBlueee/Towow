@@ -267,9 +267,10 @@ OPENAGENTS_HOST = os.getenv("OPENAGENTS_HOST", "localhost")
 OPENAGENTS_PORT = int(os.getenv("OPENAGENTS_PORT", "8800"))
 
 # 回调地址映射（根据请求 Host 选择）
-# 格式: { "host": "redirect_uri" }
+# 本地开发：callback 直接到后端（8080），cookie 按域名共享不区分端口
 REDIRECT_URI_MAP = {
     "localhost:8080": "http://localhost:8080/api/auth/callback",
+    "localhost:3000": "http://localhost:8080/api/auth/callback",
     "127.0.0.1:8080": "http://localhost:8080/api/auth/callback",
     "towow-api-production.up.railway.app": "https://towow.net/api/auth/callback",
 }
@@ -629,7 +630,10 @@ async def stop_all_agents():
     summary="获取 SecondMe 登录 URL",
     description="返回 SecondMe OAuth2 授权页面 URL，前端可以重定向用户到该 URL 进行授权"
 )
-async def auth_login(request: Request):
+async def auth_login(
+    request: Request,
+    return_to: Optional[str] = Query(None, description="登录后重定向到的前端路径（如 /apps/team-matcher/request）"),
+):
     """
     获取 SecondMe OAuth2 授权 URL
 
@@ -652,6 +656,14 @@ async def auth_login(request: Request):
         session_store = await get_session_store()
         oauth_client = await get_oauth2_client(session_store)
         auth_url, state = await oauth_client.build_authorization_url(redirect_uri=redirect_uri)
+
+        # Store return_to path with the state so callback can redirect back
+        if return_to:
+            await session_store.set(
+                f"auth_return_to:{state}",
+                return_to,
+                ttl_seconds=600,  # 10 minutes
+            )
 
         return AuthLoginResponse(
             authorization_url=auth_url,
@@ -703,6 +715,11 @@ async def auth_callback(
             status_code=302,
         )
 
+    # Retrieve the return_to path stored during login (if any)
+    return_to = await session_store.get(f"auth_return_to:{state}")
+    # Default fallback page
+    default_page = return_to or "/experience-v2"
+
     try:
         # 1. 用授权码换取 Token
         token_set = await oauth_client.exchange_token(code, redirect_uri=redirect_uri)
@@ -733,7 +750,7 @@ async def auth_callback(
             )
 
             redirect_response = RedirectResponse(
-                url=f"{frontend_url}/experience-v2",
+                url=f"{frontend_url}{default_page}",
                 status_code=302,
             )
             redirect_response.set_cookie(
@@ -744,7 +761,7 @@ async def auth_callback(
                 samesite="lax",
                 secure=COOKIE_SECURE,
             )
-            logger.info(f"User logged in: agent_id={agent_id}")
+            logger.info(f"User logged in: agent_id={agent_id}, redirecting to {default_page}")
             return redirect_response
         else:
             # 用户需要注册，将信息存储到临时会话，重定向到注册页
@@ -758,6 +775,7 @@ async def auth_callback(
                 "bio": user_info.bio,
                 "self_introduction": user_info.self_introduction,
                 "profile_completeness": user_info.profile_completeness,
+                "return_to": return_to,  # Preserve return_to through registration
             })
             await session_store.set(
                 f"pending_auth:{pending_session_id}",
@@ -766,7 +784,7 @@ async def auth_callback(
             )
 
             redirect_response = RedirectResponse(
-                url=f"{frontend_url}/experience-v2?pending_auth={pending_session_id}",
+                url=f"{frontend_url}{default_page}?pending_auth={pending_session_id}",
                 status_code=302,
             )
             logger.info(f"New user needs registration: name={user_info.name}")
@@ -775,13 +793,13 @@ async def auth_callback(
     except OAuth2Error as e:
         logger.error(f"OAuth2 error: {e.message}, code={e.error_code}")
         return RedirectResponse(
-            url=f"{frontend_url}/experience-v2?error=oauth_error&error_description=OAuth2认证失败",
+            url=f"{frontend_url}{default_page}?error=oauth_error&error_description=OAuth2认证失败",
             status_code=302,
         )
     except Exception as e:
         logger.error(f"Unexpected error in OAuth callback: {e}")
         return RedirectResponse(
-            url=f"{frontend_url}/experience-v2?error=server_error&error_description=处理授权回调时发生错误",
+            url=f"{frontend_url}{default_page}?error=server_error&error_description=处理授权回调时发生错误",
             status_code=302,
         )
 
@@ -829,6 +847,7 @@ async def complete_registration(
             specialties=reg_request.specialties,
             secondme_id=user_identifier,  # 使用用户标识符
             bio=reg_request.bio,
+            access_token=reg_request.access_token,
         )
 
         # 注册成功后设置 session Cookie
@@ -1067,6 +1086,7 @@ async def complete_pending_registration(
             secondme_id=pending_data.get("user_identifier", ""),
             bio=bio or pending_data.get("bio"),
             avatar_url=pending_data.get("avatar"),
+            access_token=pending_data.get("access_token"),
         )
 
         if result.get("success") and result.get("agent_id"):
@@ -1761,6 +1781,34 @@ from .team_match_service import (
     TeamMatchService,
     TeamRequestStatus,
 )
+from .team_composition_engine import llm_compose_teams
+from .oauth2_client import ChatError
+from .team_prompts import (
+    form_suggest_system_prompt,
+    form_suggest_user_prompt,
+    parse_suggest_response,
+)
+
+
+def _wrap_team_ws_message(channel_id: str, event: Dict[str, Any]) -> Dict[str, Any]:
+    """
+    将 Team Matcher 事件包装为 useWebSocket 兼容的消息格式。
+
+    useWebSocket hook 只转发 type='message' 的消息，
+    所以 team-matching 事件必须嵌套在 message payload 的 content 字段中。
+    """
+    return {
+        "type": "message",
+        "payload": {
+            "message_id": f"team_sys_{uuid.uuid4().hex[:8]}",
+            "channel_id": channel_id,
+            "sender_id": "system",
+            "sender_name": "System",
+            "message_type": "system",
+            "content": json.dumps(event),
+            "timestamp": datetime.now().isoformat(),
+        }
+    }
 
 
 class TeamRequestCreateRequest(BaseModel):
@@ -1770,7 +1818,7 @@ class TeamRequestCreateRequest(BaseModel):
     project_idea: str = Field(..., min_length=1, description="项目想法（作为标题和描述）")
     skills: List[str] = Field(..., description="用户技能")
     availability: str = Field(..., description="可用时间")
-    roles_needed: List[str] = Field(..., min_items=1, description="需要的角色")
+    roles_needed: List[str] = Field(default=[], description="需要的角色（可选）")
     context: Optional[Dict[str, Any]] = Field(default={}, description="额外上下文")
 
     # 可选的后端字段（向后兼容）
@@ -1788,8 +1836,8 @@ class TeamRequestCreateRequest(BaseModel):
             "title": self.title or f"寻找队友：{self.project_idea[:50]}",
             "description": self.description or f"{self.project_idea}\n\n可用时间：{self.availability}\n我的技能：{', '.join(self.skills)}",
             "submitter_id": self.submitter_id or self.user_id,
-            "required_roles": self.required_roles or self.roles_needed,
-            "team_size": self.team_size or (len(self.roles_needed) + 1),  # 默认=角色数+提交者
+            "required_roles": self.required_roles or self.roles_needed or ["通用成员"],
+            "team_size": self.team_size or max(len(self.roles_needed) + 1, 3),  # 默认=角色数+提交者，最少3人
             "metadata": {
                 **(self.metadata or {}),
                 **(self.context or {}),
@@ -1826,6 +1874,7 @@ class TeamRequestResponse(BaseModel):
     channel_id: Optional[str]
     metadata: Dict[str, Any]
     created_at: str
+    offer_count: int = 0
 
 
 class MatchOfferCreateRequest(BaseModel):
@@ -1894,7 +1943,6 @@ class TeamProposalResponse(BaseModel):
 async def create_team_request(
     http_request: Request,
     request: TeamRequestCreateRequest,
-    background_tasks: BackgroundTasks,
 ):
     """
     创建组队请求（支持前端友好Schema）
@@ -1924,9 +1972,9 @@ async def create_team_request(
 
         # 通过 WebSocket 广播新组队请求
         ws_manager = get_websocket_manager()
-        await ws_manager.broadcast_all({
+        event = {
             "type": "team_request_created",
-            "payload": {
+            "data": {
                 "request_id": team_request.request_id,
                 "title": team_request.title,
                 "description": team_request.description,
@@ -1934,7 +1982,14 @@ async def create_team_request(
                 "team_size": team_request.team_size,
                 "channel_id": team_request.channel_id,
             }
-        })
+        }
+        if team_request.channel_id:
+            await ws_manager.broadcast_to_channel(
+                channel_id=team_request.channel_id,
+                message=_wrap_team_ws_message(team_request.channel_id, event),
+            )
+        else:
+            await ws_manager.broadcast_all(event)
 
         logger.info(f"Team request created: {team_request.request_id}")
 
@@ -1969,6 +2024,7 @@ async def create_team_request(
 async def submit_match_offer(
     http_request: Request,
     offer_request: MatchOfferCreateRequest,
+    background_tasks: BackgroundTasks,
 ):
     """
     提交参与意向
@@ -2001,24 +2057,41 @@ async def submit_match_offer(
         ws_manager = get_websocket_manager()
         team_request = service.get_team_request(offer_request.request_id)
         if team_request and team_request.channel_id:
+            event = {
+                "type": "offer_received",
+                "data": {
+                    "offer_id": offer.offer_id,
+                    "request_id": offer.request_id,
+                    "agent_name": offer.agent_name,
+                    "role": offer.role,
+                    "skills": offer.skills,
+                }
+            }
             await ws_manager.broadcast_to_channel(
                 channel_id=team_request.channel_id,
-                message={
-                    "type": "match_offer_received",
-                    "payload": {
-                        "offer_id": offer.offer_id,
-                        "request_id": offer.request_id,
-                        "agent_name": offer.agent_name,
-                        "role": offer.role,
-                        "skills": offer.skills,
-                    }
-                }
+                message=_wrap_team_ws_message(team_request.channel_id, event),
             )
 
         logger.info(
             f"Match offer submitted: {offer.offer_id} "
             f"for request {offer_request.request_id}"
         )
+
+        # Auto-trigger proposal generation when enough offers collected
+        offers = service.get_match_offers(offer_request.request_id)
+        if (
+            team_request
+            and len(offers) >= team_request.team_size
+            and team_request.status != TeamRequestStatus.GENERATING
+        ):
+            team_request.status = TeamRequestStatus.GENERATING
+            access_token = await _get_access_token_from_request(http_request)
+            background_tasks.add_task(
+                _auto_generate_proposals,
+                request_id=offer_request.request_id,
+                channel_id=team_request.channel_id or offer_request.request_id,
+                access_token=access_token,
+            )
 
         return MatchOfferResponse(
             offer_id=offer.offer_id,
@@ -2042,21 +2115,138 @@ async def submit_match_offer(
         raise HTTPException(status_code=500, detail="提交参与意向失败")
 
 
+async def _auto_generate_proposals(
+    request_id: str,
+    channel_id: str,
+    access_token: Optional[str],
+):
+    """
+    后台任务：自动生成团队方案。
+
+    当收集到足够的 offer（>= team_size）时触发。
+
+    流程：
+    1. 广播"匹配中"状态
+    2. 调用方案生成（LLM 或算法 fallback）
+    3. 广播"方案就绪"
+    """
+    service = get_team_match_service()
+    ws_manager = get_websocket_manager()
+
+    try:
+        # 广播匹配进行中
+        event = {"type": "matching_in_progress", "data": {"request_id": request_id}}
+        await ws_manager.broadcast_to_channel(
+            channel_id=channel_id,
+            message=_wrap_team_ws_message(channel_id, event),
+        )
+
+        team_request = service.get_team_request(request_id)
+        if not team_request:
+            logger.error(f"Team request {request_id} not found during auto-generate")
+            return
+
+        offers = service.get_match_offers(request_id)
+
+        if access_token:
+            # LLM 路径
+            logger.info(f"Auto-generate: using LLM path for {request_id}")
+
+            async def progress_callback(content: str) -> None:
+                event = {"type": "composition_progress", "data": {"content": content}}
+                await ws_manager.broadcast_to_channel(
+                    channel_id=channel_id,
+                    message=_wrap_team_ws_message(channel_id, event),
+                )
+
+            proposals = await llm_compose_teams(
+                request=team_request,
+                offers=offers,
+                access_token=access_token,
+                max_proposals=3,
+                progress_callback=progress_callback,
+            )
+        else:
+            # 算法 fallback 路径
+            logger.info(f"Auto-generate: using algorithm path for {request_id}")
+            proposals = await service.generate_team_proposals(
+                request_id=request_id,
+                max_proposals=3,
+            )
+
+        service._proposals[request_id] = proposals
+        team_request.status = TeamRequestStatus.COMPLETED
+
+        # 广播方案就绪
+        event = {
+            "type": "proposals_ready",
+            "data": {
+                "request_id": request_id,
+                "proposal_count": len(proposals),
+            }
+        }
+        await ws_manager.broadcast_to_channel(
+            channel_id=channel_id,
+            message=_wrap_team_ws_message(channel_id, event),
+        )
+        logger.info(f"Auto-generate complete: {len(proposals)} proposals for {request_id}")
+
+    except Exception as e:
+        logger.error(f"Auto-generate failed for {request_id}: {e}", exc_info=True)
+        event = {"type": "composition_error", "data": {"error": f"方案生成失败: {e}"}}
+        try:
+            await ws_manager.broadcast_to_channel(
+                channel_id=channel_id,
+                message=_wrap_team_ws_message(channel_id, event),
+            )
+        except Exception:
+            pass
+        team_request = service.get_team_request(request_id)
+        if team_request:
+            team_request.status = TeamRequestStatus.FAILED
+
+
+async def _get_access_token_from_request(http_request: Request) -> Optional[str]:
+    """
+    从 HTTP 请求的 session cookie 中获取用户的 access_token。
+
+    流程：cookie -> session_store -> agent_id -> database -> access_token
+    """
+    session_id = http_request.cookies.get(SESSION_COOKIE_NAME)
+    if not session_id:
+        return None
+
+    session_store = http_request.app.state.session_store
+    agent_id = await session_store.get(f"session:{session_id}")
+    if not agent_id:
+        return None
+
+    user = db.get_user_by_agent_id(agent_id)
+    if not user or not user.access_token:
+        return None
+
+    return user.access_token
+
+
 @app.post(
     "/api/team/proposals/{request_id}",
     response_model=List[TeamProposalResponse],
     tags=["Team Matcher"],
     summary="生成团队方案",
-    description="根据收集的参与意向生成团队组合方案"
+    description="根据收集的参与意向生成团队组合方案（支持 LLM 流式输出）"
 )
 async def generate_team_proposals(
     request_id: str,
+    http_request: Request,
+    background_tasks: BackgroundTasks,
     max_proposals: int = Query(3, ge=1, le=10, description="最多生成几个方案"),
 ):
     """
     生成团队方案
 
     根据收集到的参与意向（Match Offer），生成多个不同的团队组合方案。
+    如果用户已登录（有 access_token），使用 LLM 流式生成并通过 WebSocket 广播进度；
+    否则 fallback 到纯算法路径。
 
     - **request_id**: 组队请求 ID
     - **max_proposals**: 最多生成几个方案（默认 3）
@@ -2069,26 +2259,85 @@ async def generate_team_proposals(
     """
     try:
         service = get_team_match_service()
-
-        # 生成方案
-        proposals = await service.generate_team_proposals(
-            request_id=request_id,
-            max_proposals=max_proposals,
-        )
-
-        # 通过 WebSocket 通知
         ws_manager = get_websocket_manager()
+
+        # 获取请求和 offers
         team_request = service.get_team_request(request_id)
-        if team_request and team_request.channel_id:
+        if not team_request:
+            raise ValueError(f"Team request not found: {request_id}")
+
+        offers = service.get_match_offers(request_id)
+        if len(offers) < team_request.team_size:
+            raise ValueError(
+                f"Not enough offers: need {team_request.team_size}, got {len(offers)}"
+            )
+
+        # 更新状态为 GENERATING
+        team_request.status = TeamRequestStatus.GENERATING
+
+        # 尝试获取 access_token
+        access_token = await _get_access_token_from_request(http_request)
+
+        if access_token:
+            # --- LLM 流式生成路径 ---
+            logger.info(
+                f"Using LLM path for request {request_id} "
+                f"({len(offers)} offers, max {max_proposals} proposals)"
+            )
+
+            # 广播开始生成
+            if team_request.channel_id:
+                event = {"type": "matching_in_progress", "data": {"request_id": request_id}}
+                await ws_manager.broadcast_to_channel(
+                    channel_id=team_request.channel_id,
+                    message=_wrap_team_ws_message(team_request.channel_id, event),
+                )
+
+            # 定义流式进度回调
+            async def progress_callback(content: str) -> None:
+                if team_request.channel_id:
+                    event = {"type": "composition_progress", "data": {"content": content}}
+                    await ws_manager.broadcast_to_channel(
+                        channel_id=team_request.channel_id,
+                        message=_wrap_team_ws_message(team_request.channel_id, event),
+                    )
+
+            # 调用 LLM 组合引擎
+            proposals = await llm_compose_teams(
+                request=team_request,
+                offers=offers,
+                access_token=access_token,
+                max_proposals=max_proposals,
+                progress_callback=progress_callback,
+            )
+
+            # 保存方案到 service
+            service._proposals[request_id] = proposals
+            team_request.status = TeamRequestStatus.COMPLETED
+
+        else:
+            # --- Fallback: 纯算法路径 ---
+            logger.info(
+                f"Using algorithm path for request {request_id} (no access_token)"
+            )
+
+            proposals = await service.generate_team_proposals(
+                request_id=request_id,
+                max_proposals=max_proposals,
+            )
+
+        # 广播方案就绪
+        if team_request.channel_id:
+            event = {
+                "type": "proposals_ready",
+                "data": {
+                    "request_id": request_id,
+                    "proposal_count": len(proposals),
+                }
+            }
             await ws_manager.broadcast_to_channel(
                 channel_id=team_request.channel_id,
-                message={
-                    "type": "proposals_ready",
-                    "payload": {
-                        "request_id": request_id,
-                        "proposal_count": len(proposals),
-                    }
-                }
+                message=_wrap_team_ws_message(team_request.channel_id, event),
             )
 
         logger.info(
@@ -2100,11 +2349,36 @@ async def generate_team_proposals(
             for proposal in proposals
         ]
 
+    except ChatError as e:
+        logger.error(f"LLM composition failed for {request_id}: {e}")
+        ws_manager = get_websocket_manager()
+        team_request = get_team_match_service().get_team_request(request_id)
+        if team_request and team_request.channel_id:
+            event = {"type": "composition_error", "data": {"error": f"LLM 生成失败: {e}"}}
+            await ws_manager.broadcast_to_channel(
+                channel_id=team_request.channel_id,
+                message=_wrap_team_ws_message(team_request.channel_id, event),
+            )
+        if team_request:
+            team_request.status = TeamRequestStatus.FAILED
+        raise HTTPException(status_code=500, detail=f"LLM 生成团队方案失败: {e}")
+
     except ValueError as e:
         logger.error(f"Invalid request: {e}")
         raise HTTPException(status_code=400, detail=str(e))
+
     except Exception as e:
-        logger.error(f"Generate proposals failed: {e}")
+        logger.error(f"Generate proposals failed for {request_id}: {e}")
+        ws_manager = get_websocket_manager()
+        team_request = get_team_match_service().get_team_request(request_id)
+        if team_request and team_request.channel_id:
+            event = {"type": "composition_error", "data": {"error": f"生成方案失败: {e}"}}
+            await ws_manager.broadcast_to_channel(
+                channel_id=team_request.channel_id,
+                message=_wrap_team_ws_message(team_request.channel_id, event),
+            )
+        if team_request:
+            team_request.status = TeamRequestStatus.FAILED
         raise HTTPException(status_code=500, detail="生成团队方案失败")
 
 
@@ -2126,6 +2400,10 @@ async def get_team_request_details(request_id: str):
             detail=f"组队请求 {request_id} 不存在"
         )
 
+    # Include offer count
+    offers = service.get_match_offers(request_id)
+    offer_count = len(offers) if offers else 0
+
     return TeamRequestResponse(
         request_id=team_request.request_id,
         title=team_request.title,
@@ -2137,6 +2415,7 @@ async def get_team_request_details(request_id: str):
         channel_id=team_request.channel_id,
         metadata=team_request.metadata,
         created_at=team_request.created_at.isoformat(),
+        offer_count=offer_count,
     )
 
 
@@ -2207,6 +2486,38 @@ async def get_team_proposals(request_id: str):
 
 
 @app.get(
+    "/api/team/requests",
+    response_model=List[TeamRequestResponse],
+    tags=["Team Matcher"],
+    summary="获取所有组队请求",
+    description="获取所有组队请求列表，支持按状态筛选"
+)
+async def list_team_requests(
+    status: Optional[str] = Query(None, description="按状态筛选"),
+):
+    """获取所有组队请求列表"""
+    service = get_team_match_service()
+    items = service.list_requests(status=status)
+
+    return [
+        TeamRequestResponse(
+            request_id=item["request"].request_id,
+            title=item["request"].title,
+            description=item["request"].description,
+            submitter_id=item["request"].submitter_id,
+            required_roles=item["request"].required_roles,
+            team_size=item["request"].team_size,
+            status=item["request"].status.value,
+            channel_id=item["request"].channel_id,
+            metadata=item["request"].metadata,
+            created_at=item["request"].created_at.isoformat(),
+            offer_count=item["offer_count"],
+        )
+        for item in items
+    ]
+
+
+@app.get(
     "/api/team/stats",
     tags=["Team Matcher"],
     summary="获取 Team Matcher 统计",
@@ -2216,6 +2527,99 @@ async def get_team_matcher_stats():
     """获取 Team Matcher 统计信息"""
     service = get_team_match_service()
     return service.get_stats()
+
+
+# ============ SecondMe 表单建议 ============
+
+class FormSuggestionsModel(BaseModel):
+    """表单建议的具体字段值"""
+    project_idea: str = ""
+    skills: List[str] = []
+    availability: str = ""
+    roles_needed: List[str] = []
+
+
+class FormSuggestResponse(BaseModel):
+    """SecondMe 表单建议的 API 响应"""
+    success: bool
+    message: str = ""
+    suggestions: Optional[FormSuggestionsModel] = None
+    error: Optional[str] = None
+
+
+@app.get(
+    "/api/team/suggest",
+    response_model=FormSuggestResponse,
+    tags=["Team Matcher"],
+    summary="SecondMe 自动填表建议",
+    description="调用 SecondMe Chat API，基于用户 Profile 生成组队表单建议",
+)
+async def suggest_form_values(request: Request):
+    """
+    让用户的 SecondMe 推测并建议组队表单内容。
+
+    需要用户已登录（session cookie 中有 access_token）。
+    服务端调用 SecondMe Chat API 流式接口，收集完整响应后解析为结构化建议。
+    """
+    # 1. 获取 access_token
+    access_token = await _get_access_token_from_request(request)
+    if not access_token:
+        raise HTTPException(status_code=401, detail="未登录或 session 无效")
+
+    # 2. 构建 prompt
+    system_prompt = form_suggest_system_prompt()
+    hackathon_ctx = os.getenv(
+        "HACKATHON_CONTEXT",
+        "A2A Hackathon 2026 — 主题是 AI Agent 协作与多智能体系统",
+    )
+    user_message = form_suggest_user_prompt(hackathon_ctx)
+    messages = [{"role": "user", "content": user_message}]
+
+    # 3. 调用 SecondMe Chat API（服务端收集完整流式响应）
+    try:
+        client = await get_oauth2_client()
+        full_response = ""
+        async for event in client.chat_stream(
+            access_token, messages, system_prompt=system_prompt
+        ):
+            if event.get("type") == "data":
+                full_response += event.get("content", "")
+
+        # 4. 解析 JSON 响应
+        parsed = parse_suggest_response(full_response)
+        if parsed is None:
+            logger.warning(f"Failed to parse suggest response (len={len(full_response)})")
+            return FormSuggestResponse(
+                success=False,
+                message="我想了想，但没有组织好建议，你来自己填吧！",
+                error="parse_failed",
+            )
+
+        return FormSuggestResponse(
+            success=True,
+            message=parsed.get("message", "我帮你想好了！"),
+            suggestions=FormSuggestionsModel(
+                project_idea=parsed["suggestions"].get("project_idea", ""),
+                skills=parsed["suggestions"].get("skills", []),
+                availability=parsed["suggestions"].get("availability", ""),
+                roles_needed=parsed["suggestions"].get("roles_needed", []),
+            ),
+        )
+
+    except ChatError as e:
+        logger.error(f"SecondMe Chat API failed in suggest: {e}")
+        return FormSuggestResponse(
+            success=False,
+            message="SecondMe 暂时无法连接，你可以手动填写表单",
+            error="chat_api_error",
+        )
+    except Exception as e:
+        logger.error(f"Unexpected error in suggest: {e}", exc_info=True)
+        return FormSuggestResponse(
+            success=False,
+            message="出了点小问题，你可以手动填写表单",
+            error="internal_error",
+        )
 
 
 # ============ 直接运行入口 ============
