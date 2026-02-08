@@ -10,47 +10,46 @@ ToWow (通爻) is an AI Agent collaboration platform. Core concepts: Projection 
 
 ```
 Towow/
-├── raphael/
-│   ├── requirement_demo/      # Active application
-│   │   ├── towow-website/     # Next.js 16 website (deployed to Vercel)
-│   │   │   ├── app/           # App Router pages
-│   │   │   ├── components/    # React components
-│   │   │   ├── hooks/         # Custom hooks (useAuth, useNegotiation, useWebSocket)
-│   │   │   └── lib/           # Utilities and API clients
-│   │   ├── web/               # FastAPI backend for demo
-│   │   │   ├── app.py         # Main application
-│   │   │   ├── agent_manager.py  # Agent lifecycle management
-│   │   │   ├── bridge_agent.py   # OpenAgents network bridge
-│   │   │   └── websocket_manager.py  # WebSocket connections
-│   │   └── scripts/           # Startup scripts
-│   ├── docs/                  # Design documents and technical specs
-│   │   ├── ARCHITECTURE_DESIGN.md  # Main architecture document
-│   │   ├── DESIGN_LOG_*.md    # Design decision logs
-│   │   ├── tasks/             # Contribution task definitions
-│   │   ├── articles/          # Published articles
-│   │   ├── screenshots/       # UI screenshots
-│   │   └── archive/           # Archived task files
-│   └── research/              # Community research outputs
-├── .agents/                   # Agent configuration
-├── .ai/                       # AI task tracking
-├── .beads/                    # Issue tracking (bd)
-├── .claude/                   # Claude Code settings
-├── CLAUDE.md                  # This file
-└── .gitignore                 # Git ignore rules
+├── website/               # Next.js 16 website (deployed to Vercel)
+│   ├── app/               # App Router pages
+│   ├── components/        # React components
+│   ├── hooks/             # Custom hooks (useAuth, useNegotiation, useWebSocket)
+│   └── lib/               # Utilities and API clients
+├── backend/               # FastAPI backend
+│   ├── app.py             # Main application
+│   ├── agent_manager.py   # Agent lifecycle management
+│   ├── bridge_agent.py    # OpenAgents network bridge
+│   └── websocket_manager.py  # WebSocket connections
+├── docs/                  # Design documents and technical specs
+│   ├── ARCHITECTURE_DESIGN.md  # Main architecture document
+│   ├── DESIGN_LOG_*.md    # Design decision logs
+│   ├── tasks/             # Contribution task definitions
+│   ├── articles/          # Published articles
+│   ├── screenshots/       # UI screenshots
+│   └── archive/           # Archived task files
+├── research/              # Community research outputs
+├── agents/                # Agent implementations
+├── mods/                  # OpenAgents modules
+├── scripts/               # Startup and test scripts
+├── .agents/               # Agent configuration
+├── .ai/                   # AI task tracking
+├── .beads/                # Issue tracking (bd)
+├── .claude/               # Claude Code settings
+├── CLAUDE.md              # This file
+└── .gitignore             # Git ignore rules
 ```
 
 ## Development Commands
 
-### Demo Website (raphael/requirement_demo/)
+### Website + Backend
 ```bash
-cd raphael/requirement_demo
-
 # Start backend (port 8080)
+cd backend
 source venv/bin/activate
 uvicorn web.app:app --reload --port 8080
 
 # Start frontend (port 3000)
-cd towow-website
+cd website
 npm install
 npm run dev
 
@@ -61,7 +60,7 @@ npm run dev
 
 ### Website Frontend Only
 ```bash
-cd raphael/requirement_demo/towow-website
+cd website
 
 npm install
 npm run dev                    # Start dev server (port 3000)
@@ -71,7 +70,7 @@ npm run lint                   # ESLint
 
 ## Important Configuration
 
-Key environment variables in `raphael/requirement_demo/web/.env`:
+Key environment variables in `backend/.env`:
 - `SECONDME_CLIENT_ID` - SecondMe OAuth2 client ID
 - `SECONDME_CLIENT_SECRET` - SecondMe OAuth2 client secret
 - `SECONDME_REDIRECT_URI` - OAuth2 callback URL
@@ -84,7 +83,7 @@ Key environment variables in `raphael/requirement_demo/web/.env`:
 - **Production URL**: https://towow-website.vercel.app
 - **Vercel Dashboard**: https://vercel.com/natureblueees-projects/towow-website
 
-For China CDN configuration, see `raphael/requirement_demo/towow-website/CDN_CHINA_ACCESS_GUIDE.md`
+For China CDN configuration, see `website/CDN_CHINA_ACCESS_GUIDE.md`
 
 ## Issue Tracking
 
@@ -113,7 +112,7 @@ bd sync               # Sync with git
 6. Execution signals echo back → profile evolution
 
 ### Demo Scenario
-Demo scenario config: `raphael/requirement_demo/web/demo_scenario.json`
+Demo scenario config: `backend/demo_scenario.json`
 
 Current scenario: **Finding a Technical Co-founder**
 - 7 Agents with distinct capabilities
