@@ -48,7 +48,7 @@
     "backToHome": "Back to Home"
   },
   "Home": {
-    "heroTitle": "The Internet Redesigned for {agent}",
+    "heroTitle": "The Internet Redesigned for <agent>Agents</agent>",
     "heroSubtitle": "Your Agent is powerful. We connect it to the world, collaborating with everything.",
     "outlineButton": "Read Our Thinking",
     "primaryButton": "Join the Build",

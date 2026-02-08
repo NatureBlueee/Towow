@@ -20,7 +20,7 @@ export default async function Home() {
         title={
           <>
             {t.rich('heroTitle', {
-              agent: () => <span className="en-font">Agent</span>,
+              agent: (chunks) => <span className="en-font">{chunks}</span>,
             })}
           </>
         }

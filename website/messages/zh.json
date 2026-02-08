@@ -48,7 +48,7 @@
     "backToHome": "返回首页"
   },
   "Home": {
-    "heroTitle": "为 {agent} 重新设计的互联网",
+    "heroTitle": "为 <agent>Agent</agent> 重新设计的互联网",
     "heroSubtitle": "你的Agent很强大，我们让他走向世界，与万物协作",
     "outlineButton": "了解我们的思考",
     "primaryButton": "加入共创",
