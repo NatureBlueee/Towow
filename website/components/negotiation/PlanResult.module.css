@@ -1,0 +1,131 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 24px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md, 16px);
+  animation: planAppear 0.5s ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--c-text-dark, #222222);
+  margin: 0;
+}
+
+.badge {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #4338CA;
+  background: #EEF2FF;
+  border-radius: 20px;
+}
+
+.planBody {
+  padding: 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: var(--radius-sm, 8px);
+  border-left: 3px solid var(--c-secondary, #D4F4DD);
+}
+
+.line {
+  font-size: 14px;
+  color: var(--c-text-main, #1A1A1A);
+  margin: 0;
+  line-height: 1.7;
+}
+
+.spacer {
+  margin: 0;
+  height: 12px;
+}
+
+.participants {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.participantsLabel {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-gray, #666666);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.participantsList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.participantTag {
+  padding: 3px 10px;
+  font-size: 12px;
+  color: #065F46;
+  background: #D1FAE5;
+  border-radius: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.rejectButton {
+  padding: 10px 24px;
+  font-size: 13px;
+  font-weight: 500;
+  color: #DC2626;
+  background: transparent;
+  border: 1px solid rgba(220, 38, 38, 0.2);
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.rejectButton:hover {
+  background: rgba(220, 38, 38, 0.04);
+  border-color: rgba(220, 38, 38, 0.35);
+}
+
+.acceptButton {
+  padding: 10px 28px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: #059669;
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.acceptButton:hover {
+  opacity: 0.9;
+}
+
+@keyframes planAppear {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

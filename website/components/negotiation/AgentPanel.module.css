@@ -1,0 +1,192 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text-dark, #222222);
+  margin: 0;
+}
+
+.count {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-text-gray, #666666);
+}
+
+.agentGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 12px;
+  transition: border-color 0.2s ease, background 0.2s ease;
+  animation: cardAppear 0.35s ease-out both;
+}
+
+.card:hover {
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.85);
+}
+
+.cardOffered {
+  border-color: rgba(5, 150, 105, 0.12);
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.avatar {
+  flex-shrink: 0;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #FFFFFF;
+}
+
+.nameBlock {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.name {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--c-text-dark, #222222);
+}
+
+.scoreLine {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.scoreBar {
+  flex: 1;
+  height: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.scoreFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-secondary, #D4F4DD), #86EFAC);
+  border-radius: 2px;
+  transition: width 0.6s ease-out;
+}
+
+.scoreValue {
+  flex-shrink: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-sec, #555555);
+  min-width: 32px;
+  text-align: right;
+}
+
+.statusBadge {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 20px;
+}
+
+.status_matched {
+  color: #065F46;
+  background: #D1FAE5;
+}
+
+.status_offered {
+  color: #065F46;
+  background: #D1FAE5;
+}
+
+.status_waiting {
+  color: #92400E;
+  background: #FEF3C7;
+}
+
+/* Offer body (collapsed by default, shows when offer exists) */
+.offerBody {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.05);
+  animation: fadeIn 0.3s ease-out;
+}
+
+.offerContent {
+  font-size: 13px;
+  color: var(--c-text-sec, #555555);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.capabilities {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+}
+
+.capTag {
+  padding: 2px 9px;
+  font-size: 11px;
+  color: #4F46E5;
+  background: rgba(79, 70, 229, 0.06);
+  border: 1px solid rgba(79, 70, 229, 0.12);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+@keyframes cardAppear {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,121 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md, 16px);
+  animation: slideInUp 0.4s ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text-dark, #222222);
+  margin: 0;
+}
+
+.badge {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #065F46;
+  background: #D1FAE5;
+  border-radius: 20px;
+}
+
+.agentList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.agentItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: var(--radius-sm, 8px);
+  animation: agentAppear 0.3s ease-out both;
+}
+
+.agentAvatar {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: linear-gradient(135deg, var(--c-primary, #D4B8D9), #B794C0);
+  color: #FFFFFF;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.agentInfo {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.agentName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--c-text-main, #1A1A1A);
+}
+
+.scoreBar {
+  height: 4px;
+  background: rgba(0, 0, 0, 0.06);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.scoreFill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--c-secondary, #D4F4DD), #86EFAC);
+  border-radius: 2px;
+  transition: width 0.6s ease-out;
+}
+
+.scoreValue {
+  flex-shrink: 0;
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--c-text-sec, #555555);
+  min-width: 40px;
+  text-align: right;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes agentAppear {
+  from {
+    opacity: 0;
+    transform: translateX(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}

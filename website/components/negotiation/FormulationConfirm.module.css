@@ -1,0 +1,166 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 20px;
+  background: rgba(255, 255, 255, 0.7);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-md, 16px);
+  animation: slideInUp 0.4s ease-out;
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.title {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--c-text-dark, #222222);
+  margin: 0;
+}
+
+.badge {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #B45309;
+  background: #FEF3C7;
+  border-radius: 20px;
+}
+
+.original {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.03);
+  border-radius: var(--radius-sm, 8px);
+}
+
+.label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-gray, #666666);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.originalText {
+  font-size: 14px;
+  color: var(--c-text-sec, #555555);
+  margin: 0;
+  line-height: 1.5;
+}
+
+.formulated {
+  padding: 12px;
+  background: rgba(212, 184, 217, 0.08);
+  border-radius: var(--radius-sm, 8px);
+  border-left: 3px solid var(--c-primary, #D4B8D9);
+}
+
+.formulatedText {
+  font-size: 14px;
+  color: var(--c-text-main, #1A1A1A);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.editArea {
+  width: 100%;
+  padding: 10px;
+  font-size: 14px;
+  line-height: 1.6;
+  color: var(--c-text-main, #1A1A1A);
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.editArea:focus {
+  outline: none;
+  border-color: var(--c-primary, #D4B8D9);
+}
+
+.enrichments {
+  padding: 8px 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  padding: 3px 10px;
+  font-size: 12px;
+  color: var(--c-text-sec, #555555);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 4px;
+}
+
+.editButton {
+  padding: 8px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--c-text-sec, #555555);
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.editButton:hover:not(:disabled) {
+  border-color: rgba(0, 0, 0, 0.25);
+}
+
+.editButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.confirmButton {
+  padding: 8px 24px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #FFFFFF;
+  background: var(--c-text-dark, #222222);
+  border: none;
+  border-radius: var(--radius-sm, 8px);
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.confirmButton:hover:not(:disabled) {
+  opacity: 0.85;
+}
+
+.confirmButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
