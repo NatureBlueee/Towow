@@ -49,7 +49,7 @@ D1（理念：搜索 vs 响应）  ←→  D5（体验：认知转变故事）�
 
 | 文档 | 位置 | 用途 |
 |------|------|------|
-| **demo\_scenario.json** | `requirement_demo/web/demo_scenario.json` | "找技术合伙人"完整场景——7 个 Agent、6 个阶段、认知转变弧线。这是现成的故事骨架 |
+| **demo\_scenario.json** | `backend/demo_scenario.json` | "找技术合伙人"完整场景——7 个 Agent、6 个阶段、认知转变弧线。这是现成的故事骨架 |
 | **01\_投影.md** | `docs/articles/01_投影.md` | 写作风格参考——从生活出发、不传教、有自省 |
 | **02\_谦逊.md** | `docs/articles/02_谦逊.md` | 写作风格参考——对比结构、哲学深度但不学术 |
 | **03\_回声.md** | `docs/articles/03_回声.md` | 写作风格参考——跨学科类比、问题驱动 |

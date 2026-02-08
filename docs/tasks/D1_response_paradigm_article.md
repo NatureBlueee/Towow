@@ -69,7 +69,7 @@ D1 是通爻理念传播的"母文档"——一篇给普通互联网用户看的
 | `docs/ARCHITECTURE_DESIGN.md` Section 0 | 设计原则 | 搜索范式 vs 响应范式的架构级描述——理解差异的本质 |
 | `docs/articles/01_投影.md` | 已有文章 | 叙事风格参考——从个人体验出发，不传教 |
 | `docs/articles/02_谦逊.md` | 已有文章 | "不传教"的语气参考 |
-| `requirement_demo/web/demo_scenario.json` | 演示场景 | "找技术合伙人"案例——可用作文中素材 |
+| `backend/demo_scenario.json` | 演示场景 | "找技术合伙人"案例——可用作文中素材 |
 
 ## 子任务分解
 

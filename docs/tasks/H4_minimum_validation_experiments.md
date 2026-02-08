@@ -120,9 +120,9 @@
 
 | 资源 | 位置 | 用途 |
 |------|------|------|
-| Team Matcher 原型 | `requirement_demo/towow-website/` | 前端 + 后端可参考 |
-| 演示场景数据 | `requirement_demo/web/demo_scenario.json` | "找技术合伙人"场景，7 个 Agent 的完整 Profile |
-| 后端协商引擎 | `requirement_demo/web/team_composition_engine.py` | 现有协商逻辑可作为 baseline |
+| Team Matcher 原型 | `website/` | 前端 + 后端可参考 |
+| 演示场景数据 | `backend/demo_scenario.json` | "找技术合伙人"场景，7 个 Agent 的完整 Profile |
+| 后端协商引擎 | `backend/team_composition_engine.py` | 现有协商逻辑可作为 baseline |
 
 ### 概念翻译提示（用实验者的语言解释通爻术语）
 

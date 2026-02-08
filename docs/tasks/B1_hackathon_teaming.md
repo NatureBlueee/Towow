@@ -71,12 +71,12 @@ Team Matcher 是通爻的第一个完整应用场景。但目前开发是"边做
 |------|---------|----------------|
 | `docs/ARCHITECTURE_DESIGN.md` Section 0 | 设计原则 | 理解响应范式的核心假设和取舍 |
 | `docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md` | 投影与自我 | 理解"手动面具 = 场景投影"——参赛者在黑客松中的自我呈现 |
-| `requirement_demo/web/demo_scenario.json` | 演示场景 | "找技术合伙人"案例，包含认知转变弧线——可作为组队场景建模的参考 |
+| `backend/demo_scenario.json` | 演示场景 | "找技术合伙人"案例，包含认知转变弧线——可作为组队场景建模的参考 |
 
 ### 已有代码/原型
-- `requirement_demo/towow-website/app/apps/team-matcher/` — 前端页面
-- `requirement_demo/web/team_composition_engine.py` — 组合引擎
-- `requirement_demo/web/demo_scenario.json` — 演示场景数据（"找技术合伙人"）
+- `website/app/apps/team-matcher/` — 前端页面
+- `backend/team_composition_engine.py` — 组合引擎
+- `backend/demo_scenario.json` — 演示场景数据（"找技术合伙人"）
 
 ## 子任务分解
 

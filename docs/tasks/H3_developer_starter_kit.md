@@ -77,14 +77,14 @@
 
 | 代码 | 位置 | 参考价值 |
 |------|------|---------|
-| Team Matcher 前端 | `requirement_demo/towow-website/app/apps/team-matcher/` | 完整的用户旅程：request → progress → proposals |
-| Team Matcher 组件 | `requirement_demo/towow-website/components/team-matcher/` | UI 组件模式：TeamRequestForm、TeamProposalCard、SignalVisualization |
-| Team Matcher 类型 | `requirement_demo/towow-website/lib/team-matcher/types.ts` | 核心数据结构：TeamRequest、TeamOffer、TeamProposal |
-| Team Matcher API | `requirement_demo/towow-website/lib/team-matcher/api.ts` | 前端 API 调用模式 |
-| 后端 API | `requirement_demo/web/app.py` | FastAPI 路由结构、Pydantic 模型 |
-| 团队组合引擎 | `requirement_demo/web/team_composition_engine.py` | Offer → Proposal 的聚合逻辑（LLM 驱动） |
-| Prompt 模板 | `requirement_demo/web/team_prompts.py` | 实际使用的 LLM prompt |
-| WebSocket 钩子 | `requirement_demo/towow-website/hooks/useTeamMatching.ts` | 实时状态管理模式 |
+| Team Matcher 前端 | `website/app/apps/team-matcher/` | 完整的用户旅程：request → progress → proposals |
+| Team Matcher 组件 | `website/components/team-matcher/` | UI 组件模式：TeamRequestForm、TeamProposalCard、SignalVisualization |
+| Team Matcher 类型 | `website/lib/team-matcher/types.ts` | 核心数据结构：TeamRequest、TeamOffer、TeamProposal |
+| Team Matcher API | `website/lib/team-matcher/api.ts` | 前端 API 调用模式 |
+| 后端 API | `backend/app.py` | FastAPI 路由结构、Pydantic 模型 |
+| 团队组合引擎 | `backend/team_composition_engine.py` | Offer → Proposal 的聚合逻辑（LLM 驱动） |
+| Prompt 模板 | `backend/team_prompts.py` | 实际使用的 LLM prompt |
+| WebSocket 钩子 | `website/hooks/useTeamMatching.ts` | 实时状态管理模式 |
 
 ### 工具和 Skill
 

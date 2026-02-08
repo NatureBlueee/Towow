@@ -101,7 +101,7 @@
 |------|------|------|
 | B1（组队场景建模） | `docs/tasks/B1_hackathon_teaming.md` | 场景理解范例 |
 | H3（开发者入门套件） | `docs/tasks/H3_developer_starter_kit.md` | 前置知识——先理解通爻再做应用 |
-| Team Matcher 代码 | `requirement_demo/` | 完整的参考实现 |
+| Team Matcher 代码 | `` | 完整的参考实现 |
 | Dev Skill | `.claude/skills/towow-dev/SKILL.md` | 工程实践指导 |
 | Arch Skill | `.claude/skills/arch/SKILL.md` | 架构原则和世界观 |
 

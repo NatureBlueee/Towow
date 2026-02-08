@@ -88,12 +88,12 @@ H2 的工作是：在严守这个边界的前提下，系统性地优化 6 个 S
 
 每个 Skill 的 V1 Prompt 见架构文档 Section 9.4-9.9 的"V1 Prompt 草案"部分。此外：
 
-- **Team Matcher 的 Prompt**（`requirement_demo/web/team_prompts.py`）：已投入使用的团队组合 Prompt，可作为"真实场景下 Prompt 如何运作"的参考。它定义了团队组合顾问角色、三种方案理念（快速验证/技术深度/跨域创新）、结构化 JSON 输出格式。
-- **团队组合引擎**（`requirement_demo/web/team_composition_engine.py`）：展示了"代码保障 + LLM 创造性"的协作模式——算法做评分和组合，LLM 做创意方案生成。
+- **Team Matcher 的 Prompt**（`backend/team_prompts.py`）：已投入使用的团队组合 Prompt，可作为"真实场景下 Prompt 如何运作"的参考。它定义了团队组合顾问角色、三种方案理念（快速验证/技术深度/跨域创新）、结构化 JSON 输出格式。
+- **团队组合引擎**（`backend/team_composition_engine.py`）：展示了"代码保障 + LLM 创造性"的协作模式——算法做评分和组合，LLM 做创意方案生成。
 
 ### 演示场景数据
 
-- **"找技术合伙人"场景**（`requirement_demo/web/demo_scenario.json`）：完整的 7 Agent 协商脚本，展示认知转变（"技术合伙人" -> "快速验证能力"）、意外发现（Notion 模板用户的真实需求）、协商创造（方案在协商前不存在）。
+- **"找技术合伙人"场景**（`backend/demo_scenario.json`）：完整的 7 Agent 协商脚本，展示认知转变（"技术合伙人" -> "快速验证能力"）、意外发现（Notion 模板用户的真实需求）、协商创造（方案在协商前不存在）。
 - 这个场景可作为 Prompt 评估的"黄金标准用例"——好的 Prompt 应该能引导 LLM 产出类似质量的协商过程。
 
 ### 研究支撑（架构文档 Section 9.2）
