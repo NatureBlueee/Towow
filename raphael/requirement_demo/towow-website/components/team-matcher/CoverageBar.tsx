@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import styles from './CoverageBar.module.css';
 import type { RoleCoverage } from '@/lib/team-matcher/types';
 
@@ -13,12 +14,14 @@ interface CoverageBarProps {
  * Visual representation of role coverage and scores.
  */
 export function CoverageBar({ coverage, coverageScore, synergyScore }: CoverageBarProps) {
+  const t = useTranslations('TeamMatcher.coverage');
+
   return (
     <div className={styles.container}>
       {/* Scores */}
       <div className={styles.scores}>
         <div className={styles.scoreItem}>
-          <span className={styles.scoreLabel}>覆盖度</span>
+          <span className={styles.scoreLabel}>{t('coverageScore')}</span>
           <div className={styles.scoreBar}>
             <div
               className={styles.scoreFill}
@@ -31,7 +34,7 @@ export function CoverageBar({ coverage, coverageScore, synergyScore }: CoverageB
           <span className={styles.scoreValue}>{Math.round(coverageScore * 100)}%</span>
         </div>
         <div className={styles.scoreItem}>
-          <span className={styles.scoreLabel}>协同度</span>
+          <span className={styles.scoreLabel}>{t('synergyScore')}</span>
           <div className={styles.scoreBar}>
             <div
               className={styles.scoreFill}

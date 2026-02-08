@@ -29,7 +29,7 @@
   color: #FFFFFF;
   font-size: 12px;
   font-weight: 600;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   z-index: 2;
   box-shadow: 0 2px 8px rgba(249, 168, 124, 0.4);
   animation: pulse-glow 2s ease-in-out infinite;
@@ -115,7 +115,7 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--c-text-sec);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
 }
 
 .description {
@@ -123,7 +123,7 @@
   font-size: 14px;
   line-height: 1.6;
   color: var(--c-text-gray);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
 }
 
 /* Tags */
@@ -137,7 +137,7 @@
   padding: 4px 10px;
   border-radius: var(--radius-sm);
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   background: rgba(249, 168, 124, 0.15);
   color: #C17A54;
   border: 1px solid rgba(249, 168, 124, 0.3);
@@ -165,7 +165,7 @@
   color: #FFFFFF;
   font-size: 14px;
   font-weight: 600;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   cursor: not-allowed;
   opacity: 0.7;
   transition: var(--transition-normal);
@@ -182,7 +182,7 @@
 .notifyHint {
   margin: 0;
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
 }
 

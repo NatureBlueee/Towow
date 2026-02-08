@@ -42,7 +42,7 @@
 }
 
 .title {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 28px;
   color: var(--c-text-main);
   text-align: center;
@@ -53,7 +53,7 @@
 }
 
 .sectionTitle {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 16px;
   color: var(--c-text-gray);
   text-transform: uppercase;

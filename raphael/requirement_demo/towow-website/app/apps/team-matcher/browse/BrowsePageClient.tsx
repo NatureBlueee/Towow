@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import '@/styles/team-matcher.css';
 import { TeamBackground } from '@/components/team-matcher/TeamBackground';
 import { TeamNav } from '@/components/team-matcher/TeamNav';
@@ -13,6 +14,9 @@ import styles from './BrowsePage.module.css';
 
 export function BrowsePageClient() {
   const router = useRouter();
+  const t = useTranslations('TeamMatcher.browse');
+  const tForm = useTranslations('TeamMatcher.form');
+  const tCommon = useTranslations('Common');
   const { user, isChecking, isAuthenticated } = useTeamAuth();
 
   const [requests, setRequests] = useState<TeamRequestListItem[]>([]);
@@ -35,7 +39,7 @@ export function BrowsePageClient() {
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : '无法加载请求列表');
+          setError(err instanceof Error ? err.message : t('loadError'));
         }
       } finally {
         if (!cancelled) {
@@ -46,7 +50,7 @@ export function BrowsePageClient() {
 
     fetchRequests();
     return () => { cancelled = true; };
-  }, []);
+  }, [t]);
 
   const handleLogin = useCallback(async () => {
     setIsLoggingIn(true);
@@ -54,24 +58,24 @@ export function BrowsePageClient() {
     try {
       const authUrl = await getAuthUrl('/apps/team-matcher/browse');
       if (!authUrl) {
-        throw new Error('未获取到登录地址');
+        throw new Error(tForm('loginErrorAuth'));
       }
       window.location.href = authUrl;
     } catch (err) {
       console.error('Failed to get auth URL:', err);
-      setLoginError('无法连接后端服务，请确认后端已启动');
+      setLoginError(tForm('loginErrorBackend'));
       setIsLoggingIn(false);
     }
-  }, []);
+  }, [tForm]);
 
   const handleRetry = useCallback(() => {
     setIsLoading(true);
     setError(null);
     getTeamRequests()
       .then(setRequests)
-      .catch((err) => setError(err instanceof Error ? err.message : '无法加载请求列表'))
+      .catch((err) => setError(err instanceof Error ? err.message : t('loadError')))
       .finally(() => setIsLoading(false));
-  }, []);
+  }, [t]);
 
   const formatTime = (isoString: string): string => {
     try {
@@ -79,12 +83,12 @@ export function BrowsePageClient() {
       const now = new Date();
       const diffMs = now.getTime() - date.getTime();
       const diffMin = Math.floor(diffMs / 60000);
-      if (diffMin < 1) return '刚刚';
-      if (diffMin < 60) return `${diffMin} 分钟前`;
+      if (diffMin < 1) return t('justNow');
+      if (diffMin < 60) return t('minutesAgo', { count: diffMin });
       const diffHours = Math.floor(diffMin / 60);
-      if (diffHours < 24) return `${diffHours} 小时前`;
+      if (diffHours < 24) return t('hoursAgo', { count: diffHours });
       const diffDays = Math.floor(diffHours / 24);
-      return `${diffDays} 天前`;
+      return t('daysAgo', { count: diffDays });
     } catch {
       return '';
     }
@@ -101,10 +105,8 @@ export function BrowsePageClient() {
             <div className={styles.iconWrapper}>
               <i className="ri-radar-line" />
             </div>
-            <h1 className={styles.title}>浏览组队请求</h1>
-            <p className={styles.subtitle}>
-              发现正在寻找伙伴的项目，响应感兴趣的请求
-            </p>
+            <h1 className={styles.title}>{t('title')}</h1>
+            <p className={styles.subtitle}>{t('subtitle')}</p>
           </div>
 
           {/* Login prompt */}
@@ -114,10 +116,8 @@ export function BrowsePageClient() {
                 <i className="ri-user-line" />
               </div>
               <div className={styles.loginPromptText}>
-                <p className={styles.loginPromptTitle}>登录以响应请求</p>
-                <p className={styles.loginPromptDesc}>
-                  登录后可以向感兴趣的项目提交你的参与意向
-                </p>
+                <p className={styles.loginPromptTitle}>{t('loginPromptTitle')}</p>
+                <p className={styles.loginPromptDesc}>{t('loginPromptDesc')}</p>
               </div>
               <button
                 type="button"
@@ -128,12 +128,12 @@ export function BrowsePageClient() {
                 {isLoggingIn ? (
                   <>
                     <span className={styles.spinner} />
-                    跳转中...
+                    {tForm('redirecting')}
                   </>
                 ) : (
                   <>
                     <i className="ri-login-box-line" />
-                    登录 SecondMe
+                    {tForm('loginSecondMe')}
                   </>
                 )}
               </button>
@@ -147,7 +147,7 @@ export function BrowsePageClient() {
           {isLoading && (
             <div className={styles.loading}>
               <div className={styles.spinner} />
-              <p>加载请求列表...</p>
+              <p>{t('loadingRequests')}</p>
             </div>
           )}
 
@@ -158,7 +158,7 @@ export function BrowsePageClient() {
               <p>{error}</p>
               <button className={styles.retryBtn} onClick={handleRetry}>
                 <i className="ri-refresh-line" />
-                重试
+                {tCommon('retry')}
               </button>
             </div>
           )}
@@ -169,16 +169,14 @@ export function BrowsePageClient() {
               <div className={styles.emptyIcon}>
                 <i className="ri-inbox-line" />
               </div>
-              <h2 className={styles.emptyTitle}>暂无组队请求</h2>
-              <p className={styles.emptyDesc}>
-                还没有人发出信号，你可以成为第一个！
-              </p>
+              <h2 className={styles.emptyTitle}>{t('emptyTitle')}</h2>
+              <p className={styles.emptyDesc}>{t('emptyDesc')}</p>
               <button
                 className={styles.createBtn}
                 onClick={() => router.push('/apps/team-matcher/request')}
               >
                 <i className="ri-signal-tower-line" />
-                发出信号
+                {t('sendSignal')}
               </button>
             </div>
           )}
@@ -196,7 +194,7 @@ export function BrowsePageClient() {
                     <h3 className={styles.cardTitle}>{req.title}</h3>
                     <div className={styles.offerBadge}>
                       <i className="ri-user-voice-line" />
-                      {req.offer_count} 人响应
+                      {t('responseCount', { count: req.offer_count })}
                     </div>
                   </div>
 
@@ -224,7 +222,7 @@ export function BrowsePageClient() {
                       }
                     >
                       <i className="ri-hand-heart-line" />
-                      响应这个请求
+                      {t('respondToRequest')}
                     </button>
                   </div>
                 </div>

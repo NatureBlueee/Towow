@@ -10,7 +10,7 @@ export default function ExperienceLayout({
   return (
     <>
       <Header />
-      <main>{children}</main>
+      <main style={{ paddingTop: 80 }}>{children}</main>
       <Footer />
     </>
   );

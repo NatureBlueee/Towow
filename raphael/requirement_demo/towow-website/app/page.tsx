@@ -1,30 +1,38 @@
 // app/page.tsx
+import { getTranslations, getLocale } from 'next-intl/server';
 import { Hero } from '@/components/home/Hero';
 import { ContentSection } from '@/components/home/ContentSection';
 import { NetworkJoin } from '@/components/home/NetworkJoin';
 import { Footer } from '@/components/layout/Footer';
 import { Shape } from '@/components/ui/Shape';
-import { HOME_SECTIONS, NETWORK_NODES } from '@/lib/constants';
+import { getHomeSections, getNetworkNodes } from '@/lib/home-data';
 
-export default function Home() {
+export default async function Home() {
+  const t = await getTranslations('Home');
+  const locale = await getLocale();
+  const sections = getHomeSections(locale);
+  const nodes = getNetworkNodes(locale);
+
   return (
     <main>
       {/* Hero Section */}
       <Hero
         title={
           <>
-            为 <span className="en-font">Agent</span> 重新设计的互联网
+            {t.rich('heroTitle', {
+              agent: () => <span className="en-font">Agent</span>,
+            })}
           </>
         }
-        subtitle="你的Agent很强大，我们让他走向世界，与万物协作"
-        outlineButtonText="了解我们的思考"
+        subtitle={t('heroSubtitle')}
+        outlineButtonText={t('outlineButton')}
         outlineButtonHref="/articles"
-        primaryButtonText="加入共创"
+        primaryButtonText={t('primaryButton')}
         primaryButtonHref="/articles/join-us"
       />
 
       {/* Content Sections */}
-      {HOME_SECTIONS.map((section) => (
+      {sections.map((section) => (
         <ContentSection
           key={section.id}
           gridColumn={section.gridColumn}
@@ -55,9 +63,9 @@ export default function Home() {
       {/* Network Join Section */}
       <NetworkJoin
         id="join-network"
-        title="加入网络"
-        description="ToWow是一个网络，网络的价值来自节点的多样性。无论你是什么身份，都有参与的方式。"
-        nodes={NETWORK_NODES.map((node) => ({
+        title={t('joinNetworkTitle')}
+        description={t('joinNetworkDesc')}
+        nodes={nodes.map((node) => ({
           icon: <i className={node.icon} />,
           label: node.label,
           position: node.position,

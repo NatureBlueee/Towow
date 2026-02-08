@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { Proposal, Agent } from '../shared/types';
 import styles from './Stage4.module.css';
 
@@ -18,31 +19,32 @@ export function ProposalComparison({
   proposal,
   onContinue,
 }: ProposalComparisonProps) {
+  const t = useTranslations('DemandNegotiation.proposal');
   const savings = originalCost - proposal.totalCost;
   const savingsPercent = Math.round((savings / originalCost) * 100);
 
   return (
     <div className={styles.container}>
-      <h2 className={styles.title}>协商方案</h2>
+      <h2 className={styles.title}>{t('title')}</h2>
 
       <div className={styles.comparisonGrid}>
         {/* Original Requirement */}
         <div className={styles.card}>
           <div className={styles.cardHeader}>
-            <span className={styles.cardLabel}>原始需求</span>
+            <span className={styles.cardLabel}>{t('originalRequirement')}</span>
           </div>
           <div className={styles.cardContent}>
             <p className={styles.requirementText}>{requirement}</p>
 
             <div className={styles.metricList}>
               <div className={styles.metric}>
-                <span className={styles.metricLabel}>预期投入</span>
+                <span className={styles.metricLabel}>{t('expectedCost')}</span>
                 <span className={styles.metricValue}>
                   {formatCurrency(originalCost)}
                 </span>
               </div>
               <div className={styles.metric}>
-                <span className={styles.metricLabel}>风险评估</span>
+                <span className={styles.metricLabel}>{t('riskAssessment')}</span>
                 <span className={`${styles.metricValue} ${styles.riskHigh}`}>
                   {originalRisk}
                 </span>
@@ -69,9 +71,9 @@ export function ProposalComparison({
         {/* Proposed Solution */}
         <div className={`${styles.card} ${styles.cardProposal}`}>
           <div className={styles.cardHeader}>
-            <span className={styles.cardLabel}>协商后方案</span>
+            <span className={styles.cardLabel}>{t('negotiatedProposal')}</span>
             <span className={styles.savingsBadge}>
-              节省 {savingsPercent}%
+              {t('savingsPercent', { percent: savingsPercent })}
             </span>
           </div>
           <div className={styles.cardContent}>
@@ -105,7 +107,7 @@ export function ProposalComparison({
       {/* Cost Comparison */}
       <div className={styles.costComparison}>
         <div className={styles.costItem}>
-          <span className={styles.costLabel}>原始成本</span>
+          <span className={styles.costLabel}>{t('originalCost')}</span>
           <span className={styles.costOriginal}>
             {formatCurrency(originalCost)}
           </span>
@@ -124,13 +126,13 @@ export function ProposalComparison({
           </svg>
         </div>
         <div className={styles.costItem}>
-          <span className={styles.costLabel}>新方案成本</span>
+          <span className={styles.costLabel}>{t('newCost')}</span>
           <span className={styles.costNew}>
             {formatCurrency(proposal.totalCost)}
           </span>
         </div>
         <div className={styles.costSavings}>
-          <span className={styles.savingsLabel}>节省</span>
+          <span className={styles.savingsLabel}>{t('savings')}</span>
           <span className={styles.savingsValue}>
             {formatCurrency(savings)}
           </span>
@@ -139,7 +141,7 @@ export function ProposalComparison({
 
       {/* Participants */}
       <div className={styles.participants}>
-        <h3 className={styles.participantsTitle}>参与方案的 Agent</h3>
+        <h3 className={styles.participantsTitle}>{t('participatingAgents')}</h3>
         <div className={styles.participantList}>
           {proposal.participants.map((agent) => (
             <div key={agent.id} className={styles.participant}>
@@ -162,7 +164,7 @@ export function ProposalComparison({
       {/* Continue Button */}
       <div className={styles.actions}>
         <button className={styles.continueButton} onClick={onContinue}>
-          查看完整汇总
+          {t('viewSummary')}
           <svg
             width="16"
             height="16"

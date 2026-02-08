@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { DemoStage, STAGES } from '../shared/types';
 import styles from './StageIndicator.module.css';
 
@@ -14,6 +15,7 @@ export function StageIndicator({
   completedStages,
   onStageClick,
 }: StageIndicatorProps) {
+  const t = useTranslations('DemandNegotiation.stages');
   const currentIndex = STAGES.findIndex((s) => s.id === currentStage);
 
   return (
@@ -44,7 +46,7 @@ export function StageIndicator({
                 onClick={() => isClickable && onStageClick?.(stage.id)}
                 disabled={!isClickable}
                 aria-current={isCurrent ? 'step' : undefined}
-                aria-label={`${stage.label}: ${stage.description}`}
+                aria-label={`${t(stage.label)}: ${t(stage.description)}`}
               >
                 <span className={styles.stageNumber}>
                   {isCompleted ? (
@@ -64,7 +66,7 @@ export function StageIndicator({
                     index + 1
                   )}
                 </span>
-                <span className={styles.stageLabel}>{stage.label}</span>
+                <span className={styles.stageLabel}>{t(stage.label)}</span>
               </button>
             </div>
           );

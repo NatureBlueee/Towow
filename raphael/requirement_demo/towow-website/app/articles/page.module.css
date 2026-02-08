@@ -14,7 +14,7 @@
 }
 
 .heroTitle {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 56px;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -23,7 +23,7 @@
 }
 
 .heroSubtitle {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 20px;
   line-height: 1.6;
   color: var(--c-text-sec);
@@ -44,7 +44,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 15px;
   color: var(--c-text-sec);
   text-decoration: none;
@@ -220,7 +220,7 @@
   align-items: center;
   gap: var(--spacing-sm);
   margin-bottom: var(--spacing-md);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 14px;
   color: var(--c-text-gray);
 }
@@ -240,7 +240,7 @@
 
 /* Card Title */
 .cardTitle {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 24px;
   line-height: 1.4;
   color: var(--c-text-main);
@@ -249,7 +249,7 @@
 
 /* Card Excerpt */
 .cardExcerpt {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 16px;
   line-height: 1.7;
   color: var(--c-text-sec);
@@ -263,7 +263,7 @@
   align-items: center;
   gap: 8px;
   margin-top: var(--spacing-md);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 15px;
   color: var(--c-text-dark);
   transition: gap var(--transition-fast), color var(--transition-fast);
@@ -281,6 +281,29 @@
 
 .articleCard:hover .readMore i {
   transform: translateX(4px);
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .heroTitle {
+  font-size: 48px;
+}
+
+@media (max-width: 768px) {
+  :global(html[data-locale="en"]) .heroTitle {
+    font-size: 34px;
+  }
+}
+
+@media (max-width: 480px) {
+  :global(html[data-locale="en"]) .heroTitle {
+    font-size: 28px;
+  }
+}
+
+@media (max-width: 375px) {
+  :global(html[data-locale="en"]) .heroTitle {
+    font-size: 24px;
+  }
 }
 
 /* Decorative Shapes - 简化，让滚动渐变背景成为主角 */

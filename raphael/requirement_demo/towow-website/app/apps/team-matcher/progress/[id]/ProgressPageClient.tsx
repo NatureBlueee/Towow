@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import '@/styles/team-matcher.css';
 import { TeamBackground } from '@/components/team-matcher/TeamBackground';
 import { TeamNav } from '@/components/team-matcher/TeamNav';
@@ -24,6 +25,8 @@ interface ProgressPageClientProps {
  */
 export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
   const router = useRouter();
+  const t = useTranslations('TeamMatcher.progress');
+  const tCommon = useTranslations('Common');
   const teamMatching = useTeamMatching();
   const [copied, setCopied] = useState(false);
 
@@ -119,7 +122,7 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
             </span>
             <span className={styles.offerCountSeparator}>/</span>
             <span className={styles.offerCountTarget}>{detail.team_size}</span>
-            <span className={styles.offerCountLabel}>位伙伴已响应</span>
+            <span className={styles.offerCountLabel}>{t('partnersResponded')}</span>
           </div>
         )}
 
@@ -130,7 +133,7 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
             <div className={styles.detailCard}>
               <div className={styles.detailCardHeader}>
                 <i className="ri-file-text-line" />
-                <span>你的请求</span>
+                <span>{t('yourRequest')}</span>
               </div>
               <h3 className={styles.detailTitle}>{detail.title}</h3>
               {frontendSchema?.project_idea && (
@@ -174,11 +177,9 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
             <div className={styles.shareCard}>
               <div className={styles.shareCardHeader}>
                 <i className="ri-share-forward-line" />
-                <span>邀请队友响应</span>
+                <span>{t('inviteTeammates')}</span>
               </div>
-              <p className={styles.shareDesc}>
-                把下面的链接发给你的队友，让他们提交参与意向
-              </p>
+              <p className={styles.shareDesc}>{t('inviteDesc')}</p>
               <div className={styles.shareUrlBox}>
                 <code className={styles.shareUrl}>
                   {shareUrl || `.../${requestId}`}
@@ -186,17 +187,17 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
                 <button
                   className={styles.copyBtn}
                   onClick={handleCopyLink}
-                  title="复制链接"
+                  title={t('copyLinkTitle')}
                 >
                   {copied ? (
-                    <><i className="ri-check-line" /> 已复制</>
+                    <><i className="ri-check-line" /> {t('copied')}</>
                   ) : (
-                    <><i className="ri-file-copy-line" /> 复制</>
+                    <><i className="ri-file-copy-line" /> {t('copyLink')}</>
                   )}
                 </button>
               </div>
               <p className={styles.shareHint}>
-                当收到 {detail?.team_size ?? 3} 个响应后，系统将自动生成团队方案
+                {t('autoGenerateHint', { count: detail?.team_size ?? 3 })}
               </p>
             </div>
           )}
@@ -207,7 +208,7 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
           <div className={styles.llmProgress}>
             <div className={styles.llmProgressHeader}>
               <i className="ri-sparkling-line" />
-              <span>AI 正在组合最佳团队方案...</span>
+              <span>{t('llmGenerating')}</span>
             </div>
             <div className={styles.llmProgressContent}>
               {teamMatching.llmProgress}
@@ -221,7 +222,7 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
           <div className={styles.activityLog}>
             <div className={styles.activityLogHeader}>
               <i className="ri-list-check-2" />
-              <span>活动日志</span>
+              <span>{t('activityLog')}</span>
             </div>
             <div className={styles.activityLogList}>
               {teamMatching.activityLog.map((entry, i) => (
@@ -244,7 +245,7 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
             <p>{teamMatching.error}</p>
             <button className={styles.retryBtn} onClick={handleRetry}>
               <i className="ri-refresh-line" />
-              重新开始
+              {tCommon('startOver')}
             </button>
           </div>
         )}
@@ -255,19 +256,19 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
           teamMatching.wsStatus === 'error' ? styles.wsError : ''
         }`}>
           {teamMatching.wsStatus === 'connected' && (
-            <><i className="ri-wifi-line" /> 实时连接已建立</>
+            <><i className="ri-wifi-line" /> {t('wsConnected')}</>
           )}
           {teamMatching.wsStatus === 'connecting' && (
-            <><i className="ri-loader-4-line" /> 正在连接服务器...</>
+            <><i className="ri-loader-4-line" /> {t('wsConnecting')}</>
           )}
           {teamMatching.wsStatus === 'reconnecting' && (
-            <><i className="ri-refresh-line" /> 正在重新连接...</>
+            <><i className="ri-refresh-line" /> {t('wsReconnecting')}</>
           )}
           {teamMatching.wsStatus === 'error' && (
-            <><i className="ri-wifi-off-line" /> 连接失败，使用轮询模式</>
+            <><i className="ri-wifi-off-line" /> {t('wsError')}</>
           )}
           {teamMatching.wsStatus === 'disconnected' && (
-            <><i className="ri-wifi-off-line" /> 未连接</>
+            <><i className="ri-wifi-off-line" /> {t('wsDisconnected')}</>
           )}
         </div>
 
@@ -278,7 +279,7 @@ export function ProgressPageClient({ requestId }: ProgressPageClientProps) {
             onClick={handleViewProposals}
           >
             <i className="ri-team-line" />
-            查看团队方案
+            {t('viewProposals')}
             <i className="ri-arrow-right-line" />
           </button>
         )}

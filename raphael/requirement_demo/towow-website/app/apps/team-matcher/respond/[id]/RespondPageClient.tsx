@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import '@/styles/team-matcher.css';
 import { TeamBackground } from '@/components/team-matcher/TeamBackground';
 import { TeamNav } from '@/components/team-matcher/TeamNav';
@@ -27,6 +28,9 @@ interface OfferFormData {
 }
 
 export function RespondPageClient({ requestId }: RespondPageClientProps) {
+  const t = useTranslations('TeamMatcher.respond');
+  const tForm = useTranslations('TeamMatcher.form');
+  const tAvail = useTranslations('TeamMatcher.availability');
   const { user, isChecking, isAuthenticated } = useTeamAuth();
 
   // Request details
@@ -79,15 +83,15 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
     try {
       const authUrl = await getAuthUrl(`/apps/team-matcher/respond/${requestId}`);
       if (!authUrl) {
-        throw new Error('未获取到登录地址');
+        throw new Error(tForm('loginErrorAuth'));
       }
       window.location.href = authUrl;
     } catch (err) {
       console.error('Failed to get auth URL:', err);
-      setLoginError('无法连接后端服务，请确认后端已启动');
+      setLoginError(tForm('loginErrorBackend'));
       setIsLoggingIn(false);
     }
-  }, [requestId]);
+  }, [requestId, tForm]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -129,13 +133,9 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
             <div className={styles.successIcon}>
               <i className="ri-checkbox-circle-line" />
             </div>
-            <h2 className={styles.successTitle}>已提交</h2>
-            <p className={styles.successDesc}>
-              你的参与意向已发送，等待组队方案生成。
-            </p>
-            <p className={styles.successHint}>
-              当收到足够响应后，系统会自动生成最佳团队组合方案。
-            </p>
+            <h2 className={styles.successTitle}>{t('successTitle')}</h2>
+            <p className={styles.successDesc}>{t('successDesc')}</p>
+            <p className={styles.successHint}>{t('successHint')}</p>
           </div>
         </main>
       </div>
@@ -153,10 +153,8 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
             <div className={styles.iconWrapper}>
               <i className="ri-hand-heart-line" />
             </div>
-            <h1 className={styles.title}>响应组队请求</h1>
-            <p className={styles.subtitle}>
-              查看请求详情，提交你的参与意向
-            </p>
+            <h1 className={styles.title}>{t('title')}</h1>
+            <p className={styles.subtitle}>{t('subtitle')}</p>
           </div>
 
           {/* Request details card */}
@@ -176,14 +174,14 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
             <div className={styles.requestCard}>
               <div className={styles.requestLabel}>
                 <i className="ri-file-text-line" />
-                组队请求
+                {t('teamRequest')}
               </div>
               <p className={styles.requestIdea}>{request.title}</p>
               <div className={styles.requestMeta}>
                 {request.required_roles.length > 0 && request.required_roles[0] !== '通用成员' && (
                   <p className={styles.requestRoles}>
                     <i className="ri-group-line" />
-                    正在找: {request.required_roles.join(', ')}
+                    {t('lookingFor', { roles: request.required_roles.join(', ') })}
                   </p>
                 )}
               </div>
@@ -197,10 +195,8 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
                 <i className="ri-user-line" />
               </div>
               <div className={styles.loginPromptText}>
-                <p className={styles.loginPromptTitle}>登录后才能提交响应</p>
-                <p className={styles.loginPromptDesc}>
-                  登录 SecondMe 以提交你的参与意向
-                </p>
+                <p className={styles.loginPromptTitle}>{t('loginPromptTitle')}</p>
+                <p className={styles.loginPromptDesc}>{t('loginPromptDesc')}</p>
               </div>
               <button
                 type="button"
@@ -211,12 +207,12 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
                 {isLoggingIn ? (
                   <>
                     <span className={styles.submitSpinner} />
-                    跳转中...
+                    {tForm('redirecting')}
                   </>
                 ) : (
                   <>
                     <i className="ri-login-box-line" />
-                    登录 SecondMe
+                    {tForm('loginSecondMe')}
                   </>
                 )}
               </button>
@@ -230,7 +226,7 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
           {isAuthenticated && user && (
             <div className={styles.loggedInBanner}>
               <i className="ri-checkbox-circle-line" />
-              <span>已登录为 {user.display_name}</span>
+              <span>{tForm('loggedInAs', { name: user.display_name })}</span>
             </div>
           )}
 
@@ -238,13 +234,13 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="offer-role">
               <i className="ri-user-star-line" />
-              角色定位
+              {t('rolePosition')}
             </label>
             <input
               id="offer-role"
               type="text"
               className={styles.textInput}
-              placeholder="你想在团队中担任什么角色？如：前端开发、产品设计..."
+              placeholder={t('rolePlaceholder')}
               value={formData.role}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, role: e.target.value }))
@@ -257,16 +253,16 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
           <div className={styles.field}>
             <div className={styles.fieldLabelRow}>
               <i className="ri-tools-line" />
-              <span>我的技能</span>
+              <span>{t('mySkills')}</span>
             </div>
             <TagInput
               label=""
               value={formData.skills}
               onChange={(skills) => setFormData((prev) => ({ ...prev, skills }))}
               suggestions={SKILL_OPTIONS}
-              placeholder="选择或输入你的技能..."
+              placeholder={t('skillsPlaceholder')}
               maxTags={8}
-              hint="选择你擅长的技能"
+              hint={t('skillsHint')}
             />
           </div>
 
@@ -274,12 +270,12 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
           <div className={styles.field}>
             <label className={styles.fieldLabel} htmlFor="offer-motivation">
               <i className="ri-chat-heart-line" />
-              参与动机
+              {t('motivation')}
             </label>
             <textarea
               id="offer-motivation"
               className={styles.textarea}
-              placeholder="为什么你想加入这个项目？你能带来什么独特的价值？"
+              placeholder={t('motivationPlaceholder')}
               value={formData.motivation}
               onChange={(e) =>
                 setFormData((prev) => ({ ...prev, motivation: e.target.value }))
@@ -296,7 +292,7 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
           <div className={styles.field}>
             <label className={styles.fieldLabel}>
               <i className="ri-time-line" />
-              可用时间
+              {tForm('availableTime')}
             </label>
             <div className={styles.radioGroup}>
               {AVAILABILITY_OPTIONS.map((opt) => (
@@ -319,7 +315,7 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
                     }
                     className={styles.radioInput}
                   />
-                  <span className={styles.radioLabel}>{opt.label}</span>
+                  <span className={styles.radioLabel}>{tAvail(opt.value)}</span>
                 </label>
               ))}
             </div>
@@ -342,19 +338,17 @@ export function RespondPageClient({ requestId }: RespondPageClientProps) {
             {isSubmitting ? (
               <>
                 <span className={styles.submitSpinner} />
-                提交中...
+                {t('submitting')}
               </>
             ) : (
               <>
                 <i className="ri-send-plane-line" />
-                提交响应
+                {t('submitResponse')}
               </>
             )}
           </button>
 
-          <p className={styles.submitHint}>
-            提交后，你的信息将参与团队组合方案的生成
-          </p>
+          <p className={styles.submitHint}>{t('submitHint')}</p>
         </form>
       </main>
     </div>

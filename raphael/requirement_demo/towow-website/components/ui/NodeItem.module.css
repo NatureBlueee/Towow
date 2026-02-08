@@ -41,7 +41,7 @@
   background: #fff;
   padding: 6px 16px;
   border-radius: 50px;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 16px;
   box-shadow: var(--shadow-sm);
   white-space: nowrap;

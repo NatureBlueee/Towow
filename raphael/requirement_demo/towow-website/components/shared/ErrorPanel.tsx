@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { ContentCard } from '@/components/ui/ContentCard';
 import { Button } from '@/components/ui/Button';
 import styles from './ErrorPanel.module.css';
@@ -12,11 +13,13 @@ interface ErrorPanelProps {
 }
 
 export function ErrorPanel({
-  title = 'Something went wrong',
+  title,
   message,
   onRetry,
   onReset,
 }: ErrorPanelProps) {
+  const t = useTranslations('Common');
+
   return (
     <ContentCard className={styles.errorPanel}>
       <div className={styles.icon}>
@@ -31,18 +34,18 @@ export function ErrorPanel({
         </svg>
       </div>
 
-      <h2 className={styles.title}>{title}</h2>
+      <h2 className={styles.title}>{title || t('error')}</h2>
       <p className={styles.message}>{message}</p>
 
       <div className={styles.actions}>
         {onRetry && (
           <Button variant="primary" onClick={onRetry}>
-            Retry
+            {t('retry')}
           </Button>
         )}
         {onReset && (
           <Button variant="outline" onClick={onReset}>
-            Start Over
+            {t('startOver')}
           </Button>
         )}
       </div>

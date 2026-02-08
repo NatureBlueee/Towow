@@ -1,5 +1,8 @@
+'use client';
+
 import Link from 'next/link';
 import Image from 'next/image';
+import { useTranslations } from 'next-intl';
 import styles from './Footer.module.css';
 
 interface FooterProps {
@@ -7,13 +10,15 @@ interface FooterProps {
 }
 
 export function Footer({ variant = 'home' }: FooterProps) {
+  const t = useTranslations('Footer');
+
   if (variant === 'article') {
     return (
       <footer className={styles.footerArticle}>
         <div className={styles.footerShape} />
         <div className={styles.footerLinks}>
-          <Link href="/">返回首页</Link>
-          <Link href="/experience">应用目录</Link>
+          <Link href="/">{t('backToHome')}</Link>
+          <Link href="/experience">{t('exploreApps')}</Link>
         </div>
         <div className={styles.footerCopy}>
           &copy; {new Date().getFullYear()} ToWow Network. All rights reserved.
@@ -32,7 +37,7 @@ export function Footer({ variant = 'home' }: FooterProps) {
 
       <div className={styles.footerContent}>
         <div className={styles.footerTitle}>
-          ToWow，通向惊喜。
+          {t('slogan')}
         </div>
 
         <div className={styles.footerMain}>
@@ -40,26 +45,26 @@ export function Footer({ variant = 'home' }: FooterProps) {
             <div className={styles.qrCode}>
               <Image
                 src="/微信图片_20260130164654_1683_1902.jpg"
-                alt="微信群二维码"
+                alt={t('scanQR')}
                 width={120}
                 height={120}
                 style={{ objectFit: 'cover' }}
               />
             </div>
-            <span className={styles.qrText}>扫码加入社群</span>
+            <span className={styles.qrText}>{t('scanQR')}</span>
           </div>
 
           <div className={styles.contactSection}>
-            <div className={styles.contactTitle}>联系我们</div>
+            <div className={styles.contactTitle}>{t('contactTitle')}</div>
             <a href="mailto:hi@natureblueee.com" className={styles.contactEmail}>
               <i className="ri-mail-send-line" />
               <span>hi@natureblueee.com</span>
             </a>
             <Link href="/experience" className={styles.demoLink}>
               <i className="ri-play-circle-line" />
-              探索应用
+              {t('exploreApps')}
             </Link>
-            <span className={styles.demoHint}>多个应用持续迭代中</span>
+            <span className={styles.demoHint}>{t('appsHint')}</span>
           </div>
         </div>
 

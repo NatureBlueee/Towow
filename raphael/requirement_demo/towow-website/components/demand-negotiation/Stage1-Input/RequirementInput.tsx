@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { EXAMPLE_REQUIREMENTS } from '../shared/types';
 import styles from './Stage1.module.css';
 
@@ -13,6 +14,7 @@ export function RequirementInput({
   onSubmit,
   isSubmitting = false,
 }: RequirementInputProps) {
+  const t = useTranslations('DemandNegotiation.input');
   const [requirement, setRequirement] = useState('');
 
   const handleSubmit = useCallback(
@@ -32,9 +34,9 @@ export function RequirementInput({
   return (
     <div className={styles.container}>
       <div className={styles.header}>
-        <h1 className={styles.title}>ToWow Experience</h1>
+        <h1 className={styles.title}>{t('title')}</h1>
         <p className={styles.subtitle}>
-          描述你的需求，AI Agent 们将协商出最佳方案
+          {t('subtitle')}
         </p>
       </div>
 
@@ -44,10 +46,10 @@ export function RequirementInput({
             className={styles.textarea}
             value={requirement}
             onChange={(e) => setRequirement(e.target.value)}
-            placeholder="描述你的需求..."
+            placeholder={t('placeholder')}
             rows={4}
             disabled={isSubmitting}
-            aria-label="需求描述"
+            aria-label={t('ariaLabel')}
           />
           <button
             type="submit"
@@ -58,7 +60,7 @@ export function RequirementInput({
               <span className={styles.spinner} />
             ) : (
               <>
-                <span>提交</span>
+                <span>{t('submit')}</span>
                 <svg
                   width="16"
                   height="16"
@@ -79,17 +81,17 @@ export function RequirementInput({
       </form>
 
       <div className={styles.examples}>
-        <p className={styles.examplesLabel}>试试这些示例：</p>
+        <p className={styles.examplesLabel}>{t('examplesLabel')}</p>
         <div className={styles.exampleList}>
           {EXAMPLE_REQUIREMENTS.map((example) => (
             <button
               key={example.id}
               className={styles.exampleButton}
-              onClick={() => handleExampleClick(example.text)}
+              onClick={() => handleExampleClick(t(example.text))}
               disabled={isSubmitting}
             >
-              <span className={styles.exampleCategory}>{example.category}</span>
-              <span className={styles.exampleText}>{example.text}</span>
+              <span className={styles.exampleCategory}>{t(example.category)}</span>
+              <span className={styles.exampleText}>{t(example.text)}</span>
             </button>
           ))}
         </div>

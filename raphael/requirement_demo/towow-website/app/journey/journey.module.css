@@ -4,6 +4,19 @@
 .layoutBg {
   background: #F8F6F3;
   min-height: 100vh;
+  padding-top: 80px;
+}
+
+@media (max-width: 768px) {
+  .layoutBg {
+    padding-top: 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .layoutBg {
+    padding-top: 56px;
+  }
 }
 
 /* Page */
@@ -22,14 +35,14 @@
 .title {
   font-size: 32px;
   font-weight: 700;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-text-dark);
   margin: 0;
 }
 
 .subtitle {
   font-size: 15px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   margin: 10px 0 0;
   line-height: 1.7;
@@ -61,7 +74,7 @@
 
 .statLabel {
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #999;
   margin-top: 2px;
 }
@@ -74,7 +87,7 @@
 .sectionTitle {
   font-size: 20px;
   font-weight: 600;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-text-dark);
   margin: 0 0 16px;
   display: flex;
@@ -84,7 +97,7 @@
 
 .sectionSubtitle {
   font-size: 13px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   margin: -8px 0 16px;
   display: flex;
@@ -111,7 +124,7 @@
 /* Field Label (reusable) */
 .fieldLabel {
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-weight: 600;
   color: #999;
   flex-shrink: 0;
@@ -137,7 +150,7 @@
 
 .transformTime {
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-weight: 600;
   color: #C47030;
 }
@@ -145,14 +158,14 @@
 .transformLabel {
   font-size: 17px;
   font-weight: 600;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-text-dark);
   margin: 0;
 }
 
 .transformOneLiner {
   font-size: 14px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   margin: 0;
   line-height: 1.6;
@@ -160,7 +173,7 @@
 
 .transformMeaning {
   font-size: 13px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #999;
   margin: 4px 0 0;
   line-height: 1.5;
@@ -183,7 +196,7 @@
   border-radius: 8px;
   font-size: 12px;
   font-weight: 500;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   white-space: nowrap;
 }
 
@@ -229,27 +242,27 @@
 .phaseNum {
   font-size: 11px;
   font-weight: 600;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #999;
 }
 
 .phaseDates {
   font-size: 11px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #999;
 }
 
 .phaseName {
   font-size: 17px;
   font-weight: 600;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-text-dark);
   margin: 0;
 }
 
 .phaseNarrative {
   font-size: 13px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   line-height: 1.6;
   margin: 0;
@@ -265,7 +278,7 @@
 .tag {
   display: inline-block;
   font-size: 10px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   padding: 1px 8px;
   border-radius: 8px;
   font-weight: 500;
@@ -293,13 +306,13 @@
 
 .phaseStats {
   font-size: 11px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #999;
 }
 
 .expandHint {
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #bbb;
   text-align: center;
   margin-top: 4px;
@@ -323,7 +336,7 @@
 
 .detailList {
   font-size: 13px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   line-height: 1.6;
   padding-left: 18px;
@@ -336,7 +349,7 @@
 
 .detailText {
   font-size: 13px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   line-height: 1.6;
   margin: 0;
@@ -352,7 +365,7 @@
 
 .quoteBox p {
   font-size: 14px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-dark);
   line-height: 1.6;
   margin: 0;
@@ -362,7 +375,7 @@
 .quoteBox cite {
   display: block;
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #999;
   margin-top: 6px;
   font-style: normal;
@@ -376,7 +389,7 @@
 .sessionLabel {
   font-size: 13px;
   font-weight: 600;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   margin: 0 0 8px;
   padding-left: 4px;
 }
@@ -419,21 +432,21 @@
 .compactTitle {
   font-size: 14px;
   font-weight: 500;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-dark);
   line-height: 1.4;
 }
 
 .compactMeta {
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #999;
   margin-top: 2px;
 }
 
 .compactDetail {
   font-size: 13px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   line-height: 1.6;
   margin-top: 8px;
@@ -451,14 +464,14 @@
 .footerTitle {
   font-size: 22px;
   font-weight: 600;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-text-dark);
   margin: 0 0 8px;
 }
 
 .footerText {
   font-size: 14px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   margin: 0 0 16px;
   line-height: 1.7;
@@ -475,7 +488,7 @@
 
 .footerLink {
   font-size: 15px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-warm);
   font-weight: 500;
   text-decoration: none;
@@ -530,5 +543,40 @@
   .phaseCard,
   .compactItem {
     transition: none;
+  }
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .statLabel {
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+:global(html[data-locale="en"]) .flowNode {
+  white-space: normal;
+  text-align: center;
+}
+
+:global(html[data-locale="en"]) .transformLabel {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+:global(html[data-locale="en"]) .phaseName {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+@media (max-width: 640px) {
+  :global(html[data-locale="en"]) .statsBar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  :global(html[data-locale="en"]) .statNum {
+    font-size: 22px;
+  }
+
+  :global(html[data-locale="en"]) .statLabel {
+    font-size: 10px;
   }
 }

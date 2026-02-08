@@ -61,7 +61,7 @@
 
 /* Title */
 .heroTitle {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 66px;
   line-height: 1.2;
   letter-spacing: -0.02em;
@@ -71,7 +71,7 @@
 
 /* Subtitle */
 .heroSubtitle {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 22px;
   line-height: 1.8;
   color: #444;
@@ -198,5 +198,40 @@
   .heroSquare {
     width: 160px;
     height: 160px;
+  }
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .heroTitle {
+  font-size: 58px;
+}
+
+:global(html[data-locale="en"]) .heroSubtitle {
+  font-size: 20px;
+}
+
+@media (max-width: 768px) {
+  :global(html[data-locale="en"]) .heroTitle {
+    font-size: 36px;
+  }
+
+  :global(html[data-locale="en"]) .heroSubtitle {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  :global(html[data-locale="en"]) .heroTitle {
+    font-size: 28px;
+  }
+
+  :global(html[data-locale="en"]) .heroSubtitle {
+    font-size: 15px;
+  }
+}
+
+@media (max-width: 375px) {
+  :global(html[data-locale="en"]) .heroTitle {
+    font-size: 24px;
   }
 }

@@ -2,39 +2,39 @@
 
 /* === 标题样式 === */
 .text-h1 {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 66px;
   line-height: 1.2;
   letter-spacing: -0.02em;
 }
 
 .text-h2 {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 38px;
   line-height: 1.3;
 }
 
 .text-h3 {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 32px;
   line-height: 1.4;
 }
 
 /* === 正文样式 === */
 .text-body {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 19px;
   line-height: 1.75;
 }
 
 .text-body-lg {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 22px;
   line-height: 1.8;
 }
 
 .text-caption {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 14px;
   line-height: 1.5;
   color: var(--c-text-sec);
@@ -58,7 +58,7 @@
 }
 
 .article-body {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 19px;
   line-height: 2;
   color: var(--c-text-dark);

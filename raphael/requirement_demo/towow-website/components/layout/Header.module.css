@@ -66,7 +66,7 @@
 }
 
 .headerLogo {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 24px;
   letter-spacing: -1px;
   font-weight: 700;
@@ -87,7 +87,7 @@
   color: var(--c-text-dark);
   font-size: 14px;
   font-weight: 600;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   cursor: pointer;
   transition: all var(--transition-normal);
 }
@@ -179,7 +179,7 @@
 }
 
 .mobileNavLink {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 24px;
   color: var(--c-text-dark);
   text-decoration: none;
@@ -262,5 +262,26 @@
 
   .headerLogo {
     font-size: 16px;
+  }
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .headerRight {
+  gap: 6px;
+  align-items: center;
+}
+
+:global(html[data-locale="en"]) .btnOutline {
+  padding: 8px 16px;
+  font-size: 13px;
+}
+
+:global(html[data-locale="en"]) .mobileNavLink {
+  font-size: 22px;
+}
+
+@media (max-width: 480px) {
+  :global(html[data-locale="en"]) .mobileNavLink {
+    font-size: 18px;
   }
 }

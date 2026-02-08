@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { AppMetadata } from '@/lib/apps/types';
 import styles from './ComingSoonCard.module.css';
 
@@ -9,12 +10,14 @@ interface ComingSoonCardProps {
 }
 
 export function ComingSoonCard({ app, className = '' }: ComingSoonCardProps) {
+  const t = useTranslations('Common');
+
   return (
     <div className={`${styles.card} ${className}`}>
       {/* Coming Soon Badge */}
       <div className={styles.badge}>
         <span className={styles.badgeIcon}>🚀</span>
-        即将推出
+        {t('comingSoon')}
       </div>
 
       {/* Icon */}
@@ -50,9 +53,9 @@ export function ComingSoonCard({ app, className = '' }: ComingSoonCardProps) {
       <div className={styles.notifyWrapper}>
         <button className={styles.notifyButton} disabled>
           <span className={styles.notifyIcon}>🔔</span>
-          通知我
+          {t('notifyMe')}
         </button>
-        <p className={styles.notifyHint}>敬请期待</p>
+        <p className={styles.notifyHint}>{t('stayTuned')}</p>
       </div>
 
       {/* Background Effect */}

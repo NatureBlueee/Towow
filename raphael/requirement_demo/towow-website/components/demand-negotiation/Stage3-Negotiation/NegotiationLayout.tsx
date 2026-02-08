@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Agent, EventCard, EventCardType } from '../shared/types';
 import styles from './Stage3.module.css';
 
@@ -22,11 +23,12 @@ const EVENT_ICONS: Record<EventCardType, { icon: string; color: string }> = {
   confirm: { icon: 'check', color: '#3B82F6' },
 };
 
-const EVENT_LABELS: Record<EventCardType, string> = {
-  insight: '洞察',
-  transform: '转变',
-  combine: '组合',
-  confirm: '确认',
+// Event label keys — resolved at render time via useTranslations
+const EVENT_LABEL_KEYS: Record<EventCardType, string> = {
+  insight: 'insight',
+  transform: 'transform',
+  combine: 'combine',
+  confirm: 'confirm',
 };
 
 export function NegotiationLayout({
@@ -38,6 +40,7 @@ export function NegotiationLayout({
   onSkipToResult,
   activeConnections = [],
 }: NegotiationLayoutProps) {
+  const t = useTranslations('DemandNegotiation.negotiation');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
   const eventsEndRef = useRef<HTMLDivElement>(null);
 
@@ -61,7 +64,7 @@ export function NegotiationLayout({
       <div className={styles.layout}>
         {/* Left: Dynamic Network Graph */}
         <div className={styles.networkPanel}>
-          <h3 className={styles.panelTitle}>协商网络</h3>
+          <h3 className={styles.panelTitle}>{t('networkTitle')}</h3>
           <div className={styles.miniNetwork}>
             <svg className={styles.miniSvg} viewBox="0 0 160 160">
               {/* Connection lines */}
@@ -158,7 +161,7 @@ export function NegotiationLayout({
 
         {/* Right: Event Card Stream */}
         <div className={styles.eventsPanel}>
-          <h3 className={styles.panelTitle}>关键事件</h3>
+          <h3 className={styles.panelTitle}>{t('keyEvents')}</h3>
           <div className={styles.eventStream}>
             {events.map((event) => {
               // Defensive check for undefined event or type
@@ -190,7 +193,7 @@ export function NegotiationLayout({
                         className={styles.eventType}
                         style={{ color: config.color }}
                       >
-                        {EVENT_LABELS[event.type]}
+                        {t(EVENT_LABEL_KEYS[event.type])}
                       </span>
                       <span className={styles.eventTitle}>{event.title}</span>
                     </div>
@@ -215,7 +218,7 @@ export function NegotiationLayout({
                       {event.agents && event.agents.length > 0 && (
                         <div className={styles.eventAgents}>
                           <span className={styles.eventAgentsLabel}>
-                            参与者:
+                            {t('participants')}
                           </span>
                           {event.agents.map((agentId) => {
                             const agent = agents.find((a) => a.id === agentId);
@@ -245,7 +248,7 @@ export function NegotiationLayout({
         <button
           className={styles.controlButton}
           onClick={onSpeedUp}
-          aria-label="加速"
+          aria-label={t('speedUp')}
         >
           <svg
             width="18"
@@ -258,13 +261,13 @@ export function NegotiationLayout({
             <polygon points="5 4 15 12 5 20 5 4" />
             <polygon points="13 4 23 12 13 20 13 4" />
           </svg>
-          <span>加速</span>
+          <span>{t('speedUp')}</span>
         </button>
 
         <button
           className={`${styles.controlButton} ${styles.controlButtonPrimary}`}
           onClick={onTogglePlay}
-          aria-label={isPlaying ? '暂停' : '继续'}
+          aria-label={isPlaying ? t('pause') : t('resume')}
         >
           {isPlaying ? (
             <svg
@@ -290,13 +293,13 @@ export function NegotiationLayout({
               <polygon points="5 3 19 12 5 21 5 3" />
             </svg>
           )}
-          <span>{isPlaying ? '暂停' : '继续'}</span>
+          <span>{isPlaying ? t('pause') : t('resume')}</span>
         </button>
 
         <button
           className={styles.controlButton}
           onClick={onSkipToResult}
-          aria-label="跳到结果"
+          aria-label={t('skipToResult')}
         >
           <svg
             width="18"
@@ -309,7 +312,7 @@ export function NegotiationLayout({
             <polygon points="5 4 15 12 5 20 5 4" />
             <line x1="19" y1="5" x2="19" y2="19" />
           </svg>
-          <span>跳到结果</span>
+          <span>{t('skipToResult')}</span>
         </button>
       </div>
     </div>

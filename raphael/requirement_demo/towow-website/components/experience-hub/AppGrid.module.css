@@ -12,7 +12,7 @@
   margin: 0;
   font-size: 32px;
   font-weight: 700;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   background: linear-gradient(135deg, var(--c-primary), var(--c-warm));
   background-clip: text;
   -webkit-background-clip: text;
@@ -63,7 +63,7 @@
 .emptyText {
   margin: 0;
   font-size: 18px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
 }
 
@@ -78,7 +78,7 @@
   margin: 0;
   font-size: 24px;
   font-weight: 600;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-warm);
   text-align: center;
   position: relative;

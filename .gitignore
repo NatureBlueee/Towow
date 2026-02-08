@@ -48,6 +48,7 @@ mods/openagents.mods.workspace.messaging/
 dist/
 build/
 out/
+.next/
 
 # Archives
 *.zip

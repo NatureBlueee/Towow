@@ -10,6 +10,7 @@ interface MemberCardProps {
 
 /**
  * Card showing a team member's info within a proposal.
+ * No hardcoded Chinese strings — all display data comes from the backend.
  */
 export function MemberCard({ member, index }: MemberCardProps) {
   // Generate a consistent avatar color based on name

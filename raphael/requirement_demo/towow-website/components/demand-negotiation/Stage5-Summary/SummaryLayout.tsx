@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import { KeyInsight, TimelineEvent, STAGES } from '../shared/types';
 import styles from './Stage5.module.css';
 
@@ -11,21 +12,22 @@ interface SummaryLayoutProps {
   onLearnMore: () => void;
 }
 
+// Visual config (non-translatable) separated from label keys
 const INSIGHT_CONFIG = {
   insight: {
     icon: 'lightbulb',
     color: '#8B5CF6',
-    label: '关键洞察',
+    labelKey: 'insightLabel',
   },
   transform: {
     icon: 'refresh',
     color: '#F59E0B',
-    label: '认知转变',
+    labelKey: 'transformLabel',
   },
   discovery: {
     icon: 'sparkles',
     color: '#10B981',
-    label: '意外发现',
+    labelKey: 'discoveryLabel',
   },
 };
 
@@ -36,6 +38,8 @@ export function SummaryLayout({
   onShare,
   onLearnMore,
 }: SummaryLayoutProps) {
+  const t = useTranslations('DemandNegotiation.summary');
+  const tStages = useTranslations('DemandNegotiation.stages');
   return (
     <div className={styles.container}>
       <div className={styles.header}>
@@ -49,7 +53,7 @@ export function SummaryLayout({
         </div>
       </div>
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>协商时间线</h3>
+        <h3 className={styles.sectionTitle}>{t('timeline')}</h3>
         <div className={styles.timeline}>
           {STAGES.map((stage, index) => {
             const event = timeline.find((e) => e.stage === stage.id);
@@ -83,7 +87,7 @@ export function SummaryLayout({
                   )}
                 </div>
                 <div className={styles.timelineContent}>
-                  <span className={styles.timelineLabel}>{stage.label}</span>
+                  <span className={styles.timelineLabel}>{tStages(stage.label)}</span>
                   {event && (
                     <span className={styles.timelineTime}>
                       {formatTime(event.timestamp)}
@@ -98,7 +102,7 @@ export function SummaryLayout({
 
       {/* Key Insights */}
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>关键发现</h3>
+        <h3 className={styles.sectionTitle}>{t('keyFindings')}</h3>
         <div className={styles.insightGrid}>
           {insights.map((insight, index) => {
             const config = INSIGHT_CONFIG[insight.type];
@@ -119,7 +123,7 @@ export function SummaryLayout({
                     className={styles.insightType}
                     style={{ color: config.color }}
                   >
-                    {config.label}
+                    {t(config.labelKey)}
                   </span>
                   <h4 className={styles.insightTitle}>{insight.title}</h4>
                   <p className={styles.insightText}>{insight.content}</p>
@@ -132,7 +136,7 @@ export function SummaryLayout({
 
       {/* Value Summary */}
       <section className={styles.section}>
-        <h3 className={styles.sectionTitle}>价值总结</h3>
+        <h3 className={styles.sectionTitle}>{t('valueSummary')}</h3>
         <div className={styles.valueGrid}>
           <div className={styles.valueCard}>
             <div className={styles.valueIcon}>
@@ -147,7 +151,7 @@ export function SummaryLayout({
                 <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
               </svg>
             </div>
-            <span className={styles.valueLabel}>成本优化</span>
+            <span className={styles.valueLabel}>{t('costOptimization')}</span>
             <span className={styles.valueNumber}>-84%</span>
           </div>
           <div className={styles.valueCard}>
@@ -164,8 +168,8 @@ export function SummaryLayout({
                 <polyline points="12 6 12 12 16 14" />
               </svg>
             </div>
-            <span className={styles.valueLabel}>时间节省</span>
-            <span className={styles.valueNumber}>3个月</span>
+            <span className={styles.valueLabel}>{t('timeSaved')}</span>
+            <span className={styles.valueNumber}>{t('threeMonths')}</span>
           </div>
           <div className={styles.valueCard}>
             <div className={styles.valueIcon}>
@@ -182,8 +186,8 @@ export function SummaryLayout({
                 <path d="M23 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75" />
               </svg>
             </div>
-            <span className={styles.valueLabel}>协作方</span>
-            <span className={styles.valueNumber}>4个</span>
+            <span className={styles.valueLabel}>{t('collaborators')}</span>
+            <span className={styles.valueNumber}>{t('fourParties')}</span>
           </div>
         </div>
       </section>
@@ -201,7 +205,7 @@ export function SummaryLayout({
           >
             <path d="M23 4v6h-6M1 20v-6h6M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15" />
           </svg>
-          重新开始
+          {t('restart')}
         </button>
         <button
           className={`${styles.actionButton} ${styles.actionButtonPrimary}`}
@@ -221,7 +225,7 @@ export function SummaryLayout({
             <line x1="8.59" y1="13.51" x2="15.42" y2="17.49" />
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
           </svg>
-          分享案例
+          {t('shareCase')}
         </button>
         <button className={styles.actionButton} onClick={onLearnMore}>
           <svg
@@ -235,7 +239,7 @@ export function SummaryLayout({
             <circle cx="12" cy="12" r="10" />
             <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3M12 17h.01" />
           </svg>
-          了解更多
+          {t('learnMore')}
         </button>
       </div>
     </div >

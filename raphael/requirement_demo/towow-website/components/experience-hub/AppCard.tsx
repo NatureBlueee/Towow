@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import type { AppMetadata } from '@/lib/apps/types';
 import styles from './AppCard.module.css';
 
@@ -11,6 +12,7 @@ interface AppCardProps {
 
 export function AppCard({ app, className = '' }: AppCardProps) {
   const router = useRouter();
+  const t = useTranslations('Common');
 
   const handleClick = () => {
     if (app.status === 'active' || app.status === 'beta') {
@@ -36,7 +38,7 @@ export function AppCard({ app, className = '' }: AppCardProps) {
       {/* Status Badge */}
       {app.status !== 'active' && (
         <div className={`${styles.statusBadge} ${styles[`status-${app.status}`]}`}>
-          {app.status === 'beta' ? 'Beta' : app.status === 'coming-soon' ? '即将推出' : '已归档'}
+          {app.status === 'beta' ? 'Beta' : app.status === 'coming-soon' ? t('comingSoon') : t('archived')}
         </div>
       )}
 
@@ -44,7 +46,7 @@ export function AppCard({ app, className = '' }: AppCardProps) {
       {app.featured && app.status === 'active' && (
         <div className={styles.featuredBadge}>
           <span className={styles.featuredIcon}>✨</span>
-          推荐
+          {t('featured')}
         </div>
       )}
 

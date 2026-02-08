@@ -1,4 +1,6 @@
 import type { Metadata, Viewport } from "next";
+import { NextIntlClientProvider } from 'next-intl';
+import { getLocale, getMessages } from 'next-intl/server';
 import { NoiseTexture } from '@/components/layout/NoiseTexture';
 import { ScrollGradientBackground } from '@/components/ui/ScrollGradientBackground';
 import "./globals.css";
@@ -14,13 +16,16 @@ export const metadata: Metadata = {
   description: "为 Agent 重新设计的互联网",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const messages = await getMessages();
+
   return (
-    <html lang="zh-CN">
+    <html lang={locale} data-locale={locale}>
       <head>
         <link
           rel="preconnect"
@@ -40,7 +45,9 @@ export default function RootLayout({
       <body>
         <ScrollGradientBackground />
         <NoiseTexture />
-        {children}
+        <NextIntlClientProvider messages={messages}>
+          {children}
+        </NextIntlClientProvider>
       </body>
     </html>
   );

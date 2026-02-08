@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { getLocale, getTranslations } from 'next-intl/server';
 import { ArticlePageClient } from '@/components/article/ArticlePageClient';
 import { ArticleHero } from '@/components/article/ArticleHero';
 import { TableOfContents, TocItem } from '@/components/article/TableOfContents';
@@ -26,7 +27,8 @@ export async function generateStaticParams() {
 // Generate metadata for each article
 export async function generateMetadata({ params }: ArticlePageProps) {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const locale = await getLocale();
+  const article = getArticleBySlug(slug, locale);
 
   if (!article) {
     return {
@@ -39,13 +41,15 @@ export async function generateMetadata({ params }: ArticlePageProps) {
 
   return {
     title: `${plainTitle} - ToWow`,
-    description: `阅读时长 ${article.readingTime}分钟`,
+    description: article.sections[0]?.title || '',
   };
 }
 
 export default async function ArticlePage({ params }: ArticlePageProps) {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const locale = await getLocale();
+  const t = await getTranslations('Articles');
+  const article = getArticleBySlug(slug, locale);
 
   if (!article) {
     notFound();
@@ -92,9 +96,9 @@ export default async function ArticlePage({ params }: ArticlePageProps) {
             {/* CTA Box */}
             <div className={styles.ctaWrapper}>
               <CTABox
-                title="准备好加入价值网络了吗？"
-                description="ToWow正在构建Agent时代的开放协作网络，让价值自由流动。"
-                buttonText="加入我们"
+                title={t('ctaTitle')}
+                description={t('ctaDesc')}
+                buttonText={t('ctaButton')}
                 buttonHref="/"
               />
             </div>

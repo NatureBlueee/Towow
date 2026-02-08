@@ -49,12 +49,13 @@ export interface StageInfo {
   description: string;
 }
 
+// Stage label/description keys — looked up at render time via useTranslations('DemandNegotiation.stages')
 export const STAGES: StageInfo[] = [
-  { id: 'input', label: '需求', description: '输入你的需求' },
-  { id: 'response', label: '响应', description: 'Agent响应' },
-  { id: 'negotiation', label: '协商', description: '协商过程' },
-  { id: 'proposal', label: '方案', description: '方案展示' },
-  { id: 'summary', label: '汇总', description: '过程汇总' },
+  { id: 'input', label: 'input', description: 'inputDesc' },
+  { id: 'response', label: 'response', description: 'responseDesc' },
+  { id: 'negotiation', label: 'negotiation', description: 'negotiationDesc' },
+  { id: 'proposal', label: 'proposal', description: 'proposalDesc' },
+  { id: 'summary', label: 'summary', description: 'summaryDesc' },
 ];
 
 // Agent Types
@@ -157,20 +158,21 @@ export interface ExampleRequirement {
   category: string;
 }
 
+// Example keys — looked up at render time via useTranslations('DemandNegotiation.input')
 export const EXAMPLE_REQUIREMENTS: ExampleRequirement[] = [
   {
     id: '1',
-    text: '我想找一个技术合伙人，一起做一个自由职业者管理工具',
-    category: '创业',
+    text: 'exampleStartupText',
+    category: 'exampleStartup',
   },
   {
     id: '2',
-    text: '我的手工皮具工作室想做一个宣传视频，预算5000',
-    category: '营销',
+    text: 'exampleMarketingText',
+    category: 'exampleMarketing',
   },
   {
     id: '3',
-    text: '我要组织一场50人的AI主题线下聚会',
-    category: '活动',
+    text: 'exampleEventText',
+    category: 'exampleEvent',
   },
 ];

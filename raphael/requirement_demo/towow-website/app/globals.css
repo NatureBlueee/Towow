@@ -5,6 +5,16 @@
 @import '../styles/typography.css';
 @import '../styles/animations.css';
 
+/* === i18n font switching === */
+html[data-locale="en"] {
+  --f-active-head: var(--f-en-head);
+  --f-active-body: var(--f-en-body);
+}
+html[data-locale="zh"], html:not([data-locale]) {
+  --f-active-head: var(--f-cn-head);
+  --f-active-body: var(--f-cn-body);
+}
+
 /* === 全局重置 === */
 * {
   box-sizing: border-box;
@@ -24,7 +34,7 @@ body {
   min-height: 100%;
   background-color: var(--c-bg);
   color: var(--c-text-main);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 16px;
   line-height: 1.75;
   overflow-x: hidden;
@@ -39,7 +49,7 @@ main {
 
 /* === 标题重置 === */
 h1, h2, h3, h4, h5, h6 {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   margin: 0;
   font-weight: normal;
 }

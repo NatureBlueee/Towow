@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import styles from './TagInput.module.css';
 
 interface TagInputProps {
@@ -24,14 +25,17 @@ export function TagInput({
   value,
   onChange,
   suggestions,
-  placeholder = '输入并按回车添加...',
+  placeholder,
   maxTags = 10,
   label,
   hint,
 }: TagInputProps) {
+  const t = useTranslations('TeamMatcher.tagInput');
   const [inputValue, setInputValue] = useState('');
   const [showSuggestions, setShowSuggestions] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const resolvedPlaceholder = placeholder || t('defaultPlaceholder');
 
   const filteredSuggestions = suggestions.filter(
     (s) =>
@@ -109,7 +113,7 @@ export function TagInput({
               setTimeout(() => setShowSuggestions(false), 200);
             }}
             onKeyDown={handleKeyDown}
-            placeholder={value.length === 0 ? placeholder : ''}
+            placeholder={value.length === 0 ? resolvedPlaceholder : ''}
           />
         )}
       </div>
@@ -148,7 +152,7 @@ export function TagInput({
           ))}
           {filteredSuggestions.length > 6 && (
             <span className={styles.moreHint}>
-              +{filteredSuggestions.length - 6} more
+              {t('moreItems', { count: filteredSuggestions.length - 6 })}
             </span>
           )}
         </div>

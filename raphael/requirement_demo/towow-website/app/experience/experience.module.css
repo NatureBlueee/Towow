@@ -22,7 +22,7 @@
 .heroTitle {
   font-size: 48px;
   font-weight: 700;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-text-dark);
   margin: 0;
 }
@@ -38,7 +38,7 @@
 
 .heroSubtitle {
   font-size: 18px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   margin: 0;
   max-width: 600px;
@@ -75,14 +75,14 @@
 .ctaTitle {
   font-size: 32px;
   font-weight: 700;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   color: var(--c-text-dark);
   margin: 0;
 }
 
 .ctaText {
   font-size: 16px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: var(--c-text-sec);
   margin: 0;
   max-width: 500px;
@@ -96,7 +96,7 @@
   color: #FFFFFF;
   font-size: 16px;
   font-weight: 600;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   text-decoration: none;
   box-shadow: var(--shadow-md);
   transition: var(--transition-normal);

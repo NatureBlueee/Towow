@@ -1,33 +1,36 @@
 // app/articles/page.tsx
 import Link from 'next/link';
-import { articles } from '@/lib/articles';
+import { getLocale, getTranslations } from 'next-intl/server';
+import { getArticles } from '@/lib/articles';
 import styles from './page.module.css';
 
-// 从文章内容中提取摘要
-function getExcerpt(article: (typeof articles)[0]): string {
+// Extract excerpt from article content
+function getExcerpt(article: ReturnType<typeof getArticles>[0]): string {
   if (article.sections.length === 0) return '';
 
-  // 从第一个 section 的 content 中提取纯文本
   const firstContent = article.sections[0].content;
-  // 移除 HTML 标签
   const textContent = firstContent
     .replace(/<[^>]*>/g, '')
     .replace(/\s+/g, ' ')
     .trim();
 
-  // 截取前 100 个字符
   if (textContent.length > 100) {
     return textContent.slice(0, 100) + '...';
   }
   return textContent;
 }
 
-// 清理标题中的 HTML 标签
+// Clean HTML tags from title
 function cleanTitle(title: string): string {
   return title.replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '');
 }
 
-export default function ArticlesPage() {
+export default async function ArticlesPage() {
+  const locale = await getLocale();
+  const t = await getTranslations('Articles');
+  const tCommon = await getTranslations('Common');
+  const articles = getArticles(locale);
+
   return (
     <main className={styles.page}>
       {/* Decorative Shapes */}
@@ -41,14 +44,14 @@ export default function ArticlesPage() {
         {/* Back Link */}
         <Link href="/" className={styles.backLink}>
           <i className="ri-arrow-left-line" />
-          返回首页
+          {tCommon('backToHome')}
         </Link>
 
         {/* Hero */}
         <header className={styles.hero}>
-          <h1 className={styles.heroTitle}>我们的思考</h1>
+          <h1 className={styles.heroTitle}>{t('pageTitle')}</h1>
           <p className={styles.heroSubtitle}>
-            关于 Agent 网络、价值经济和开放协作的深度思考
+            {t('pageSubtitle')}
           </p>
         </header>
 
@@ -63,7 +66,7 @@ export default function ArticlesPage() {
               <div className={styles.cardMeta}>
                 <span>
                   <i className="ri-time-line" />
-                  {article.readingTime} 分钟阅读
+                  {t('readTime', { minutes: article.readingTime })}
                 </span>
                 <span className={styles.dot} />
                 <span>{article.date}</span>
@@ -74,7 +77,7 @@ export default function ArticlesPage() {
               <p className={styles.cardExcerpt}>{getExcerpt(article)}</p>
 
               <span className={styles.readMore}>
-                阅读全文
+                {tCommon('readMore')}
                 <i className="ri-arrow-right-line" />
               </span>
             </Link>

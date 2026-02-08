@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import { Agent } from '../shared/types';
 import styles from './Stage2.module.css';
 
@@ -29,13 +30,13 @@ function calculateNodePositions(count: number, radius: number) {
   return positions;
 }
 
-// Phase labels
-const PHASE_LABELS: Record<Phase, string> = {
+// Phase label keys — resolved at render time
+const PHASE_LABEL_KEYS: Record<Phase, string> = {
   idle: '',
-  broadcasting: '正在广播需求...',
-  waiting: '等待 Agent 响应...',
-  responding: '收到响应',
-  complete: '响应完成',
+  broadcasting: 'broadcastingPhase',
+  waiting: 'waitingPhase',
+  responding: 'respondingPhase',
+  complete: 'completePhase',
 };
 
 export function NetworkGraph({
@@ -44,6 +45,7 @@ export function NetworkGraph({
   onStartNegotiation,
   isAnimating = true,
 }: NetworkGraphProps) {
+  const t = useTranslations('DemandNegotiation.network');
   const [phase, setPhase] = useState<Phase>('idle');
   const [visibleAgents, setVisibleAgents] = useState<number>(0);
   const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
@@ -126,7 +128,7 @@ export function NetworkGraph({
     <div className={styles.container}>
       {/* Requirement summary */}
       <div className={styles.requirementBadge}>
-        <span className={styles.requirementLabel}>你的需求</span>
+        <span className={styles.requirementLabel}>{t('yourRequirement')}</span>
         <p className={styles.requirementText}>{requirement}</p>
       </div>
 
@@ -134,10 +136,10 @@ export function NetworkGraph({
       <div className={`${styles.phaseIndicator} ${phase !== 'idle' ? styles.phaseIndicatorVisible : ''}`}>
         {phase === 'responding' && visibleAgents > 0 ? (
           <span className={styles.phaseText}>
-            <span className={styles.responseCountInline}>{visibleAgents}</span> 个 Agent 响应中...
+            {t('agentsResponding', { count: visibleAgents })}
           </span>
         ) : (
-          <span className={styles.phaseText}>{PHASE_LABELS[phase]}</span>
+          <span className={styles.phaseText}>{PHASE_LABEL_KEYS[phase] ? t(PHASE_LABEL_KEYS[phase]) : ''}</span>
         )}
       </div>
 
@@ -229,7 +231,7 @@ export function NetworkGraph({
             )}
           </div>
           <span className={styles.centerLabel}>
-            {showBroadcast ? '广播中' : '需求'}
+            {showBroadcast ? t('broadcasting') : t('demand')}
           </span>
         </div>
 
@@ -291,14 +293,14 @@ export function NetworkGraph({
       <div className={`${styles.actionArea} ${allAgentsVisible ? styles.actionAreaVisible : ''}`}>
         <p className={styles.responseCount}>
           <span className={styles.countNumber}>{agents.length}</span>
-          个 Agent 响应了你的需求
+          {t('agentsResponded')}
         </p>
         <button
           className={styles.startButton}
           onClick={onStartNegotiation}
           disabled={!allAgentsVisible}
         >
-          开始协商
+          {t('startNegotiation')}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="5" y1="12" x2="19" y2="12" />
             <polyline points="12 5 19 12 12 19" />

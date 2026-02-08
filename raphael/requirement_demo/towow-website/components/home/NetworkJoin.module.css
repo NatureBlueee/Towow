@@ -65,7 +65,7 @@
 
 /* Title */
 .title {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 32px;
   line-height: 1.3;
   margin-top: var(--spacing-lg);
@@ -74,7 +74,7 @@
 
 /* Description */
 .description {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 16px;
   line-height: 1.75;
   color: var(--c-text-sec);
@@ -216,5 +216,26 @@
   .description {
     font-size: 13px;
     max-width: 240px;
+  }
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .title {
+  font-size: 28px;
+}
+
+:global(html[data-locale="en"]) .description {
+  font-size: 15px;
+  max-width: 480px;
+}
+
+@media (max-width: 768px) {
+  :global(html[data-locale="en"]) .title {
+    font-size: 24px;
+  }
+
+  :global(html[data-locale="en"]) .description {
+    font-size: 14px;
+    max-width: 320px;
   }
 }

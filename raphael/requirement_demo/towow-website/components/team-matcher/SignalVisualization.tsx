@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import styles from './SignalVisualization.module.css';
 import type { ProgressStage, OfferSummary } from '@/lib/team-matcher/types';
 
@@ -21,6 +22,7 @@ export function SignalVisualization({
   offersCount,
   offerSummaries,
 }: SignalVisualizationProps) {
+  const t = useTranslations('TeamMatcher.signal');
   const [visibleOffers, setVisibleOffers] = useState<number>(0);
 
   // Stagger offer visibility for fly-in animation
@@ -61,34 +63,32 @@ export function SignalVisualization({
       <div className={styles.stageInfo}>
         {stage === 'broadcasting' && (
           <>
-            <h2 className={styles.stageTitle}>正在广播信号...</h2>
-            <p className={styles.stageDesc}>
-              你的项目想法正在向网络中的 Agent 扩散
-            </p>
+            <h2 className={styles.stageTitle}>{t('broadcastingTitle')}</h2>
+            <p className={styles.stageDesc}>{t('broadcastingDesc')}</p>
           </>
         )}
         {stage === 'receiving' && (
           <>
             <h2 className={styles.stageTitle}>
               <span className={styles.countHighlight}>{offersCount}</span>{' '}
-              位伙伴对你的项目感兴趣
+              {t('receivingTitle', { count: offersCount })}
             </h2>
-            <p className={styles.stageDesc}>正在接收 Agent 的响应...</p>
+            <p className={styles.stageDesc}>{t('receivingDesc')}</p>
           </>
         )}
         {stage === 'generating' && (
           <>
-            <h2 className={styles.stageTitle}>正在组合最佳团队方案...</h2>
+            <h2 className={styles.stageTitle}>{t('generatingTitle')}</h2>
             <p className={styles.stageDesc}>
-              Center 正在综合 {offersCount} 个响应，生成多种团队组合
+              {t('generatingDesc', { count: offersCount })}
             </p>
           </>
         )}
         {stage === 'complete' && (
           <>
-            <h2 className={styles.stageTitle}>方案已就绪</h2>
+            <h2 className={styles.stageTitle}>{t('completeTitle')}</h2>
             <p className={styles.stageDesc}>
-              基于 {offersCount} 位伙伴的响应，生成了 3 种不同风格的团队方案
+              {t('completeDesc', { count: offersCount })}
             </p>
           </>
         )}
@@ -159,7 +159,7 @@ export function SignalVisualization({
                 : ''
             }`}
           >
-            广播
+            {t('stepBroadcast')}
           </span>
           <span
             className={`${styles.progressStep} ${
@@ -170,21 +170,21 @@ export function SignalVisualization({
                 : ''
             }`}
           >
-            响应
+            {t('stepResponse')}
           </span>
           <span
             className={`${styles.progressStep} ${
               stage === 'generating' ? styles.progressStepActive : ''
             } ${stage === 'complete' ? styles.progressStepDone : ''}`}
           >
-            生成
+            {t('stepGenerate')}
           </span>
           <span
             className={`${styles.progressStep} ${
               stage === 'complete' ? styles.progressStepActive : ''
             }`}
           >
-            完成
+            {t('stepComplete')}
           </span>
         </div>
       </div>

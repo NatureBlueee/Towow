@@ -2,6 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { useTranslations } from 'next-intl';
+import { LanguageToggle } from './LanguageToggle';
 import styles from './Header.module.css';
 
 interface HeaderProps {
@@ -9,6 +11,7 @@ interface HeaderProps {
 }
 
 export function Header({ progress = 0 }: HeaderProps) {
+  const t = useTranslations('Header');
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   // 关闭菜单时恢复滚动
@@ -52,23 +55,24 @@ export function Header({ progress = 0 }: HeaderProps) {
           <div className={styles.logoIcon}>
             <div className={styles.logoIconInner} />
           </div>
-          <span>Back</span>
+          <span>{t('back')}</span>
         </Link>
       </div>
 
       <div className={styles.headerLogo}>ToWow</div>
 
       <div className={styles.headerRight}>
-        <Link href="/journey" className={styles.btnOutline}>历程</Link>
-        <Link href="/contribute" className={styles.btnOutline}>共建</Link>
-        <Link href="/experience" className={styles.btnOutline}>应用目录</Link>
+        <Link href="/journey" className={styles.btnOutline}>{t('journey')}</Link>
+        <Link href="/contribute" className={styles.btnOutline}>{t('contribute')}</Link>
+        <Link href="/experience" className={styles.btnOutline}>{t('apps')}</Link>
+        <LanguageToggle />
       </div>
 
       {/* 汉堡菜单按钮 */}
       <button
         className={`${styles.menuButton} ${isMenuOpen ? styles.open : ''}`}
         onClick={() => setIsMenuOpen(!isMenuOpen)}
-        aria-label={isMenuOpen ? '关闭菜单' : '打开菜单'}
+        aria-label={isMenuOpen ? t('closeMenu') : t('openMenu')}
         aria-expanded={isMenuOpen}
         aria-controls="mobile-menu"
       >
@@ -85,20 +89,21 @@ export function Header({ progress = 0 }: HeaderProps) {
         className={`${styles.mobileMenu} ${isMenuOpen ? styles.open : ''}`}
       >
         <Link href="/" className={styles.mobileNavLink} onClick={handleLinkClick}>
-          首页
+          {t('home')}
         </Link>
         <Link href="/articles" className={styles.mobileNavLink} onClick={handleLinkClick}>
-          文章
+          {t('articles')}
         </Link>
         <Link href="/journey" className={styles.mobileNavLink} onClick={handleLinkClick}>
-          历程
+          {t('journey')}
         </Link>
         <Link href="/contribute" className={styles.mobileNavLink} onClick={handleLinkClick}>
-          共建任务
+          {t('tasks')}
         </Link>
         <Link href="/experience" className={styles.mobileNavLink} onClick={handleLinkClick}>
-          应用目录
+          {t('apps')}
         </Link>
+        <LanguageToggle />
       </nav>
 
       <div

@@ -40,7 +40,7 @@
 
 /* Title */
 .title {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 38px;
   line-height: 1.3;
   margin: 0 0 var(--spacing-md) 0;
@@ -49,7 +49,7 @@
 
 /* Content Text */
 .content {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   font-size: 19px;
   line-height: 1.75;
   color: var(--c-text-sec);
@@ -108,6 +108,36 @@
   }
 
   .content {
+    font-size: 15px;
+  }
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .title {
+  font-size: 34px;
+}
+
+:global(html[data-locale="en"]) .content {
+  font-size: 17px;
+  text-align: left;
+}
+
+@media (max-width: 768px) {
+  :global(html[data-locale="en"]) .title {
+    font-size: 28px;
+  }
+
+  :global(html[data-locale="en"]) .content {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  :global(html[data-locale="en"]) .title {
+    font-size: 24px;
+  }
+
+  :global(html[data-locale="en"]) .content {
     font-size: 15px;
   }
 }

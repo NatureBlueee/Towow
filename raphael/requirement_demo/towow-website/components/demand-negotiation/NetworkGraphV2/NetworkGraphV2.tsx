@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, useMemo, useCallback, useRef } from 'react';
+import { useTranslations } from 'next-intl';
 import { Agent, NetworkPhase, AgentStatus, AgentWithStatus, ResponseType } from '../shared/types';
 import styles from './NetworkGraphV2.module.css';
 
@@ -56,6 +57,8 @@ export function NetworkGraphV2({
   onComplete,
   onStartNegotiation,
 }: NetworkGraphV2Props) {
+  const t = useTranslations('DemandNegotiation.networkV2');
+  const tGraph = useTranslations('DemandNegotiation.graph');
   // Phase state
   const [phase, setPhase] = useState<NetworkPhase>('idle');
   const [waveCount, setWaveCount] = useState(0);
@@ -92,34 +95,34 @@ export function NetworkGraphV2({
     const responseMap: Record<string, { type: ResponseType; title: string; content: string; conditions?: string[]; price?: number }> = {
       'alex': {
         type: 'offer',
-        title: '技术指导服务',
-        content: '我可以提供每周2小时的技术指导，帮你解决开发中的难题。',
-        conditions: ['远程协作', '按月付费'],
+        title: tGraph('alexTitle'),
+        content: tGraph('alexContent'),
+        conditions: [tGraph('alexCond1'), tGraph('alexCond2')],
         price: 2000,
       },
       'xiaolin': {
         type: 'competition',
-        title: '后端开发竞标',
-        content: '我想竞争这个项目的后端开发部分，可以提供完整的API设计和数据库架构。',
-        conditions: ['需要明确需求文档', '3周交付'],
+        title: tGraph('xiaolinTitle'),
+        content: tGraph('xiaolinContent'),
+        conditions: [tGraph('xiaolinCond1'), tGraph('xiaolinCond2')],
         price: 8000,
       },
       'cursor': {
         type: 'suggestion',
-        title: 'AI辅助开发建议',
-        content: '你这个需求可以用AI辅助开发来加速，我可以帮你提升3倍开发效率。',
+        title: tGraph('cursorTitle'),
+        content: tGraph('cursorContent'),
         price: 200,
       },
       'laowang': {
         type: 'suggestion',
-        title: '需求重构建议',
-        content: '先聊聊你真正想解决什么问题？也许你不需要技术合伙人，而是需要快速验证想法的能力。',
+        title: tGraph('laowangTitle'),
+        content: tGraph('laowangContent'),
         price: 500,
       },
       'notion': {
         type: 'offer',
-        title: '现成模板方案',
-        content: '我有一套自由职业者管理模板，包含项目、客户、财务模块，也许你不需要从零开发。',
+        title: tGraph('notionTitle'),
+        content: tGraph('notionContent'),
         price: 299,
       },
     };
@@ -130,7 +133,7 @@ export function NetworkGraphV2({
       position: PLACEHOLDER_POSITIONS[index % PLACEHOLDER_POSITIONS.length],
       response: responseMap[agent.id],
     }));
-  }, [agents]);
+  }, [agents, tGraph]);
 
   // Get willing agents (green)
   const willingAgents = useMemo(
@@ -244,9 +247,9 @@ export function NetworkGraphV2({
   // Get response type label
   const getResponseTypeLabel = (type: ResponseType) => {
     switch (type) {
-      case 'competition': return '竞标';
-      case 'offer': return '报价';
-      case 'suggestion': return '建议';
+      case 'competition': return t('competition');
+      case 'offer': return t('offer');
+      case 'suggestion': return t('suggestion');
       default: return '';
     }
   };
@@ -275,16 +278,16 @@ export function NetworkGraphV2({
   // Phase labels
   const getPhaseLabel = () => {
     switch (phase) {
-      case 'launch': return '发射需求...';
-      case 'broadcast': return '广播扫描中...';
-      case 'scan': return '发现 Agent...';
-      case 'classify': return '分析匹配度...';
-      case 'converge': return '汇聚响应者...';
-      case 'respond': return `${willingAgents.length} 个 Agent 响应`;
-      case 'negotiate': return '信息汇聚中...';
-      case 'filter': return '筛选最佳方案...';
-      case 'deep': return '深入协商中...';
-      case 'proposal': return '方案确定';
+      case 'launch': return t('launchPhase');
+      case 'broadcast': return t('broadcastPhase');
+      case 'scan': return t('scanPhase');
+      case 'classify': return t('classifyPhase');
+      case 'converge': return t('convergePhase');
+      case 'respond': return t('respondPhase', { count: willingAgents.length });
+      case 'negotiate': return t('negotiatePhase');
+      case 'filter': return t('filterPhase');
+      case 'deep': return t('deepPhase');
+      case 'proposal': return t('proposalPhase');
       default: return '';
     }
   };
@@ -298,7 +301,7 @@ export function NetworkGraphV2({
 
       {/* Requirement badge - shrinks during launch */}
       <div className={`${styles.requirementBadge} ${phase === 'launch' ? styles.launching : ''} ${phase !== 'idle' && phase !== 'launch' ? styles.hidden : ''}`}>
-        <span className={styles.requirementLabel}>你的需求</span>
+        <span className={styles.requirementLabel}>{t('yourRequirement')}</span>
         <p className={styles.requirementText}>{requirement}</p>
       </div>
 
@@ -414,7 +417,7 @@ export function NetworkGraphV2({
             )}
           </div>
           <span className={styles.centerLabel}>
-            {phase === 'broadcast' ? '广播中' : phase === 'negotiate' ? '汇聚中' : '需求'}
+            {phase === 'broadcast' ? t('broadcasting') : phase === 'negotiate' ? t('converging') : t('demand')}
           </span>
         </div>
 
@@ -472,7 +475,7 @@ export function NetworkGraphV2({
               onKeyDown={(e) => e.key === 'Enter' && handleAgentClick(agent.id)}
               role="button"
               tabIndex={0}
-              aria-label={`Agent ${agent.name}, 点击查看详情`}
+              aria-label={`Agent ${agent.name}, ${t('clickToView')}`}
               aria-expanded={isSelected}
             >
               <div
@@ -503,7 +506,7 @@ export function NetworkGraphV2({
                           <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
                           <circle cx="12" cy="7" r="4" />
                         </svg>
-                        <span>来自 SecondMe</span>
+                        <span>{t('fromSecondMe')}</span>
                       </div>
                       <p className={styles.bioSummary}>{agents.find(a => a.id === agent.id)?.bio?.summary}</p>
                       <div className={styles.bioTags}>
@@ -535,8 +538,8 @@ export function NetworkGraphV2({
                       )}
                       {agent.response.price && (
                         <div className={styles.responsePrice}>
-                          <span className={styles.priceLabel}>报价</span>
-                          <span className={styles.priceValue}>{agent.response.price} 元</span>
+                          <span className={styles.priceLabel}>{t('quote')}</span>
+                          <span className={styles.priceValue}>{agent.response.price} {t('priceUnit')}</span>
                         </div>
                       )}
                     </>
@@ -547,7 +550,7 @@ export function NetworkGraphV2({
               {/* Peer chat bubble */}
               {isPeerChatting && (
                 <div className={styles.peerChatBubble}>
-                  {agent.id === 'laowang' ? '我觉得可以结合模板方案...' : '对，这样成本更低'}
+                  {agent.id === 'laowang' ? t('peerChatLaowang') : t('peerChatNotion')}
                 </div>
               )}
             </div>
@@ -559,14 +562,14 @@ export function NetworkGraphV2({
       <div className={`${styles.actionArea} ${phase === 'respond' ? styles.visible : ''}`}>
         <p className={styles.responseCount}>
           <span className={styles.countNumber}>{willingAgents.length}</span>
-          个 Agent 响应了你的需求
+          {t('agentsResponded')}
         </p>
-        <p className={styles.hint}>点击 Agent 查看详细回应</p>
+        <p className={styles.hint}>{t('clickHint')}</p>
         <button
           className={styles.startButton}
           onClick={handleStartNegotiation}
         >
-          开始协商
+          {t('startNegotiation')}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="5" y1="12" x2="19" y2="12" />
             <polyline points="12 5 19 12 12 19" />
@@ -576,15 +579,15 @@ export function NetworkGraphV2({
 
       {/* Proposal action area */}
       <div className={`${styles.actionArea} ${phase === 'proposal' ? styles.visible : ''}`}>
-        <p className={styles.proposalTitle}>方案已确定</p>
+        <p className={styles.proposalTitle}>{t('proposalReady')}</p>
         <p className={styles.proposalDesc}>
-          {willingAgents.filter(a => !isFiltered(a.id)).length} 个 Agent 将参与你的项目
+          {t('proposalDesc', { count: willingAgents.filter(a => !isFiltered(a.id)).length })}
         </p>
         <button
           className={styles.startButton}
           onClick={onComplete}
         >
-          查看详细方案
+          {t('viewProposal')}
           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
             <line x1="5" y1="12" x2="19" y2="12" />
             <polyline points="12 5 19 12 12 19" />

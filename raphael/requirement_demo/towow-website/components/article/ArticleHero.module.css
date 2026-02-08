@@ -84,7 +84,7 @@
 .meta {
   font-size: 18px;
   color: var(--c-text-gray);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   background: rgba(255, 255, 255, 0.5);
   padding: 8px 20px;
   border-radius: 20px;

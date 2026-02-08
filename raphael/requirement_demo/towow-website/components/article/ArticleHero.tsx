@@ -1,4 +1,5 @@
 // components/article/ArticleHero.tsx
+import { getTranslations } from 'next-intl/server';
 import styles from './ArticleHero.module.css';
 
 interface ArticleHeroProps {
@@ -10,7 +11,7 @@ interface ArticleHeroProps {
   className?: string;
 }
 
-export function ArticleHero({
+export async function ArticleHero({
   title,
   readingTime,
   date,
@@ -18,6 +19,8 @@ export function ArticleHero({
   decorImageLeft,
   className,
 }: ArticleHeroProps) {
+  const t = await getTranslations('Articles');
+
   return (
     <section className={`${styles.hero} ${className || ''}`}>
       {/* Background geometric shapes */}
@@ -57,7 +60,7 @@ export function ArticleHero({
           <path d="M12 22C6.477 22 2 17.523 2 12S6.477 2 12 2s10 4.477 10 10-4.477 10-10 10zm0-2a8 8 0 100-16 8 8 0 000 16zm1-8h4v2h-6V7h2v5z" />
         </svg>
         <span>
-          阅读时长 {readingTime}分钟 · {date}
+          {t('heroMeta', { readingTime, date })}
         </span>
       </div>
     </section>

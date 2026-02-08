@@ -1,5 +1,6 @@
 // components/article/RelatedArticles.tsx
 import Link from 'next/link';
+import { getTranslations } from 'next-intl/server';
 import styles from './RelatedArticles.module.css';
 
 export interface RelatedArticle {
@@ -24,11 +25,13 @@ const iconPaths: Record<RelatedArticle['icon'], string> = {
   book: 'M21 4H7a2 2 0 00-2 2v12a2 2 0 002 2h14V4zM5 6a2 2 0 012-2h1v16H7a2 2 0 01-2-2V6zm4 0h10v12H9V6zm2 2v2h6V8h-6zm0 4v2h6v-2h-6z',
 };
 
-export function RelatedArticles({ articles, className }: RelatedArticlesProps) {
+export async function RelatedArticles({ articles, className }: RelatedArticlesProps) {
+  const t = await getTranslations('Articles');
+
   return (
     <section className={`${styles.section} ${className || ''}`}>
       <div className={styles.container}>
-        <h4 className={styles.title}>延伸阅读</h4>
+        <h4 className={styles.title}>{t('relatedArticles')}</h4>
         <div className={styles.list}>
           {articles.map((article, index) => (
             <Link key={index} href={article.href} className={styles.card}>

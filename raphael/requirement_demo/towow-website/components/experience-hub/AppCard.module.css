@@ -131,7 +131,7 @@
   font-size: 14px;
   font-weight: 500;
   color: var(--c-text-sec);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
 }
 
 .description {
@@ -139,7 +139,7 @@
   font-size: 14px;
   line-height: 1.6;
   color: var(--c-text-gray);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
 }
 
 /* Tags */
@@ -153,7 +153,7 @@
   padding: 4px 10px;
   border-radius: var(--radius-sm);
   font-size: 12px;
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   background: var(--c-detail);
   color: #6B8E6F;
   border: 1px solid rgba(212, 244, 221, 0.5);
@@ -174,7 +174,7 @@
   border-top: 1px solid rgba(212, 184, 217, 0.2);
   font-size: 12px;
   color: var(--c-text-sec);
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
 }
 
 .author {

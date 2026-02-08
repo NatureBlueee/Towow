@@ -18,7 +18,7 @@
 }
 
 .panelTitle {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 14px;
   color: var(--c-text-gray);
   text-transform: uppercase;

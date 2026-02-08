@@ -2,6 +2,7 @@
 
 // components/article/TableOfContents.tsx
 import { useEffect, useState } from 'react';
+import { useTranslations } from 'next-intl';
 import styles from './TableOfContents.module.css';
 
 export interface TocItem {
@@ -15,6 +16,7 @@ interface TableOfContentsProps {
 }
 
 export function TableOfContents({ items, className }: TableOfContentsProps) {
+  const t = useTranslations('Articles');
   const [activeId, setActiveId] = useState<string>(items[0]?.id || '');
 
   useEffect(() => {
@@ -75,7 +77,7 @@ export function TableOfContents({ items, className }: TableOfContentsProps) {
         >
           <path d="M11 4h10v2H11V4zm0 4h6v2h-6V8zm0 6h10v2H11v-2zm0 4h6v2h-6v-2zM3 4h6v6H3V4zm2 2v2h2V6H5zm-2 8h6v6H3v-6zm2 2v2h2v-2H5z" />
         </svg>
-        <span>目录</span>
+        <span>{t('toc')}</span>
       </div>
       <ul className={styles.list}>
         <div className={styles.line} />

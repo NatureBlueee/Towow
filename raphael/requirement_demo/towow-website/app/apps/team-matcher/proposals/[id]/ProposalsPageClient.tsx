@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
+import { useTranslations } from 'next-intl';
 import '@/styles/team-matcher.css';
 import { TeamBackground } from '@/components/team-matcher/TeamBackground';
 import { TeamNav } from '@/components/team-matcher/TeamNav';
@@ -14,6 +15,8 @@ interface ProposalsPageClientProps {
 }
 
 export function ProposalsPageClient({ requestId }: ProposalsPageClientProps) {
+  const t = useTranslations('TeamMatcher.proposals');
+  const tCommon = useTranslations('Common');
   const [proposals, setProposals] = useState<TeamProposal[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,15 +63,15 @@ export function ProposalsPageClient({ requestId }: ProposalsPageClientProps) {
       <main className={styles.main}>
         {/* Page header */}
         <div className={styles.pageHeader}>
-          <h1 className={styles.pageTitle}>团队方案</h1>
+          <h1 className={styles.pageTitle}>{t('title')}</h1>
           <p className={styles.pageSubtitle}>
             {loading
-              ? '正在加载团队组合方案...'
+              ? t('loadingSubtitle')
               : error
-              ? '加载方案时遇到问题'
+              ? t('errorSubtitle')
               : proposals.length > 0
-              ? `基于收到的响应，为你生成了 ${proposals.length} 种不同风格的团队组合`
-              : '方案生成中，请稍候...'}
+              ? t('readySubtitle', { count: proposals.length })
+              : t('generatingSubtitle')}
           </p>
         </div>
 
@@ -93,11 +96,11 @@ export function ProposalsPageClient({ requestId }: ProposalsPageClientProps) {
             <div className={styles.stateIcon} data-variant="error">
               <i className="ri-error-warning-line" />
             </div>
-            <h3 className={styles.stateTitle}>加载失败</h3>
+            <h3 className={styles.stateTitle}>{t('loadFailed')}</h3>
             <p className={styles.stateDesc}>{error}</p>
             <button className={styles.retryBtn} onClick={handleRetry}>
               <i className="ri-refresh-line" />
-              重试
+              {tCommon('retry')}
             </button>
           </div>
         )}
@@ -108,13 +111,11 @@ export function ProposalsPageClient({ requestId }: ProposalsPageClientProps) {
             <div className={styles.stateIcon} data-variant="empty">
               <i className="ri-time-line" />
             </div>
-            <h3 className={styles.stateTitle}>方案生成中</h3>
-            <p className={styles.stateDesc}>
-              正在收集响应并生成团队组合方案，请稍后刷新页面查看。
-            </p>
+            <h3 className={styles.stateTitle}>{t('generatingTitle')}</h3>
+            <p className={styles.stateDesc}>{t('generatingDesc')}</p>
             <button className={styles.retryBtn} onClick={handleRetry}>
               <i className="ri-refresh-line" />
-              刷新
+              {t('refresh')}
             </button>
           </div>
         )}
@@ -140,24 +141,22 @@ export function ProposalsPageClient({ requestId }: ProposalsPageClientProps) {
               <div className={styles.selectionIcon}>
                 <i className="ri-team-line" />
               </div>
-              <h2 className={styles.selectionTitle}>团队已选择</h2>
+              <h2 className={styles.selectionTitle}>{t('teamSelected')}</h2>
               <p className={styles.selectionDesc}>
-                你选择了
-                <strong>
-                  {proposals.find((p) => p.proposal_id === selectedId)?.proposal_label}
-                </strong>
-                方案。接下来可以开始协作了。
+                {t('teamSelectedDesc', {
+                  label: proposals.find((p) => p.proposal_id === selectedId)?.proposal_label ?? '',
+                })}
               </p>
               <div className={styles.selectionActions}>
                 <button
                   className={styles.selectionBtnSecondary}
                   onClick={() => setSelectedId(null)}
                 >
-                  重新选择
+                  {t('reselect')}
                 </button>
                 <button className={styles.selectionBtnPrimary}>
                   <i className="ri-rocket-2-line" />
-                  开始协作
+                  {t('startCollaboration')}
                 </button>
               </div>
             </div>

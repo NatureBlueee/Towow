@@ -2,6 +2,7 @@
 
 import { useState, useCallback, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { useTranslations } from 'next-intl';
 import { TagInput } from './TagInput';
 import {
   SKILL_OPTIONS,
@@ -17,6 +18,8 @@ import styles from './TeamRequestForm.module.css';
 
 export function TeamRequestForm() {
   const router = useRouter();
+  const t = useTranslations('TeamMatcher.form');
+  const tAvail = useTranslations('TeamMatcher.availability');
   const { user, isChecking, isAuthenticated } = useTeamAuth();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoggingIn, setIsLoggingIn] = useState(false);
@@ -155,15 +158,15 @@ export function TeamRequestForm() {
     try {
       const authUrl = await getAuthUrl('/apps/team-matcher/request');
       if (!authUrl) {
-        throw new Error('未获取到登录地址');
+        throw new Error(t('loginErrorAuth'));
       }
       window.location.href = authUrl;
     } catch (err) {
       console.error('Failed to get auth URL:', err);
-      setLoginError('无法连接后端服务，请确认后端已启动');
+      setLoginError(t('loginErrorBackend'));
       setIsLoggingIn(false);
     }
-  }, []);
+  }, [t]);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {
@@ -192,10 +195,8 @@ export function TeamRequestForm() {
         <div className={styles.iconWrapper}>
           <i className="ri-signal-tower-line" />
         </div>
-        <h1 className={styles.title}>发出你的信号</h1>
-        <p className={styles.subtitle}>
-          描述你的项目想法和你能带来的技能，让共振找到你的伙伴
-        </p>
+        <h1 className={styles.title}>{t('title')}</h1>
+        <p className={styles.subtitle}>{t('subtitle')}</p>
       </div>
 
       {/* Login prompt */}
@@ -205,10 +206,8 @@ export function TeamRequestForm() {
             <i className="ri-user-line" />
           </div>
           <div className={styles.loginPromptText}>
-            <p className={styles.loginPromptTitle}>登录以获得完整体验</p>
-            <p className={styles.loginPromptDesc}>
-              登录 SecondMe 后，AI 将基于你的 Profile 自动填写表单
-            </p>
+            <p className={styles.loginPromptTitle}>{t('loginPromptTitle')}</p>
+            <p className={styles.loginPromptDesc}>{t('loginPromptDesc')}</p>
           </div>
           <button
             type="button"
@@ -219,12 +218,12 @@ export function TeamRequestForm() {
             {isLoggingIn ? (
               <>
                 <span className={styles.submitSpinner} />
-                跳转中...
+                {t('redirecting')}
               </>
             ) : (
               <>
                 <i className="ri-login-box-line" />
-                登录 SecondMe
+                {t('loginSecondMe')}
               </>
             )}
           </button>
@@ -238,7 +237,7 @@ export function TeamRequestForm() {
       {isAuthenticated && isSuggesting && (
         <div className={styles.suggestingBanner}>
           <div className={styles.suggestingPulse} />
-          <span>你的 SecondMe 正在思考...</span>
+          <span>{t('secondMeThinking')}</span>
         </div>
       )}
 
@@ -249,7 +248,7 @@ export function TeamRequestForm() {
             <i className="ri-robot-2-line" />
           </div>
           <div className={styles.secondMeBubble}>
-            <p className={styles.secondMeLabel}>你的 SecondMe</p>
+            <p className={styles.secondMeLabel}>{t('yourSecondMe')}</p>
             <p className={styles.secondMeText}>{suggestMessage}</p>
           </div>
         </div>
@@ -259,7 +258,7 @@ export function TeamRequestForm() {
       {isAuthenticated && user && !isSuggesting && !suggestMessage && (
         <div className={styles.loggedInBanner}>
           <i className="ri-checkbox-circle-line" />
-          <span>已登录为 {user.display_name}</span>
+          <span>{t('loggedInAs', { name: user.display_name })}</span>
         </div>
       )}
 
@@ -267,12 +266,12 @@ export function TeamRequestForm() {
       <div className={styles.field}>
         <label className={styles.fieldLabel} htmlFor="project-idea">
           <i className="ri-lightbulb-line" />
-          项目想法
+          {t('projectIdea')}
         </label>
         <textarea
           id="project-idea"
           className={styles.textarea}
-          placeholder="描述你想做的项目... 比如：一个用 AI 分析饮食数据并给出个性化健康建议的应用"
+          placeholder={t('projectIdeaPlaceholder')}
           value={formData.project_idea}
           onChange={(e) =>
             setFormData((prev) => ({ ...prev, project_idea: e.target.value }))
@@ -289,16 +288,16 @@ export function TeamRequestForm() {
       <div className={styles.field}>
         <div className={styles.fieldLabelRow}>
           <i className="ri-tools-line" />
-          <span>我的技能</span>
+          <span>{t('mySkills')}</span>
         </div>
         <TagInput
           label=""
           value={formData.skills}
           onChange={(skills) => setFormData((prev) => ({ ...prev, skills }))}
           suggestions={SKILL_OPTIONS}
-          placeholder="选择或输入你的技能..."
+          placeholder={t('skillsPlaceholder')}
           maxTags={8}
-          hint="选择你擅长的技能，团队组合时会用到"
+          hint={t('skillsHint')}
         />
       </div>
 
@@ -306,7 +305,7 @@ export function TeamRequestForm() {
       <div className={styles.field}>
         <label className={styles.fieldLabel}>
           <i className="ri-time-line" />
-          可用时间
+          {t('availableTime')}
         </label>
         <div className={styles.radioGroup}>
           {AVAILABILITY_OPTIONS.map((opt) => (
@@ -329,7 +328,7 @@ export function TeamRequestForm() {
                 }
                 className={styles.radioInput}
               />
-              <span className={styles.radioLabel}>{opt.label}</span>
+              <span className={styles.radioLabel}>{tAvail(opt.value)}</span>
             </label>
           ))}
         </div>
@@ -339,8 +338,8 @@ export function TeamRequestForm() {
       <div className={styles.field}>
         <div className={styles.fieldLabelRow}>
           <i className="ri-group-line" />
-          <span>我在找</span>
-          <span className={styles.fieldHint}>不确定也没关系</span>
+          <span>{t('lookingFor')}</span>
+          <span className={styles.fieldHint}>{t('lookingForOptional')}</span>
         </div>
         <TagInput
           label=""
@@ -349,9 +348,9 @@ export function TeamRequestForm() {
             setFormData((prev) => ({ ...prev, roles_needed }))
           }
           suggestions={ROLE_OPTIONS}
-          placeholder="期望的队友角色（可选）..."
+          placeholder={t('rolesPlaceholder')}
           maxTags={5}
-          hint="留空也可以，系统会帮你发现意想不到的组合"
+          hint={t('rolesHint')}
         />
       </div>
 
@@ -364,19 +363,17 @@ export function TeamRequestForm() {
         {isSubmitting ? (
           <>
             <span className={styles.submitSpinner} />
-            信号发送中...
+            {t('sendingSignal')}
           </>
         ) : (
           <>
             <i className="ri-radar-line" />
-            发出信号
+            {t('sendSignal')}
           </>
         )}
       </button>
 
-      <p className={styles.submitHint}>
-        信号发出后，系统会广播给网络中的所有 Agent，等待它们的响应
-      </p>
+      <p className={styles.submitHint}>{t('submitHint')}</p>
     </form>
   );
 }

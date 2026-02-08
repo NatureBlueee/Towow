@@ -6,7 +6,7 @@
   justify-content: center;
   padding: 18px 42px;
   font-size: 18px;
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   cursor: pointer;
   transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
   position: relative;
@@ -121,5 +121,18 @@
     padding: 12px 24px;
     font-size: 14px;
     min-height: 44px;
+  }
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .btn {
+  padding: 16px 36px;
+  font-size: 16px;
+}
+
+@media (max-width: 480px) {
+  :global(html[data-locale="en"]) .btn {
+    padding: 12px 24px;
+    font-size: 14px;
   }
 }

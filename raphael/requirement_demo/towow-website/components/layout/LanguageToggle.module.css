@@ -1,0 +1,18 @@
+.toggle {
+  padding: 6px 14px;
+  border: 1px solid var(--c-text-dark);
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: var(--c-text-dark);
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--f-en-body);
+  cursor: pointer;
+  transition: all var(--transition-normal);
+  letter-spacing: 0.5px;
+}
+
+.toggle:hover {
+  background: var(--c-text-dark);
+  color: #fff;
+}

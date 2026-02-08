@@ -1,7 +1,7 @@
 /* components/article/ArticleContent.module.css */
 
 .article {
-  font-family: var(--f-cn-body);
+  font-family: var(--f-active-body);
   color: #333;
   padding-top: 40px;
 }
@@ -12,7 +12,7 @@
 
 /* Section heading with left decoration block */
 .heading {
-  font-family: var(--f-cn-head);
+  font-family: var(--f-active-head);
   font-size: 32px;
   margin-top: 80px;
   margin-bottom: 32px;

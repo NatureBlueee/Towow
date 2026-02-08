@@ -1,5 +1,6 @@
 'use client';
 
+import { useTranslations } from 'next-intl';
 import type { AppMetadata } from '@/lib/apps/types';
 import { AppCard } from './AppCard';
 import { ComingSoonCard } from './ComingSoonCard';
@@ -16,10 +17,12 @@ interface AppGridProps {
 export function AppGrid({
   apps,
   title,
-  emptyMessage = '暂无应用',
+  emptyMessage,
   columns = 3,
   showComingSoonSeparately = true,
 }: AppGridProps) {
+  const t = useTranslations('Common');
+
   // Split apps by status
   const activeApps = apps.filter(
     (app) => app.status === 'active' || app.status === 'beta'
@@ -37,7 +40,7 @@ export function AppGrid({
       {isEmpty && (
         <div className={styles.empty}>
           <div className={styles.emptyIcon}>📦</div>
-          <p className={styles.emptyText}>{emptyMessage}</p>
+          <p className={styles.emptyText}>{emptyMessage || t('noApps')}</p>
         </div>
       )}
 
@@ -53,7 +56,7 @@ export function AppGrid({
       {/* Coming Soon Section */}
       {!isEmpty && showComingSoonSeparately && comingSoonApps.length > 0 && (
         <div className={styles.comingSoonSection}>
-          <h3 className={styles.comingSoonTitle}>即将推出</h3>
+          <h3 className={styles.comingSoonTitle}>{t('comingSoon')}</h3>
           <div className={`${styles.grid} ${styles[`cols-${columns}`]}`}>
             {comingSoonApps.map((app) => (
               <ComingSoonCard key={app.id} app={app} />

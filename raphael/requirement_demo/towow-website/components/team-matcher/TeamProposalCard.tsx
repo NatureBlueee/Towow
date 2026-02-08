@@ -1,11 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import { useTranslations } from 'next-intl';
 import styles from './TeamProposalCard.module.css';
 import { MemberCard } from './MemberCard';
 import { CoverageBar } from './CoverageBar';
 import type { TeamProposal } from '@/lib/team-matcher/types';
-import { PROPOSAL_TYPE_CONFIG } from '@/lib/team-matcher/types';
 
 interface TeamProposalCardProps {
   proposal: TeamProposal;
@@ -13,12 +13,26 @@ interface TeamProposalCardProps {
   onSelect: (proposalId: string) => void;
 }
 
+const PROPOSAL_TYPE_ICONS: Record<TeamProposal['proposal_type'], { icon: string; color: string }> = {
+  fast_validation: { icon: 'ri-rocket-2-line', color: '#10B981' },
+  tech_depth: { icon: 'ri-code-box-line', color: '#6366F1' },
+  cross_innovation: { icon: 'ri-lightbulb-flash-line', color: '#F59E0B' },
+};
+
+const PROPOSAL_TYPE_KEYS: Record<TeamProposal['proposal_type'], string> = {
+  fast_validation: 'fastValidation',
+  tech_depth: 'techDepth',
+  cross_innovation: 'crossInnovation',
+};
+
 /**
  * A proposal card showing team composition, scores, and unexpected combinations.
  */
 export function TeamProposalCard({ proposal, index, onSelect }: TeamProposalCardProps) {
   const [expanded, setExpanded] = useState(false);
-  const config = PROPOSAL_TYPE_CONFIG[proposal.proposal_type];
+  const t = useTranslations('TeamMatcher.proposal');
+  const typeKey = PROPOSAL_TYPE_KEYS[proposal.proposal_type];
+  const { icon, color } = PROPOSAL_TYPE_ICONS[proposal.proposal_type];
 
   return (
     <div
@@ -26,9 +40,9 @@ export function TeamProposalCard({ proposal, index, onSelect }: TeamProposalCard
       style={{ animationDelay: `${index * 150}ms` }}
     >
       {/* Type badge */}
-      <div className={styles.typeBadge} style={{ color: config.color }}>
-        <i className={config.icon} />
-        <span>{config.label}</span>
+      <div className={styles.typeBadge} style={{ color }}>
+        <i className={icon} />
+        <span>{t(typeKey)}</span>
       </div>
 
       {/* Header */}
@@ -61,7 +75,7 @@ export function TeamProposalCard({ proposal, index, onSelect }: TeamProposalCard
           })}
         </div>
         <span className={styles.memberCount}>
-          {proposal.team_members.length} 人团队
+          {t('memberCount', { count: proposal.team_members.length })}
         </span>
       </div>
 
@@ -77,7 +91,7 @@ export function TeamProposalCard({ proposal, index, onSelect }: TeamProposalCard
         <div className={styles.unexpectedSection}>
           <div className={styles.unexpectedHeader}>
             <i className="ri-sparkling-2-line" />
-            <span>意外组合</span>
+            <span>{t('unexpectedCombinations')}</span>
           </div>
           {proposal.unexpected_combinations.map((combo, i) => (
             <p key={i} className={styles.unexpectedText}>
@@ -90,7 +104,7 @@ export function TeamProposalCard({ proposal, index, onSelect }: TeamProposalCard
       {/* Expandable detail */}
       {expanded && (
         <div className={styles.membersDetail}>
-          <h4 className={styles.membersTitle}>团队成员</h4>
+          <h4 className={styles.membersTitle}>{t('teamMembers')}</h4>
           <div className={styles.membersGrid}>
             {proposal.team_members.map((member, i) => (
               <MemberCard key={member.agent_id} member={member} index={i} />
@@ -106,14 +120,14 @@ export function TeamProposalCard({ proposal, index, onSelect }: TeamProposalCard
           onClick={() => setExpanded(!expanded)}
         >
           <i className={expanded ? 'ri-arrow-up-s-line' : 'ri-arrow-down-s-line'} />
-          {expanded ? '收起' : '了解更多'}
+          {expanded ? t('collapse') : t('learnMore')}
         </button>
         <button
           className={styles.selectBtn}
           onClick={() => onSelect(proposal.proposal_id)}
         >
           <i className="ri-check-line" />
-          选择这个团队
+          {t('selectTeam')}
         </button>
       </div>
     </div>
