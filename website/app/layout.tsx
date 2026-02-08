@@ -1,6 +1,6 @@
-import type { Metadata, Viewport } from "next";
+import type { Viewport } from "next";
 import { NextIntlClientProvider } from 'next-intl';
-import { getLocale, getMessages } from 'next-intl/server';
+import { getLocale, getMessages, getTranslations } from 'next-intl/server';
 import { NoiseTexture } from '@/components/layout/NoiseTexture';
 import { ScrollGradientBackground } from '@/components/ui/ScrollGradientBackground';
 import "./globals.css";
@@ -11,10 +11,13 @@ export const viewport: Viewport = {
   maximumScale: 1,
 };
 
-export const metadata: Metadata = {
-  title: "ToWow - Geometric Garden",
-  description: "为 Agent 重新设计的互联网",
-};
+export async function generateMetadata() {
+  const t = await getTranslations('Metadata');
+  return {
+    title: t('siteTitle'),
+    description: t('siteDesc'),
+  };
+}
 
 export default async function RootLayout({
   children,

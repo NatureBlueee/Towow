@@ -4,10 +4,13 @@ import { getTranslations, getLocale } from 'next-intl/server';
 import { getContributeData } from '../../lib/contribute-data';
 import styles from './contribute.module.css';
 
-export const metadata = {
-  title: '共建任务 - ToWow 通爻',
-  description: '通爻网络的共建任务看板。找到你感兴趣的任务，用你的方式参与建设。',
-};
+export async function generateMetadata() {
+  const t = await getTranslations('Contribute');
+  return {
+    title: t('metaTitle'),
+    description: t('metaDesc'),
+  };
+}
 
 export default async function ContributePage() {
   const t = await getTranslations('Contribute');

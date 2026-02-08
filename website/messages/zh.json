@@ -79,6 +79,8 @@
     "linkDesignLog001": "Design Log #001: 投影与自"
   },
   "Contribute": {
+    "metaTitle": "共建任务 - ToWow 通爻",
+    "metaDesc": "通爻网络的共建任务看板。找到你感兴趣的任务，用你的方式参与建设。",
     "pageTitle": "共建任务",
     "subtitle": "通爻网络的开放任务看板。当前 {totalTasks} 个任务，其中 {tier1Count} 个优先。找到你感兴趣的方向，点击查看详细 PRD，用你的方式参与建设。",
     "track": "主线",

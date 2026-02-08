@@ -79,6 +79,8 @@
     "linkDesignLog001": "Design Log #001: Projection and Self"
   },
   "Contribute": {
+    "metaTitle": "Contribution Tasks - ToWow",
+    "metaDesc": "ToWow's open task board. Find a task that interests you and contribute in your own way.",
     "pageTitle": "Contribution Tasks",
     "subtitle": "ToWow's open task board. Currently {totalTasks} tasks, {tier1Count} prioritized. Find the direction that interests you, click to see detailed PRDs, and contribute in your own way.",
     "track": "Track",
