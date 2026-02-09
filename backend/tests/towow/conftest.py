@@ -28,6 +28,7 @@ from towow.core.models import (
 )
 from towow.core.events import EventType, NegotiationEvent
 from towow.core.protocols import Vector
+from towow.skills.center import CenterCoordinatorSkill
 
 
 # ============ Sample Data ============
@@ -259,6 +260,11 @@ def mock_llm() -> MockPlatformLLMClient:
 @pytest.fixture
 def mock_pusher() -> MockEventPusher:
     return MockEventPusher()
+
+
+@pytest.fixture
+def center_skill() -> CenterCoordinatorSkill:
+    return CenterCoordinatorSkill()
 
 
 @pytest.fixture

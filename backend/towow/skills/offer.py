@@ -94,14 +94,16 @@ class OfferGenerationSkill(BaseSkill):
         return system, messages
 
     def _validate_output(self, raw_output: str, context: dict[str, Any]) -> dict[str, Any]:
+        # Strip markdown code fences (real LLMs wrap JSON in ```json blocks)
+        cleaned = self._strip_code_fence(raw_output)
         try:
-            parsed = json.loads(raw_output)
+            parsed = json.loads(cleaned)
             content = parsed.get("content", "")
             capabilities = parsed.get("capabilities", [])
             confidence = parsed.get("confidence", 0.0)
         except (json.JSONDecodeError, TypeError):
             # Lenient: treat entire output as content
-            content = raw_output.strip()
+            content = cleaned.strip()
             capabilities = []
             confidence = 0.5
 

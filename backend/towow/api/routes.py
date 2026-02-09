@@ -276,13 +276,20 @@ async def _run_negotiation(
             if identity:
                 agent_display_names[agent_id] = identity.display_name
 
+        center_skill = state.skills.get("center")
+        if center_skill is None:
+            raise RuntimeError(
+                "Center skill not initialized — cannot run negotiation "
+                "(Section 0.1: Center is a required component of the negotiation unit)"
+            )
+
         await engine.start_negotiation(
             session=session,
             adapter=adapter,
             llm_client=llm_client,
+            center_skill=center_skill,
             formulation_skill=state.skills.get("formulation"),
             offer_skill=state.skills.get("offer"),
-            center_skill=state.skills.get("center"),
             agent_vectors=agent_vectors or None,
             k_star=scene.expected_responders,
             agent_display_names=agent_display_names,

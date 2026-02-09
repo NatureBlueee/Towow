@@ -148,9 +148,9 @@ class NegotiationEngine:
         session: NegotiationSession,
         adapter: ProfileDataSource,
         llm_client: PlatformLLMClient,
+        center_skill: Skill,
         formulation_skill: Optional[Skill] = None,
         offer_skill: Optional[Skill] = None,
-        center_skill: Optional[Skill] = None,
         agent_vectors: Optional[dict[str, Vector]] = None,
         k_star: int = 5,
         agent_display_names: Optional[dict[str, str]] = None,
@@ -160,6 +160,9 @@ class NegotiationEngine:
 
         This is the top-level entry point. It runs the full pipeline:
         formulation -> encoding -> offering -> barrier -> synthesis -> plan.
+
+        center_skill is required — Center is a necessary component of the
+        negotiation unit (Section 0.1: minimum complete unit, not MVP).
         """
         if session.trace is None:
             session.trace = TraceChain(negotiation_id=session.negotiation_id)
@@ -285,7 +288,7 @@ class NegotiationEngine:
                 agents=[
                     {
                         "agent_id": aid,
-                        "display_name": aid,
+                        "display_name": self._agent_display_names.get(aid, aid),
                         "resonance_score": score,
                     }
                     for aid, score in results
@@ -422,12 +425,16 @@ class NegotiationEngine:
         session: NegotiationSession,
         adapter: ProfileDataSource,
         llm_client: PlatformLLMClient,
-        center_skill: Optional[Skill],
+        center_skill: Skill,
     ) -> None:
         """
         Run the Center synthesis loop.
 
-        The Center receives all offers and the demand, then makes tool calls:
+        Center Skill is required — it provides the prompt, tool schema,
+        and observation masking that are essential for quality synthesis.
+        Engine only orchestrates; Skill provides intelligence (Section 0.5).
+
+        The Center makes tool calls:
         - output_plan: ends the negotiation
         - ask_agent: asks an agent a follow-up question, result feeds back
         - start_discovery: runs a sub-negotiation skill
@@ -452,13 +459,7 @@ class NegotiationEngine:
                 "llm_client": llm_client,
             }
 
-            if center_skill:
-                result = await center_skill.execute(context)
-            else:
-                # No center skill — call LLM directly
-                result = await self._call_center_llm(
-                    session, llm_client, history
-                )
+            result = await center_skill.execute(context)
 
             tool_calls = result.get("tool_calls")
 
@@ -539,7 +540,6 @@ class NegotiationEngine:
 
             # After processing tools: if tools_restricted, force output_plan next round
             if session.tools_restricted:
-                # Force a final call — still through center_skill for consistent prompting
                 forced_context = {
                     "demand": session.demand,
                     "offers": session.collected_offers,
@@ -550,12 +550,7 @@ class NegotiationEngine:
                     "tools_restricted": True,
                     "llm_client": llm_client,
                 }
-                if center_skill:
-                    result = await center_skill.execute(forced_context)
-                else:
-                    result = await self._call_center_llm(
-                        session, llm_client, history, force_plan=True
-                    )
+                result = await center_skill.execute(forced_context)
 
                 plan_calls = result.get("tool_calls", [])
                 plan_text = "Plan could not be generated (round limit reached)."
@@ -573,45 +568,6 @@ class NegotiationEngine:
             # Loop back: Center will be called again with updated history
             # Transition SYNTHESIZING -> SYNTHESIZING (self-loop)
             self._transition(session, NegotiationState.SYNTHESIZING)
-
-    async def _call_center_llm(
-        self,
-        session: NegotiationSession,
-        llm_client: PlatformLLMClient,
-        history: list[dict[str, Any]],
-        force_plan: bool = False,
-    ) -> dict[str, Any]:
-        """Call the platform LLM for Center synthesis."""
-        # Build messages
-        offers_text = "\n".join(
-            f"- {o.agent_id}: {o.content}" for o in session.collected_offers
-        )
-        demand_text = session.demand.formulated_text or session.demand.raw_intent
-
-        messages: list[dict[str, Any]] = [
-            {
-                "role": "user",
-                "content": (
-                    f"Demand: {demand_text}\n\n"
-                    f"Offers:\n{offers_text}\n\n"
-                    f"History: {history}\n\n"
-                    f"Round: {session.center_rounds}"
-                ),
-            },
-        ]
-
-        # Build tools list — reuse canonical schemas from center skill
-        from towow.skills.center import ALL_TOOLS, RESTRICTED_TOOLS
-        if force_plan or session.tools_restricted:
-            tools = RESTRICTED_TOOLS
-        else:
-            tools = ALL_TOOLS
-
-        return await llm_client.chat(
-            messages=messages,
-            system_prompt="You are the Center coordinator.",
-            tools=tools,
-        )
 
     async def _handle_ask_agent(
         self,

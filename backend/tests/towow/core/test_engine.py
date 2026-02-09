@@ -43,6 +43,7 @@ from tests.towow.conftest import (
     MockResonanceDetector,
     SAMPLE_AGENTS,
 )
+from towow.skills.center import CenterCoordinatorSkill
 
 
 # ============ Fixtures ============
@@ -73,6 +74,11 @@ def adapter() -> MockProfileDataSource:
 @pytest.fixture
 def llm() -> MockPlatformLLMClient:
     return MockPlatformLLMClient()
+
+
+@pytest.fixture
+def center_skill() -> CenterCoordinatorSkill:
+    return CenterCoordinatorSkill()
 
 
 @pytest.fixture
@@ -129,6 +135,7 @@ class TestHappyPath:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Complete negotiation: formulation -> encoding -> offers -> synthesis -> plan."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -150,6 +157,7 @@ class TestHappyPath:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -170,6 +178,7 @@ class TestHappyPath:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Verify all expected events are pushed in correct order."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -190,6 +199,7 @@ class TestHappyPath:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -333,6 +343,7 @@ class TestParallelOffers:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """All agents should successfully generate offers."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -353,6 +364,7 @@ class TestParallelOffers:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -369,6 +381,7 @@ class TestParallelOffers:
         resonance: MockResonanceDetector,
         pusher: MockEventPusher,
         llm: MockPlatformLLMClient,
+        center_skill: CenterCoordinatorSkill,
     ):
         """An agent that times out should be marked EXITED, not block others."""
         # Use a very short timeout
@@ -417,6 +430,7 @@ class TestParallelOffers:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -443,6 +457,7 @@ class TestParallelOffers:
         resonance: MockResonanceDetector,
         pusher: MockEventPusher,
         llm: MockPlatformLLMClient,
+        center_skill: CenterCoordinatorSkill,
     ):
         """An agent that errors should be marked EXITED."""
         engine = NegotiationEngine(
@@ -488,6 +503,7 @@ class TestParallelOffers:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -515,6 +531,7 @@ class TestBarrier:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Barrier complete event should fire after all agents resolved."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -535,6 +552,7 @@ class TestBarrier:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -553,6 +571,7 @@ class TestBarrier:
         adapter: MockProfileDataSource,
         llm: MockPlatformLLMClient,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """With no agent vectors, barrier should still complete gracefully."""
         nid = generate_id("neg")
@@ -578,6 +597,7 @@ class TestBarrier:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=None,
             k_star=3,
         )
@@ -601,6 +621,7 @@ class TestCenterMultiRound:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Center asks an agent first, then outputs plan on second round."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -638,6 +659,7 @@ class TestCenterMultiRound:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -661,6 +683,7 @@ class TestCenterMultiRound:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Center starts discovery, then outputs plan."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -695,6 +718,7 @@ class TestCenterMultiRound:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -711,6 +735,7 @@ class TestCenterMultiRound:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Center creates a sub-demand, then outputs plan."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -745,6 +770,7 @@ class TestCenterMultiRound:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -765,6 +791,7 @@ class TestCenterMultiRound:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """If Center returns text without tool calls, use as plan."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -779,6 +806,7 @@ class TestCenterMultiRound:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -801,6 +829,7 @@ class TestRoundLimit:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """After max_center_rounds, tools should be restricted to output_plan."""
         nid = generate_id("neg")
@@ -855,6 +884,7 @@ class TestRoundLimit:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -894,6 +924,7 @@ class TestEventCompleteness:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Events should follow the negotiation flow order."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -914,6 +945,7 @@ class TestEventCompleteness:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -940,6 +972,7 @@ class TestEventCompleteness:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Every event should carry the correct negotiation_id."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -960,6 +993,7 @@ class TestEventCompleteness:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -983,6 +1017,7 @@ class TestTraceChain:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Trace should have entries for formulation, encoding, offers, synthesis."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -1003,6 +1038,7 @@ class TestTraceChain:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -1024,6 +1060,7 @@ class TestTraceChain:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Each trace entry should have a duration_ms."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -1044,6 +1081,7 @@ class TestTraceChain:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -1061,6 +1099,7 @@ class TestTraceChain:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Trace completed_at should be set when negotiation completes."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -1081,6 +1120,7 @@ class TestTraceChain:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -1096,6 +1136,7 @@ class TestTraceChain:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Trace should serialize to dict properly."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -1116,6 +1157,7 @@ class TestTraceChain:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -1139,6 +1181,7 @@ class TestAgentExits:
         resonance: MockResonanceDetector,
         pusher: MockEventPusher,
         llm: MockPlatformLLMClient,
+        center_skill: CenterCoordinatorSkill,
     ):
         """If all agents exit, negotiation should still reach COMPLETED."""
         engine = NegotiationEngine(
@@ -1183,6 +1226,7 @@ class TestAgentExits:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -1202,6 +1246,7 @@ class TestAgentExits:
         resonance: MockResonanceDetector,
         pusher: MockEventPusher,
         llm: MockPlatformLLMClient,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Mix of replies and exits should all be tracked correctly."""
         engine = NegotiationEngine(
@@ -1248,6 +1293,7 @@ class TestAgentExits:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -1278,6 +1324,7 @@ class TestEdgeCases:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Without formulation skill, raw intent should be used directly."""
         agent_vectors = await _build_agent_vectors(encoder)
@@ -1298,6 +1345,7 @@ class TestEdgeCases:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             formulation_skill=None,
             agent_vectors=agent_vectors,
             k_star=3,
@@ -1313,6 +1361,7 @@ class TestEdgeCases:
         llm: MockPlatformLLMClient,
         encoder: MockEncoder,
         pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
     ):
         """Engine should create trace if session doesn't have one."""
         session = NegotiationSession(
@@ -1337,6 +1386,7 @@ class TestEdgeCases:
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
         )
 
         assert result.trace is not None

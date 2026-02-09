@@ -7,6 +7,7 @@ The protocol layer (engine) provides determinism via code control.
 
 from __future__ import annotations
 
+import re
 from abc import ABC, abstractmethod
 from typing import Any
 
@@ -33,6 +34,19 @@ class BaseSkill(ABC):
     def _build_prompt(self, context: dict[str, Any]) -> tuple[str, list[dict[str, str]]]:
         """Build system prompt and messages for LLM call."""
         ...
+
+    @staticmethod
+    def _strip_code_fence(text: str) -> str:
+        """Strip markdown code fences (```json ... ```) from LLM output.
+
+        Real LLMs frequently wrap JSON in code fences even when prompted not to.
+        Code guarantee > prompt guarantee (Section 0.5).
+        """
+        stripped = text.strip()
+        match = re.match(r"^```(?:json)?\s*\n?(.*?)\n?\s*```$", stripped, re.DOTALL)
+        if match:
+            return match.group(1).strip()
+        return stripped
 
     def _validate_output(self, raw_output: str, context: dict[str, Any]) -> dict[str, Any]:
         """

@@ -88,14 +88,15 @@ class DemandFormulationSkill(BaseSkill):
         return system, messages
 
     def _validate_output(self, raw_output: str, context: dict[str, Any]) -> dict[str, Any]:
-        # Try JSON parsing first, fall back to text extraction
+        # Strip markdown code fences (real LLMs wrap JSON in ```json blocks)
+        cleaned = self._strip_code_fence(raw_output)
         try:
-            parsed = json.loads(raw_output)
+            parsed = json.loads(cleaned)
             formulated = parsed.get("formulated_text", "")
             enrichments = parsed.get("enrichments", {})
         except (json.JSONDecodeError, TypeError):
             # Lenient: treat entire output as the formulated text
-            formulated = raw_output.strip()
+            formulated = cleaned.strip()
             enrichments = {}
 
         if not formulated:

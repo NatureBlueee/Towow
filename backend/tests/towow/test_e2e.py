@@ -25,6 +25,8 @@ from towow.core.models import (
 )
 from towow.hdc.resonance import CosineResonanceDetector
 
+from towow.skills.center import CenterCoordinatorSkill
+
 from .conftest import (
     MockEncoder,
     MockEventPusher,
@@ -159,12 +161,14 @@ class TestHappyPathFullNegotiation:
         engine = _build_engine(encoder, resonance, pusher)
         session = _make_session()
         agent_vectors = await _make_agent_vectors(encoder, count=5)
+        center_skill = CenterCoordinatorSkill()
 
         # Execute
         result = await engine.start_negotiation(
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=5,
         )
@@ -262,12 +266,14 @@ class TestCenterMultiRound:
         engine = _build_engine(encoder, resonance, pusher)
         session = _make_session(max_center_rounds=5)  # Allow more rounds
         agent_vectors = await _make_agent_vectors(encoder, count=3)
+        center_skill = CenterCoordinatorSkill()
 
         # Execute
         result = await engine.start_negotiation(
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -314,12 +320,14 @@ class TestNoAgentsStillCompletes:
 
         engine = _build_engine(encoder, resonance, pusher)
         session = _make_session()
+        center_skill = CenterCoordinatorSkill()
 
         # Execute with empty agent_vectors
         result = await engine.start_negotiation(
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors={},
             k_star=5,
         )
@@ -382,12 +390,14 @@ class TestAgentTimeoutGraceful:
         engine = _build_engine(encoder, resonance, pusher, offer_timeout_s=2.0)
         session = _make_session()
         agent_vectors = await _make_agent_vectors(encoder, count=5)
+        center_skill = CenterCoordinatorSkill()
 
         # Execute
         result = await engine.start_negotiation(
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=5,
         )
@@ -449,12 +459,14 @@ class TestTraceChainComplete:
         engine = _build_engine(encoder, resonance, pusher)
         session = _make_session()
         agent_vectors = await _make_agent_vectors(encoder, count=3)
+        center_skill = CenterCoordinatorSkill()
 
         # Execute
         result = await engine.start_negotiation(
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
         )
@@ -507,11 +519,13 @@ class TestTraceChainComplete:
         engine = _build_engine(encoder, resonance, pusher)
         session = _make_session(max_center_rounds=5)
         agent_vectors = await _make_agent_vectors(encoder, count=2)
+        center_skill = CenterCoordinatorSkill()
 
         result = await engine.start_negotiation(
             session=session,
             adapter=adapter,
             llm_client=llm,
+            center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=2,
         )
