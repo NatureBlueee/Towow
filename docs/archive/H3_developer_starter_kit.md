@@ -1,7 +1,13 @@
-# H3 -- 开发者入门套件
+# H3 -- 开发者入门套件（已归档）
 
+> **归档日期：2026-02-09**
+> **归档原因**：H3 的全部交付物已由 SDK 开发者指南（`backend/docs/SDK_GUIDE.md`）替代。
+> SDK_GUIDE.md 包含：知识地图 → 快速开始 → Protocol 速查 → Skill 体系详解 → 应用设计指南 → 场景适配建议 → 文件导航。
+> 此外，`backend/examples/` 提供了 3 个可运行示例（minimal_negotiation / custom_skill / headless_mode），
+> `pip install` 提供一行安装。H3 定义的 5 个子任务已被 SDK 封装全面覆盖。
+>
 > 任务编号：H3
-> 状态：PRD 已完成
+> 状态：**已完成（由 SDK_GUIDE.md 替代）**
 > 创建日期：2026-02-07
 > 层级：Tier 1
 > 耦合度：中（需要理解通爻核心 + 现有代码库）

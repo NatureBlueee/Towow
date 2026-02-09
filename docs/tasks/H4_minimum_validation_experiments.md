@@ -1,9 +1,11 @@
 # H4 — 最小验证实验设计
 
-> 创建日期：2026-02-07
+> 创建日期：2026-02-07（2026-02-09 更新引用）
 > 状态：PRD 已细化
 > 优先级：Tier 1（阻塞核心假设验证）
 > 关联任务：A1（HDC 编码策略验证）、E3（端到端验证）、H2（Prompt 工程研究）
+>
+> **2026-02-09 更新**：V1 引擎已完整运行（190 测试通过 + 真实 LLM 联调通过），SDK 已封装。Q3（多 Agent 协商 vs 单 LLM）现在可以直接用 SDK 的 headless 模式跑实验——`EngineBuilder` + `NullEventPusher` 即可在无 Web 环境下运行完整协商。参见 `backend/examples/headless_mode.py` 和 `backend/docs/SDK_GUIDE.md`。
 
 ---
 
@@ -121,8 +123,11 @@
 | 资源 | 位置 | 用途 |
 |------|------|------|
 | Team Matcher 原型 | `website/` | 前端 + 后端可参考 |
-| 演示场景数据 | `backend/demo_scenario.json` | "找技术合伙人"场景，7 个 Agent 的完整 Profile |
-| 后端协商引擎 | `backend/team_composition_engine.py` | 现有协商逻辑可作为 baseline |
+| 演示场景数据 | `backend/towow/api/app.py`（lifespan 中的 seed 数据） | 5 个 Agent 的 Profile 结构 |
+| **V1 协商引擎** | `backend/towow/core/engine.py` | **推荐基线**——完整的 8 状态机协商引擎，190 测试通过 |
+| **SDK EngineBuilder** | `backend/towow/builder.py` | headless 模式实验的入口 |
+| SDK headless 示例 | `backend/examples/headless_mode.py` | Q3 实验可直接基于此改造 |
+| 后端团队组合引擎（旧） | `backend/team_composition_engine.py` | Team Matcher demo 的组合逻辑 |
 
 ### 概念翻译提示（用实验者的语言解释通爻术语）
 

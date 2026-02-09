@@ -2,7 +2,9 @@
 
 > Tier 2 | 依赖 A1（HDC 编码策略验证）完成
 > 受众：有前端和数据可视化经验的开发者
-> 创建日期：2026-02-07
+> 创建日期：2026-02-07（2026-02-09 更新引用）
+>
+> **2026-02-09 更新**：V1 已包含 HDC 编码和共振检测的基线实现——`backend/towow/hdc/encoder.py`（MiniLM-L12-v2 + SimHash）和 `backend/towow/hdc/resonance.py`（汉明距离 + k* 阈值）。H5 可直接使用这些实现作为数据来源，无需等待 A1 从零构建编码函数。
 
 ---
 
@@ -85,15 +87,20 @@
 | Design Log #001 | `docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md` | "自-我"与投影——理解为什么向量是"投影"而非"画像" |
 | Design Log #003 | `docs/DESIGN_LOG_003_PROJECTION_AS_FUNCTION.md` | 投影即函数——Agent 是无状态投影的结果 |
 
-### A1 的产出（前置依赖）
+### V1 HDC 实现（可立即使用）
 
-H5 依赖 A1（HDC 编码策略验证）的产出。A1 完成后将提供：
-- 推荐的编码方法（SimHash / MinHash / Random Projection）
-- 可复用的编码函数 Python 实现
-- 实验数据（编码后的超向量 + 对应的原始文本）
-- 编码质量的量化指标
+V1 已包含 HDC 编码和共振检测的完整实现：
 
-H5 的可视化工具将直接使用 A1 产出的编码函数和实验数据作为输入。
+| 资源 | 位置 | 用途 |
+|------|------|------|
+| **HDC Encoder** | `backend/towow/hdc/encoder.py` | MiniLM-L12-v2 + SimHash → 10,000 维二进制超向量 |
+| **Resonance 检测** | `backend/towow/hdc/resonance.py` | 汉明距离计算 + k* 阈值机制 |
+
+H5 可以直接使用 V1 的编码函数生成超向量数据，无需等待 A1 完成。如果 A1 发现了更好的编码方法，H5 可以后续切换（编码器可插拔）。
+
+### A1 的产出（增强依赖）
+
+A1 完成后将提供更好的编码方法对比和推荐方案。H5 可以用 A1 的数据做更丰富的可视化对比（如 SimHash vs MinHash 在降维空间中的差异）。
 
 ### 外部参考
 

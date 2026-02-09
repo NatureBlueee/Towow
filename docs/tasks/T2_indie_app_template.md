@@ -1,10 +1,12 @@
 # T2 — 独立场景小应用模板
 
-> 创建日期：2026-02-07
+> 创建日期：2026-02-07（2026-02-09 更新引用）
 > 任务类型：产品验证 × 任务模板
 > 优先级：模板（按需实例化）
 > PRD 状态：已细化
-> 关联任务：T1（场景建模模板，上游——先理解场景再动手做）、H3（开发者入门套件，前置——先理解通爻再用它做应用）、B1（黑客松组队场景，T2 的第一个可能实例）
+> 关联任务：T1（场景建模模板，上游——先理解场景再动手做）、S1（SDK 组队应用，T2 的第一个实例化范例）、B1（黑客松组队场景，T2 的场景参考）
+>
+> **2026-02-09 更新**：SDK 已封装完成（`towow-sdk`，pip install 可用），T2 模板的实例化现在可以直接基于 SDK 构建，而非从零开始。原 H3（开发者入门套件）已由 `backend/docs/SDK_GUIDE.md` 替代。建议参考 S1（SDK 组队应用）作为 T2 实例化的范例。
 
 ---
 
@@ -30,12 +32,13 @@
 
 有开发能力、想用通爻理念做实际产品的人。可以是黑客松参赛者、独立开发者、或者想做 side project 的工程师。
 
-需要：基本的 Web 开发能力 + 对通爻理念的基本理解（建议先完成 H3 开发者入门套件）。
+需要：基本的 Web 开发能力 + 对通爻理念的基本理解（建议先阅读 SDK 开发者指南）。
 
 ## 前置条件
 
 - 已有一个 T1 场景建模的输出（知道要做什么场景）
-- 已读过 H3 开发者入门套件（知道基本架构和模式）
+- 已读过 SDK 开发者指南（`backend/docs/SDK_GUIDE.md`）——知道 SDK 怎么用、Skill 体系是什么
+- 已安装 SDK：`pip install git+https://github.com/NatureBlueee/Towow.git#subdirectory=backend`
 
 ## 怎么用这个模板
 
@@ -56,9 +59,9 @@
 **交付**：流程图 + 简要设计文档
 
 #### T2.2 — 接入 Profile 数据源
-**做什么**：接入 SecondMe 或等效的 Profile 数据源。实现用户投影——同一个人在你的场景中展现的特定面。
-**约束**：使用 Adapter 模式，不硬绑定特定数据源。
-**交付**：数据源接入代码 + 投影函数
+**做什么**：实现 SDK 的 `ProfileDataSource` Protocol，接入你的场景数据。可以从 JSON 文件、数据库、或 SecondMe API 读取。实现用户投影——同一个人在你的场景中展现的特定面。
+**约束**：实现 `ProfileDataSource` Protocol 接口，不硬绑定特定数据源。
+**交付**：`ProfileDataSource` 实现代码 + 场景画像数据
 
 #### T2.3 — 实现协商过程
 **做什么**：实现多方响应 + 方案生成的过程。不是"一次匹配"，而是"多个响应 → 聚合 → 生成方案"。
@@ -99,9 +102,12 @@
 
 | 资源 | 位置 | 用途 |
 |------|------|------|
+| **SDK 开发者指南** | `backend/docs/SDK_GUIDE.md` | **前置知识**——960 行中文，含设计思想 + Skill 体系 + 快速开始 |
+| **SDK 示例** | `backend/examples/` | 3 个示例：minimal_negotiation / custom_skill / headless_mode |
 | B1（组队场景建模） | `docs/tasks/B1_hackathon_teaming.md` | 场景理解范例 |
-| H3（开发者入门套件） | `docs/tasks/H3_developer_starter_kit.md` | 前置知识——先理解通爻再做应用 |
-| Team Matcher 代码 | `` | 完整的参考实现 |
+| S1（SDK 组队应用） | `docs/tasks/S1_hackathon_app.md` | T2 实例化的完整范例 |
+| Team Matcher 代码 | `website/app/apps/team-matcher/` | 前端参考实现 |
+| V1 API 路由 | `backend/towow/api/routes.py` | SDK 在 Web 层的使用参考 |
 | Dev Skill | `.claude/skills/towow-dev/SKILL.md` | 工程实践指导 |
 | Arch Skill | `.claude/skills/arch/SKILL.md` | 架构原则和世界观 |
 

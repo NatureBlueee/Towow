@@ -1,11 +1,13 @@
 # H2 -- Prompt 工程研究
 
-> 创建日期：2026-02-07
+> 创建日期：2026-02-07（2026-02-09 更新引用）
 > 任务类型：产品质量 × 工程研究
 > 优先级：Tier 1（产品线）
 > PRD 状态：已细化
 > 依赖：无硬依赖，可立即启动
 > 关联任务：H4（最小验证实验，可复用 H2 的评估基准）、A1（HDC 编码，ReflectionSelector 的上游）
+>
+> **2026-02-09 更新**：V1 SDK 已封装完成。6 个 Skill 的代码实现在 `backend/towow/skills/*.py`，可作为 H2 优化的直接基线。SDK 开发者指南（`backend/docs/SDK_GUIDE.md`）的 Skill 体系章节提供了每个 Skill 的设计意图和 Prompt 结构说明。
 
 ---
 
@@ -88,8 +90,9 @@ H2 的工作是：在严守这个边界的前提下，系统性地优化 6 个 S
 
 每个 Skill 的 V1 Prompt 见架构文档 Section 9.4-9.9 的"V1 Prompt 草案"部分。此外：
 
-- **Team Matcher 的 Prompt**（`backend/team_prompts.py`）：已投入使用的团队组合 Prompt，可作为"真实场景下 Prompt 如何运作"的参考。它定义了团队组合顾问角色、三种方案理念（快速验证/技术深度/跨域创新）、结构化 JSON 输出格式。
-- **团队组合引擎**（`backend/team_composition_engine.py`）：展示了"代码保障 + LLM 创造性"的协作模式——算法做评分和组合，LLM 做创意方案生成。
+- **V1 Skill 实现**（`backend/towow/skills/*.py`）：已投入使用的 6 个 Skill 实现——`formulation.py`（需求丰富化）、`offer.py`（Offer 生成）、`center.py`（Center 聚合 + tool calling）、`sub_negotiation.py`（发现性对话）、`gap_recursion.py`（缺口递归）、`reflection.py`（画像投影）。每个 Skill 的 Prompt 都是可定制的实现层，可直接作为 V1→V2 优化的基线。
+- **SDK 开发者指南**（`backend/docs/SDK_GUIDE.md`）："Skill 体系"章节详细讲解了每个 Skill 的设计意图、Prompt 结构和扩展方式。
+- **团队组合引擎**（`backend/team_composition_engine.py`）：Team Matcher demo 的组合逻辑，展示了"代码保障 + LLM 创造性"的协作模式——算法做评分和组合，LLM 做创意方案生成。
 
 ### 演示场景数据
 

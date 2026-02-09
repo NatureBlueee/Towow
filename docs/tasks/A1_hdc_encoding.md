@@ -1,10 +1,12 @@
 # A1 — HDC 编码策略验证
 
-> 创建日期：2026-02-07
+> 创建日期：2026-02-07（2026-02-09 更新引用）
 > 任务类型：协议核心 × 技术验证
 > 优先级：Tier 1（#1）
 > PRD 状态：已细化
 > 关联任务：H4（最小验证实验，下游依赖 A1 的编码函数）、H5（超向量可视化，下游消费 A1 的产出）
+>
+> **2026-02-09 更新**：V1 已包含 HDC 编码的基线实现——`backend/towow/hdc/encoder.py`（MiniLM-L12-v2 + SimHash）可作为 A1 实验的起点和 baseline。A1 的价值仍在——验证编码质量、对比不同方法、找到最优策略。
 
 ---
 
@@ -85,8 +87,16 @@
 - Kleyko et al., "A Survey on Hyperdimensional Computing" (2023)
 - Charikar, "Similarity Estimation Techniques from Rounding Algorithms" (SimHash, 2002)
 
+### 已有代码（V1 基线实现）
+
+| 资源 | 位置 | 用途 |
+|------|------|------|
+| **HDC Encoder** | `backend/towow/hdc/encoder.py` | V1 的 SimHash 编码实现（MiniLM-L12-v2），可直接作为实验基线 |
+| **Resonance 检测** | `backend/towow/hdc/resonance.py` | 汉明距离 + k* 阈值机制的实现 |
+| SDK 开发者指南 | `backend/docs/SDK_GUIDE.md` | HDC 编码在 SDK 中的定位说明 |
+
 ### 已有决策
-- 架构文档已选定 SimHash 作为 V1 默认方案，但需要实验验证
+- 架构文档已选定 SimHash 作为 V1 默认方案，V1 已实现（`towow/hdc/encoder.py`），但编码质量需要实验验证
 
 ## 子任务分解
 

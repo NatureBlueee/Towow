@@ -1,10 +1,12 @@
 # B1 — 黑客松组队场景完整建模
 
-> 创建日期：2026-02-07
+> 创建日期：2026-02-07（2026-02-09 更新引用）
 > 任务类型：场景验证 × 用户研究
 > 优先级：Tier 1（#4）
 > PRD 状态：已细化
-> 关联任务：T2（独立场景小应用模板，下游依赖 B1 的场景建模）、H4（最小验证实验，可能使用 B1 的数据模型）
+> 关联任务：T2（独立场景小应用模板，下游依赖 B1 的场景建模）、H4（最小验证实验，可能使用 B1 的数据模型）、S1（SDK 组队应用，下游依赖 B1 的场景洞察）
+>
+> **2026-02-09 更新**：V1 协商引擎已完成真实 LLM 联调，demo 场景数据（5 个 Agent 的完整协商过程）可作为 B1 建模的真实参考。架构设计 Section 1.4 Scene 设计已完成，明确了"场景是商业入口"的定位。
 
 ---
 
@@ -70,13 +72,19 @@ Team Matcher 是通爻的第一个完整应用场景。但目前开发是"边做
 | 文档 | 重点阅读 | 你能从中获得什么 |
 |------|---------|----------------|
 | `docs/ARCHITECTURE_DESIGN.md` Section 0 | 设计原则 | 理解响应范式的核心假设和取舍 |
+| `docs/ARCHITECTURE_DESIGN.md` Section 1.4 | **Scene 设计** | 场景是商业入口——如何定义和运营一个场景 |
 | `docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md` | 投影与自我 | 理解"手动面具 = 场景投影"——参赛者在黑客松中的自我呈现 |
-| `backend/demo_scenario.json` | 演示场景 | "找技术合伙人"案例，包含认知转变弧线——可作为组队场景建模的参考 |
+| `docs/DESIGN_LOG_005_SCENE_AS_PRODUCT.md` | 场景即产品 | 场景运营的商业思考 |
 
 ### 已有代码/原型
-- `website/app/apps/team-matcher/` — 前端页面
-- `backend/team_composition_engine.py` — 组合引擎
-- `backend/demo_scenario.json` — 演示场景数据（"找技术合伙人"）
+
+| 资源 | 位置 | 参考价值 |
+|------|------|---------|
+| Team Matcher 前端 | `website/app/apps/team-matcher/` | 完整的组队 UI 流程 |
+| V1 协商引擎 | `backend/towow/core/engine.py` | 完整的协商流程实现（190 测试通过） |
+| V1 Demo 数据 | `backend/towow/api/app.py`（lifespan 中的 seed） | 5 个 Agent 的 Profile + 真实 LLM 联调数据 |
+| 团队组合引擎（旧） | `backend/team_composition_engine.py` | Team Matcher demo 的组合逻辑 |
+| SDK 开发者指南 | `backend/docs/SDK_GUIDE.md` | "应用设计指南"章节有 4 种应用模式分析 |
 
 ## 子任务分解
 
