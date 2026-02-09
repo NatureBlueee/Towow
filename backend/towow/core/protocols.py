@@ -185,3 +185,47 @@ class EventPusher(Protocol):
     async def push_many(self, events: list[NegotiationEvent]) -> None:
         """Push multiple events."""
         ...
+
+
+# ============ Center Tool Handler ============
+
+@runtime_checkable
+class CenterToolHandler(Protocol):
+    """
+    Handler for a custom Center tool.
+
+    Developers can register custom tools with the engine. When Center
+    calls a tool by name, the engine dispatches to the registered handler.
+
+    output_plan is always built-in (triggers state transition to COMPLETED)
+    and cannot be overridden.
+    """
+
+    @property
+    def tool_name(self) -> str:
+        """The tool name that Center will use to invoke this handler."""
+        ...
+
+    async def handle(
+        self,
+        session: NegotiationSession,
+        tool_args: dict[str, Any],
+        context: dict[str, Any],
+    ) -> dict[str, Any] | None:
+        """
+        Handle the tool call, return result for Center's history.
+
+        Args:
+            session: The current NegotiationSession.
+            tool_args: Arguments from the Center's tool call.
+            context: Engine-provided dependencies:
+                - adapter: ProfileDataSource
+                - llm_client: PlatformLLMClient
+                - display_names: dict[str, str]
+                - neg_context: dict with skills and config
+                - engine: NegotiationEngine reference (for recursive calls)
+
+        Returns:
+            Dict to store in history, or None to skip history entry.
+        """
+        ...

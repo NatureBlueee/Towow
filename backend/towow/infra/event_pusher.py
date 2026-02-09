@@ -1,8 +1,10 @@
 """
-WebSocketEventPusher — Pushes negotiation events via WebSocket.
+EventPusher implementations — push negotiation events to the product layer.
 
-Wraps the existing WebSocketManager from backend/websocket_manager.py
-to implement the EventPusher Protocol.
+Provides three implementations:
+- WebSocketEventPusher: broadcasts via WebSocket (production)
+- NullEventPusher: silently discards (headless / testing)
+- LoggingEventPusher: logs events (debugging / CI)
 """
 
 from __future__ import annotations
@@ -13,6 +15,40 @@ from typing import Any
 from towow.core.events import NegotiationEvent
 
 logger = logging.getLogger(__name__)
+
+
+class NullEventPusher:
+    """EventPusher that silently discards all events.
+
+    Use for headless mode (notebooks, CI, scripts) where no
+    WebSocket or event transport is needed.
+    """
+
+    async def push(self, event: NegotiationEvent) -> None:
+        pass
+
+    async def push_many(self, events: list[NegotiationEvent]) -> None:
+        pass
+
+
+class LoggingEventPusher:
+    """EventPusher that logs events at INFO level.
+
+    Use for debugging or CI where you want to see events
+    without a WebSocket server.
+    """
+
+    async def push(self, event: NegotiationEvent) -> None:
+        logger.info(
+            "Event [%s] %s: %s",
+            event.negotiation_id,
+            event.event_type.value,
+            {k: str(v)[:100] for k, v in event.data.items()},
+        )
+
+    async def push_many(self, events: list[NegotiationEvent]) -> None:
+        for event in events:
+            await self.push(event)
 
 
 class WebSocketEventPusher:

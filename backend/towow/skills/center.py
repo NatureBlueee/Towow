@@ -179,7 +179,7 @@ class CenterCoordinatorSkill(BaseSkill):
         participants = context.get("participants", [])
 
         system_prompt, messages = self._build_prompt(context)
-        tools = RESTRICTED_TOOLS if tools_restricted else ALL_TOOLS
+        tools = self._get_restricted_tools() if tools_restricted else self._get_tools()
 
         response = await llm_client.chat(
             messages=messages,
@@ -188,6 +188,14 @@ class CenterCoordinatorSkill(BaseSkill):
         )
 
         return self._validate_output(response, context)
+
+    def _get_tools(self) -> list[dict[str, Any]]:
+        """Return the full tool schema list. Override to add custom tools."""
+        return list(ALL_TOOLS)
+
+    def _get_restricted_tools(self) -> list[dict[str, Any]]:
+        """Return the restricted tool schema (after max rounds). Override to customize."""
+        return list(RESTRICTED_TOOLS)
 
     def _build_prompt(self, context: dict[str, Any]) -> tuple[str, list[dict[str, str]]]:
         demand = context["demand"]
@@ -296,10 +304,13 @@ class CenterCoordinatorSkill(BaseSkill):
             raise SkillError("CenterCoordinatorSkill: no tool calls and no content in response")
 
         # Validate each tool call
+        # Build valid names from current tool list (supports custom tools)
+        valid_names = {t["name"] for t in self._get_tools()}
+
         validated = []
         for tc in tool_calls:
             tool_name = tc.get("name")
-            if tool_name not in VALID_TOOL_NAMES:
+            if tool_name not in valid_names:
                 raise SkillError(f"CenterCoordinatorSkill: invalid tool name '{tool_name}'")
 
             arguments = tc.get("arguments", {})

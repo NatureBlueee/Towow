@@ -102,6 +102,24 @@ class NegotiationEngine:
         self._confirmation_events: dict[str, asyncio.Event] = {}
         self._confirmed_texts: dict[str, str | None] = {}
         self._neg_contexts: dict[str, dict[str, Any]] = {}
+        # SDK: custom Center tool handler registry
+        self._tool_handlers: dict[str, Any] = {}
+
+    # ============ SDK: Tool Handler Registry ============
+
+    def register_tool_handler(self, handler: Any) -> None:
+        """Register a custom CenterToolHandler.
+
+        The handler must have ``tool_name`` (str property) and
+        ``handle(session, tool_args, context)`` async method.
+
+        ``output_plan`` cannot be overridden — it triggers state transition.
+        """
+        name = handler.tool_name
+        if name == TOOL_OUTPUT_PLAN:
+            raise ValueError("output_plan is built-in and cannot be overridden.")
+        self._tool_handlers[name] = handler
+        logger.info("Registered custom Center tool handler: %s", name)
 
     # ============ State Transition ============
 
@@ -586,10 +604,30 @@ class NegotiationEngine:
                 )
 
                 if tool_name == TOOL_OUTPUT_PLAN:
+                    # Always built-in: triggers state transition to COMPLETED
                     plan_text = tool_args.get("plan_text", "")
                     await self._finish_with_plan(session, plan_text, t0)
                     return
 
+                # SDK: check custom handler registry first
+                elif tool_name in self._tool_handlers:
+                    handler = self._tool_handlers[tool_name]
+                    handler_ctx = {
+                        "adapter": adapter,
+                        "llm_client": llm_client,
+                        "display_names": self._display_names(session),
+                        "neg_context": self._neg_contexts.get(session.negotiation_id, {}),
+                        "engine": self,
+                    }
+                    result = await handler.handle(session, tool_args, handler_ctx)
+                    if result is not None:
+                        history.append({
+                            "tool": tool_name,
+                            "args": tool_args,
+                            "result": result,
+                        })
+
+                # Built-in tool handlers (fallback when no custom handler registered)
                 elif tool_name == TOOL_ASK_AGENT:
                     agent_reply = await self._handle_ask_agent(
                         session, adapter, tool_args
@@ -619,6 +657,12 @@ class NegotiationEngine:
                         "args": tool_args,
                         "result": sub_result,
                     })
+
+                else:
+                    logger.warning(
+                        "Negotiation %s: unknown Center tool '%s', skipping",
+                        session.negotiation_id, tool_name,
+                    )
 
                 self._trace(
                     session,
