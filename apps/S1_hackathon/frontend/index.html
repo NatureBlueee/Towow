@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>黑客松组队 — 通爻 AToA</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>黑客松组队</h1>
+            <p class="subtitle">发出你的项目想法，让合适的队友来响应你</p>
+            <span class="badge">通爻 AToA 应用</span>
+        </header>
+
+        <!-- 需求提交 -->
+        <section id="demand-section" class="card" style="margin-bottom: 24px;">
+            <h2 class="card-title">描述你的项目想法</h2>
+            <div class="form-group">
+                <label class="form-label">你想做什么？</label>
+                <textarea id="demand-input" class="form-textarea"
+                    placeholder="例如：我想做一个基于AI的智能健康管理应用，需要前端、后端和AI算法方面的队友..."></textarea>
+            </div>
+            <button id="submit-btn" class="btn btn-primary" onclick="submitDemand()">
+                发出组队信号
+            </button>
+        </section>
+
+        <!-- 参赛者列表 -->
+        <section class="card" style="margin-bottom: 24px;">
+            <h2 class="card-title">参赛者（等待响应）</h2>
+            <div id="agent-list" class="agent-grid">
+                <div style="color: var(--text-muted);">加载中...</div>
+            </div>
+        </section>
+
+        <!-- 协商进度 -->
+        <section id="progress-section" class="progress-panel" style="display: none;">
+            <div class="card">
+                <div class="status-bar">
+                    <div id="status-dot" class="status-dot idle"></div>
+                    <span id="status-text">等待中</span>
+                    <div id="spinner" class="loading-spinner" style="display: none; margin-left: auto;"></div>
+                </div>
+                <h2 class="card-title">协商进度</h2>
+                <div id="timeline" class="timeline"></div>
+            </div>
+        </section>
+
+        <!-- 方案输出 -->
+        <section id="plan-section" style="display: none;">
+            <div class="plan-output">
+                <h3>组队方案</h3>
+                <div id="plan-text" class="plan-text"></div>
+            </div>
+        </section>
+
+        <footer class="powered-by">
+            基于 <a href="#">通爻协议</a> 构建 · 响应范式驱动
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

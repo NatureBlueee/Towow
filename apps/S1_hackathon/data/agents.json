@@ -1,0 +1,82 @@
+{
+    "zhang_wei": {
+        "name": "张伟",
+        "role": "后端工程师",
+        "skills": ["Python", "Go", "分布式系统", "Redis", "PostgreSQL"],
+        "bio": "5年后端开发经验，专注高并发系统设计。曾主导多个千万级用户系统的架构。参加过3次黑客松，擅长快速搭建稳定的后端服务。",
+        "experience": "前阿里巴巴高级工程师",
+        "hackathon_history": "2次获奖经历",
+        "availability": "全天候",
+        "interests": ["系统架构", "性能优化", "开源贡献"]
+    },
+    "li_ming": {
+        "name": "李明",
+        "role": "前端工程师",
+        "skills": ["React", "Vue", "TypeScript", "WebGL", "Three.js"],
+        "bio": "全栈前端开发者，热衷于创造流畅的用户体验。擅长数据可视化和3D渲染，让产品既好看又好用。",
+        "experience": "字节跳动前端负责人",
+        "hackathon_history": "首次参加",
+        "availability": "周末可全天",
+        "interests": ["可视化", "交互设计", "创意编程"]
+    },
+    "wang_fang": {
+        "name": "王芳",
+        "role": "设计师",
+        "skills": ["UI设计", "UX研究", "Figma", "用户调研", "设计系统"],
+        "bio": "以用户为中心的设计师，相信好的设计能改变世界。擅长从0到1打造产品体验，有丰富的B端和C端设计经验。",
+        "experience": "独立设计顾问，前腾讯设计师",
+        "hackathon_history": "4次参赛，2次最佳设计奖",
+        "availability": "全天候",
+        "interests": ["设计思维", "无障碍设计", "情感化设计"]
+    },
+    "zhao_li": {
+        "name": "赵丽",
+        "role": "AI工程师",
+        "skills": ["PyTorch", "NLP", "大模型微调", "RAG", "Prompt工程"],
+        "bio": "AI方向研究员，专注大语言模型应用。在NLP和推荐系统领域有深入研究，能快速将AI能力落地为产品功能。",
+        "experience": "某AI独角兽算法工程师",
+        "hackathon_history": "2次参赛，1次最佳技术奖",
+        "availability": "晚上和周末",
+        "interests": ["AGI", "多模态", "AI安全"]
+    },
+    "chen_qiang": {
+        "name": "陈强",
+        "role": "全栈开发者",
+        "skills": ["TypeScript", "Node.js", "PostgreSQL", "Docker", "AWS"],
+        "bio": "连续创业者，擅长快速出活。能独立完成从数据库到前端的全栈开发，对产品落地有丰富经验。",
+        "experience": "3次创业经历，2个项目获得融资",
+        "hackathon_history": "6次参赛，3次获奖",
+        "availability": "全天候",
+        "interests": ["创业", "产品设计", "增长黑客"]
+    },
+    "huang_min": {
+        "name": "黄敏",
+        "role": "产品经理",
+        "skills": ["用户研究", "数据分析", "产品策略", "项目管理", "竞品分析"],
+        "bio": "从用户需求出发思考产品。擅长发现'用户以为需要X，其实需要Y'的洞察，能快速定义MVP和验证路径。",
+        "experience": "前美团高级产品经理",
+        "hackathon_history": "3次参赛，1次最佳产品奖",
+        "availability": "全天候",
+        "interests": ["用户心理", "商业模式", "数据驱动"]
+    },
+    "liu_yang": {
+        "name": "刘洋",
+        "role": "区块链开发者",
+        "skills": ["Solidity", "Web3.js", "智能合约", "DeFi", "IPFS"],
+        "bio": "Web3原住民，相信去中心化的力量。对链上协议设计有独到见解，擅长将区块链技术融入实际应用场景。",
+        "experience": "多个DeFi协议核心开发者",
+        "hackathon_history": "5次参赛，2次获奖",
+        "availability": "晚上",
+        "interests": ["DAO", "去中心化身份", "链上治理"]
+    },
+    "zhou_ting": {
+        "name": "周婷",
+        "role": "DevOps工程师",
+        "skills": ["Kubernetes", "CI/CD", "监控系统", "云原生", "安全运维"],
+        "bio": "保证系统稳定运行的幕后英雄。擅长搭建自动化部署流水线，让团队专注于开发而不用操心基础设施。",
+        "experience": "前华为云架构师",
+        "hackathon_history": "2次参赛",
+        "availability": "周末可全天",
+        "interests": ["SRE", "混沌工程", "可观测性"]
+    }
+}

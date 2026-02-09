@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 招聘 — 通爻 AToA</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div class="app-container">
+        <header class="header">
+            <h1>AI 招聘</h1>
+            <p class="subtitle">发出岗位需求，让合适的候选人来响应你</p>
+            <span class="badge">通爻 AToA 应用</span>
+        </header>
+
+        <!-- 需求提交 -->
+        <section id="demand-section" class="card" style="margin-bottom: 24px;">
+            <h2 class="card-title">描述你的招聘需求</h2>
+            <div class="form-group">
+                <label class="form-label">你在招什么人？</label>
+                <textarea id="demand-input" class="form-textarea"
+                    placeholder="例如：需要一位高级后端工程师，有分布式系统经验，能独立负责系统架构..."></textarea>
+            </div>
+            <button id="submit-btn" class="btn btn-primary" onclick="submitDemand()">
+                发出招聘信号
+            </button>
+        </section>
+
+        <!-- 候选人列表 -->
+        <section class="card" style="margin-bottom: 24px;">
+            <h2 class="card-title">候选人（等待响应）</h2>
+            <div id="agent-list" class="agent-grid">
+                <div style="color: var(--text-muted);">加载中...</div>
+            </div>
+        </section>
+
+        <!-- 协商进度 -->
+        <section id="progress-section" class="progress-panel" style="display: none;">
+            <div class="card">
+                <div class="status-bar">
+                    <div id="status-dot" class="status-dot idle"></div>
+                    <span id="status-text">等待中</span>
+                    <div id="spinner" class="loading-spinner" style="display: none; margin-left: auto;"></div>
+                </div>
+                <h2 class="card-title">协商进度</h2>
+                <div id="timeline" class="timeline"></div>
+            </div>
+        </section>
+
+        <!-- 方案输出 -->
+        <section id="plan-section" style="display: none;">
+            <div class="plan-output">
+                <h3>人才推荐方案</h3>
+                <div id="plan-text" class="plan-text"></div>
+            </div>
+        </section>
+
+        <footer class="powered-by">
+            基于 <a href="#">通爻协议</a> 构建 · 响应范式驱动
+        </footer>
+    </div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+{
+    "zhang_cto": {
+        "name": "张明远",
+        "role": "CTO / 技术合伙人",
+        "skills": ["技术架构", "团队管理", "系统设计", "Go", "分布式系统"],
+        "bio": "15年技术管理经验，带过200人技术团队。从0到1做过3个千万级产品。擅长技术战略规划和团队文化建设。",
+        "experience_years": 15,
+        "current_status": "开放机会",
+        "expected_salary": "80-120万/年",
+        "location": "北京/远程",
+        "highlights": ["前字节技术VP", "2个技术专利", "开源项目3000+ star"]
+    },
+    "li_arch": {
+        "name": "李建国",
+        "role": "架构师",
+        "skills": ["微服务", "云原生", "Kubernetes", "系统设计", "性能优化"],
+        "bio": "专注分布式系统架构10年。设计过日活千万的系统，对高可用、高并发有深刻理解。追求优雅的架构设计。",
+        "experience_years": 10,
+        "current_status": "考虑好机会",
+        "expected_salary": "60-90万/年",
+        "location": "上海",
+        "highlights": ["阿里云认证架构师", "多次技术大会演讲者"]
+    },
+    "wang_pm": {
+        "name": "王思琪",
+        "role": "高级产品经理",
+        "skills": ["AI产品", "B端产品", "数据驱动", "用户增长", "商业化"],
+        "bio": "深耕AI产品方向5年。从0到1做过AI写作工具、智能客服平台。善于将AI能力转化为用户价值。",
+        "experience_years": 7,
+        "current_status": "主动看机会",
+        "expected_salary": "50-70万/年",
+        "location": "深圳/远程",
+        "highlights": ["前百度AI产品负责人", "管理过10人产品团队"]
+    },
+    "zhao_fe": {
+        "name": "赵一鹏",
+        "role": "前端负责人",
+        "skills": ["React", "TypeScript", "性能优化", "微前端", "Node.js"],
+        "bio": "8年前端开发经验，带过10人前端团队。对用户体验有极致追求，性能优化让页面加载提速60%。",
+        "experience_years": 8,
+        "current_status": "开放机会",
+        "expected_salary": "50-70万/年",
+        "location": "杭州/远程",
+        "highlights": ["前蚂蚁前端核心成员", "多个开源UI库贡献者"]
+    },
+    "chen_data": {
+        "name": "陈晓蕾",
+        "role": "数据科学家",
+        "skills": ["推荐系统", "NLP", "Python", "Spark", "特征工程"],
+        "bio": "擅长用数据讲故事。在推荐系统和NLP领域有深入研究，能将复杂的数据分析转化为业务洞察。",
+        "experience_years": 6,
+        "current_status": "开放机会",
+        "expected_salary": "50-80万/年",
+        "location": "北京",
+        "highlights": ["KDD竞赛Top 10", "3篇顶会论文"]
+    },
+    "huang_ops": {
+        "name": "黄志强",
+        "role": "增长运营专家",
+        "skills": ["用户增长", "内容运营", "社群运营", "数据分析", "SaaS运营"],
+        "bio": "帮助多个SaaS产品从0做到10万用户。擅长构建增长飞轮，用数据驱动每一个运营决策。",
+        "experience_years": 5,
+        "current_status": "主动看机会",
+        "expected_salary": "40-60万/年",
+        "location": "广州/远程",
+        "highlights": ["操盘过DAU 50万的产品", "公众号矩阵100万粉丝"]
+    },
+    "liu_sec": {
+        "name": "刘安然",
+        "role": "信息安全专家",
+        "skills": ["渗透测试", "安全审计", "合规", "漏洞挖掘", "安全架构"],
+        "bio": "白帽黑客，CISSP认证。在多家互联网公司负责安全体系建设，发现过多个CVE漏洞。",
+        "experience_years": 8,
+        "current_status": "考虑好机会",
+        "expected_salary": "60-90万/年",
+        "location": "北京/远程",
+        "highlights": ["CISSP/OSCP双认证", "SRC排名前20"]
+    },
+    "zhou_ai": {
+        "name": "周明辉",
+        "role": "AI研究员",
+        "skills": ["大模型微调", "RLHF", "多模态", "模型压缩", "推理优化"],
+        "bio": "专注大语言模型应用研究。在模型微调和推理优化方面有丰富经验，让AI真正落地产生商业价值。",
+        "experience_years": 4,
+        "current_status": "开放机会",
+        "expected_salary": "60-100万/年",
+        "location": "北京",
+        "highlights": ["前OpenAI实习", "顶会论文5篇", "开源模型10K+ star"]
+    }
+}

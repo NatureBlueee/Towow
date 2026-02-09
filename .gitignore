@@ -40,6 +40,10 @@ worktree-*/
 
 # Data directories
 data/
+# Allow AToA app agent data (config, not runtime)
+!apps/*/data/
+apps/*/data/*
+!apps/*/data/agents.json
 
 # Message history
 mods/openagents.mods.workspace.messaging/
