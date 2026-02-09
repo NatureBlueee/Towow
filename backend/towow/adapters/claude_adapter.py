@@ -39,7 +39,7 @@ class ClaudeAdapter(BaseAdapter):
         self._model = model
         self._max_tokens = max_tokens
         # V1: profile data is stored in-memory, passed at construction
-        self._profiles = profiles or {}
+        self._profiles = profiles if profiles is not None else {}
 
     async def get_profile(self, agent_id: str) -> dict[str, Any]:
         """Return stored profile data. V1 returns from in-memory store."""

@@ -109,3 +109,87 @@
 - 启动后端 `uvicorn towow.api.app:app --port 8081` + 前端 `npm run dev`
 - 配置 TOWOW_ANTHROPIC_API_KEY 环境变量
 - 跑一次完整协商流程（需要 API key）
+
+## 2026-02-09: Phase 3.5 — 真实 LLM 联调修复
+
+### 背景
+Phase 3 的自动化测试全部通过（172），但启动真实后端 + Claude API 调用后发现多个问题。
+这些问题的共性：**单元测试 mock 太宽松，不验证真实运行环境中的数据流**。
+
+### 第三轮修复（真实 LLM 联调发现）
+
+#### Bug 9: ClaudeAdapter profiles 引用断链
+- **现象**：所有 agent 的 offer 都说 "I can't help, my profile doesn't have information"
+- **根因**：`claude_adapter.py:42` 使用 `self._profiles = profiles or {}`，空 dict 是 falsy，`{} or {}` 创建新 dict，切断了 `app.state.profiles` 的引用
+- **修复**：改为 `self._profiles = profiles if profiles is not None else {}`
+- **架构合规**：✅ 不违反架构。Adapter 的 `get_profile()` 是 Protocol 约定的接口，内部引用共享是实现细节。
+- **教训**：Python `or` 对空容器的 falsy 行为是常见陷阱。对引用语义的参数，必须用 `is not None` 判断。
+
+#### Bug 10: app.py 创建 Adapter 时未传 profiles
+- **现象**：同 Bug 9 的表面现象
+- **根因**：`app.py:89-92` 创建 ClaudeAdapter 时没有传入 `profiles=app.state.profiles`
+- **修复**：传入 `profiles=app.state.profiles`（引用同一个 dict）
+- **架构合规**：✅ 符合设计——注册 agent 后，adapter 通过共享引用自然获取 profile 数据，无需额外同步。
+
+#### Bug 11: display_name 未传播
+- **现象**：participant 显示 "agent_carol" 而不是 "Carol"
+- **根因**：`engine.py` 创建 `AgentParticipant` 时硬编码 `display_name=agent_id`
+- **修复**：engine.start_negotiation 新增 `agent_display_names` 参数，routes 从 `state.agents` 提取 display_name 映射
+- **架构合规**：✅ engine 不直接依赖 state.agents，通过参数注入，保持 Protocol 层干净。
+
+#### Bug 12: engine._call_center_llm 的 tool schema 格式错误
+- **现象**：Center 第二轮调用报 `tools.0.custom.input_schema: Field required`
+- **根因**：`engine.py:_call_center_llm()` 自己硬编码了 tool 定义，用 `parameters` 而不是正确的 `input_schema` 格式。这与 `center.py` 里正确的 `ALL_TOOLS` 是两套重复定义。
+- **修复**：删除硬编码，直接 `from towow.skills.center import ALL_TOOLS, RESTRICTED_TOOLS`
+- **架构合规**：⚠️ **这是一个架构违反的修复**。engine 之前违反了"本质和实现分离"原则——engine 管编排，skill 管 prompt 和 tool 定义。engine 不应该有自己的 tool schema 副本。修复后恢复了正确的职责分离。
+- **教训**：当 engine 里出现 prompt 文本或 tool schema 定义时，就说明可能在越界。
+
+#### Bug 13: engine 两条 Center 调用路径导致 prompt 质量断层
+- **现象**：Center Round 2（tools_restricted=True）输出 "I can't see the offers, they're masked"
+- **根因**：`engine._run_synthesis` 在 `tools_restricted=True` 时走 `_call_center_llm()` 而不是 `center_skill.execute()`，前者只有极简 system prompt，没有 observation masking 逻辑
+- **修复**：tools_restricted 时也优先走 center_skill.execute()，保持一致的 prompt 质量
+- **架构合规**：⚠️ **同 Bug 12，也是职责越界的后果**。engine 不该有自己的 Center prompt 生成逻辑。修复后 engine 只管调 center_skill，不管 prompt 内容。
+
+#### Bug 14: ask_agent 发空消息
+- **现象**：Claude API 报 `all messages must have non-empty content`
+- **根因**：`_handle_ask_agent` 在 `question` 为空字符串时仍然调 adapter.chat
+- **修复**：添加 `if not question.strip():` 早返回
+- **架构合规**：✅ 边界校验，合理
+
+#### Bug 15: Center reasoning 未存入 history
+- **现象**：Round 2 的 Center 看不到 Round 1 的推理过程，只能看到 tool calls
+- **根因**：engine 处理 tool_calls 前没有把 `result.get("content")` 存入 history
+- **修复**：在处理 tool_calls 前，将 Center 的 reasoning text 以 `{"type": "center_reasoning", "round": N, "content": ...}` 存入 history
+- **架构合规**：✅ 这是 engine 的编排职责——确保 history 完整，供 skill 下一轮使用。与 center_skill 测试中的 `test_round_2_masks_offers` 设计一致。
+
+### 架构合规性审计
+
+| Bug | 修复是否违反架构 | 说明 |
+|-----|-----------------|------|
+| 9 | ✅ 合规 | 实现细节修复，Protocol 接口不变 |
+| 10 | ✅ 合规 | 正确传参 |
+| 11 | ✅ 合规 | 参数注入，不增加耦合 |
+| 12 | ⚠️ 修复了已有违反 | engine 不应定义 tool schema，回归正确职责 |
+| 13 | ⚠️ 修复了已有违反 | engine 不应有 Center prompt 逻辑，回归 skill 负责 |
+| 14 | ✅ 合规 | 边界校验 |
+| 15 | ✅ 合规 | engine 编排职责内的 history 管理 |
+
+### 关键教训
+
+1. **`or` vs `is not None`**：对引用语义的参数，永远用 `is not None`，不用 `or`
+2. **职责越界是渐进的**：Bug 12 和 13 都是因为 engine 里"顺手"写了点 prompt/tool 逻辑，看起来很小，但真实调用时就会产生两套不一致的代码路径
+3. **Mock 太宽松 = 延迟发现 bug**：Phase 3 自动化审查发现了 context 键名问题，但 tool schema 格式问题只有真实 API 调用才暴露
+4. **本质和实现分离要贯穿到 bug 修复**：修 bug 时容易为了"跑通"而加 hack，这会引入新的架构违反
+
+### 真实 LLM 联调结果
+
+| 阶段 | 结果 |
+|------|------|
+| Formulation | ✅ 需求结构化成功，提取约束/偏好/上下文 |
+| 共振匹配 | ✅ Carol(0.61) > Alice(0.58) > Dave(0.41) > Eve(0.39) > Bob(0.15) |
+| Offer 生成 | ✅ 5 个 agent 基于真实 profile 回复，质量差异明显 |
+| Center 综合 | ✅ 2 轮，输出结构化方案 |
+| Plan 输出 | ✅ 包含匹配分析 + 信息缺口识别 + 4 种合作场景 + 评估框架 |
+
+### 新增文件
+- `backend/scripts/seed_demo.py` — 手动测试用的 seed 脚本（创建 scene + 5 agent with profiles）

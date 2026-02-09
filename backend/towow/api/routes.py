@@ -269,6 +269,13 @@ async def _run_negotiation(
                 except Exception as e:
                     logger.warning(f"Failed to encode agent {agent_id}: {e}")
 
+        # Build display name mapping from registered agents
+        agent_display_names = {}
+        for agent_id in scene.agent_ids:
+            identity = state.agents.get(agent_id)
+            if identity:
+                agent_display_names[agent_id] = identity.display_name
+
         await engine.start_negotiation(
             session=session,
             adapter=adapter,
@@ -278,6 +285,7 @@ async def _run_negotiation(
             center_skill=state.skills.get("center"),
             agent_vectors=agent_vectors or None,
             k_star=scene.expected_responders,
+            agent_display_names=agent_display_names,
         )
 
     except Exception as e:

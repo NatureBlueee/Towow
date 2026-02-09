@@ -84,11 +84,13 @@ async def lifespan(app: FastAPI):
         logger.warning("No TOWOW_ANTHROPIC_API_KEY set — LLM calls will fail")
 
     # Default adapter (for users without their own LLM)
+    # Pass profiles dict by reference — agent registrations auto-visible to adapter
     if config.anthropic_api_key:
         from towow.adapters.claude_adapter import ClaudeAdapter
         adapter = ClaudeAdapter(
             api_key=config.anthropic_api_key,
             model=config.default_model,
+            profiles=app.state.profiles,
         )
         app.state.adapter = adapter
     else:

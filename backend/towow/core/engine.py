@@ -153,6 +153,7 @@ class NegotiationEngine:
         center_skill: Optional[Skill] = None,
         agent_vectors: Optional[dict[str, Vector]] = None,
         k_star: int = 5,
+        agent_display_names: Optional[dict[str, str]] = None,
     ) -> NegotiationSession:
         """
         Drive a negotiation from CREATED to COMPLETED.
@@ -162,6 +163,8 @@ class NegotiationEngine:
         """
         if session.trace is None:
             session.trace = TraceChain(negotiation_id=session.negotiation_id)
+
+        self._agent_display_names = agent_display_names or {}
 
         try:
             # Step 1: Formulation
@@ -267,7 +270,7 @@ class NegotiationEngine:
             session.participants.append(
                 AgentParticipant(
                     agent_id=agent_id,
-                    display_name=agent_id,  # Will be enriched later
+                    display_name=self._agent_display_names.get(agent_id, agent_id),
                     resonance_score=score,
                     state=AgentState.ACTIVE,
                 )
@@ -459,9 +462,18 @@ class NegotiationEngine:
 
             tool_calls = result.get("tool_calls")
 
+            # Preserve Center's reasoning text in history for subsequent rounds
+            center_reasoning = result.get("content")
+            if center_reasoning:
+                history.append({
+                    "type": "center_reasoning",
+                    "round": session.center_rounds,
+                    "content": center_reasoning,
+                })
+
             if not tool_calls:
                 # No tool calls — treat text response as the plan
-                plan_text = result.get("content", "No plan generated.")
+                plan_text = center_reasoning or "No plan generated."
                 await self._finish_with_plan(session, plan_text, t0)
                 return
 
@@ -527,10 +539,24 @@ class NegotiationEngine:
 
             # After processing tools: if tools_restricted, force output_plan next round
             if session.tools_restricted:
-                # Force a final call with restricted tools
-                result = await self._call_center_llm(
-                    session, llm_client, history, force_plan=True
-                )
+                # Force a final call — still through center_skill for consistent prompting
+                forced_context = {
+                    "demand": session.demand,
+                    "offers": session.collected_offers,
+                    "participants": session.participants,
+                    "history": history,
+                    "round": session.center_rounds + 1,
+                    "round_number": session.center_rounds + 1,
+                    "tools_restricted": True,
+                    "llm_client": llm_client,
+                }
+                if center_skill:
+                    result = await center_skill.execute(forced_context)
+                else:
+                    result = await self._call_center_llm(
+                        session, llm_client, history, force_plan=True
+                    )
+
                 plan_calls = result.get("tool_calls", [])
                 plan_text = "Plan could not be generated (round limit reached)."
                 for pc in plan_calls:
@@ -574,41 +600,12 @@ class NegotiationEngine:
             },
         ]
 
-        # Build tools list
+        # Build tools list — reuse canonical schemas from center skill
+        from towow.skills.center import ALL_TOOLS, RESTRICTED_TOOLS
         if force_plan or session.tools_restricted:
-            tools = [
-                {
-                    "name": TOOL_OUTPUT_PLAN,
-                    "description": "Output the final plan",
-                    "parameters": {"plan_text": {"type": "string"}},
-                },
-            ]
+            tools = RESTRICTED_TOOLS
         else:
-            tools = [
-                {
-                    "name": TOOL_OUTPUT_PLAN,
-                    "description": "Output the final plan",
-                    "parameters": {"plan_text": {"type": "string"}},
-                },
-                {
-                    "name": TOOL_ASK_AGENT,
-                    "description": "Ask an agent a follow-up question",
-                    "parameters": {
-                        "agent_id": {"type": "string"},
-                        "question": {"type": "string"},
-                    },
-                },
-                {
-                    "name": TOOL_START_DISCOVERY,
-                    "description": "Start a discovery conversation",
-                    "parameters": {"topic": {"type": "string"}},
-                },
-                {
-                    "name": TOOL_CREATE_SUB_DEMAND,
-                    "description": "Create a sub-demand for gap filling",
-                    "parameters": {"gap_description": {"type": "string"}},
-                },
-            ]
+            tools = ALL_TOOLS
 
         return await llm_client.chat(
             messages=messages,
@@ -625,6 +622,9 @@ class NegotiationEngine:
         """Forward a question to an agent and return their reply."""
         agent_id = tool_args.get("agent_id", "")
         question = tool_args.get("question", "")
+
+        if not question.strip():
+            return f"Agent {agent_id}: no question provided."
 
         try:
             reply = await asyncio.wait_for(
