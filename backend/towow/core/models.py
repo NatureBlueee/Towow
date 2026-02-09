@@ -163,6 +163,7 @@ class NegotiationSession:
     trace: Optional[TraceChain] = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None
+    event_history: list[dict[str, Any]] = field(default_factory=list)
     metadata: dict[str, Any] = field(default_factory=dict)
 
     @property

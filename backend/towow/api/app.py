@@ -114,6 +114,8 @@ async def lifespan(app: FastAPI):
 
     app.state.config = config
 
+    _seed_demo_scene(app)
+
     logger.info("Towow V1 API started")
     yield
 
@@ -122,6 +124,56 @@ async def lifespan(app: FastAPI):
         if not task.done():
             task.cancel()
     logger.info("Towow V1 API shutdown")
+
+
+def _seed_demo_scene(app: FastAPI) -> None:
+    """Pre-seed a demo scene with 5 agents for frontend integration."""
+    from towow.core.models import AgentIdentity, SceneDefinition, SourceType
+
+    scene_id = "scene_default"
+    if scene_id in app.state.scenes:
+        return  # Idempotent
+
+    scene = SceneDefinition(
+        scene_id=scene_id,
+        name="AI Startup Co-founder Matching",
+        description="Find collaborators for AI product development",
+        organizer_id="system",
+        expected_responders=3,
+    )
+
+    demo_agents = [
+        ("agent_alice", "Alice", SourceType.CLAUDE,
+         {"skills": ["python", "machine-learning", "data-science"],
+          "bio": "ML engineer with 5 years experience in NLP and recommendation systems"}),
+        ("agent_bob", "Bob", SourceType.SECONDME,
+         {"skills": ["frontend", "react", "design"],
+          "bio": "Full-stack developer specializing in React and user experience design"}),
+        ("agent_carol", "Carol", SourceType.TEMPLATE,
+         {"skills": ["blockchain", "smart-contracts", "solidity"],
+          "bio": "Blockchain developer experienced in DeFi and smart contract auditing"}),
+        ("agent_dave", "Dave", SourceType.CLAUDE,
+         {"skills": ["devops", "kubernetes", "aws"],
+          "bio": "DevOps engineer managing large-scale cloud infrastructure"}),
+        ("agent_eve", "Eve", SourceType.CUSTOM,
+         {"skills": ["product-management", "growth", "analytics"],
+          "bio": "Product manager with experience in AI-powered SaaS products"}),
+    ]
+
+    for agent_id, display_name, source_type, profile_data in demo_agents:
+        identity = AgentIdentity(
+            agent_id=agent_id,
+            display_name=display_name,
+            source_type=source_type,
+            scene_id=scene_id,
+            metadata=profile_data,
+        )
+        app.state.agents[agent_id] = identity
+        app.state.profiles[agent_id] = profile_data
+        scene.agent_ids.append(agent_id)
+
+    app.state.scenes[scene_id] = scene
+    logger.info("Demo scene seeded: %s with %d agents", scene_id, len(demo_agents))
 
 
 def _stub_encoder():

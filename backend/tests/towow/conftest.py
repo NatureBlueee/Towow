@@ -7,6 +7,7 @@ utility factories for creating test objects.
 
 from __future__ import annotations
 
+import asyncio
 from typing import Any, AsyncGenerator, Optional
 
 import numpy as np
@@ -26,6 +27,7 @@ from towow.core.models import (
     TraceChain,
     generate_id,
 )
+from towow.core.engine import NegotiationEngine
 from towow.core.events import EventType, NegotiationEvent
 from towow.core.protocols import Vector
 from towow.skills.center import CenterCoordinatorSkill
@@ -274,3 +276,33 @@ def sample_session(sample_demand: DemandSnapshot) -> NegotiationSession:
         demand=sample_demand,
         trace=TraceChain(negotiation_id="test"),
     )
+
+
+# ============ Auto-Confirm Helper ============
+
+async def run_with_auto_confirm(
+    engine: NegotiationEngine,
+    session: NegotiationSession,
+    **kwargs: Any,
+) -> NegotiationSession:
+    """Run engine with automatic confirmation at formulation step.
+
+    Production code waits for user confirmation (Section 10.2).
+    This helper auto-confirms for tests that focus on other aspects.
+    """
+    async def _auto_confirm() -> None:
+        # Poll until engine is waiting for confirmation
+        while not engine.is_awaiting_confirmation(session.negotiation_id):
+            await asyncio.sleep(0.001)
+        engine.confirm_formulation(session.negotiation_id)
+
+    confirm_task = asyncio.create_task(_auto_confirm())
+    try:
+        result = await engine.start_negotiation(session=session, **kwargs)
+    finally:
+        confirm_task.cancel()
+        try:
+            await confirm_task
+        except asyncio.CancelledError:
+            pass
+    return result

@@ -224,11 +224,16 @@ class TestConfirmFormulation:
         )
         app.state.sessions["neg_cf"] = session
 
+        # Simulate engine waiting for confirmation
+        engine = app.state.engine
+        engine._confirmation_events["neg_cf"] = asyncio.Event()
+
         resp = client.post("/api/negotiations/neg_cf/confirm", json={
             "confirmed_text": "enriched demand text",
         })
         assert resp.status_code == 200
-        assert resp.json()["demand_formulated"] == "enriched demand text"
+        # Text is applied by engine on resume, so response reflects session's current text
+        assert resp.json()["state"] == "formulated"
 
     def test_409_wrong_state(self, client, app):
         session = NegotiationSession(

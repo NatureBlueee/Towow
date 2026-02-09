@@ -148,7 +148,16 @@ async def confirm_formulation(
             f"Cannot confirm: negotiation is in state {session.state.value}, expected 'formulated'",
         )
 
-    session.demand.formulated_text = req.confirmed_text
+    # Signal the engine to proceed (unblocks asyncio.Event)
+    engine = state.engine
+    accepted = engine.confirm_formulation(negotiation_id, req.confirmed_text)
+    if not accepted:
+        raise HTTPException(
+            409,
+            "Engine is not waiting for confirmation (may have timed out)",
+        )
+
+    # Text will be applied by engine when it resumes
     return _session_to_response(session)
 
 
@@ -205,6 +214,16 @@ async def negotiation_ws(websocket: WebSocket, negotiation_id: str):
 
     channel = f"negotiation:{negotiation_id}"
     await ws_manager.subscribe_channel(agent_id, channel)
+
+    # Catch-up: replay events that occurred before this connection.
+    # Engine pauses at formulation for confirmation, so in the primary flow
+    # the client connects during this pause and gets formulation.ready via replay.
+    for event_dict in list(session.event_history):
+        try:
+            await websocket.send_json(event_dict)
+        except Exception:
+            await ws_manager.disconnect(agent_id)
+            return
 
     try:
         while True:

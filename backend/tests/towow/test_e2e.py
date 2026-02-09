@@ -32,6 +32,7 @@ from .conftest import (
     MockEventPusher,
     MockPlatformLLMClient,
     MockProfileDataSource,
+    run_with_auto_confirm,
 )
 
 
@@ -164,8 +165,7 @@ class TestHappyPathFullNegotiation:
         center_skill = CenterCoordinatorSkill()
 
         # Execute
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -269,8 +269,7 @@ class TestCenterMultiRound:
         center_skill = CenterCoordinatorSkill()
 
         # Execute
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -323,8 +322,7 @@ class TestNoAgentsStillCompletes:
         center_skill = CenterCoordinatorSkill()
 
         # Execute with empty agent_vectors
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -393,8 +391,7 @@ class TestAgentTimeoutGraceful:
         center_skill = CenterCoordinatorSkill()
 
         # Execute
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -462,8 +459,7 @@ class TestTraceChainComplete:
         center_skill = CenterCoordinatorSkill()
 
         # Execute
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -521,8 +517,7 @@ class TestTraceChainComplete:
         agent_vectors = await _make_agent_vectors(encoder, count=2)
         center_skill = CenterCoordinatorSkill()
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,

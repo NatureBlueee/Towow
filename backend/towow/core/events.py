@@ -7,6 +7,7 @@ the product layer decides what to display.
 
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from enum import Enum
@@ -39,7 +40,7 @@ class NegotiationEvent:
     negotiation_id: str
     data: dict[str, Any]
     timestamp: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
-    event_id: Optional[str] = None
+    event_id: str = field(default_factory=lambda: f"evt_{uuid.uuid4().hex[:12]}")
 
     def to_dict(self) -> dict[str, Any]:
         return {

@@ -42,6 +42,7 @@ from tests.towow.conftest import (
     MockProfileDataSource,
     MockResonanceDetector,
     SAMPLE_AGENTS,
+    run_with_auto_confirm,
 )
 from towow.skills.center import CenterCoordinatorSkill
 
@@ -153,8 +154,7 @@ class TestHappyPath:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -195,8 +195,7 @@ class TestHappyPath:
             "stop_reason": "tool_use",
         })
 
-        await engine.start_negotiation(
-            session=session,
+        await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -360,8 +359,7 @@ class TestParallelOffers:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -426,8 +424,7 @@ class TestParallelOffers:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -499,8 +496,7 @@ class TestParallelOffers:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -548,8 +544,7 @@ class TestBarrier:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -593,8 +588,7 @@ class TestBarrier:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -655,8 +649,7 @@ class TestCenterMultiRound:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -714,8 +707,7 @@ class TestCenterMultiRound:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -766,8 +758,7 @@ class TestCenterMultiRound:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -802,8 +793,7 @@ class TestCenterMultiRound:
             "stop_reason": "end_turn",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -880,8 +870,7 @@ class TestRoundLimit:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -941,8 +930,7 @@ class TestEventCompleteness:
             "stop_reason": "tool_use",
         })
 
-        await engine.start_negotiation(
-            session=session,
+        await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -989,8 +977,7 @@ class TestEventCompleteness:
             "stop_reason": "tool_use",
         })
 
-        await engine.start_negotiation(
-            session=session,
+        await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1034,8 +1021,7 @@ class TestTraceChain:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1077,8 +1063,7 @@ class TestTraceChain:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1116,8 +1101,7 @@ class TestTraceChain:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1153,8 +1137,7 @@ class TestTraceChain:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1222,8 +1205,7 @@ class TestAgentExits:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1289,8 +1271,7 @@ class TestAgentExits:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1341,8 +1322,7 @@ class TestEdgeCases:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1382,8 +1362,7 @@ class TestEdgeCases:
             "stop_reason": "tool_use",
         })
 
-        result = await engine.start_negotiation(
-            session=session,
+        result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
             llm_client=llm,
             center_skill=center_skill,
@@ -1397,3 +1376,170 @@ class TestEdgeCases:
         """Every NegotiationState should appear in VALID_TRANSITIONS."""
         for state in NegotiationState:
             assert state in VALID_TRANSITIONS, f"{state} missing from VALID_TRANSITIONS"
+
+
+# ============ Confirmation Mechanism ============
+
+
+class TestConfirmationMechanism:
+    """Test the formulation confirmation wait mechanism (Section 10.2)."""
+
+    @pytest.mark.asyncio
+    async def test_confirm_unblocks_engine(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """Engine should pause at FORMULATED and resume on confirm_formulation()."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Test confirmation"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Plan after confirm."},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        async def _delayed_confirm():
+            # Wait until engine reaches confirmation wait
+            while not engine.is_awaiting_confirmation(nid):
+                await asyncio.sleep(0.001)
+            # At this point, session should be FORMULATED
+            assert session.state == NegotiationState.FORMULATED
+            engine.confirm_formulation(nid)
+
+        confirm_task = asyncio.create_task(_delayed_confirm())
+        try:
+            result = await engine.start_negotiation(
+                session=session,
+                adapter=adapter,
+                llm_client=llm,
+                center_skill=center_skill,
+            )
+        finally:
+            confirm_task.cancel()
+            try:
+                await confirm_task
+            except asyncio.CancelledError:
+                pass
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.plan_output == "Plan after confirm."
+
+    @pytest.mark.asyncio
+    async def test_confirm_timeout_auto_proceeds(
+        self,
+        encoder: MockEncoder,
+        resonance: MockResonanceDetector,
+        pusher: MockEventPusher,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """If confirmation times out, engine should auto-proceed with original text."""
+        engine = NegotiationEngine(
+            encoder=encoder,
+            resonance_detector=resonance,
+            event_pusher=pusher,
+            confirmation_timeout_s=0.05,  # 50ms — will timeout quickly
+        )
+
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Timeout test"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Plan after timeout."},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Do NOT confirm — let it timeout
+        result = await engine.start_negotiation(
+            session=session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        # Original text used since nobody confirmed
+        assert result.demand.formulated_text == "Timeout test"
+        assert result.plan_output == "Plan after timeout."
+
+    @pytest.mark.asyncio
+    async def test_confirm_with_modified_text(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """User can modify the formulated text during confirmation."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Original intent"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Plan with modified text."},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        modified_text = "User-refined intent with more detail"
+
+        async def _confirm_with_text():
+            while not engine.is_awaiting_confirmation(nid):
+                await asyncio.sleep(0.001)
+            engine.confirm_formulation(nid, confirmed_text=modified_text)
+
+        confirm_task = asyncio.create_task(_confirm_with_text())
+        try:
+            result = await engine.start_negotiation(
+                session=session,
+                adapter=adapter,
+                llm_client=llm,
+                center_skill=center_skill,
+            )
+        finally:
+            confirm_task.cancel()
+            try:
+                await confirm_task
+            except asyncio.CancelledError:
+                pass
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.demand.formulated_text == modified_text
+        assert result.plan_output == "Plan with modified text."

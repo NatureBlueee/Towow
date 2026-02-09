@@ -54,7 +54,7 @@ class SubmitDemandRequest(BaseModel):
 
 
 class ConfirmFormulationRequest(BaseModel):
-    confirmed_text: str
+    confirmed_text: Optional[str] = None
 
 
 class UserActionRequest(BaseModel):

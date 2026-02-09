@@ -82,17 +82,24 @@ class NegotiationEngine:
     while Skills provide intelligence (LLM calls).
     """
 
+    # Timeout for user confirmation before auto-proceeding with original text
+    DEFAULT_CONFIRMATION_TIMEOUT_S = 300.0
+
     def __init__(
         self,
         encoder: Encoder,
         resonance_detector: ResonanceDetector,
         event_pusher: EventPusher,
         offer_timeout_s: float = DEFAULT_OFFER_TIMEOUT_S,
+        confirmation_timeout_s: float = DEFAULT_CONFIRMATION_TIMEOUT_S,
     ):
         self._encoder = encoder
         self._resonance_detector = resonance_detector
         self._event_pusher = event_pusher
         self._offer_timeout_s = offer_timeout_s
+        self._confirmation_timeout_s = confirmation_timeout_s
+        self._confirmation_events: dict[str, asyncio.Event] = {}
+        self._confirmed_texts: dict[str, str | None] = {}
 
     # ============ State Transition ============
 
@@ -140,6 +147,37 @@ class NegotiationEngine:
             output_summary=output_summary,
             metadata=metadata,
         )
+
+    # ============ Event Storage + Push ============
+
+    async def _push_event(
+        self, session: NegotiationSession, event: Any,
+    ) -> None:
+        """Store event on session for replay, then push to subscribers."""
+        session.event_history.append(event.to_dict())
+        await self._event_pusher.push(event)
+
+    # ============ Confirmation API ============
+
+    def confirm_formulation(
+        self, negotiation_id: str, confirmed_text: str | None = None,
+    ) -> bool:
+        """Signal that the user has confirmed the formulation.
+
+        Called by the API layer when user POSTs to /confirm.
+        Returns False if engine is not waiting (already timed out or completed).
+        """
+        event = self._confirmation_events.get(negotiation_id)
+        if event is None:
+            return False
+        if confirmed_text is not None:
+            self._confirmed_texts[negotiation_id] = confirmed_text
+        event.set()
+        return True
+
+    def is_awaiting_confirmation(self, negotiation_id: str) -> bool:
+        """Check if engine is waiting for user confirmation on this negotiation."""
+        return negotiation_id in self._confirmation_events
 
     # ============ Main Flow ============
 
@@ -227,20 +265,41 @@ class NegotiationEngine:
         session.demand.formulated_text = formulated_text
         self._transition(session, NegotiationState.FORMULATED)
 
-        await self._event_pusher.push(
+        await self._push_event(
+            session,
             formulation_ready(
                 negotiation_id=session.negotiation_id,
                 raw_intent=session.demand.raw_intent,
                 formulated_text=formulated_text,
-            )
+            ),
         )
+
+        # Protocol layer required step: wait for user confirmation (Section 10.2)
+        confirm_event = asyncio.Event()
+        self._confirmation_events[session.negotiation_id] = confirm_event
+        try:
+            await asyncio.wait_for(
+                confirm_event.wait(), timeout=self._confirmation_timeout_s,
+            )
+        except asyncio.TimeoutError:
+            logger.warning(
+                "Negotiation %s: confirmation timeout (%.0fs), auto-confirming with original text",
+                session.negotiation_id,
+                self._confirmation_timeout_s,
+            )
+        finally:
+            # Apply confirmed text if user modified it
+            confirmed = self._confirmed_texts.pop(session.negotiation_id, None)
+            if confirmed is not None:
+                session.demand.formulated_text = confirmed
+            self._confirmation_events.pop(session.negotiation_id, None)
 
         self._trace(
             session,
             "formulation",
             t0,
             input_summary=session.demand.raw_intent,
-            output_summary=formulated_text,
+            output_summary=session.demand.formulated_text,
         )
 
     # ============ Step 2: Encoding + Resonance ============
@@ -281,7 +340,8 @@ class NegotiationEngine:
 
         self._transition(session, NegotiationState.OFFERING)
 
-        await self._event_pusher.push(
+        await self._push_event(
+            session,
             resonance_activated(
                 negotiation_id=session.negotiation_id,
                 activated_count=len(results),
@@ -293,7 +353,7 @@ class NegotiationEngine:
                     }
                     for aid, score in results
                 ],
-            )
+            ),
         )
 
         self._trace(
@@ -364,14 +424,15 @@ class NegotiationEngine:
                 )
                 participant.state = AgentState.REPLIED
 
-                await self._event_pusher.push(
+                await self._push_event(
+                    session,
                     offer_received(
                         negotiation_id=session.negotiation_id,
                         agent_id=participant.agent_id,
                         display_name=participant.display_name,
                         content=content,
                         capabilities=capabilities,
-                    )
+                    ),
                 )
 
             except asyncio.TimeoutError:
@@ -400,13 +461,14 @@ class NegotiationEngine:
         offers_count = len(session.collected_offers)
         exited_count = sum(1 for p in session.participants if p.state == AgentState.EXITED)
 
-        await self._event_pusher.push(
+        await self._push_event(
+            session,
             barrier_complete(
                 negotiation_id=session.negotiation_id,
                 total_participants=len(session.participants),
                 offers_received=offers_count,
                 exited_count=exited_count,
-            )
+            ),
         )
 
         self._trace(
@@ -483,13 +545,14 @@ class NegotiationEngine:
                 tool_name = tc["name"]
                 tool_args = tc.get("arguments", {})
 
-                await self._event_pusher.push(
+                await self._push_event(
+                    session,
                     center_tool_call(
                         negotiation_id=session.negotiation_id,
                         tool_name=tool_name,
                         tool_args=tool_args,
                         round_number=session.center_rounds,
-                    )
+                    ),
                 )
 
                 if tool_name == TOOL_OUTPUT_PLAN:
@@ -517,12 +580,13 @@ class NegotiationEngine:
 
                 elif tool_name == TOOL_CREATE_SUB_DEMAND:
                     sub_id = generate_id("neg")
-                    await self._event_pusher.push(
+                    await self._push_event(
+                        session,
                         sub_negotiation_started(
                             negotiation_id=session.negotiation_id,
                             sub_negotiation_id=sub_id,
                             gap_description=tool_args.get("gap_description", ""),
-                        )
+                        ),
                     )
                     history.append({
                         "tool": TOOL_CREATE_SUB_DEMAND,
@@ -608,7 +672,8 @@ class NegotiationEngine:
         if session.trace:
             session.trace.completed_at = session.completed_at
 
-        await self._event_pusher.push(
+        await self._push_event(
+            session,
             plan_ready(
                 negotiation_id=session.negotiation_id,
                 plan_text=plan_text,
@@ -618,7 +683,7 @@ class NegotiationEngine:
                     for p in session.participants
                     if p.state == AgentState.REPLIED
                 ],
-            )
+            ),
         )
 
         self._trace(
