@@ -101,14 +101,18 @@ async def lifespan(app: FastAPI):
         from towow.skills import (
             CenterCoordinatorSkill,
             DemandFormulationSkill,
+            GapRecursionSkill,
             OfferGenerationSkill,
+            SubNegotiationSkill,
         )
         app.state.skills = {
             "formulation": DemandFormulationSkill(),
             "offer": OfferGenerationSkill(),
             "center": CenterCoordinatorSkill(),
+            "sub_negotiation": SubNegotiationSkill(),
+            "gap_recursion": GapRecursionSkill(),
         }
-        logger.info("Skills initialized: formulation, offer, center")
+        logger.info("Skills initialized: formulation, offer, center, sub_negotiation, gap_recursion")
     except Exception as e:
         logger.warning(f"Skills not available: {e}")
 

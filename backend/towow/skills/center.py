@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 from typing import Any
 
 from ..core.errors import SkillError
@@ -250,7 +251,7 @@ class CenterCoordinatorSkill(BaseSkill):
         return mask_summary
 
     def _build_history(self, history: list, round_number: int) -> str:
-        """Build history section preserving reasoning from previous rounds."""
+        """Build history section preserving reasoning AND tool results from previous rounds."""
         lines = ["## History from Previous Rounds"]
         for entry in history:
             entry_type = entry.get("type", "unknown")
@@ -260,7 +261,24 @@ class CenterCoordinatorSkill(BaseSkill):
             elif entry_type == "center_decision":
                 lines.append(f"\n### Round {entry.get('round', '?')} Decision")
                 lines.append(entry.get("content", ""))
+            elif "tool" in entry:
+                # Tool call results (ask_agent, start_discovery, create_sub_demand)
+                tool_name = entry["tool"]
+                tool_args = entry.get("args", {})
+                tool_result = entry.get("result")
+                lines.append(f"\n### Tool Result: {tool_name}")
+                lines.append(f"Arguments: {json.dumps(tool_args, ensure_ascii=False, default=str)}")
+                if tool_result is not None:
+                    if isinstance(tool_result, dict):
+                        lines.append(f"Result:\n```json\n{json.dumps(tool_result, ensure_ascii=False, indent=2, default=str)}\n```")
+                    else:
+                        lines.append(f"Result: {tool_result}")
         return "\n".join(lines)
+
+    @staticmethod
+    def _strip_think_tags(text: str) -> str:
+        """Strip <think>...</think> blocks that LLMs sometimes output as plain text."""
+        return re.sub(r"<think>.*?</think>\s*", "", text, flags=re.DOTALL)
 
     def _validate_output(self, response: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         """Parse and validate tool calls from LLM response."""
@@ -268,7 +286,7 @@ class CenterCoordinatorSkill(BaseSkill):
 
         if not tool_calls:
             # No tool calls — LLM responded with text. This is a format error.
-            content = response.get("content", "")
+            content = self._strip_think_tags(response.get("content", "")).strip()
             if content:
                 # Degrade gracefully: wrap text content as output_plan
                 logger.warning("Center responded with text instead of tool call, degrading to output_plan")
@@ -292,4 +310,9 @@ class CenterCoordinatorSkill(BaseSkill):
 
             validated.append({"name": tool_name, "arguments": arguments})
 
-        return {"tool_calls": validated}
+        # Strip think tags from content passed back to engine for history
+        content = response.get("content")
+        result: dict[str, Any] = {"tool_calls": validated}
+        if content:
+            result["content"] = self._strip_think_tags(content).strip() or None
+        return result

@@ -78,14 +78,28 @@ class GapRecursionSkill(BaseSkill):
         messages = [{"role": "user", "content": user_content}]
         return SYSTEM_PROMPT, messages
 
+    @staticmethod
+    def _strip_markdown_fences(text: str) -> str:
+        """Strip markdown code fences (```json ... ```) wrapping JSON output."""
+        stripped = text.strip()
+        if stripped.startswith("```"):
+            # Remove opening fence (```json or ```)
+            first_newline = stripped.index("\n") if "\n" in stripped else len(stripped)
+            stripped = stripped[first_newline + 1:]
+            # Remove closing fence
+            if stripped.rstrip().endswith("```"):
+                stripped = stripped.rstrip()[:-3].rstrip()
+        return stripped
+
     def _validate_output(self, raw_output: str, context: dict[str, Any]) -> dict[str, Any]:
+        cleaned = self._strip_markdown_fences(raw_output)
         try:
-            parsed = json.loads(raw_output)
+            parsed = json.loads(cleaned)
             sub_demand_text = parsed.get("sub_demand_text", "")
             sub_context = parsed.get("context", "")
         except (json.JSONDecodeError, TypeError):
             # Lenient: treat entire output as the sub-demand
-            sub_demand_text = raw_output.strip()
+            sub_demand_text = cleaned.strip()
             sub_context = context.get("demand_context", "")
 
         if not sub_demand_text:

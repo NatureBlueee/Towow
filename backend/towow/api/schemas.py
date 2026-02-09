@@ -70,6 +70,9 @@ class NegotiationResponse(BaseModel):
     participants: list[dict[str, Any]] = Field(default_factory=list)
     plan_output: Optional[str] = None
     center_rounds: int = 0
+    parent_negotiation_id: Optional[str] = None
+    sub_session_ids: list[str] = Field(default_factory=list)
+    depth: int = 0
 
 
 class PlanResponse(BaseModel):

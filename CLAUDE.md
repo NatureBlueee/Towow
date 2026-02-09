@@ -96,6 +96,76 @@ bd close <id>         # Complete work
 bd sync               # Sync with git
 ```
 
+## V1 Negotiation Engine (port 8081)
+
+```bash
+# Run backend
+cd backend && source venv/bin/activate
+TOWOW_ANTHROPIC_API_KEY=sk-ant-... uvicorn towow.api.app:app --reload --port 8081
+
+# Run tests (180 total)
+cd backend && source venv/bin/activate && python -m pytest tests/towow/ -v
+```
+
+### Code Map
+```
+backend/towow/
+  core/     engine.py (状态机+编排) | models.py | events.py | protocols.py | errors.py
+  api/      app.py (lifespan+demo seed) | routes.py (5 REST+1 WS) | schemas.py
+  skills/   center.py | formulation.py | offer.py | gap_recursion.py | sub_negotiation.py | reflection.py
+  hdc/      encoder.py (MiniLM-L12-v2) | resonance.py
+  adapters/ claude_adapter.py | secondme_adapter.py
+  infra/    llm_client.py | event_pusher.py | config.py
+```
+
+## Agent-Parallel Development Guidelines
+
+When implementing features that touch multiple independent modules, use **TeamCreate + parallel Task agents** to maximize throughput. Each agent should load the relevant engineering skill.
+
+### When to Use Parallel Agents
+- **Multi-module changes**: e.g., backend model + API + frontend type + tests can split across agents
+- **Research + implementation**: one agent explores codebase/docs, another implements
+- **Independent file groups**: files with no dependency between them
+
+### When NOT to Use (Sequential is Better)
+- **Linear dependency chain**: e.g., models.py → engine.py → routes.py → tests (each depends on the previous)
+- **Single-file core changes**: e.g., engine.py state machine rewrite
+- **< 3 files total**: overhead of team coordination exceeds benefit
+
+### Engineering Skill Loading
+Each agent MUST load the relevant `.claude/skills/` for its domain:
+
+| Domain | Skill | Agent Type |
+|--------|-------|------------|
+| State machine / engine | `towow-eng-orchestrator` | general-purpose |
+| LLM integration / prompts | `towow-eng-prompt` | general-purpose |
+| HDC encoding / resonance | `towow-eng-hdc` | general-purpose |
+| Frontend WS / UI | `towow-eng-frontend` | general-purpose |
+| Test design / verification | `towow-eng-test` | general-purpose |
+| Architecture alignment | `arch` | Explore or Plan |
+| Overall coordination | `towow-eng` (Leader) | Plan |
+
+### Pattern: Architecture-Aligned Development
+1. **Before coding**: Use `arch` skill or Plan agent to verify design aligns with `docs/ARCHITECTURE_DESIGN.md`
+2. **During coding**: Each implementation agent reads the relevant SKILL.md for constraints
+3. **After coding**: Run full test suite (`pytest tests/towow/ -v`), update MEMORY.md
+4. **Key principles to check**:
+   - 代码保障 > Prompt 保障 (Section 0.5)
+   - 确认是协议步骤 (Section 10.2)
+   - 投影即函数 (Section 7.1.6)
+   - 协议层不可改，基础设施层可替换 (Section 0.2)
+
+### Pattern: Codex for Mechanical Tasks
+Use `mcp__codex__codex` for:
+- Boilerplate generation (new test files, schema fields, type definitions)
+- Repetitive edits across many files (rename, add field everywhere)
+- Code formatting / migration patterns
+
+Do NOT use Codex for:
+- State machine logic or protocol-layer changes
+- Anything requiring understanding of the negotiation lifecycle
+- Test design (tests encode architectural invariants)
+
 ## Architecture Key Concepts
 
 ### Core Mechanism

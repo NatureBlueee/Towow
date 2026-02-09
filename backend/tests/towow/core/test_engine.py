@@ -678,34 +678,65 @@ class TestCenterMultiRound:
         pusher: MockEventPusher,
         center_skill: CenterCoordinatorSkill,
     ):
-        """Center starts discovery, then outputs plan."""
+        """Center starts discovery with SubNegotiationSkill, then outputs plan."""
         agent_vectors = await _build_agent_vectors(encoder)
 
-        # Round 1: start_discovery
+        # Set up adapter profiles for the agents
+        adapter._profiles = {
+            "agent_alice": {"skills": ["python", "ML"], "bio": "ML engineer"},
+            "agent_bob": {"skills": ["frontend", "react"], "bio": "Frontend dev"},
+        }
+
+        # LLM call 1 (Center R1): start_discovery
         llm.add_response({
             "content": None,
             "tool_calls": [
                 {
                     "name": TOOL_START_DISCOVERY,
-                    "arguments": {"topic": "AI product validation methods"},
+                    "arguments": {
+                        "agent_a": "agent_alice",
+                        "agent_b": "agent_bob",
+                        "reason": "Check ML + frontend complementarity",
+                    },
                     "id": "call_1",
                 }
             ],
             "stop_reason": "tool_use",
         })
 
-        # Round 2: output_plan
+        # LLM call 2 (SubNegotiationSkill): discovery analysis
+        import json
+        llm.add_response({
+            "content": json.dumps({
+                "discovery_report": {
+                    "new_associations": ["ML-powered UI components"],
+                    "coordination": None,
+                    "additional_contributions": {
+                        "agent_a": ["model serving APIs"],
+                        "agent_b": ["data visualization"],
+                    },
+                    "summary": "Alice's ML + Bob's frontend = smart dashboards",
+                }
+            }),
+            "tool_calls": None,
+            "stop_reason": "end_turn",
+        })
+
+        # LLM call 3 (Center R2): output_plan
         llm.add_response({
             "content": None,
             "tool_calls": [
                 {
                     "name": TOOL_OUTPUT_PLAN,
                     "arguments": {"plan_text": "Plan after discovery."},
-                    "id": "call_2",
+                    "id": "call_3",
                 }
             ],
             "stop_reason": "tool_use",
         })
+
+        from towow.skills import SubNegotiationSkill
+        sub_neg_skill = SubNegotiationSkill()
 
         result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
@@ -713,6 +744,7 @@ class TestCenterMultiRound:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            sub_negotiation_skill=sub_neg_skill,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -729,10 +761,16 @@ class TestCenterMultiRound:
         pusher: MockEventPusher,
         center_skill: CenterCoordinatorSkill,
     ):
-        """Center creates a sub-demand, then outputs plan."""
+        """Center creates a sub-demand with real recursive negotiation."""
         agent_vectors = await _build_agent_vectors(encoder)
+        registered_sessions: list[NegotiationSession] = []
 
-        # Round 1: create_sub_demand
+        def _register(s: NegotiationSession) -> None:
+            registered_sessions.append(s)
+
+        import json
+
+        # Parent Center R1: create_sub_demand
         llm.add_response({
             "content": None,
             "tool_calls": [
@@ -745,18 +783,44 @@ class TestCenterMultiRound:
             "stop_reason": "tool_use",
         })
 
-        # Round 2: output_plan
+        # GapRecursionSkill LLM call: generate sub-demand text
+        llm.add_response({
+            "content": json.dumps({
+                "sub_demand_text": "Looking for a UX designer with AI product experience",
+                "context": "Parent needs technical co-founder, UX gap identified",
+            }),
+            "tool_calls": None,
+            "stop_reason": "end_turn",
+        })
+
+        # Sub-negotiation Center: output_plan (sub-negotiation completes)
         llm.add_response({
             "content": None,
             "tool_calls": [
                 {
                     "name": TOOL_OUTPUT_PLAN,
-                    "arguments": {"plan_text": "Plan with sub-demand."},
+                    "arguments": {"plan_text": "Sub-plan: UX designer found."},
+                    "id": "call_sub_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Parent Center R2: output_plan (after receiving sub-negotiation result)
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Plan with sub-demand result."},
                     "id": "call_2",
                 }
             ],
             "stop_reason": "tool_use",
         })
+
+        from towow.skills import GapRecursionSkill
+        gap_skill = GapRecursionSkill()
 
         result = await run_with_auto_confirm(engine, session,
             adapter=adapter,
@@ -764,14 +828,29 @@ class TestCenterMultiRound:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            gap_recursion_skill=gap_skill,
+            register_session=_register,
         )
 
         assert result.state == NegotiationState.COMPLETED
+        assert result.plan_output == "Plan with sub-demand result."
 
         # Should have sub_negotiation.started event
         sub_events = pusher.get_events_by_type(EventType.SUB_NEGOTIATION_STARTED)
         assert len(sub_events) == 1
         assert sub_events[0].data["gap_description"] == "Need a UX designer"
+
+        # Sub-session should have been registered
+        assert len(registered_sessions) == 1
+        sub = registered_sessions[0]
+        assert sub.parent_negotiation_id == session.negotiation_id
+        assert sub.depth == 1
+        assert sub.state == NegotiationState.COMPLETED
+        assert sub.plan_output == "Sub-plan: UX designer found."
+
+        # Parent should track sub-session ID
+        assert len(result.sub_session_ids) == 1
+        assert result.sub_session_ids[0] == sub.negotiation_id
 
     @pytest.mark.asyncio
     async def test_no_tool_calls_uses_content_as_plan(
@@ -1543,3 +1622,345 @@ class TestConfirmationMechanism:
         assert result.state == NegotiationState.COMPLETED
         assert result.demand.formulated_text == modified_text
         assert result.plan_output == "Plan with modified text."
+
+
+# ============ Sub-Negotiation Recursion ============
+
+
+class TestSubNegotiation:
+    """Test sub-negotiation recursion and discovery features (Phase 5)."""
+
+    @pytest.mark.asyncio
+    async def test_sub_demand_depth_limit(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """A sub-negotiation at depth=1 should NOT recurse further."""
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        # Create a depth=1 session (simulating a sub-negotiation)
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Sub-demand at depth 1"),
+            depth=1,
+            parent_negotiation_id="neg_parent_123",
+            trace=TraceChain(negotiation_id=nid),
+        )
+
+        import json
+        from towow.skills import GapRecursionSkill
+
+        # Center R1: try to create_sub_demand (should be blocked by depth limit)
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_CREATE_SUB_DEMAND,
+                    "arguments": {"gap_description": "Need even deeper resource"},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Center R2: output_plan after depth limit response
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Plan with depth limit."},
+                    "id": "call_2",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # depth > 0 means auto-confirm, so no need for run_with_auto_confirm
+        result = await engine.start_negotiation(
+            session=session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            gap_recursion_skill=GapRecursionSkill(),
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.plan_output == "Plan with depth limit."
+        # No sub-sessions should have been created
+        assert len(result.sub_session_ids) == 0
+        # No sub_negotiation.started event should have been pushed
+        sub_events = pusher.get_events_by_type(EventType.SUB_NEGOTIATION_STARTED)
+        assert len(sub_events) == 0
+
+    @pytest.mark.asyncio
+    async def test_sub_negotiation_auto_confirms(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """A sub-negotiation (depth > 0) should auto-confirm formulation without external input."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Auto-confirm sub-demand"),
+            depth=1,
+            parent_negotiation_id="neg_parent_456",
+            trace=TraceChain(negotiation_id=nid),
+        )
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Auto-confirmed plan."},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # No auto-confirm helper needed — depth > 0 triggers auto-confirm
+        result = await engine.start_negotiation(
+            session=session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.plan_output == "Auto-confirmed plan."
+        assert result.demand.formulated_text == "Auto-confirm sub-demand"
+
+    @pytest.mark.asyncio
+    async def test_discovery_with_agent_profiles(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """Discovery should pass correct profile + offer data to SubNegotiationSkill."""
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        # Set up adapter with rich profiles
+        adapter = MockProfileDataSource(profiles={
+            "agent_alice": {
+                "skills": ["python", "ML", "NLP"],
+                "bio": "Senior ML engineer",
+                "hidden_talent": "data visualization",
+            },
+            "agent_bob": {
+                "skills": ["frontend", "react"],
+                "bio": "UI specialist",
+                "hidden_talent": "accessibility expert",
+            },
+        })
+        adapter.set_default_chat_response("I can help with that.")
+
+        import json
+
+        # Center R1: start_discovery between alice and bob
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_START_DISCOVERY,
+                    "arguments": {
+                        "agent_a": "agent_alice",
+                        "agent_b": "agent_bob",
+                        "reason": "Both have visualization potential",
+                    },
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # SubNegotiationSkill LLM call: returns discovery
+        llm.add_response({
+            "content": json.dumps({
+                "discovery_report": {
+                    "new_associations": ["data viz + UI = interactive dashboards"],
+                    "coordination": "Alice provides data APIs, Bob builds the viz layer",
+                    "additional_contributions": {
+                        "agent_a": ["data visualization expertise"],
+                        "agent_b": ["accessibility expertise"],
+                    },
+                    "summary": "Hidden synergy in data visualization",
+                }
+            }),
+            "tool_calls": None,
+            "stop_reason": "end_turn",
+        })
+
+        # Center R2: output_plan incorporating discovery
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Plan using discovered synergies."},
+                    "id": "call_3",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        from towow.skills import SubNegotiationSkill
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            sub_negotiation_skill=SubNegotiationSkill(),
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.plan_output == "Plan using discovered synergies."
+
+        # Verify center.tool_call events include start_discovery
+        tool_events = pusher.get_events_by_type(EventType.CENTER_TOOL_CALL)
+        discovery_events = [e for e in tool_events if e.data["tool_name"] == TOOL_START_DISCOVERY]
+        assert len(discovery_events) == 1
+
+    @pytest.mark.asyncio
+    async def test_discovery_without_skill_degrades_gracefully(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """Discovery without SubNegotiationSkill should return a fallback message."""
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        # Center R1: start_discovery (no skill provided)
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_START_DISCOVERY,
+                    "arguments": {
+                        "agent_a": "agent_alice",
+                        "agent_b": "agent_bob",
+                        "reason": "Check compatibility",
+                    },
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Center R2: output_plan
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Plan without discovery."},
+                    "id": "call_2",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            # No sub_negotiation_skill provided
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.plan_output == "Plan without discovery."
+
+    @pytest.mark.asyncio
+    async def test_sub_demand_without_gap_skill_uses_raw_description(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """create_sub_demand without GapRecursionSkill should use raw gap_description."""
+        agent_vectors = await _build_agent_vectors(encoder)
+        registered = []
+
+        # Parent Center R1: create_sub_demand
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_CREATE_SUB_DEMAND,
+                    "arguments": {"gap_description": "Need a legal advisor"},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Sub-negotiation Center: output_plan
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Sub plan: legal advice."},
+                    "id": "call_sub",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Parent Center R2: output_plan
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Parent plan done."},
+                    "id": "call_2",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            register_session=lambda s: registered.append(s),
+            # No gap_recursion_skill — raw gap_description used as sub-demand
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        assert len(registered) == 1
+        # Sub-session demand should be the raw gap_description
+        assert registered[0].demand.raw_intent == "Need a legal advisor"

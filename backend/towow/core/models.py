@@ -160,6 +160,8 @@ class NegotiationSession:
     max_center_rounds: int = 2
     plan_output: Optional[str] = None
     parent_negotiation_id: Optional[str] = None  # For sub-negotiations (recursion)
+    depth: int = 0                                # Recursion depth (0 = top-level)
+    sub_session_ids: list[str] = field(default_factory=list)  # Child negotiation IDs
     trace: Optional[TraceChain] = None
     created_at: datetime = field(default_factory=lambda: datetime.now(timezone.utc))
     completed_at: Optional[datetime] = None

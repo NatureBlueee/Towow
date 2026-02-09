@@ -256,6 +256,9 @@ def _session_to_response(session: NegotiationSession) -> NegotiationResponse:
         participants=participants,
         plan_output=session.plan_output,
         center_rounds=session.center_rounds,
+        parent_negotiation_id=session.parent_negotiation_id,
+        sub_session_ids=session.sub_session_ids,
+        depth=session.depth,
     )
 
 
@@ -302,6 +305,9 @@ async def _run_negotiation(
                 "(Section 0.1: Center is a required component of the negotiation unit)"
             )
 
+        def _register(s: NegotiationSession) -> None:
+            state.sessions[s.negotiation_id] = s
+
         await engine.start_negotiation(
             session=session,
             adapter=adapter,
@@ -312,6 +318,9 @@ async def _run_negotiation(
             agent_vectors=agent_vectors or None,
             k_star=scene.expected_responders,
             agent_display_names=agent_display_names,
+            sub_negotiation_skill=state.skills.get("sub_negotiation"),
+            gap_recursion_skill=state.skills.get("gap_recursion"),
+            register_session=_register,
         )
 
     except Exception as e:

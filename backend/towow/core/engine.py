@@ -9,10 +9,11 @@ while delegating intelligence to Skills via LLM calls.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 import time
 from datetime import datetime, timezone
-from typing import Any, Optional
+from typing import Any, Callable, Optional
 
 from .errors import EngineError
 from .events import (
@@ -100,6 +101,7 @@ class NegotiationEngine:
         self._confirmation_timeout_s = confirmation_timeout_s
         self._confirmation_events: dict[str, asyncio.Event] = {}
         self._confirmed_texts: dict[str, str | None] = {}
+        self._neg_contexts: dict[str, dict[str, Any]] = {}
 
     # ============ State Transition ============
 
@@ -148,6 +150,11 @@ class NegotiationEngine:
             metadata=metadata,
         )
 
+    def _display_names(self, session: NegotiationSession) -> dict[str, str]:
+        """Get agent display names for a negotiation from its stored context."""
+        ctx = self._neg_contexts.get(session.negotiation_id, {})
+        return ctx.get("agent_display_names", {})
+
     # ============ Event Storage + Push ============
 
     async def _push_event(
@@ -192,6 +199,9 @@ class NegotiationEngine:
         agent_vectors: Optional[dict[str, Vector]] = None,
         k_star: int = 5,
         agent_display_names: Optional[dict[str, str]] = None,
+        sub_negotiation_skill: Optional[Skill] = None,
+        gap_recursion_skill: Optional[Skill] = None,
+        register_session: Optional[Callable[[NegotiationSession], None]] = None,
     ) -> NegotiationSession:
         """
         Drive a negotiation from CREATED to COMPLETED.
@@ -205,7 +215,20 @@ class NegotiationEngine:
         if session.trace is None:
             session.trace = TraceChain(negotiation_id=session.negotiation_id)
 
-        self._agent_display_names = agent_display_names or {}
+        # Store context for sub-negotiation reuse (and per-session display names)
+        self._neg_contexts[session.negotiation_id] = {
+            "adapter": adapter,
+            "llm_client": llm_client,
+            "center_skill": center_skill,
+            "formulation_skill": formulation_skill,
+            "offer_skill": offer_skill,
+            "agent_vectors": agent_vectors,
+            "k_star": k_star,
+            "agent_display_names": agent_display_names or {},
+            "sub_negotiation_skill": sub_negotiation_skill,
+            "gap_recursion_skill": gap_recursion_skill,
+            "register_session": register_session,
+        }
 
         try:
             # Step 1: Formulation
@@ -237,6 +260,8 @@ class NegotiationEngine:
                     session.trace.completed_at = session.completed_at
                 session.metadata["error"] = str(exc)
             raise EngineError(f"Negotiation failed: {exc}") from exc
+        finally:
+            self._neg_contexts.pop(session.negotiation_id, None)
 
         return session
 
@@ -277,6 +302,11 @@ class NegotiationEngine:
         # Protocol layer required step: wait for user confirmation (Section 10.2)
         confirm_event = asyncio.Event()
         self._confirmation_events[session.negotiation_id] = confirm_event
+
+        # Sub-negotiations: Center (the initiator) auto-confirms — "谁发起谁确认"
+        if session.depth > 0:
+            self.confirm_formulation(session.negotiation_id)
+
         try:
             await asyncio.wait_for(
                 confirm_event.wait(), timeout=self._confirmation_timeout_s,
@@ -332,7 +362,7 @@ class NegotiationEngine:
             session.participants.append(
                 AgentParticipant(
                     agent_id=agent_id,
-                    display_name=self._agent_display_names.get(agent_id, agent_id),
+                    display_name=self._display_names(session).get(agent_id, agent_id),
                     resonance_score=score,
                     state=AgentState.ACTIVE,
                 )
@@ -348,7 +378,7 @@ class NegotiationEngine:
                 agents=[
                     {
                         "agent_id": aid,
-                        "display_name": self._agent_display_names.get(aid, aid),
+                        "display_name": self._display_names(session).get(aid, aid),
                         "resonance_score": score,
                     }
                     for aid, score in results
@@ -571,7 +601,9 @@ class NegotiationEngine:
                     })
 
                 elif tool_name == TOOL_START_DISCOVERY:
-                    discovery_result = tool_args.get("result", "Discovery completed.")
+                    discovery_result = await self._handle_start_discovery(
+                        session, adapter, llm_client, tool_args,
+                    )
                     history.append({
                         "tool": TOOL_START_DISCOVERY,
                         "args": tool_args,
@@ -579,19 +611,13 @@ class NegotiationEngine:
                     })
 
                 elif tool_name == TOOL_CREATE_SUB_DEMAND:
-                    sub_id = generate_id("neg")
-                    await self._push_event(
-                        session,
-                        sub_negotiation_started(
-                            negotiation_id=session.negotiation_id,
-                            sub_negotiation_id=sub_id,
-                            gap_description=tool_args.get("gap_description", ""),
-                        ),
+                    sub_result = await self._handle_create_sub_demand(
+                        session, llm_client, tool_args,
                     )
                     history.append({
                         "tool": TOOL_CREATE_SUB_DEMAND,
                         "args": tool_args,
-                        "result": f"Sub-negotiation {sub_id} started.",
+                        "result": sub_result,
                     })
 
                 self._trace(
@@ -658,6 +684,171 @@ class NegotiationEngine:
         except (asyncio.TimeoutError, Exception) as exc:
             logger.warning("ask_agent failed for %s: %s", agent_id, exc)
             return f"Agent {agent_id} did not respond."
+
+    async def _handle_start_discovery(
+        self,
+        session: NegotiationSession,
+        adapter: ProfileDataSource,
+        llm_client: PlatformLLMClient,
+        tool_args: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Run SubNegotiationSkill to discover complementarities between two agents."""
+        ctx = self._neg_contexts.get(session.negotiation_id, {})
+        sub_neg_skill = ctx.get("sub_negotiation_skill")
+
+        agent_a_id = tool_args.get("agent_a", "")
+        agent_b_id = tool_args.get("agent_b", "")
+        reason = tool_args.get("reason", tool_args.get("topic", ""))
+
+        if not sub_neg_skill:
+            return {"discovery_report": {"summary": f"Discovery requested for {agent_a_id} and {agent_b_id}, but SubNegotiationSkill not available."}}
+
+        # Build agent context: profile + offer from participants
+        def _agent_context(aid: str) -> dict[str, Any]:
+            participant = next((p for p in session.participants if p.agent_id == aid), None)
+            offer_text = participant.offer.content if participant and participant.offer else "(no offer)"
+            profile = {}
+            # Profile will be fetched asynchronously below
+            return {"agent_id": aid, "offer": offer_text, "profile": profile}
+
+        agent_a_ctx = _agent_context(agent_a_id)
+        agent_b_ctx = _agent_context(agent_b_id)
+
+        # Fetch profiles asynchronously
+        try:
+            agent_a_ctx["profile"] = await adapter.get_profile(agent_a_id)
+        except Exception:
+            agent_a_ctx["profile"] = {}
+        try:
+            agent_b_ctx["profile"] = await adapter.get_profile(agent_b_id)
+        except Exception:
+            agent_b_ctx["profile"] = {}
+
+        # Add display names
+        agent_a_ctx["display_name"] = self._display_names(session).get(agent_a_id, agent_a_id)
+        agent_b_ctx["display_name"] = self._display_names(session).get(agent_b_id, agent_b_id)
+
+        try:
+            result = await sub_neg_skill.execute({
+                "agent_a": agent_a_ctx,
+                "agent_b": agent_b_ctx,
+                "reason": reason or "Discover complementarities",
+                "llm_client": llm_client,
+            })
+            return result
+        except Exception as exc:
+            logger.warning("start_discovery failed: %s", exc)
+            return {"discovery_report": {"summary": f"Discovery failed: {exc}"}}
+
+    async def _handle_create_sub_demand(
+        self,
+        session: NegotiationSession,
+        llm_client: PlatformLLMClient,
+        tool_args: dict[str, Any],
+    ) -> dict[str, Any]:
+        """Create and run a recursive sub-negotiation for a gap."""
+        ctx = self._neg_contexts.get(session.negotiation_id, {})
+        gap_recursion_skill = ctx.get("gap_recursion_skill")
+        gap_description = tool_args.get("gap_description", "")
+
+        # Depth limit check
+        if session.depth >= 1:
+            msg = f"Max recursion depth reached (depth={session.depth}). Cannot create sub-negotiation."
+            logger.info("Negotiation %s: %s", session.negotiation_id, msg)
+            return {"status": "max_depth_reached", "message": msg}
+
+        # Generate sub-demand text via GapRecursionSkill
+        if gap_recursion_skill:
+            try:
+                gap_result = await gap_recursion_skill.execute({
+                    "gap_description": gap_description,
+                    "demand_context": session.demand.formulated_text or session.demand.raw_intent,
+                    "llm_client": llm_client,
+                })
+                sub_demand_text = gap_result.get("sub_demand_text", gap_description)
+            except Exception as exc:
+                logger.warning("GapRecursionSkill failed: %s", exc)
+                sub_demand_text = gap_description
+        else:
+            sub_demand_text = gap_description
+
+        # Create sub-session
+        sub_id = generate_id("neg")
+        sub_session = NegotiationSession(
+            negotiation_id=sub_id,
+            demand=DemandSnapshot(
+                raw_intent=sub_demand_text,
+                user_id=session.demand.user_id,
+                scene_id=session.demand.scene_id,
+            ),
+            parent_negotiation_id=session.negotiation_id,
+            depth=session.depth + 1,
+            trace=TraceChain(negotiation_id=sub_id),
+        )
+
+        # Push sub_negotiation_started event to parent channel
+        await self._push_event(
+            session,
+            sub_negotiation_started(
+                negotiation_id=session.negotiation_id,
+                sub_negotiation_id=sub_id,
+                gap_description=gap_description,
+            ),
+        )
+
+        # Register sub-session so frontend can access it
+        register_session = ctx.get("register_session")
+        if register_session:
+            register_session(sub_session)
+
+        # Record sub-session ID on parent
+        session.sub_session_ids.append(sub_id)
+
+        # Run sub-negotiation recursively (reusing parent context)
+        try:
+            await self.start_negotiation(
+                session=sub_session,
+                adapter=ctx.get("adapter"),
+                llm_client=ctx.get("llm_client"),
+                center_skill=ctx.get("center_skill"),
+                formulation_skill=ctx.get("formulation_skill"),
+                offer_skill=ctx.get("offer_skill"),
+                agent_vectors=ctx.get("agent_vectors"),
+                k_star=ctx.get("k_star", 5),
+                agent_display_names=ctx.get("agent_display_names"),
+                sub_negotiation_skill=ctx.get("sub_negotiation_skill"),
+                gap_recursion_skill=ctx.get("gap_recursion_skill"),
+                register_session=register_session,
+            )
+        except Exception as exc:
+            logger.warning("Sub-negotiation %s failed: %s", sub_id, exc)
+            sub_session.metadata["error"] = str(exc)
+
+        # Return full sub-session data to parent Center
+        return self._serialize_sub_session(sub_session)
+
+    @staticmethod
+    def _serialize_sub_session(sub: NegotiationSession) -> dict[str, Any]:
+        """Serialize a sub-session's full data for return to parent Center."""
+        return {
+            "sub_negotiation_id": sub.negotiation_id,
+            "state": sub.state.value,
+            "depth": sub.depth,
+            "demand": sub.demand.formulated_text or sub.demand.raw_intent,
+            "plan_output": sub.plan_output,
+            "participants": [
+                {
+                    "agent_id": p.agent_id,
+                    "display_name": p.display_name,
+                    "state": p.state.value,
+                    "offer": p.offer.content if p.offer else None,
+                }
+                for p in sub.participants
+            ],
+            "center_rounds": sub.center_rounds,
+            "event_count": len(sub.event_history),
+            "error": sub.metadata.get("error"),
+        }
 
     async def _finish_with_plan(
         self,
