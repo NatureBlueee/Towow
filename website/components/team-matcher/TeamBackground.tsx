@@ -3,7 +3,7 @@
 import styles from './TeamBackground.module.css';
 
 /**
- * Dark glassmorphism background with animated gradient orbs.
+ * Light glassmorphism background with animated gradient orbs.
  * Used as the shared background for all Team Matcher pages.
  */
 export function TeamBackground() {

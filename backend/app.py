@@ -11,9 +11,10 @@ Web 注册服务 - FastAPI 应用
     python -m web.app
 """
 
-# 在最开始加载环境变量
+# 在最开始加载环境变量（支持从项目根目录启动）
+from pathlib import Path
 from dotenv import load_dotenv
-load_dotenv()
+load_dotenv(Path(__file__).resolve().parent / ".env")
 
 import asyncio
 import logging
@@ -764,6 +765,44 @@ async def auth_callback(
             logger.info(f"User logged in: agent_id={agent_id}, redirecting to {default_page}")
             return redirect_response
         else:
+            # --- Auto-register for Team Matcher flow ---
+            # When return_to points to team-matcher, skip manual registration
+            # and create the user immediately using SecondMe profile info.
+            if return_to and "/team-matcher" in return_to:
+                logger.info(f"Auto-registering new user for Team Matcher: name={user_info.name}")
+                result = await manager.register_user(
+                    display_name=user_info.name or user_identifier,
+                    skills=[],  # Will be filled by SecondMe suggest
+                    specialties=[],
+                    secondme_id=user_identifier,
+                    bio=user_info.bio,
+                    avatar_url=user_info.avatar,
+                    access_token=token_set.access_token,
+                    refresh_token=token_set.refresh_token,
+                )
+                if result.get("success") and result.get("agent_id"):
+                    session_id = secrets.token_urlsafe(32)
+                    session_store = request.app.state.session_store
+                    await session_store.set(
+                        f"session:{session_id}",
+                        result["agent_id"],
+                        ttl_seconds=SESSION_MAX_AGE,
+                    )
+                    redirect_response = RedirectResponse(
+                        url=f"{frontend_url}{default_page}",
+                        status_code=302,
+                    )
+                    redirect_response.set_cookie(
+                        key=SESSION_COOKIE_NAME,
+                        value=session_id,
+                        max_age=SESSION_MAX_AGE,
+                        httponly=True,
+                        samesite="lax",
+                        secure=COOKIE_SECURE,
+                    )
+                    logger.info(f"Auto-registered and logged in: agent_id={result['agent_id']}")
+                    return redirect_response
+
             # 用户需要注册，将信息存储到临时会话，重定向到注册页
             pending_session_id = secrets.token_urlsafe(32)
             session_store = request.app.state.session_store

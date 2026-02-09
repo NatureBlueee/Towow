@@ -1,25 +1,25 @@
 /* styles/team-matcher.css */
-/* Team Matcher - Dark Glassmorphism Design System */
+/* Team Matcher - Light Glassmorphism Design System */
 
-/* === Dark Theme Variables === */
+/* === Light Theme Variables === */
 .team-matcher-root {
   /* Core Colors */
-  --tm-bg-deep: #0A0B14;
-  --tm-bg-surface: #12131E;
-  --tm-bg-elevated: #1A1B2E;
+  --tm-bg-deep: var(--c-bg, #F8F6F3);
+  --tm-bg-surface: #FFFFFF;
+  --tm-bg-elevated: #FFFFFF;
 
   /* Glass */
-  --tm-glass-bg: rgba(255, 255, 255, 0.04);
-  --tm-glass-bg-hover: rgba(255, 255, 255, 0.08);
-  --tm-glass-border: rgba(255, 255, 255, 0.08);
-  --tm-glass-border-hover: rgba(255, 255, 255, 0.15);
+  --tm-glass-bg: rgba(255, 255, 255, 0.7);
+  --tm-glass-bg-hover: rgba(255, 255, 255, 0.85);
+  --tm-glass-border: rgba(0, 0, 0, 0.08);
+  --tm-glass-border-hover: rgba(0, 0, 0, 0.12);
   --tm-glass-blur: 20px;
 
   /* Gradient: Blue-Purple */
   --tm-gradient-primary: linear-gradient(135deg, #6366F1, #8B5CF6, #A855F7);
   --tm-gradient-warm: linear-gradient(135deg, #F59E0B, #F97316);
   --tm-gradient-cool: linear-gradient(135deg, #3B82F6, #6366F1);
-  --tm-gradient-surface: linear-gradient(180deg, rgba(99, 102, 241, 0.08) 0%, rgba(139, 92, 246, 0.04) 100%);
+  --tm-gradient-surface: linear-gradient(180deg, rgba(99, 102, 241, 0.06) 0%, rgba(139, 92, 246, 0.03) 100%);
 
   /* Accent Colors */
   --tm-accent-indigo: #6366F1;
@@ -32,22 +32,22 @@
   --tm-accent-cyan: #06B6D4;
 
   /* Text */
-  --tm-text-primary: #F1F5F9;
-  --tm-text-secondary: #94A3B8;
-  --tm-text-muted: #64748B;
-  --tm-text-accent: #A5B4FC;
+  --tm-text-primary: var(--c-text-main, #1A1A1A);
+  --tm-text-secondary: var(--c-text-sec, #555555);
+  --tm-text-muted: var(--c-text-gray, #666666);
+  --tm-text-accent: #6366F1;
 
   /* Glow Effects */
-  --tm-glow-indigo: 0 0 20px rgba(99, 102, 241, 0.3);
-  --tm-glow-violet: 0 0 20px rgba(139, 92, 246, 0.3);
-  --tm-glow-amber: 0 0 20px rgba(245, 158, 11, 0.3);
-  --tm-glow-soft: 0 0 40px rgba(99, 102, 241, 0.15);
+  --tm-glow-indigo: 0 0 20px rgba(99, 102, 241, 0.15);
+  --tm-glow-violet: 0 0 20px rgba(139, 92, 246, 0.15);
+  --tm-glow-amber: 0 0 20px rgba(245, 158, 11, 0.15);
+  --tm-glow-soft: 0 0 40px rgba(99, 102, 241, 0.08);
 
   /* Shadows */
-  --tm-shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.3);
-  --tm-shadow-md: 0 4px 16px rgba(0, 0, 0, 0.4);
-  --tm-shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.5);
-  --tm-shadow-card: 0 4px 24px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --tm-shadow-sm: var(--shadow-sm, 0 5px 15px rgba(180, 140, 100, 0.08));
+  --tm-shadow-md: var(--shadow-md, 0 10px 30px rgba(180, 140, 100, 0.1));
+  --tm-shadow-lg: var(--shadow-lg, 0 20px 40px rgba(160, 120, 80, 0.12));
+  --tm-shadow-card: 0 4px 24px rgba(180, 140, 100, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.5);
 
   /* Spacing */
   --tm-spacing-xs: 4px;

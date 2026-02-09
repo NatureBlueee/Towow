@@ -9,7 +9,7 @@
 .label {
   font-size: 14px;
   font-weight: 500;
-  color: #CBD5E1;
+  color: var(--c-text-dark, #222222);
   letter-spacing: 0.3px;
 }
 
@@ -20,8 +20,8 @@
   gap: 6px;
   min-height: 48px;
   padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.12);
   border-radius: 12px;
   cursor: text;
   transition: border-color 200ms ease, box-shadow 200ms ease;
@@ -38,14 +38,14 @@
   background: none;
   border: none;
   outline: none;
-  color: #F1F5F9;
+  color: var(--c-text-main, #1A1A1A);
   font-size: 14px;
   font-family: inherit;
   padding: 4px 0;
 }
 
 .input::placeholder {
-  color: #475569;
+  color: #999999;
 }
 
 /* Tags */
@@ -62,7 +62,7 @@
 
 .tagText {
   font-size: 13px;
-  color: #A5B4FC;
+  color: #4F46E5;
   white-space: nowrap;
 }
 
@@ -74,7 +74,7 @@
   height: 18px;
   background: none;
   border: none;
-  color: #64748B;
+  color: #888888;
   cursor: pointer;
   border-radius: 4px;
   padding: 0;
@@ -95,11 +95,11 @@
   position: relative;
   display: flex;
   flex-direction: column;
-  background: #1A1B2E;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: #FFFFFF;
+  border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 10px;
   overflow: hidden;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 8px 32px rgba(180, 140, 100, 0.15);
   z-index: 20;
 }
 
@@ -110,7 +110,7 @@
   padding: 10px 14px;
   background: none;
   border: none;
-  color: #CBD5E1;
+  color: #333333;
   font-size: 13px;
   cursor: pointer;
   transition: background 150ms ease;
@@ -119,7 +119,7 @@
 
 .suggestionItem:hover {
   background: rgba(99, 102, 241, 0.1);
-  color: #F1F5F9;
+  color: #1A1A1A;
 }
 
 /* Quick select chips */
@@ -133,9 +133,9 @@
 .chip {
   padding: 4px 12px;
   font-size: 12px;
-  color: #94A3B8;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #666666;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 20px;
   cursor: pointer;
   transition: all 150ms ease;
@@ -143,14 +143,14 @@
 }
 
 .chip:hover {
-  color: #A5B4FC;
+  color: #4F46E5;
   background: rgba(99, 102, 241, 0.1);
   border-color: rgba(99, 102, 241, 0.25);
 }
 
 .moreHint {
   font-size: 12px;
-  color: #475569;
+  color: #888888;
   display: flex;
   align-items: center;
   padding: 0 4px;
@@ -158,6 +158,6 @@
 
 .hint {
   font-size: 12px;
-  color: #475569;
+  color: #888888;
   margin: 0;
 }

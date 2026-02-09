@@ -5,16 +5,16 @@
   flex-direction: column;
   gap: 10px;
   padding: 14px;
-  background: rgba(255, 255, 255, 0.03);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 12px;
   transition: border-color 200ms ease, background 200ms ease;
   animation: tm-fly-in-up 400ms ease-out both;
 }
 
 .card:hover {
-  border-color: rgba(255, 255, 255, 0.1);
-  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(0, 0, 0, 0.1);
+  background: rgba(255, 255, 255, 0.9);
 }
 
 /* Header */
@@ -47,7 +47,7 @@
 .name {
   font-size: 14px;
   font-weight: 600;
-  color: #E2E8F0;
+  color: var(--c-text-dark, #222222);
   margin: 0;
   white-space: nowrap;
   overflow: hidden;
@@ -56,13 +56,13 @@
 
 .role {
   font-size: 12px;
-  color: #A5B4FC;
+  color: #4F46E5;
 }
 
 /* Intro */
 .intro {
   font-size: 13px;
-  color: #94A3B8;
+  color: var(--c-text-sec, #555555);
   margin: 0;
   line-height: 1.5;
 }
@@ -77,16 +77,16 @@
 .skillTag {
   padding: 2px 8px;
   font-size: 11px;
-  color: #94A3B8;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  color: #666666;
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 4px;
   white-space: nowrap;
 }
 
 .skillMore {
   font-size: 11px;
-  color: #64748B;
+  color: #888888;
   padding: 2px 4px;
 }
 
@@ -109,6 +109,6 @@
 
 .matchReason span {
   font-size: 12px;
-  color: #94A3B8;
+  color: #555555;
   line-height: 1.5;
 }

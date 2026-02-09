@@ -35,12 +35,25 @@ const TeamAuthContext = createContext<TeamAuthState>({
   isAuthenticated: false,
 });
 
+const SKIP_AUTH = process.env.NEXT_PUBLIC_SKIP_AUTH === 'true';
+
+const DEMO_USER: TeamUser = {
+  agent_id: 'demo_user',
+  display_name: '演示用户',
+};
+
 export function TeamAuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<TeamUser | null>(null);
   const [isChecking, setIsChecking] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
+
+    if (SKIP_AUTH) {
+      setUser(DEMO_USER);
+      setIsChecking(false);
+      return;
+    }
 
     const checkAuth = async () => {
       try {

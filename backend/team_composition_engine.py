@@ -391,10 +391,16 @@ def _calculate_coverage_score(
     if not required_roles:
         return 1.0
 
-    # 简单匹配：检查角色名称包含关系
-    # 例如："前端开发" 匹配 "前端"
+    # "通用成员" is a wildcard role that matches any offered role
+    WILDCARD_ROLES = {"通用成员", "generic", "any"}
+
     matched_count = 0
     for required in required_roles:
+        if required.lower() in WILDCARD_ROLES:
+            matched_count += 1
+            continue
+        # 简单匹配：检查角色名称包含关系
+        # 例如："前端开发" 匹配 "前端"
         for offered in offered_roles:
             if required.lower() in offered.lower():
                 matched_count += 1
