@@ -138,7 +138,7 @@ function negotiationReducer(
 
 // ============ WebSocket Config ============
 
-const WS_BASE = process.env.NEXT_PUBLIC_NEGOTIATION_WS_URL || 'ws://localhost:8081';
+const WS_BASE = process.env.NEXT_PUBLIC_NEGOTIATION_WS_URL || 'ws://localhost:8080/v1';
 const MAX_RETRIES = 5;
 
 type ConnectionStatus = 'disconnected' | 'connecting' | 'connected' | 'reconnecting' | 'error';

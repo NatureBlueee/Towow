@@ -1,13 +1,19 @@
 FROM python:3.12-slim
 
-WORKDIR /srv
+WORKDIR /app
 
-# Install deps
-COPY backend/requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+# Install deps (exclude sentence-transformers to save ~460MB)
+COPY backend/requirements.txt /tmp/requirements.txt
+RUN grep -v sentence-transformers /tmp/requirements.txt > /tmp/req-slim.txt && \
+    pip install --no-cache-dir -r /tmp/req-slim.txt && \
+    pip install --no-cache-dir numpy
 
-# Copy backend code as a package named "app"
-COPY backend/ /srv/app/
+# Copy backend code
+COPY backend/ /app/backend/
 
-# Start: import as package so relative imports work
-CMD ["sh", "-c", "uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
+# Copy apps (App Store + shared)
+COPY apps/ /app/apps/
+
+ENV PYTHONPATH=/app/backend:/app
+
+CMD ["uvicorn", "backend.server:app", "--host", "0.0.0.0", "--port", "8080"]

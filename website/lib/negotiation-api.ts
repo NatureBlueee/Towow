@@ -2,8 +2,8 @@
  * Negotiation API client.
  *
  * Standalone module for all negotiation REST endpoints.
- * Base URL defaults to http://localhost:8081 and can be overridden
- * via NEXT_PUBLIC_NEGOTIATION_API_URL.
+ * Base URL defaults to /v1 (proxied via Next.js rewrites) and can be
+ * overridden via NEXT_PUBLIC_NEGOTIATION_API_URL.
  */
 
 import type {
@@ -14,7 +14,7 @@ import type {
 } from '@/types/negotiation';
 
 const API_BASE =
-  process.env.NEXT_PUBLIC_NEGOTIATION_API_URL || 'http://localhost:8081';
+  process.env.NEXT_PUBLIC_NEGOTIATION_API_URL || '/v1';
 
 // ============ Generic request helper ============
 
@@ -125,7 +125,7 @@ export async function getNegotiationStatus(
 // ============ WebSocket URL helper ============
 
 const WS_BASE =
-  process.env.NEXT_PUBLIC_NEGOTIATION_WS_URL || 'ws://localhost:8081';
+  process.env.NEXT_PUBLIC_NEGOTIATION_WS_URL || 'ws://localhost:8080/v1';
 
 /**
  * Build the WebSocket URL for a negotiation event stream.

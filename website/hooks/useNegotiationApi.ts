@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 
-const API_BASE = process.env.NEXT_PUBLIC_NEGOTIATION_API_URL || 'http://localhost:8081';
+const API_BASE = process.env.NEXT_PUBLIC_NEGOTIATION_API_URL || '/v1';
 
 interface ApiState {
   loading: boolean;
