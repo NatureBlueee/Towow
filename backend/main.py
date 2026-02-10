@@ -7,26 +7,26 @@ Usage:
 
 import sys
 import os
+import types
 import importlib
 
 # app.py uses relative imports (from .agent_manager, etc.)
-# so it must be imported as part of a package, not as a standalone module.
-#
-# In Railway container: files are in /app/, so this_dir=/app, parent_dir=/
-# We must ensure parent_dir is FIRST in sys.path so Python resolves
-# "import app" as the /app/ PACKAGE (has __init__.py), not /app/app.py MODULE.
+# In Railway container, all files are in /app/ — Python's '' in sys.path
+# causes "import app" to find app.py (module) instead of app/ (package).
+# Fix: pre-register the directory as a package in sys.modules.
 this_dir = os.path.dirname(os.path.abspath(__file__))
-parent_dir = os.path.dirname(this_dir)
-
-# Remove this_dir from sys.path to prevent module/package name conflict
-while this_dir in sys.path:
-    sys.path.remove(this_dir)
-
-# Insert parent_dir at front so the directory is seen as a package
-sys.path.insert(0, parent_dir)
-
-# Package name = directory name (e.g. "backend" locally, "app" in Railway)
 pkg = os.path.basename(this_dir)
+
+if pkg not in sys.modules:
+    fake_pkg = types.ModuleType(pkg)
+    fake_pkg.__path__ = [this_dir]
+    fake_pkg.__package__ = pkg
+    init_file = os.path.join(this_dir, "__init__.py")
+    if os.path.exists(init_file):
+        with open(init_file) as f:
+            exec(compile(f.read(), init_file, "exec"), fake_pkg.__dict__)
+    sys.modules[pkg] = fake_pkg
+
 mod = importlib.import_module(f"{pkg}.app")
 app = mod.app
 
