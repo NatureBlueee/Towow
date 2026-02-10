@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>通爻网络 — 结构拓扑</title>
+<style>
+  :root {
+    --warm: #c2553a;
+    --warm-soft: #f5ebe6;
+    --ink: #1a1a1a;
+    --gray: #666;
+    --light: #f8f6f3;
+    --border: #e0dcd8;
+    --blue: #4a7fb5;
+    --green: #5a8f6a;
+    --purple: #7b68a8;
+    --gold: #b8953e;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, "Noto Sans SC", "PingFang SC", sans-serif;
+    background: var(--light);
+    color: var(--ink);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  /* ========== Hero ========== */
+  .hero {
+    text-align: center;
+    padding: 80px 24px 40px;
+    position: relative;
+  }
+  .hero h1 {
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .hero h1 span { color: var(--warm); }
+  .hero p {
+    font-size: 18px;
+    color: var(--gray);
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  /* ========== Section ========== */
+  section {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 24px;
+  }
+  section h2 {
+    font-size: 28px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  section h2 span { color: var(--warm); }
+  section .subtitle {
+    font-size: 16px;
+    color: var(--gray);
+    margin-bottom: 40px;
+  }
+
+  /* ========== 基本操作 ========== */
+  .projection-demo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 48px 32px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    margin-bottom: 24px;
+  }
+  .proj-box {
+    text-align: center;
+    padding: 20px 28px;
+    border-radius: 12px;
+    min-width: 140px;
+  }
+  .proj-rich {
+    background: linear-gradient(135deg, #e8e4f0, #f0e8e4, #e4ecf0);
+    border: 2px solid #d0c8d8;
+  }
+  .proj-lens {
+    background: var(--warm-soft);
+    border: 2px solid var(--warm);
+    border-radius: 50%;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    min-width: 100px;
+  }
+  .proj-focus {
+    background: #e8f0e8;
+    border: 2px solid var(--green);
+  }
+  .proj-box .label {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 4px;
+  }
+  .proj-box .value {
+    font-size: 18px;
+    font-weight: 600;
+  }
+  .proj-arrow {
+    font-size: 24px;
+    color: var(--warm);
+    flex-shrink: 0;
+  }
+
+  /* ========== 分形展示 ========== */
+  .fractal-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .fractal-card {
+    background: #fff;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .fractal-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 4px;
+    height: 100%;
+  }
+  .fractal-card:nth-child(1)::before { background: var(--purple); }
+  .fractal-card:nth-child(2)::before { background: var(--warm); }
+  .fractal-card:nth-child(3)::before { background: var(--blue); }
+  .fractal-card:nth-child(4)::before { background: var(--green); }
+  .fractal-card:nth-child(5)::before { background: var(--gold); }
+  .fractal-card:nth-child(6)::before { background: var(--gray); }
+  .fractal-card .fc-title {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 8px;
+  }
+  .fractal-card .fc-flow {
+    font-size: 14px;
+    color: var(--gray);
+    font-family: "SF Mono", "Fira Code", monospace;
+    line-height: 1.8;
+  }
+  .fractal-card .fc-flow .fc-arrow { color: var(--warm); }
+
+  /* ========== 协商流 ========== */
+  .flow-container {
+    position: relative;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    padding: 48px 32px;
+  }
+  .flow-steps {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    position: relative;
+  }
+  .flow-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+    padding: 20px 0;
+    position: relative;
+  }
+  .flow-step:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: 23px;
+    top: 56px;
+    bottom: -20px;
+    width: 2px;
+    background: var(--border);
+  }
+  .flow-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    position: relative;
+    z-index: 1;
+    border: 2px solid;
+  }
+  .flow-body {
+    flex: 1;
+    padding-top: 4px;
+  }
+  .flow-body h3 {
+    font-size: 17px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+  .flow-body p {
+    font-size: 14px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+  .flow-body .state-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-family: "SF Mono", monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: #f0f0f0;
+    color: var(--gray);
+    margin-top: 4px;
+    margin-right: 4px;
+  }
+  .flow-body .event-tag {
+    display: inline-block;
+    font-size: 11px;
+    font-family: "SF Mono", monospace;
+    padding: 2px 8px;
+    border-radius: 4px;
+    background: var(--warm-soft);
+    color: var(--warm);
+    margin-top: 4px;
+    margin-right: 4px;
+  }
+
+  /* flow icon colors */
+  .fi-intent { background: #f3eef8; border-color: var(--purple); color: var(--purple); }
+  .fi-formulate { background: #fdf2ef; border-color: var(--warm); color: var(--warm); }
+  .fi-broadcast { background: #edf3f8; border-color: var(--blue); color: var(--blue); }
+  .fi-offer { background: #eef5ef; border-color: var(--green); color: var(--green); }
+  .fi-center { background: #f8f3ea; border-color: var(--gold); color: var(--gold); }
+  .fi-plan { background: #f3eef8; border-color: var(--purple); color: var(--purple); }
+  .fi-recurse { background: #fdf2ef; border-color: var(--warm); color: var(--warm); }
+  .fi-echo { background: #f0f0f0; border-color: var(--gray); color: var(--gray); }
+
+  /* ========== 四层架构 ========== */
+  .layers {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .layer-row {
+    display: flex;
+    align-items: stretch;
+    border-bottom: 1px solid var(--border);
+  }
+  .layer-row:last-child { border-bottom: none; }
+  .layer-label {
+    width: 180px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    border-right: 1px solid var(--border);
+    flex-shrink: 0;
+  }
+  .layer-label .ll-name {
+    font-size: 16px;
+    font-weight: 700;
+  }
+  .layer-label .ll-en {
+    font-size: 12px;
+    color: var(--gray);
+    font-family: "SF Mono", monospace;
+  }
+  .layer-label .ll-note {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+  .layer-content {
+    flex: 1;
+    padding: 20px 24px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    align-items: center;
+  }
+  .layer-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 14px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid;
+  }
+
+  .l-protocol .layer-label { background: #fdf2ef; }
+  .l-protocol .layer-chip { background: #fdf2ef; border-color: #e8c4b8; color: #8b3a22; }
+  .l-infra .layer-label { background: #edf3f8; }
+  .l-infra .layer-chip { background: #edf3f8; border-color: #b8cee0; color: #3a5f7b; }
+  .l-capability .layer-label { background: #eef5ef; }
+  .l-capability .layer-chip { background: #eef5ef; border-color: #b8d8be; color: #3a6b44; }
+  .l-application .layer-label { background: #f3eef8; }
+  .l-application .layer-chip { background: #f3eef8; border-color: #c8b8d8; color: #5a4878; }
+
+  /* ========== Agent 拓扑 ========== */
+  .agent-topology {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    padding: 48px 32px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .agent-col {
+    text-align: center;
+    max-width: 240px;
+  }
+  .agent-node {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    border: 3px solid;
+    position: relative;
+  }
+  .agent-node .an-icon { font-size: 28px; margin-bottom: 4px; }
+  .agent-node .an-label { font-size: 13px; font-weight: 600; }
+  .agent-col .agent-desc {
+    font-size: 13px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  .an-edge { background: #f3eef8; border-color: var(--purple); color: var(--purple); }
+  .an-service { background: #eef5ef; border-color: var(--green); color: var(--green); }
+  .an-center { background: #f8f3ea; border-color: var(--gold); color: var(--gold); }
+  .an-admin { background: #edf3f8; border-color: var(--blue); color: var(--blue); }
+
+  /* connector lines between agents */
+  .agent-connectors {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 12px;
+    padding-top: 30px;
+  }
+  .conn-line {
+    font-size: 12px;
+    color: var(--gray);
+    font-family: "SF Mono", monospace;
+    white-space: nowrap;
+  }
+  .conn-arrow { color: var(--warm); }
+
+  /* ========== 核心公式 ========== */
+  .formula-bar {
+    text-align: center;
+    padding: 32px;
+    background: var(--warm-soft);
+    border-radius: 12px;
+    margin-top: 40px;
+  }
+  .formula-bar .formula {
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--ink);
+    letter-spacing: 0.02em;
+  }
+  .formula-bar .formula em {
+    font-style: normal;
+    color: var(--warm);
+  }
+  .formula-bar .note {
+    font-size: 14px;
+    color: var(--gray);
+    margin-top: 8px;
+  }
+
+  /* ========== 自-我 拓扑 ========== */
+  .self-topology {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    padding: 48px 32px;
+    background: #fff;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+  }
+  .self-outer {
+    width: 280px;
+    height: 280px;
+    border-radius: 50%;
+    border: 3px dashed var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+  }
+  .self-label {
+    position: absolute;
+    top: -12px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--light);
+    padding: 0 12px;
+    font-size: 14px;
+    color: var(--gray);
+  }
+  .self-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+  .self-core {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #e8e4f0, #f0e8e4);
+    border: 2px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 32px;
+  }
+  .self-data-label {
+    font-size: 12px;
+    color: var(--gray);
+  }
+  .projection-arrows {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    align-items: center;
+  }
+  .pa-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pa-arrow {
+    font-size: 16px;
+    color: var(--warm);
+  }
+  .pa-lens {
+    font-size: 12px;
+    color: var(--warm);
+    background: var(--warm-soft);
+    padding: 2px 8px;
+    border-radius: 4px;
+  }
+  .pa-arrow-long {
+    width: 40px;
+    height: 2px;
+    background: var(--warm);
+    position: relative;
+  }
+  .pa-arrow-long::after {
+    content: '>';
+    position: absolute;
+    right: -8px;
+    top: -9px;
+    font-size: 14px;
+    color: var(--warm);
+  }
+  .projections-col {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .proj-agent {
+    padding: 12px 20px;
+    border-radius: 10px;
+    border: 2px solid;
+    text-align: center;
+    min-width: 140px;
+  }
+  .proj-agent .pa-type {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .proj-agent .pa-name {
+    font-size: 15px;
+    font-weight: 600;
+  }
+
+  /* ========== Footer ========== */
+  .footer {
+    text-align: center;
+    padding: 40px 24px 60px;
+    color: var(--gray);
+    font-size: 14px;
+  }
+  .footer .credit {
+    font-size: 12px;
+    margin-top: 8px;
+    color: #aaa;
+  }
+
+  /* ========== Responsive ========== */
+  @media (max-width: 768px) {
+    .hero h1 { font-size: 32px; }
+    .fractal-grid { grid-template-columns: 1fr; }
+    .projection-demo { flex-direction: column; gap: 12px; }
+    .proj-arrow { transform: rotate(90deg); }
+    .agent-topology { flex-direction: column; gap: 32px; }
+    .agent-connectors { display: none; }
+    .self-topology { flex-direction: column; }
+    .layer-label { width: 120px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ==================== Hero ==================== -->
+<div class="hero">
+  <h1>通爻网络 — <span>结构拓扑</span></h1>
+  <p>一个操作，在不同尺度上反复应用，生万物</p>
+</div>
+
+<!-- ==================== 基本操作 ==================== -->
+<section>
+  <h2>一、<span>基本操作</span></h2>
+  <p class="subtitle">整个系统只有一个操作。你看到的一百样东西，都是它。</p>
+
+  <div class="projection-demo">
+    <div class="proj-box proj-rich">
+      <div class="label">丰富</div>
+      <div class="value">Rich</div>
+    </div>
+    <div class="proj-arrow">→</div>
+    <div class="proj-box proj-lens">
+      <div class="label">透镜</div>
+      <div class="value">Lens</div>
+    </div>
+    <div class="proj-arrow">→</div>
+    <div class="proj-box proj-focus">
+      <div class="label">聚焦</div>
+      <div class="value">Focus</div>
+    </div>
+  </div>
+
+  <div class="fractal-grid">
+    <div class="fractal-card">
+      <div class="fc-title">人 → 身份</div>
+      <div class="fc-flow">"自"<br><span class="fc-arrow">→</span> Profile 透镜<br><span class="fc-arrow">→</span> Agent（"我"）</div>
+    </div>
+    <div class="fractal-card">
+      <div class="fc-title">意图 → 签名</div>
+      <div class="fc-flow">模糊意图<br><span class="fc-arrow">→</span> Formulation 透镜<br><span class="fc-arrow">→</span> HDC 需求签名</div>
+    </div>
+    <div class="fractal-card">
+      <div class="fc-title">信号 → 共振</div>
+      <div class="fc-flow">广播信号<br><span class="fc-arrow">→</span> Resonance 透镜<br><span class="fc-arrow">→</span> 相关 Agent 激活</div>
+    </div>
+    <div class="fractal-card">
+      <div class="fc-title">响应 → 方案</div>
+      <div class="fc-flow">多个 Offer<br><span class="fc-arrow">→</span> Center 透镜<br><span class="fc-arrow">→</span> 聚合方案</div>
+    </div>
+    <div class="fractal-card">
+      <div class="fc-title">缺口 → 递归</div>
+      <div class="fc-flow">方案缺口<br><span class="fc-arrow">→</span> Gap 透镜<br><span class="fc-arrow">→</span> 子需求（再投影）</div>
+    </div>
+    <div class="fractal-card">
+      <div class="fc-title">执行 → 进化</div>
+      <div class="fc-flow">执行信号<br><span class="fc-arrow">→</span> Echo 透镜<br><span class="fc-arrow">→</span> Profile 更新</div>
+    </div>
+  </div>
+
+  <div class="formula-bar">
+    <div class="formula">道生一，一生二，二生三，<em>三生万物</em></div>
+    <div class="note">同一个投影操作，在不同尺度上反复应用</div>
+  </div>
+</section>
+
+<!-- ==================== 自-我 拓扑 ==================== -->
+<section>
+  <h2>二、<span>一自多我</span></h2>
+  <p class="subtitle">"自"在系统之外。系统中只有投影。一个人可以有多个"我"。</p>
+
+  <div class="self-topology">
+    <div class="self-outer">
+      <div class="self-label">系统之外 — "自"</div>
+      <div class="self-inner">
+        <div class="self-core">人</div>
+        <div class="self-data-label">↓ 数据影子</div>
+        <div style="font-size:13px; color:var(--gray); background:#f5f3f0; padding:4px 12px; border-radius:6px;">
+          Profile Data
+        </div>
+      </div>
+    </div>
+
+    <div class="projection-arrows">
+      <div class="pa-row">
+        <div class="pa-lens">通才透镜</div>
+        <div class="pa-arrow-long"></div>
+      </div>
+      <div class="pa-row">
+        <div class="pa-lens">招聘透镜</div>
+        <div class="pa-arrow-long"></div>
+      </div>
+      <div class="pa-row">
+        <div class="pa-lens">技术透镜</div>
+        <div class="pa-arrow-long"></div>
+      </div>
+    </div>
+
+    <div class="projections-col">
+      <div class="proj-agent" style="background:#f3eef8; border-color:var(--purple);">
+        <div class="pa-type" style="color:var(--purple);">Edge Agent</div>
+        <div class="pa-name">全维度投影</div>
+      </div>
+      <div class="proj-agent" style="background:#eef5ef; border-color:var(--green);">
+        <div class="pa-type" style="color:var(--green);">Service Agent</div>
+        <div class="pa-name">招聘面具</div>
+      </div>
+      <div class="proj-agent" style="background:#edf3f8; border-color:var(--blue);">
+        <div class="pa-type" style="color:var(--blue);">Service Agent</div>
+        <div class="pa-name">技术面具</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 协商流 ==================== -->
+<section>
+  <h2>三、<span>协商单元</span></h2>
+  <p class="subtitle">最小完整单元。自包含、可递归、可组合。</p>
+
+  <div class="flow-container">
+    <div class="flow-steps">
+
+      <div class="flow-step">
+        <div class="flow-icon fi-intent">意</div>
+        <div class="flow-body">
+          <h3>用户表达意图</h3>
+          <p>原始的、可能模糊的。"我想找个技术联创。"</p>
+          <span class="state-tag">CREATED</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon fi-formulate">丰</div>
+        <div class="flow-body">
+          <h3>需求 Formulation</h3>
+          <p>用户 Agent 基于 Profile 理解真实需求。不是"技术联创"——是"验证想法的能力"。用户确认后编码为 HDC 签名。</p>
+          <span class="state-tag">FORMULATING</span>
+          <span class="state-tag">FORMULATED</span>
+          <span class="event-tag">formulation.ready</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon fi-broadcast">振</div>
+        <div class="flow-body">
+          <h3>签名广播 → 共振检测</h3>
+          <p>信号广播出去。不是搜索——是在场中产生扰动。能响应的端侧 Agent 自己激活。三级过滤：Bloom (90%) → HDC (9%) → LLM (1%)。</p>
+          <span class="state-tag">ENCODING</span>
+          <span class="event-tag">resonance.activated</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon fi-offer">应</div>
+        <div class="flow-body">
+          <h3>Offer 响应</h3>
+          <p>共振的 Agent 各自独立生成 Offer。并行进行，互不可见。等待屏障收齐后统一提交。</p>
+          <span class="state-tag">OFFERING</span>
+          <span class="state-tag">BARRIER_WAITING</span>
+          <span class="event-tag">offer.received</span>
+          <span class="event-tag">barrier.complete</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon fi-center">聚</div>
+        <div class="flow-body">
+          <h3>Center 协调聚合</h3>
+          <p>Center Agent 综合所有 Offer + 用户偏好，识别缺口、追问细节、设计方案。<br>
+          5 个 tool：<code>ask_agent</code> · <code>request_info</code> · <code>identify_gap</code> · <code>start_sub_negotiation</code> · <code>output_plan</code></p>
+          <span class="state-tag">SYNTHESIZING</span>
+          <span class="event-tag">center.tool_call</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon fi-recurse">递</div>
+        <div class="flow-body">
+          <h3>缺口递归（可选）</h3>
+          <p>发现无法满足的部分 → 生成子需求 → 同样的流程再跑一遍。分形结构的工程实现。</p>
+          <span class="event-tag">sub_negotiation.started</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon fi-plan">案</div>
+        <div class="flow-body">
+          <h3>方案输出</h3>
+          <p>协商的自然终止态。一句话进去，一个方案出来。</p>
+          <span class="state-tag">COMPLETED</span>
+          <span class="event-tag">plan.ready</span>
+        </div>
+      </div>
+
+      <div class="flow-step">
+        <div class="flow-icon fi-echo">回</div>
+        <div class="flow-body">
+          <h3>回声（Echo）</h3>
+          <p>方案执行的真实世界信号回流，成为 Profile 演化的输入。没有回声的波不是场。波出去了，要回来。</p>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ==================== Agent 拓扑 ==================== -->
+<section>
+  <h2>四、<span>Agent 角色</span></h2>
+  <p class="subtitle">四种 Agent，各有定位。不是层级关系——是协作关系。</p>
+
+  <div class="agent-topology">
+    <div class="agent-col">
+      <div class="agent-node an-edge">
+        <div class="an-icon">窗</div>
+        <div class="an-label">Edge</div>
+      </div>
+      <div class="agent-desc">
+        <strong>端侧 Agent</strong><br>
+        网络的基本节点。全维度投影，信噪比低但能捕捉意外关联。共振检测发生在这里——门卫。
+      </div>
+    </div>
+
+    <div class="agent-connectors">
+      <div class="conn-line"><span class="conn-arrow">←</span> 信号广播 <span class="conn-arrow">→</span></div>
+      <div class="conn-line"><span class="conn-arrow">←</span> Offer 提交 <span class="conn-arrow">→</span></div>
+      <div class="conn-line"><span class="conn-arrow">←</span> 追问/补充 <span class="conn-arrow">→</span></div>
+    </div>
+
+    <div class="agent-col">
+      <div class="agent-node an-center">
+        <div class="an-icon">聚</div>
+        <div class="an-label">Center</div>
+      </div>
+      <div class="agent-desc">
+        <strong>中心 Agent</strong><br>
+        协商场的促进者，不是决策者。收集响应、聚合上下文、识别缺口。每个需求生成一个，用完即消。
+      </div>
+    </div>
+
+    <div class="agent-connectors">
+      <div class="conn-line"><span class="conn-arrow">←</span> 创建空间 <span class="conn-arrow">→</span></div>
+      <div class="conn-line"><span class="conn-arrow">←</span> 管理权限 <span class="conn-arrow">→</span></div>
+    </div>
+
+    <div class="agent-col">
+      <div class="agent-node an-service">
+        <div class="an-icon">面</div>
+        <div class="an-label">Service</div>
+      </div>
+      <div class="agent-desc">
+        <strong>服务 Agent / 面具</strong><br>
+        专才投影。从 Edge 分化而来。快速精准响应特定领域的标准需求。多个聚集 → 市场涌现。
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ==================== 四层架构 ==================== -->
+<section>
+  <h2>五、<span>四层架构</span></h2>
+  <p class="subtitle">协议层不可改，基础设施层可替换。</p>
+
+  <div class="layers">
+    <div class="layer-row l-protocol">
+      <div class="layer-label">
+        <div class="ll-name">协议层</div>
+        <div class="ll-en">Protocol</div>
+        <div class="ll-note">稳定 · 不可改</div>
+      </div>
+      <div class="layer-content">
+        <div class="layer-chip">8 状态机</div>
+        <div class="layer-chip">7 事件类型</div>
+        <div class="layer-chip">5 Center Tools</div>
+        <div class="layer-chip">投影操作</div>
+        <div class="layer-chip">共振语义</div>
+        <div class="layer-chip">递归规则</div>
+        <div class="layer-chip">确认步骤</div>
+        <div class="layer-chip">等待屏障</div>
+      </div>
+    </div>
+    <div class="layer-row l-infra">
+      <div class="layer-label">
+        <div class="ll-name">基础设施层</div>
+        <div class="ll-en">Infrastructure</div>
+        <div class="ll-note">可替换</div>
+      </div>
+      <div class="layer-content">
+        <div class="layer-chip">WebSocket 事件</div>
+        <div class="layer-chip">内存存储</div>
+        <div class="layer-chip">FastAPI 路由</div>
+        <div class="layer-chip">Session Store</div>
+        <div class="layer-chip">OAuth2 认证</div>
+      </div>
+    </div>
+    <div class="layer-row l-capability">
+      <div class="layer-label">
+        <div class="ll-name">能力层</div>
+        <div class="ll-en">Capability</div>
+        <div class="ll-note">可插拔</div>
+      </div>
+      <div class="layer-content">
+        <div class="layer-chip">Claude LLM</div>
+        <div class="layer-chip">HDC 编码 (384d)</div>
+        <div class="layer-chip">余弦共振</div>
+        <div class="layer-chip">SecondMe 画像</div>
+        <div class="layer-chip">Formulation Skill</div>
+        <div class="layer-chip">Center Skill</div>
+        <div class="layer-chip">Offer Skill</div>
+      </div>
+    </div>
+    <div class="layer-row l-application">
+      <div class="layer-label">
+        <div class="ll-name">应用层</div>
+        <div class="ll-en">Application</div>
+        <div class="ll-note">最易变</div>
+      </div>
+      <div class="layer-content">
+        <div class="layer-chip">黑客松组队</div>
+        <div class="layer-chip">技能交换</div>
+        <div class="layer-chip">AI 工程师招聘</div>
+        <div class="layer-chip">创业匹配</div>
+        <div class="layer-chip">App Store 面板</div>
+        <div class="layer-chip">towow.net 前端</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="formula-bar" style="margin-top: 24px;">
+    <div class="formula">复杂度 = <em>O(N + M)</em>，不是 O(N × M)</div>
+    <div class="note">N 个 Agent，M 条信号。签名广播 (M) + 端侧检测 (N) = 线性。99% 在前两层过滤。</div>
+  </div>
+</section>
+
+<!-- ==================== Footer ==================== -->
+<div class="footer">
+  <div>协议创造场，产品在场中生长</div>
+  <div class="credit">通爻网络 · ToWow Protocol · 2026</div>
+</div>
+
+</body>
+</html>

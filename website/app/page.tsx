@@ -30,6 +30,8 @@ export default async function Home() {
         outlineButtonHref="/articles"
         primaryButtonText={t('primaryButton')}
         primaryButtonHref="/articles/join-us"
+        secondaryButtonText={t('secondaryButton')}
+        secondaryButtonHref="/store/"
       />
 
       {/* SecondMe Login */}

@@ -3,7 +3,7 @@ import Link from 'next/link';
 import styles from './Button.module.css';
 
 interface ButtonProps {
-  variant: 'primary' | 'outline';
+  variant: 'primary' | 'outline' | 'secondary';
   children: React.ReactNode;
   href?: string;
   onClick?: () => void;

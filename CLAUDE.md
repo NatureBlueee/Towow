@@ -10,102 +10,73 @@ ToWow (通爻) is an AI Agent collaboration platform. Core concepts: Projection 
 
 ```
 Towow/
-├── website/               # Next.js 16 website (deployed to Vercel)
-│   ├── app/               # App Router pages
-│   ├── components/        # React components
-│   ├── hooks/             # Custom hooks (useAuth, useNegotiation, useWebSocket)
-│   └── lib/               # Utilities and API clients
-├── backend/               # FastAPI backend
-│   ├── app.py             # Main application
-│   ├── agent_manager.py   # Agent lifecycle management
-│   ├── bridge_agent.py    # OpenAgents network bridge
-│   └── websocket_manager.py  # WebSocket connections
-├── docs/                  # Design documents and technical specs
-│   ├── ARCHITECTURE_DESIGN.md  # Main architecture document
-│   ├── DESIGN_LOG_*.md    # Design decision logs
-│   ├── tasks/             # Contribution task definitions
-│   ├── articles/          # Published articles
-│   ├── screenshots/       # UI screenshots
-│   └── archive/           # Archived task files
-├── research/              # Community research outputs
-├── agents/                # Agent implementations
-├── mods/                  # OpenAgents modules
-├── scripts/               # Startup and test scripts
-├── .agents/               # Agent configuration
-├── .ai/                   # AI task tracking
-├── .beads/                # Issue tracking (bd)
-├── .claude/               # Claude Code settings
-├── CLAUDE.md              # This file
-└── .gitignore             # Git ignore rules
+├── backend/
+│   ├── server.py              # Unified entry (Auth + V1 Engine + App Store)
+│   ├── towow/                 # V1 negotiation engine
+│   │   ├── core/              # State machine, models, events, protocols
+│   │   ├── api/               # REST + WebSocket endpoints
+│   │   ├── skills/            # Center, Formulation, Offer, Gap, Sub-negotiation
+│   │   ├── hdc/               # Embedding encoder + resonance detector
+│   │   ├── adapters/          # Claude, SecondMe adapters
+│   │   └── infra/             # LLM client, event pusher, config
+│   ├── routers/               # Auth routes
+│   └── tests/towow/           # 190 tests
+├── apps/
+│   └── app_store/             # App Store (frontend + backend)
+├── website/                   # Next.js 16 frontend (Vercel)
+│   ├── app/                   # App Router pages
+│   ├── components/            # React components (negotiation/, home/, ui/)
+│   └── hooks/                 # useNegotiationStream, useNegotiationApi
+├── docs/                      # Architecture + design logs
+│   ├── ARCHITECTURE_DESIGN.md # V1 architecture (13 sections)
+│   ├── ENGINEERING_REFERENCE.md
+│   ├── DEV_LOG_V1.md
+│   ├── DESIGN_LOG_001-005.md
+│   └── prompts/               # V1 skill prompts
+├── .claude/skills/            # 6 engineering skills
+├── Dockerfile                 # Production deployment
+├── railway.toml               # Railway config
+└── CLAUDE.md                  # This file
 ```
 
 ## Development Commands
 
-### Website + Backend
 ```bash
-# Start backend (port 8080)
-cd backend
-source venv/bin/activate
-uvicorn web.app:app --reload --port 8080
+# Unified backend (Auth + V1 + App Store, port 8080)
+cd backend && source venv/bin/activate
+TOWOW_ANTHROPIC_API_KEY=sk-ant-... uvicorn server:app --reload --port 8080
 
-# Start frontend (port 3000)
-cd website
-npm install
-npm run dev
+# Frontend (port 3000)
+cd website && npm run dev
 
-# Or use the startup script
-./scripts/start_demo.sh        # Real agents mode
-./scripts/start_demo.sh --sim  # Simulation mode
+# Tests (190 total)
+cd backend && source venv/bin/activate && python -m pytest tests/towow/ -v
+
+# Frontend build
+cd website && npm run build
 ```
 
-### Website Frontend Only
-```bash
-cd website
+## Route Layout
 
-npm install
-npm run dev                    # Start dev server (port 3000)
-npm run build                  # Production build
-npm run lint                   # ESLint
-```
+| Prefix | Subsystem |
+|--------|-----------|
+| `/api/auth/*` | SecondMe OAuth2 |
+| `/v1/api/*` | V1 Negotiation Engine |
+| `/v1/ws/*` | V1 WebSocket |
+| `/store/api/*` | App Store Network |
+| `/store/*` | App Store Frontend |
+| `/health` | Health check |
 
 ## Important Configuration
 
 Key environment variables in `backend/.env`:
+- `TOWOW_ANTHROPIC_API_KEY` - Anthropic API key for V1 engine
 - `SECONDME_CLIENT_ID` - SecondMe OAuth2 client ID
 - `SECONDME_CLIENT_SECRET` - SecondMe OAuth2 client secret
 - `SECONDME_REDIRECT_URI` - OAuth2 callback URL
 - `COOKIE_SECURE` - Set to `true` in production for HTTPS-only cookies
-- `USE_REAL_AGENTS` - Set to `true` to use real OpenAgents network
-- `OPENAGENTS_WORKERS_PASSWORD_HASH` - Password hash for OpenAgents workers
 
-## Demo Website Deployment
-
-- **Production URL**: https://towow-website.vercel.app
-- **Vercel Dashboard**: https://vercel.com/natureblueees-projects/towow-website
-
-For China CDN configuration, see `website/CDN_CHINA_ACCESS_GUIDE.md`
-
-## Issue Tracking
-
-This project uses **bd** (beads) for issue tracking:
-```bash
-bd ready              # Find available work
-bd show <id>          # View issue details
-bd update <id> --status in_progress  # Claim work
-bd close <id>         # Complete work
-bd sync               # Sync with git
-```
-
-## V1 Negotiation Engine (port 8081)
-
-```bash
-# Run backend
-cd backend && source venv/bin/activate
-TOWOW_ANTHROPIC_API_KEY=sk-ant-... uvicorn towow.api.app:app --reload --port 8081
-
-# Run tests (180 total)
-cd backend && source venv/bin/activate && python -m pytest tests/towow/ -v
-```
+## V1 Negotiation Engine
 
 ### Code Map
 ```
@@ -118,19 +89,17 @@ backend/towow/
   infra/    llm_client.py | event_pusher.py | config.py
 ```
 
+### State Machine (8 states)
+```
+CREATED → FORMULATING → FORMULATED → ENCODING → OFFERING → BARRIER_WAITING → SYNTHESIZING → COMPLETED
+```
+
+### 7 Event Types
+`formulation.ready` → `resonance.activated` → `offer.received` ×N → `barrier.complete` → `center.tool_call` ×N → `plan.ready` | `sub_negotiation.started`
+
 ## Agent-Parallel Development Guidelines
 
 When implementing features that touch multiple independent modules, use **TeamCreate + parallel Task agents** to maximize throughput. Each agent should load the relevant engineering skill.
-
-### When to Use Parallel Agents
-- **Multi-module changes**: e.g., backend model + API + frontend type + tests can split across agents
-- **Research + implementation**: one agent explores codebase/docs, another implements
-- **Independent file groups**: files with no dependency between them
-
-### When NOT to Use (Sequential is Better)
-- **Linear dependency chain**: e.g., models.py → engine.py → routes.py → tests (each depends on the previous)
-- **Single-file core changes**: e.g., engine.py state machine rewrite
-- **< 3 files total**: overhead of team coordination exceeds benefit
 
 ### Engineering Skill Loading
 Each agent MUST load the relevant `.claude/skills/` for its domain:
@@ -145,46 +114,25 @@ Each agent MUST load the relevant `.claude/skills/` for its domain:
 | Architecture alignment | `arch` | Explore or Plan |
 | Overall coordination | `towow-eng` (Leader) | Plan |
 
-### Pattern: Architecture-Aligned Development
-1. **Before coding**: Use `arch` skill or Plan agent to verify design aligns with `docs/ARCHITECTURE_DESIGN.md`
-2. **During coding**: Each implementation agent reads the relevant SKILL.md for constraints
-3. **After coding**: Run full test suite (`pytest tests/towow/ -v`), update MEMORY.md
-4. **Key principles to check**:
-   - 代码保障 > Prompt 保障 (Section 0.5)
-   - 确认是协议步骤 (Section 10.2)
-   - 投影即函数 (Section 7.1.6)
-   - 协议层不可改，基础设施层可替换 (Section 0.2)
-
-### Pattern: Codex for Mechanical Tasks
-Use `mcp__codex__codex` for:
-- Boilerplate generation (new test files, schema fields, type definitions)
-- Repetitive edits across many files (rename, add field everywhere)
-- Code formatting / migration patterns
-
-Do NOT use Codex for:
-- State machine logic or protocol-layer changes
-- Anything requiring understanding of the negotiation lifecycle
-- Test design (tests encode architectural invariants)
+### Key Principles
+- 代码保障 > Prompt 保障 (Section 0.5): State machine, barrier, round limits are all code-enforced
+- 确认是协议步骤 (Section 10.2): Engine always waits for confirmation
+- 投影即函数 (Section 7.1.6): Agent is stateless, projects from profile each time
+- 协议层不可改，基础设施层可替换 (Section 0.2)
 
 ## Architecture Key Concepts
 
-### Core Mechanism
-- **Projection (投影)**: Agent = projection function, not stateful object. Profile data lives in data sources (SecondMe/Claude/GPT/...), ToWow only projects.
+- **Projection (投影)**: Agent = projection function, not stateful object
 - **Resonance (共振)**: Three-tier cascade — Bloom Filter (90%) → HDC hypervectors (9%) → LLM (1%)
-- **Echo (回声)**: Real-world execution signals via WOWOK blockchain, not LLM self-judgment
+- **Echo (回声)**: Real-world execution signals via WOWOK blockchain
 
 ### Negotiation Flow
 1. User submits demand
 2. Signal broadcast with resonance filtering
 3. Agents respond with offers (parallel propose → aggregate)
 4. Center coordinates, identifies gaps, may trigger sub-negotiation
-5. Contract output → WOWOK Machine for execution
-6. Execution signals echo back → profile evolution
+5. Plan output
 
-### Demo Scenario
-Demo scenario config: `backend/demo_scenario.json`
+## Archive
 
-Current scenario: **Finding a Technical Co-founder**
-- 7 Agents with distinct capabilities
-- 6 stages: Discovery → Response → Discussion → Deep Negotiation → Consensus → Proposal
-- Demonstrates cognitive shift: user thinks they need a "tech co-founder", discovers they need "ability to validate ideas quickly"
+Legacy code preserved on branch `archive/pre-v1-cleanup`. All files removed from main were pre-V1 MVP artifacts (old agents, mods, scripts, narrative docs).

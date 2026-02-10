@@ -60,6 +60,22 @@
   border-color: var(--c-warm);
 }
 
+/* Secondary variant: warm accent, inviting */
+.secondary {
+  background: transparent;
+  color: #000;
+  border-color: var(--c-warm);
+}
+
+.secondary:hover {
+  border-color: var(--c-warm);
+  color: #000;
+}
+
+.secondary::after {
+  background: var(--c-warm-soft);
+}
+
 /* Disabled state */
 .disabled {
   opacity: 0.6;

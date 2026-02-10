@@ -9,6 +9,8 @@ interface HeroProps {
   primaryButtonHref: string;
   outlineButtonText: string;
   outlineButtonHref: string;
+  secondaryButtonText?: string;
+  secondaryButtonHref?: string;
 }
 
 export function Hero({
@@ -18,6 +20,8 @@ export function Hero({
   primaryButtonHref,
   outlineButtonText,
   outlineButtonHref,
+  secondaryButtonText,
+  secondaryButtonHref,
 }: HeroProps) {
   return (
     <section className={styles.hero}>
@@ -38,6 +42,11 @@ export function Hero({
           <Button variant="primary" href={primaryButtonHref}>
             {primaryButtonText}
           </Button>
+          {secondaryButtonText && secondaryButtonHref && (
+            <Button variant="secondary" href={secondaryButtonHref}>
+              {secondaryButtonText} →
+            </Button>
+          )}
         </div>
       </div>
     </section>
