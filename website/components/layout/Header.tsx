@@ -62,9 +62,10 @@ export function Header({ progress = 0 }: HeaderProps) {
       <div className={styles.headerLogo}>ToWow</div>
 
       <div className={styles.headerRight}>
+        <Link href="/articles" className={styles.btnOutline}>{t('articles')}</Link>
         <Link href="/journey" className={styles.btnOutline}>{t('journey')}</Link>
         <Link href="/contribute" className={styles.btnOutline}>{t('contribute')}</Link>
-        <Link href="/experience" className={styles.btnOutline}>{t('apps')}</Link>
+        <Link href="/store/" className={styles.btnOutline}>{t('apps')}</Link>
         <LanguageToggle />
       </div>
 
@@ -98,9 +99,9 @@ export function Header({ progress = 0 }: HeaderProps) {
           {t('journey')}
         </Link>
         <Link href="/contribute" className={styles.mobileNavLink} onClick={handleLinkClick}>
-          {t('tasks')}
+          {t('contribute')}
         </Link>
-        <Link href="/experience" className={styles.mobileNavLink} onClick={handleLinkClick}>
+        <Link href="/store/" className={styles.mobileNavLink} onClick={handleLinkClick}>
           {t('apps')}
         </Link>
         <LanguageToggle />

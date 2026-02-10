@@ -18,7 +18,7 @@ export function Footer({ variant = 'home' }: FooterProps) {
         <div className={styles.footerShape} />
         <div className={styles.footerLinks}>
           <Link href="/">{t('backToHome')}</Link>
-          <Link href="/experience">{t('exploreApps')}</Link>
+          <Link href="/store/">{t('exploreApps')}</Link>
         </div>
         <div className={styles.footerCopy}>
           &copy; {new Date().getFullYear()} ToWow Network. All rights reserved.
@@ -60,7 +60,7 @@ export function Footer({ variant = 'home' }: FooterProps) {
               <i className="ri-mail-send-line" />
               <span>hi@natureblueee.com</span>
             </a>
-            <Link href="/experience" className={styles.demoLink}>
+            <Link href="/store/" className={styles.demoLink}>
               <i className="ri-play-circle-line" />
               {t('exploreApps')}
             </Link>

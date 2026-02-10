@@ -1,0 +1,582 @@
+/* app/journey/journey.module.css */
+
+/* Layout wrapper */
+.layoutBg {
+  background: #F8F6F3;
+  min-height: 100vh;
+  padding-top: 80px;
+}
+
+@media (max-width: 768px) {
+  .layoutBg {
+    padding-top: 64px;
+  }
+}
+
+@media (max-width: 480px) {
+  .layoutBg {
+    padding-top: 56px;
+  }
+}
+
+/* Page */
+.page {
+  width: 100%;
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 56px 24px 80px;
+}
+
+/* Header */
+.header {
+  margin-bottom: 40px;
+}
+
+.title {
+  font-size: 32px;
+  font-weight: 700;
+  font-family: var(--f-active-head);
+  color: var(--c-text-dark);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 15px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  margin: 10px 0 0;
+  line-height: 1.7;
+  max-width: 600px;
+}
+
+/* Stats Bar */
+.statsBar {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 12px;
+  margin-bottom: 48px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.statNum {
+  font-size: 28px;
+  font-weight: 700;
+  font-family: var(--f-en-head);
+  color: #8B6A90;
+}
+
+.statLabel {
+  font-size: 12px;
+  font-family: var(--f-active-body);
+  color: #999;
+  margin-top: 2px;
+}
+
+/* Section */
+.section {
+  margin-bottom: 48px;
+}
+
+.sectionTitle {
+  font-size: 20px;
+  font-weight: 600;
+  font-family: var(--f-active-head);
+  color: var(--c-text-dark);
+  margin: 0 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.sectionSubtitle {
+  font-size: 13px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  margin: -8px 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.shortcutHint {
+  font-size: 11px;
+  color: #999;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Field Label (reusable) */
+.fieldLabel {
+  font-size: 12px;
+  font-family: var(--f-active-body);
+  font-weight: 600;
+  color: #999;
+  flex-shrink: 0;
+  margin-right: 6px;
+}
+
+/* Transformation Cards */
+.transformGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.transformCard {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.transformTime {
+  font-size: 12px;
+  font-family: var(--f-active-body);
+  font-weight: 600;
+  color: #C47030;
+}
+
+.transformLabel {
+  font-size: 17px;
+  font-weight: 600;
+  font-family: var(--f-active-head);
+  color: var(--c-text-dark);
+  margin: 0;
+}
+
+.transformOneLiner {
+  font-size: 14px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  margin: 0;
+  line-height: 1.6;
+}
+
+.transformMeaning {
+  font-size: 13px;
+  font-family: var(--f-active-body);
+  color: #999;
+  margin: 4px 0 0;
+  line-height: 1.5;
+  display: flex;
+  align-items: baseline;
+}
+
+/* Flow Diagram */
+.flow {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 0 0 24px;
+}
+
+.flowNode {
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 500;
+  font-family: var(--f-active-body);
+  white-space: nowrap;
+}
+
+.flowArrow {
+  font-size: 16px;
+  color: #999;
+  margin: 0 4px;
+}
+
+/* Phase Grid */
+.phaseGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.phaseCard {
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.phaseCard:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.phaseCardFull {
+  grid-column: span 2;
+}
+
+.phaseTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.phaseNum {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--f-active-body);
+  color: #999;
+}
+
+.phaseDates {
+  font-size: 11px;
+  font-family: var(--f-active-body);
+  color: #999;
+}
+
+.phaseName {
+  font-size: 17px;
+  font-weight: 600;
+  font-family: var(--f-active-head);
+  color: var(--c-text-dark);
+  margin: 0;
+}
+
+.phaseNarrative {
+  font-size: 13px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.phaseTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.tag {
+  display: inline-block;
+  font-size: 10px;
+  font-family: var(--f-active-body);
+  padding: 1px 8px;
+  border-radius: 8px;
+  font-weight: 500;
+}
+
+.tagCode {
+  background: rgba(74, 122, 181, 0.1);
+  color: #4A7AB5;
+}
+
+.tagDesign {
+  background: rgba(139, 106, 144, 0.1);
+  color: #8B6A90;
+}
+
+.tagDoc {
+  background: rgba(90, 138, 100, 0.1);
+  color: #5A8A64;
+}
+
+.tagDeploy {
+  background: rgba(196, 112, 48, 0.1);
+  color: #C47030;
+}
+
+.phaseStats {
+  font-size: 11px;
+  font-family: var(--f-active-body);
+  color: #999;
+}
+
+.expandHint {
+  font-size: 12px;
+  font-family: var(--f-active-body);
+  color: #bbb;
+  text-align: center;
+  margin-top: 4px;
+}
+
+/* Phase Detail (expanded) */
+.phaseDetail {
+  margin-top: 12px;
+  padding-top: 12px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.detailBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.detailList {
+  font-size: 13px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  line-height: 1.6;
+  padding-left: 18px;
+  margin: 0;
+}
+
+.detailList li {
+  margin-bottom: 4px;
+}
+
+.detailText {
+  font-size: 13px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  line-height: 1.6;
+  margin: 0;
+}
+
+.quoteBox {
+  background: rgba(139, 106, 144, 0.05);
+  border-left: 3px solid #8B6A90;
+  border-radius: 0 8px 8px 0;
+  padding: 12px 16px;
+  margin: 4px 0 0;
+}
+
+.quoteBox p {
+  font-size: 14px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-dark);
+  line-height: 1.6;
+  margin: 0;
+  font-style: italic;
+}
+
+.quoteBox cite {
+  display: block;
+  font-size: 12px;
+  font-family: var(--f-active-body);
+  color: #999;
+  margin-top: 6px;
+  font-style: normal;
+}
+
+/* Session Group */
+.sessionGroup {
+  margin-bottom: 24px;
+}
+
+.sessionLabel {
+  font-size: 13px;
+  font-weight: 600;
+  font-family: var(--f-active-body);
+  margin: 0 0 8px;
+  padding-left: 4px;
+}
+
+/* Compact List */
+.compactList {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.compactItem {
+  display: grid;
+  grid-template-columns: 32px 1fr;
+  gap: 12px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.compactItem:hover {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.compactNum {
+  font-size: 13px;
+  font-weight: 700;
+  font-family: var(--f-en-head);
+  text-align: center;
+  padding-top: 2px;
+}
+
+.compactContent {
+  min-width: 0;
+}
+
+.compactTitle {
+  font-size: 14px;
+  font-weight: 500;
+  font-family: var(--f-active-body);
+  color: var(--c-text-dark);
+  line-height: 1.4;
+}
+
+.compactMeta {
+  font-size: 12px;
+  font-family: var(--f-active-body);
+  color: #999;
+  margin-top: 2px;
+}
+
+.compactDetail {
+  font-size: 13px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  line-height: 1.6;
+  margin-top: 8px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+/* Footer / Links */
+.footer {
+  margin-top: 56px;
+  padding-top: 32px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.footerTitle {
+  font-size: 22px;
+  font-weight: 600;
+  font-family: var(--f-active-head);
+  color: var(--c-text-dark);
+  margin: 0 0 8px;
+}
+
+.footerText {
+  font-size: 14px;
+  font-family: var(--f-active-body);
+  color: var(--c-text-sec);
+  margin: 0 0 16px;
+  line-height: 1.7;
+}
+
+.linkList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.footerLink {
+  font-size: 15px;
+  font-family: var(--f-active-body);
+  color: var(--c-warm);
+  font-weight: 500;
+  text-decoration: none;
+}
+
+.footerLink:hover {
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .page {
+    padding: 36px 16px 60px;
+  }
+
+  .title {
+    font-size: 24px;
+  }
+
+  .statsBar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .transformGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .phaseGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .phaseCardFull {
+    grid-column: span 1;
+  }
+
+  .flow {
+    gap: 4px;
+  }
+
+  .flowNode {
+    font-size: 11px;
+    padding: 6px 10px;
+  }
+
+  .flowArrow {
+    font-size: 14px;
+    margin: 0 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .phaseCard,
+  .compactItem {
+    transition: none;
+  }
+}
+
+/* === English locale overrides === */
+:global(html[data-locale="en"]) .statLabel {
+  font-size: 11px;
+  line-height: 1.3;
+}
+
+:global(html[data-locale="en"]) .flowNode {
+  white-space: normal;
+  text-align: center;
+}
+
+:global(html[data-locale="en"]) .transformLabel {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+:global(html[data-locale="en"]) .phaseName {
+  font-size: 15px;
+  line-height: 1.3;
+}
+
+@media (max-width: 640px) {
+  :global(html[data-locale="en"]) .statsBar {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  :global(html[data-locale="en"]) .statNum {
+    font-size: 22px;
+  }
+
+  :global(html[data-locale="en"]) .statLabel {
+    font-size: 10px;
+  }
+}
