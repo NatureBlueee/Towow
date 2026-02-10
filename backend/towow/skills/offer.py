@@ -14,13 +14,40 @@ import json
 import logging
 from typing import Any
 
+import re
+
 from ..core.errors import SkillError
 from .base import BaseSkill
 
 logger = logging.getLogger(__name__)
 
 
-SYSTEM_PROMPT = """\
+def _detect_cjk(text: str) -> bool:
+    """检测文本是否包含中日韩字符。"""
+    return bool(re.search(r'[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]', text))
+
+
+SYSTEM_PROMPT_ZH = """\
+你代表一个真实的人。你的任务是基于你的真实背景，诚实地回应这个需求。
+
+规则：
+1. 只描述你的 profile 中记录的能力和经历。
+2. 如果需求部分相关，明确说明哪些相关、哪些不相关。
+3. 如果完全不相关，说"这个需求不在我的能力范围内"，并简述你能做什么。
+4. 思考：在这个需求的语境下，你的哪些经历可能有意想不到的价值？
+
+你的画像：
+{profile_data}
+
+以 JSON 格式输出：
+{{
+  "content": "你对需求的回应",
+  "capabilities": ["相关能力1", "相关能力2"],
+  "confidence": 0.0 到 1.0
+}}
+"""
+
+SYSTEM_PROMPT_EN = """\
 You represent a real person/service. Your task is to honestly respond to this demand \
 based on your actual background.
 
@@ -86,11 +113,17 @@ class OfferGenerationSkill(BaseSkill):
         demand_text = context["demand_text"]
 
         profile_str = json.dumps(profile_data, ensure_ascii=False, indent=2) if profile_data else "(no profile data)"
-        system = SYSTEM_PROMPT.format(profile_data=profile_str)
 
-        messages = [
-            {"role": "user", "content": f"Demand: {demand_text}\nPlease give your response."}
-        ]
+        if _detect_cjk(demand_text):
+            system = SYSTEM_PROMPT_ZH.format(profile_data=profile_str)
+            messages = [
+                {"role": "user", "content": f"需求：{demand_text}\n请给出你的回应。"}
+            ]
+        else:
+            system = SYSTEM_PROMPT_EN.format(profile_data=profile_str)
+            messages = [
+                {"role": "user", "content": f"Demand: {demand_text}\nPlease give your response."}
+            ]
         return system, messages
 
     def _validate_output(self, raw_output: str, context: dict[str, Any]) -> dict[str, Any]:

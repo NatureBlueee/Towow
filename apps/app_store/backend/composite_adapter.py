@@ -229,7 +229,8 @@ class CompositeAdapter(BaseAdapter):
         """路由到正确的子 adapter 进行对话。"""
         entry = self._agents.get(agent_id)
         if not entry:
-            return f"[{agent_id}] Agent 未注册到网络中"
+            from towow.core.errors import AdapterError
+            raise AdapterError(f"Agent {agent_id} 未注册到网络中")
         return await entry.adapter.chat(agent_id, messages, system_prompt)
 
     async def chat_stream(
@@ -241,7 +242,8 @@ class CompositeAdapter(BaseAdapter):
         """路由到正确的子 adapter 进行流式对话。"""
         entry = self._agents.get(agent_id)
         if not entry:
-            yield f"[{agent_id}] Agent 未注册到网络中"
-            return
+            from towow.core.errors import AdapterError
+            raise AdapterError(f"Agent {agent_id} 未注册到网络中")
+
         async for chunk in entry.adapter.chat_stream(agent_id, messages, system_prompt):
             yield chunk

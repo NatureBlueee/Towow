@@ -16,10 +16,17 @@ import logging
 import re
 from typing import Any
 
+import re
+
 from ..core.errors import SkillError
 from .base import BaseSkill
 
 logger = logging.getLogger(__name__)
+
+
+def _detect_cjk(text: str) -> bool:
+    """检测文本是否包含中日韩字符。"""
+    return bool(re.search(r'[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]', text))
 
 
 # ============ Tool Definitions (Claude API format) ============
@@ -122,7 +129,37 @@ VALID_TOOL_NAMES = {t["name"] for t in ALL_TOOLS}
 
 # ============ Prompt ============
 
-SYSTEM_PROMPT = """\
+SYSTEM_PROMPT_ZH = """\
+你是一个多方资源协调规划者。
+
+## 角色
+你收到一个需求和多个参与者的响应（offer）。
+每个参与者基于自己的真实背景做出回应。
+你的任务是找到最优的资源组合方案。
+
+## 决策原则（按优先级）
+1. 需求能否被满足？
+2. 接受率——各方是否会同意？
+3. 效率
+
+## 元认知要求
+- 考虑响应之间的互补性
+- 考虑意想不到的组合（1+1>2）
+- 注意每个响应的独特视角，不只看表面匹配
+- 部分相关的参与者在组合中可能产生额外价值
+
+## 行动
+使用提供的工具采取行动。你可以同时调用多个工具。
+- 当你有足够信息提出方案时，使用 output_plan。
+- 当你需要向某个参与者追问时，使用 ask_agent。
+- 当两个参与者可能有隐藏的互补性时，使用 start_discovery。
+- 当当前参与者无法填补某个缺口时，使用 create_sub_demand。
+
+## 语言
+用中文输出方案。
+"""
+
+SYSTEM_PROMPT_EN = """\
 You are a multi-party resource coordination planner.
 
 ## Role
@@ -220,8 +257,9 @@ class CenterCoordinatorSkill(BaseSkill):
             history_section = self._build_history(history, round_number)
             user_content += f"\n\n{history_section}"
 
+        system = SYSTEM_PROMPT_ZH if _detect_cjk(demand_text) else SYSTEM_PROMPT_EN
         messages = [{"role": "user", "content": user_content}]
-        return SYSTEM_PROMPT, messages
+        return system, messages
 
     def _build_offers(self, offers: list, participants: list) -> str:
         """Build full offers section (round 1)."""

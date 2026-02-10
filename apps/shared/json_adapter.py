@@ -129,7 +129,12 @@ class JSONFileAdapter(BaseAdapter):
             bio = profile.get("bio", "")
             return f"[{name}] 我的技能是{', '.join(skills)}。{bio}"
 
-        sp = system_prompt or self._build_system_prompt(agent_id)
+        # 合并：agent 角色 prompt + 外部任务 prompt（不覆盖）
+        agent_prompt = self._build_system_prompt(agent_id)
+        if system_prompt:
+            sp = f"{system_prompt}\n\n{agent_prompt}"
+        else:
+            sp = agent_prompt
         # 使用 PlatformLLMClient 的 chat 接口
         if hasattr(self._llm_client, "chat"):
             result = await self._llm_client.chat(

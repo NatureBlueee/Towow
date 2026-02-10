@@ -295,12 +295,20 @@ class NegotiationEngine:
         self._transition(session, NegotiationState.FORMULATING)
 
         if formulation_skill:
-            result = await formulation_skill.execute({
-                "raw_intent": session.demand.raw_intent,
-                "agent_id": session.demand.user_id or "user",
-                "adapter": adapter,
-            })
-            formulated_text = result.get("formulated_text", session.demand.raw_intent)
+            try:
+                result = await formulation_skill.execute({
+                    "raw_intent": session.demand.raw_intent,
+                    "agent_id": session.demand.user_id or "user",
+                    "adapter": adapter,
+                })
+                formulated_text = result.get("formulated_text", session.demand.raw_intent)
+            except Exception as e:
+                # 用户无 profile（匿名等）时 adapter 不可用，降级为 raw_intent
+                logger.warning(
+                    "Formulation failed for %s, using raw intent: %s",
+                    session.negotiation_id, e,
+                )
+                formulated_text = session.demand.raw_intent
         else:
             # No formulation skill — use raw intent directly
             formulated_text = session.demand.raw_intent

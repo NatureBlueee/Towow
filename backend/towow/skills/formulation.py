@@ -11,13 +11,44 @@ import json
 import logging
 from typing import Any
 
+import re
+
 from ..core.errors import SkillError
 from .base import BaseSkill
 
 logger = logging.getLogger(__name__)
 
 
-SYSTEM_PROMPT = """\
+def _detect_cjk(text: str) -> bool:
+    """检测文本是否包含中日韩字符。"""
+    return bool(re.search(r'[\u4e00-\u9fff\u3040-\u30ff\uac00-\ud7af]', text))
+
+
+SYSTEM_PROMPT_ZH = """\
+你代表一个真实的人。你的任务是理解用户真正需要什么，\
+并基于你对他们的了解，帮助他们更准确、完整地表达需求。
+
+规则：
+1. 区分"需要"和"要求"——具体的要求可能只是满足真实需要的一种方式。
+2. 从用户画像中补充相关上下文，让响应者能更好地理解。
+3. 不要替换用户的原始意图——丰富和补充它。
+4. 保留用户的偏好，但标注哪些是硬约束、哪些是可协商的。
+
+用户画像：
+{profile_data}
+
+以 JSON 格式输出：
+{{
+  "formulated_text": "丰富后的需求文本",
+  "enrichments": {{
+    "hard_constraints": ["..."],
+    "negotiable_preferences": ["..."],
+    "context_added": ["..."]
+  }}
+}}
+"""
+
+SYSTEM_PROMPT_EN = """\
 You represent a real person. Your task is to understand what the user truly needs \
 and help them express it more accurately and completely, based on your knowledge of them.
 
@@ -80,11 +111,17 @@ class DemandFormulationSkill(BaseSkill):
         raw_intent = context["raw_intent"]
 
         profile_str = json.dumps(profile_data, ensure_ascii=False, indent=2) if profile_data else "(no profile data)"
-        system = SYSTEM_PROMPT.format(profile_data=profile_str)
 
-        messages = [
-            {"role": "user", "content": f"The user says: {raw_intent}\nPlease generate an enriched demand expression."}
-        ]
+        if _detect_cjk(raw_intent):
+            system = SYSTEM_PROMPT_ZH.format(profile_data=profile_str)
+            messages = [
+                {"role": "user", "content": f"用户说：{raw_intent}\n请生成丰富后的需求表述。"}
+            ]
+        else:
+            system = SYSTEM_PROMPT_EN.format(profile_data=profile_str)
+            messages = [
+                {"role": "user", "content": f"The user says: {raw_intent}\nPlease generate an enriched demand expression."}
+            ]
         return system, messages
 
     def _validate_output(self, raw_output: str, context: dict[str, Any]) -> dict[str, Any]:
