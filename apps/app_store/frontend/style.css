@@ -177,3 +177,67 @@ body {
     font-size: 0.8rem; line-height: 1.8;
 }
 .powered-by a { color: var(--accent); text-decoration: none; }
+
+/* 场景卡片 */
+.scene-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+}
+.scene-card {
+    padding: 16px; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    cursor: pointer; transition: var(--transition);
+}
+.scene-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+.scene-card-name { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+.scene-card-desc { font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 8px;
+    display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.scene-card-meta { display: flex; gap: 6px; flex-wrap: wrap; }
+
+/* Agent 卡片 */
+.agent-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 10px;
+}
+.agent-card {
+    padding: 12px; background: var(--bg-elevated);
+    border: 1px solid var(--border); border-radius: var(--radius-sm);
+    transition: var(--transition);
+}
+.agent-card:hover { border-color: rgba(139, 92, 246, 0.3); }
+.agent-card-name { font-size: 0.9rem; font-weight: 600; margin-bottom: 2px; }
+.agent-card-source { font-size: 0.75rem; color: var(--text-secondary); margin-bottom: 6px; }
+.agent-card-scenes { display: flex; gap: 4px; flex-wrap: wrap; }
+
+/* Scope tabs */
+.scope-tabs { display: flex; gap: 6px; flex-wrap: wrap; }
+.scope-tab {
+    padding: 4px 14px; font-size: 0.8rem; border: 1px solid var(--border);
+    border-radius: 16px; background: var(--bg-elevated); color: var(--text-secondary);
+    cursor: pointer; transition: var(--transition); font-family: inherit;
+}
+.scope-tab:hover { border-color: var(--accent); color: var(--accent-light); }
+.scope-tab.active { background: var(--accent); color: white; border-color: var(--accent); }
+
+/* Badge 变体 */
+.badge-scene { background: rgba(52, 211, 153, 0.15); color: var(--success); border-color: rgba(52, 211, 153, 0.3); }
+.badge-secondme { background: rgba(251, 191, 36, 0.15); color: var(--warning); border-color: rgba(251, 191, 36, 0.3); }
+
+/* 参与者标签 */
+.participant-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 4px 12px; margin: 3px;
+    background: var(--bg-elevated); border: 1px solid var(--border);
+    border-radius: 16px; font-size: 0.8rem;
+}
+.participant-source { font-size: 0.7rem; color: var(--text-muted); }
+.participant-score { font-size: 0.7rem; color: var(--accent-light); }
+
+/* Select 样式 */
+select.form-input {
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238888a0' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 12px center;
+    padding-right: 32px;
+}

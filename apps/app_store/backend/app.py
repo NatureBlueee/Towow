@@ -1,14 +1,11 @@
 """
-AToA 应用商城 — 联邦路由层。
+AToA App Store — 通爻网络入口。
 
-核心价值：用户使用任何一个应用的入口，都能享受到所有应用的价值。
-不是"推荐你去用另一个应用"，而是"直接在当前界面给到其他应用的 Agent 产出的价值"。
-
-技术实现：
-- 应用注册：每个 AToA 应用启动时注册到 App Store
-- 信号路由：当任何应用发起需求，路由到所有注册的应用
-- 联邦适配器：聚合所有应用的 Agent 到统一的 ProfileDataSource
-- 跨应用协商：一个需求可以得到来自多个应用的 Agent 响应
+核心逻辑：一个引擎，所有 Agent 在同一个网络里。
+- SecondMe 用户通过 OAuth2 登录后，其 AI 分身注册为网络中的 Agent
+- 样板间 Agent 从 JSON 文件加载（演示用）
+- 其他应用注册"场景上下文"，其用户通过 SecondMe 授权接入
+- 用户发需求时选择 scope（全网 / 某个场景）
 
 启动：
     cd apps/app_store
@@ -30,35 +27,20 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from .registry import AppRegistry, RegisteredApp
-from .federation import FederatedAdapter
+from .composite_adapter import CompositeAdapter
+from .scene_registry import SceneContext, SceneRegistry
 
 logger = logging.getLogger(__name__)
 
 
 # ============ 请求/响应模型 ============
 
-class RegisterAppRequest(BaseModel):
-    app_id: str
-    app_name: str
-    base_url: str
-    scene_id: str = ""
-    scene_name: str = ""
-    description: str = ""
-
-class DiscoverAppRequest(BaseModel):
-    base_url: str
-
-class FederatedDemandRequest(BaseModel):
+class NegotiateRequest(BaseModel):
     intent: str
     user_id: str = "anonymous"
-    source_app: str = ""  # 发起需求的来源应用
+    scope: str = "all"  # "all" | "scene:{scene_id}"
 
-class AppListResponse(BaseModel):
-    apps: list[dict[str, Any]]
-    total_agents: int
-
-class FederatedNegotiationResponse(BaseModel):
+class NegotiationResponse(BaseModel):
     negotiation_id: str
     state: str
     demand_raw: str
@@ -66,7 +48,26 @@ class FederatedNegotiationResponse(BaseModel):
     participants: list[dict[str, Any]] = Field(default_factory=list)
     plan_output: Optional[str] = None
     center_rounds: int = 0
-    cross_app_agents: list[dict[str, Any]] = Field(default_factory=list)
+    scope: str = "all"
+    agent_count: int = 0
+
+class RegisterSceneRequest(BaseModel):
+    scene_id: str
+    name: str
+    description: str = ""
+    priority_strategy: str = ""
+    domain_context: str = ""
+    created_by: str = ""
+
+class ConnectUserRequest(BaseModel):
+    """其他应用把用户的 SecondMe 授权码发过来。"""
+    authorization_code: str
+    scene_id: str = ""  # 可选：标记该用户关联的场景
+
+class AppListResponse(BaseModel):
+    scenes: list[dict[str, Any]]
+    agents: list[dict[str, Any]]
+    total_agents: int
 
 
 # ============ WebSocket 管理 ============
@@ -96,7 +97,7 @@ class SimpleWSManager:
             self._connections[channel] = [c for c in self._connections[channel] if c != ws]
 
 
-class FederatedEventPusher:
+class NetworkEventPusher:
     def __init__(self, ws_manager: SimpleWSManager):
         self._ws = ws_manager
 
@@ -107,6 +108,146 @@ class FederatedEventPusher:
     async def push_many(self, events: list) -> None:
         for event in events:
             await self.push(event)
+
+
+# ============ 样板间加载 ============
+
+SAMPLE_APPS = {
+    "hackathon": {
+        "name": "黑客松组队",
+        "json_path": "S1_hackathon/data/agents.json",
+        "scene": SceneContext(
+            scene_id="hackathon",
+            name="黑客松组队",
+            description="帮助参赛者找到最佳队友，组建互补的黑客松团队",
+            priority_strategy="优先匹配技术互补性和协作意愿",
+            domain_context="黑客松比赛场景，参与者需要快速组队，技能互补比经验更重要",
+        ),
+    },
+    "skill_exchange": {
+        "name": "技能交换",
+        "json_path": "S2_skill_exchange/data/agents.json",
+        "scene": SceneContext(
+            scene_id="skill_exchange",
+            name="技能交换",
+            description="连接有互补技能的人，促进知识和技能的双向交流",
+            priority_strategy="优先匹配技能互补度和学习意愿",
+            domain_context="技能交换场景，重点是找到可以互相教学的配对",
+        ),
+    },
+    "recruitment": {
+        "name": "智能招聘",
+        "json_path": "R1_recruitment/data/agents.json",
+        "scene": SceneContext(
+            scene_id="recruitment",
+            name="智能招聘",
+            description="匹配求职者与职位需求，找到最佳人岗配对",
+            priority_strategy="优先匹配专业能力和岗位要求",
+            domain_context="招聘场景，需要评估候选人的技能匹配度、文化契合度和成长潜力",
+        ),
+    },
+    "matchmaking": {
+        "name": "AI 相亲",
+        "json_path": "M1_matchmaking/data/agents.json",
+        "scene": SceneContext(
+            scene_id="matchmaking",
+            name="AI 相亲",
+            description="基于价值观和兴趣匹配有缘人",
+            priority_strategy="优先匹配价值观契合度和兴趣重叠度",
+            domain_context="相亲场景，关注性格互补、生活方式兼容和共同兴趣",
+        ),
+    },
+}
+
+
+def _load_sample_agents(composite: CompositeAdapter, apps_dir: Path, llm_client):
+    """加载所有样板间的 Agent 到 CompositeAdapter。"""
+    import sys
+    sys.path.insert(0, str(apps_dir.parent))
+    from apps.shared.json_adapter import JSONFileAdapter
+
+    total = 0
+    for app_id, config in SAMPLE_APPS.items():
+        json_path = apps_dir / config["json_path"]
+        if not json_path.exists():
+            logger.warning("样板间数据不存在: %s", json_path)
+            continue
+
+        adapter = JSONFileAdapter(json_path=json_path, llm_client=llm_client)
+        registered = composite.register_source(
+            source_name=config["name"],
+            adapter=adapter,
+            scene_ids=[app_id],
+        )
+        total += len(registered)
+        logger.info("加载样板间 %s: %d 个 Agent", config["name"], len(registered))
+
+    return total
+
+
+# ============ SecondMe 用户注册 ============
+
+async def _register_secondme_user(
+    app_state,
+    access_token: str,
+    scene_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    """
+    用 SecondMe token 注册一个用户的 AI 分身到网络。
+
+    Returns:
+        注册结果 dict，含 agent_id 和 profile 摘要
+    """
+    from towow.adapters.secondme_adapter import SecondMeAdapter
+
+    oauth2_client = app_state.oauth2_client
+    adapter = SecondMeAdapter(oauth2_client=oauth2_client, access_token=access_token)
+
+    # 拉取完整画像
+    profile = await adapter.fetch_and_build_profile()
+    agent_id = profile["agent_id"]
+
+    # 注册到 CompositeAdapter
+    composite: CompositeAdapter = app_state.composite
+    composite.register_agent(
+        agent_id=agent_id,
+        adapter=adapter,
+        source="SecondMe",
+        scene_ids=list(scene_ids or []),
+        display_name=profile.get("name", agent_id),
+    )
+
+    # 编码向量
+    try:
+        from oauth2_client import profile_to_text
+        text = profile_to_text(profile)
+    except ImportError:
+        text = f"{profile.get('name', '')} {profile.get('self_introduction', '')} {profile.get('bio', '')}"
+    try:
+        vec = await app_state.engine._encoder.encode(text)
+        app_state.agent_vectors[agent_id] = vec
+    except Exception as e:
+        logger.warning("向量编码失败 %s: %s", agent_id, e)
+
+    # 更新场景计数
+    for sid in (scene_ids or []):
+        app_state.scene_registry.increment_agent_count(sid)
+
+    # 存储 token 供后续对话使用
+    app_state.user_tokens[agent_id] = access_token
+
+    logger.info(
+        "SecondMe 用户注册: %s (name=%s, shades=%d, scenes=%s)",
+        agent_id, profile.get("name"), len(profile.get("shades", [])), scene_ids or [],
+    )
+
+    return {
+        "agent_id": agent_id,
+        "name": profile.get("name"),
+        "shades_count": len(profile.get("shades", [])),
+        "memories_count": len(profile.get("memories", [])),
+        "scene_ids": list(scene_ids or []),
+    }
 
 
 # ============ 应用工厂 ============
@@ -123,9 +264,11 @@ async def lifespan(app: FastAPI):
         GapRecursionSkill,
     )
 
-    # 注册表
-    registry = AppRegistry()
-    app.state.registry = registry
+    # CompositeAdapter + SceneRegistry
+    composite = CompositeAdapter()
+    scene_registry = SceneRegistry()
+    app.state.composite = composite
+    app.state.scene_registry = scene_registry
 
     # LLM 客户端
     api_key = os.environ.get("TOWOW_ANTHROPIC_API_KEY", "")
@@ -136,24 +279,30 @@ async def lifespan(app: FastAPI):
         logger.info("App Store: 使用 Claude API")
     else:
         import sys
-        sys.path.insert(0, str(Path(__file__).resolve().parent.parent.parent))
+        apps_dir = Path(__file__).resolve().parent.parent.parent
+        sys.path.insert(0, str(apps_dir))
         from apps.shared.mock_llm import MockLLMClient
         llm_client = MockLLMClient()
         logger.info("App Store: 使用 Mock LLM")
 
-    # 联邦适配器
-    fed_adapter = FederatedAdapter(registry)
-    fed_adapter.set_llm_client(llm_client)
-    app.state.fed_adapter = fed_adapter
+    app.state.llm_client = llm_client
+
+    # 加载样板间 Agent
+    apps_dir = Path(__file__).resolve().parent.parent.parent
+    sample_count = _load_sample_agents(composite, apps_dir, llm_client)
+
+    # 注册样板间场景
+    for app_id, config in SAMPLE_APPS.items():
+        scene_registry.register(config["scene"])
 
     # WebSocket
     ws_manager = SimpleWSManager()
-    event_pusher = FederatedEventPusher(ws_manager)
+    event_pusher = NetworkEventPusher(ws_manager)
+    app.state.ws_manager = ws_manager
 
     # 引擎
     import numpy as np
     from towow.hdc.resonance import CosineResonanceDetector
-    from towow.core.engine import NegotiationEngine
 
     try:
         from towow.hdc.encoder import EmbeddingEncoder
@@ -166,16 +315,42 @@ async def lifespan(app: FastAPI):
                 return [np.random.randn(128).astype(np.float32) for _ in texts]
         encoder = StubEncoder()
 
+    from towow.core.engine import NegotiationEngine
     engine = NegotiationEngine(
         encoder=encoder,
         resonance_detector=CosineResonanceDetector(),
         event_pusher=event_pusher,
     )
     app.state.engine = engine
-    app.state.llm_client = llm_client
-    app.state.ws_manager = ws_manager
+
+    # 预编码样板间 Agent 向量
+    agent_vectors = {}
+    for aid in composite.all_agent_ids:
+        profile = await composite.get_profile(aid)
+        text_parts = []
+        for field in ("self_introduction", "bio", "role"):
+            if profile.get(field):
+                text_parts.append(str(profile[field]))
+        if profile.get("skills"):
+            skills = profile["skills"]
+            if isinstance(skills, list):
+                text_parts.append(", ".join(str(s) for s in skills))
+        # shades
+        for shade in profile.get("shades", []):
+            desc = shade.get("description", "") or shade.get("name", "")
+            if desc:
+                text_parts.append(desc)
+        text = " ".join(text_parts) if text_parts else aid
+        try:
+            vec = await encoder.encode(text)
+            agent_vectors[aid] = vec
+        except Exception:
+            pass
+    app.state.agent_vectors = agent_vectors
+
     app.state.sessions = {}
     app.state.tasks = {}
+    app.state.user_tokens = {}  # agent_id → SecondMe access_token
 
     # Skills
     app.state.skills = {
@@ -186,29 +361,39 @@ async def lifespan(app: FastAPI):
         "gap_recursion": GapRecursionSkill(),
     }
 
-    # 自动发现预设应用
-    default_apps = os.environ.get("ATOA_APPS", "").split(",")
-    for url in default_apps:
-        url = url.strip()
-        if url:
-            discovered = await registry.discover_app(url)
-            if discovered:
-                registry.register(discovered)
+    # SecondMe OAuth2 客户端（可选 — 有配置才启用）
+    app.state.oauth2_client = None
+    try:
+        client_id = os.environ.get("SECONDME_CLIENT_ID", "")
+        if client_id:
+            from oauth2_client import SecondMeOAuth2Client, OAuth2Config
+            config = OAuth2Config.from_env()
+            app.state.oauth2_client = SecondMeOAuth2Client(config)
+            logger.info("App Store: SecondMe OAuth2 已启用")
+    except Exception as e:
+        logger.warning("SecondMe OAuth2 未配置: %s", e)
 
-    logger.info("App Store 启动完成")
+    logger.info(
+        "App Store 启动完成: %d 个 Agent, %d 个场景, %d 个向量",
+        composite.agent_count,
+        len(scene_registry.all_scenes),
+        len(agent_vectors),
+    )
     yield
 
     for task in app.state.tasks.values():
         if not task.done():
             task.cancel()
+    if app.state.oauth2_client:
+        await app.state.oauth2_client.close()
     logger.info("App Store 关闭")
 
 
 def create_store_app() -> FastAPI:
     application = FastAPI(
-        title="AToA 应用商城",
-        description="通爻 AToA 应用生态的联邦路由层 — 跨应用共振",
-        version="1.0.0",
+        title="通爻网络 App Store",
+        description="所有 Agent 在同一个网络里。场景是上下文，不是边界。",
+        version="2.0.0",
         lifespan=lifespan,
     )
 
@@ -220,153 +405,235 @@ def create_store_app() -> FastAPI:
         allow_headers=["*"],
     )
 
-    # ============ 应用管理 API ============
+    # ============ 网络状态 API ============
 
-    @application.post("/api/apps/register")
-    async def register_app(req: RegisterAppRequest, request: Request):
-        """注册一个 AToA 应用到 App Store。"""
-        registry = request.app.state.registry
-        reg_app = RegisteredApp(
-            app_id=req.app_id,
-            app_name=req.app_name,
-            base_url=req.base_url,
-            scene_id=req.scene_id,
-            scene_name=req.scene_name,
-            description=req.description,
-        )
-        registry.register(reg_app)
-        return {"status": "ok", "app_id": req.app_id, "message": f"{req.app_name} 注册成功"}
-
-    @application.post("/api/apps/discover")
-    async def discover_app(req: DiscoverAppRequest, request: Request):
-        """自动发现并注册应用（调用应用的 /api/info 接口）。"""
-        registry = request.app.state.registry
-        discovered = await registry.discover_app(req.base_url)
-        if not discovered:
-            raise HTTPException(400, f"无法发现应用: {req.base_url}")
-        registry.register(discovered)
+    @application.get("/api/info")
+    async def network_info(request: Request):
+        """网络状态总览。"""
+        state = request.app.state
         return {
-            "status": "ok",
-            "app": {
-                "app_id": discovered.app_id,
-                "app_name": discovered.app_name,
-                "agent_count": discovered.agent_count,
-            },
+            "name": "通爻网络 App Store",
+            "version": "2.0.0",
+            "total_agents": state.composite.agent_count,
+            "total_scenes": len(state.scene_registry.all_scenes),
+            "scenes": state.scene_registry.list_scenes(),
+            "secondme_enabled": state.oauth2_client is not None,
         }
 
-    @application.get("/api/apps", response_model=AppListResponse)
-    async def list_apps(request: Request):
-        """列出所有已注册的应用。"""
-        registry = request.app.state.registry
-        apps_list = []
-        total_agents = 0
-        for app_info in registry.apps.values():
-            apps_list.append({
-                "app_id": app_info.app_id,
-                "app_name": app_info.app_name,
-                "base_url": app_info.base_url,
-                "scene_name": app_info.scene_name,
-                "description": app_info.description,
-                "agent_count": app_info.agent_count,
-            })
-            total_agents += app_info.agent_count
-        return AppListResponse(apps=apps_list, total_agents=total_agents)
+    @application.get("/api/agents")
+    async def list_agents(request: Request, scope: str = "all"):
+        """列出网络中的 Agent（支持 scope 过滤）。"""
+        state = request.app.state
+        agent_ids = state.composite.get_agents_by_scope(scope)
+        agents = []
+        for aid in agent_ids:
+            info = state.composite.get_agent_info(aid)
+            if info:
+                agents.append(info)
+        return {"agents": agents, "count": len(agents), "scope": scope}
 
-    @application.get("/api/agents/all")
-    async def list_all_agents(request: Request):
-        """列出所有应用的所有 Agent（联邦视图）。"""
-        registry = request.app.state.registry
-        agents = registry.get_all_agents()
-        return {"agents": agents, "count": len(agents)}
+    @application.get("/api/scenes")
+    async def list_scenes(request: Request):
+        """列出所有已注册场景。"""
+        return {"scenes": request.app.state.scene_registry.list_scenes()}
 
-    # ============ 联邦协商 API ============
+    # ============ 场景注册 API ============
 
-    @application.post("/api/federated/negotiate", response_model=FederatedNegotiationResponse, status_code=201)
-    async def federated_negotiate(req: FederatedDemandRequest, request: Request):
+    @application.post("/api/scenes/register")
+    async def register_scene(req: RegisterSceneRequest, request: Request):
+        """其他应用注册场景上下文。"""
+        scene = SceneContext(
+            scene_id=req.scene_id,
+            name=req.name,
+            description=req.description,
+            priority_strategy=req.priority_strategy,
+            domain_context=req.domain_context,
+            created_by=req.created_by,
+        )
+        request.app.state.scene_registry.register(scene)
+        return {"status": "ok", "scene_id": req.scene_id}
+
+    @application.post("/api/scenes/{scene_id}/connect")
+    async def connect_user_to_scene(
+        scene_id: str,
+        req: ConnectUserRequest,
+        request: Request,
+    ):
         """
-        发起联邦协商 — 需求信号跨所有注册应用传播。
+        其他应用把用户的 SecondMe 授权码发过来。
+        App Store 换 token → 构建画像 → 注册 Agent（带场景标签）。
 
-        这是 App Store 的核心能力：
-        一个需求发出后，所有应用的 Agent 都有机会响应。
+        方案 A：用户显式授权。授权码由用户在其他应用里点击"连接到通爻网络"后产生。
+        """
+        state = request.app.state
+        if not state.oauth2_client:
+            raise HTTPException(503, "SecondMe OAuth2 未配置")
+
+        # 验证场景存在
+        scene = state.scene_registry.get(scene_id)
+        if not scene:
+            raise HTTPException(404, f"场景 {scene_id} 不存在")
+
+        # 用授权码换 token
+        try:
+            token_set = await state.oauth2_client.exchange_token(req.authorization_code)
+        except Exception as e:
+            raise HTTPException(400, f"授权码无效: {e}")
+
+        # 注册用户
+        result = await _register_secondme_user(
+            state,
+            access_token=token_set.access_token,
+            scene_ids=[scene_id],
+        )
+
+        return {"status": "ok", **result}
+
+    # ============ OAuth2 登录 API ============
+
+    @application.get("/auth/login")
+    async def oauth_login(request: Request, scene_id: str = ""):
+        """重定向到 SecondMe 授权页面。"""
+        state = request.app.state
+        if not state.oauth2_client:
+            raise HTTPException(503, "SecondMe OAuth2 未配置")
+
+        # 在 state 参数中编码场景信息
+        auth_url, oauth_state = await state.oauth2_client.build_authorization_url()
+
+        # 存储 state → scene_id 映射
+        if not hasattr(state, "oauth_states"):
+            state.oauth_states = {}
+        state.oauth_states[oauth_state] = scene_id
+
+        return {"auth_url": auth_url}
+
+    @application.get("/auth/callback")
+    async def oauth_callback(
+        request: Request,
+        code: str = "",
+        state: str = "",
+    ):
+        """OAuth2 回调 — 换 token，构建画像，注册 Agent。"""
+        app_state = request.app.state
+        if not code:
+            raise HTTPException(400, "缺少授权码")
+
+        if not app_state.oauth2_client:
+            raise HTTPException(503, "SecondMe OAuth2 未配置")
+
+        # 获取关联的场景
+        scene_id = ""
+        if hasattr(app_state, "oauth_states"):
+            scene_id = app_state.oauth_states.pop(state, "")
+
+        # 换 token
+        try:
+            token_set = await app_state.oauth2_client.exchange_token(code)
+        except Exception as e:
+            raise HTTPException(400, f"授权码无效: {e}")
+
+        # 注册用户
+        scene_ids = [scene_id] if scene_id else []
+        result = await _register_secondme_user(
+            app_state,
+            access_token=token_set.access_token,
+            scene_ids=scene_ids,
+        )
+
+        return {"status": "ok", "message": "登录成功，你的 AI 分身已加入网络", **result}
+
+    @application.get("/auth/me")
+    async def get_my_info(request: Request, agent_id: str = ""):
+        """查看当前用户的 Agent 信息。"""
+        if not agent_id:
+            raise HTTPException(400, "请提供 agent_id")
+        info = request.app.state.composite.get_agent_info(agent_id)
+        if not info:
+            raise HTTPException(404, "Agent 不存在")
+        return info
+
+    # ============ 协商 API ============
+
+    @application.post("/api/negotiate", response_model=NegotiationResponse, status_code=201)
+    async def negotiate(req: NegotiateRequest, request: Request):
+        """
+        发起协商 — 需求信号在网络中传播。
+
+        scope 参数控制广播范围：
+        - "all": 全网所有 Agent 参与共振
+        - "scene:{scene_id}": 只有该场景的 Agent 参与
         """
         from towow import NegotiationSession, DemandSnapshot
         from towow.core.models import TraceChain, generate_id
 
         state = request.app.state
-        registry = state.registry
-        fed_adapter = state.fed_adapter
+        composite: CompositeAdapter = state.composite
 
-        neg_id = generate_id("fed_neg")
+        # 根据 scope 过滤候选 Agent
+        candidate_ids = composite.get_agents_by_scope(req.scope)
+        if not candidate_ids:
+            raise HTTPException(400, f"scope '{req.scope}' 下没有可用的 Agent")
+
+        # 获取场景上下文（如果是场景模式）
+        scene_context = ""
+        scene_id = ""
+        if req.scope.startswith("scene:"):
+            scene_id = req.scope[len("scene:"):]
+            scene_context = state.scene_registry.get_center_context(scene_id)
+
+        neg_id = generate_id("neg")
         session = NegotiationSession(
             negotiation_id=neg_id,
             demand=DemandSnapshot(
                 raw_intent=req.intent,
                 user_id=req.user_id,
-                scene_id="federated",
+                scene_id=scene_id or "network",
             ),
             trace=TraceChain(negotiation_id=neg_id),
         )
         state.sessions[neg_id] = session
 
-        # 编码所有联邦 Agent 的向量
-        agent_vectors = {}
-        all_agents = registry.get_all_agents()
-        for agent_info in all_agents:
-            fed_id = agent_info["agent_id"]
-            profile = await fed_adapter.get_profile(fed_id)
-            text_parts = []
-            if profile.get("skills"):
-                skills = profile["skills"]
-                if isinstance(skills, list):
-                    text_parts.append(", ".join(skills))
-            if profile.get("bio"):
-                text_parts.append(profile["bio"])
-            if profile.get("role"):
-                text_parts.append(profile["role"])
-            text = " ".join(text_parts) if text_parts else fed_id
-            try:
-                vec = await state.engine._encoder.encode(text)
-                agent_vectors[fed_id] = vec
-            except Exception:
-                pass
+        # 筛选候选 Agent 的向量
+        candidate_vectors = {
+            aid: state.agent_vectors[aid]
+            for aid in candidate_ids
+            if aid in state.agent_vectors
+        }
 
         def _register(s):
             state.sessions[s.negotiation_id] = s
 
         run_defaults = {
-            "adapter": fed_adapter,
+            "adapter": composite,
             "llm_client": state.llm_client,
             "center_skill": state.skills["center"],
             "formulation_skill": state.skills["formulation"],
             "offer_skill": state.skills["offer"],
             "sub_negotiation_skill": state.skills["sub_negotiation"],
             "gap_recursion_skill": state.skills["gap_recursion"],
-            "agent_vectors": agent_vectors or None,
-            "k_star": min(len(all_agents), 8),
-            "agent_display_names": fed_adapter.get_display_names(),
+            "agent_vectors": candidate_vectors or None,
+            "k_star": min(len(candidate_ids), 8),
+            "agent_display_names": composite.get_display_names(),
             "register_session": _register,
         }
 
         task = asyncio.create_task(
-            _run_federated_negotiation(state.engine, session, run_defaults)
+            _run_negotiation(state.engine, session, run_defaults, scene_context)
         )
         state.tasks[neg_id] = task
 
-        # 标注跨应用 Agent 来源
-        cross_app = [
-            {"agent_id": a["agent_id"], "app_name": a["app_name"], "app_id": a["app_id"]}
-            for a in all_agents
-        ]
-
-        return FederatedNegotiationResponse(
+        return NegotiationResponse(
             negotiation_id=neg_id,
             state=session.state.value,
             demand_raw=req.intent,
-            cross_app_agents=cross_app,
+            scope=req.scope,
+            agent_count=len(candidate_ids),
         )
 
-    @application.get("/api/federated/negotiate/{neg_id}", response_model=FederatedNegotiationResponse)
-    async def get_federated_negotiation(neg_id: str, request: Request):
+    @application.get("/api/negotiate/{neg_id}", response_model=NegotiationResponse)
+    async def get_negotiation(neg_id: str, request: Request):
+        """查询协商状态。"""
         session = request.app.state.sessions.get(neg_id)
         if not session:
             raise HTTPException(404, f"协商 {neg_id} 不存在")
@@ -381,9 +648,14 @@ def create_store_app() -> FastAPI:
             }
             if p.offer:
                 entry["offer_content"] = p.offer.content
+            # 注入来源信息
+            agent_info = request.app.state.composite.get_agent_info(p.agent_id)
+            if agent_info:
+                entry["source"] = agent_info.get("source", "")
+                entry["scene_ids"] = agent_info.get("scene_ids", [])
             participants.append(entry)
 
-        return FederatedNegotiationResponse(
+        return NegotiationResponse(
             negotiation_id=session.negotiation_id,
             state=session.state.value,
             demand_raw=session.demand.raw_intent,
@@ -391,13 +663,13 @@ def create_store_app() -> FastAPI:
             participants=participants,
             plan_output=session.plan_output,
             center_rounds=session.center_rounds,
+            scope=session.demand.scene_id or "all",
         )
 
-    @application.post("/api/federated/negotiate/{neg_id}/confirm")
-    async def confirm_federated(neg_id: str, request: Request):
-        state = request.app.state
-        engine = state.engine
-        accepted = engine.confirm_formulation(neg_id)
+    @application.post("/api/negotiate/{neg_id}/confirm")
+    async def confirm(neg_id: str, request: Request):
+        """确认需求表述。"""
+        accepted = request.app.state.engine.confirm_formulation(neg_id)
         if not accepted:
             raise HTTPException(409, "引擎未在等待确认")
         return {"status": "ok"}
@@ -437,15 +709,17 @@ def create_store_app() -> FastAPI:
             index_file = frontend_path / "index.html"
             if index_file.exists():
                 return FileResponse(index_file)
-            return HTMLResponse("<h1>App Store 前端加载中...</h1>")
+            return HTMLResponse("<h1>App Store 加载中...</h1>")
 
         application.mount("/static", StaticFiles(directory=str(frontend_path)), name="static")
 
     return application
 
 
-async def _run_federated_negotiation(engine, session, defaults):
+async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
+    """运行协商（带自动确认和场景上下文注入）。"""
     from towow import NegotiationState
+
     try:
         async def auto_confirm():
             for _ in range(120):
@@ -454,10 +728,13 @@ async def _run_federated_negotiation(engine, session, defaults):
                     engine.confirm_formulation(session.negotiation_id)
                     return
         confirm_task = asyncio.create_task(auto_confirm())
+
+        # TODO: 场景上下文注入 — 当 Center skill 支持 context 参数时启用
+        # 目前 scene_context 暂不注入，等 Center skill 支持后再接入
         await engine.start_negotiation(session=session, **defaults)
         confirm_task.cancel()
     except Exception as e:
-        logger.error("联邦协商 %s 失败: %s", session.negotiation_id, e, exc_info=True)
+        logger.error("协商 %s 失败: %s", session.negotiation_id, e, exc_info=True)
         session.metadata["error"] = str(e)
         if session.state != NegotiationState.COMPLETED:
             session.state = NegotiationState.COMPLETED

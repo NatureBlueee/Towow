@@ -143,6 +143,49 @@ class ChatError(OAuth2Error):
     pass
 
 
+@dataclass
+class Shade:
+    """SecondMe 兴趣标签"""
+    id: str
+    name: str = ""
+    description: str = ""
+    content: str = ""
+    confidence: str = "MEDIUM"
+    source_topics: list[str] = None
+    is_public: bool = False
+
+    def __post_init__(self):
+        if self.source_topics is None:
+            self.source_topics = []
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "name": self.name,
+            "description": self.description,
+            "content": self.content,
+            "confidence": self.confidence,
+            "source_topics": self.source_topics,
+        }
+
+
+@dataclass
+class SoftMemory:
+    """SecondMe 事实性记忆"""
+    id: int
+    category: str = ""
+    content: str = ""
+    create_time: int = 0
+    update_time: int = 0
+
+    def to_dict(self) -> Dict[str, Any]:
+        return {
+            "id": self.id,
+            "category": self.category,
+            "content": self.content,
+        }
+
+
 class SecondMeOAuth2Client:
     """
     SecondMe OAuth2 客户端
@@ -446,6 +489,143 @@ class SecondMeOAuth2Client:
                 error_code="network_error",
             )
 
+    async def get_shades(self, access_token: str) -> list[Shade]:
+        """
+        获取用户兴趣标签（Shades）
+
+        优先使用公开版第三人称描述，适合作为 Agent 画像的外部展示。
+
+        Returns:
+            Shade 对象列表
+        """
+        url = f"{self.config.api_base_url}/gate/lab/api/secondme/user/shades"
+
+        logger.info("Fetching user shades...")
+
+        try:
+            response = await self.http_client.get(
+                url,
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+
+            body = response.json()
+
+            if response.status_code != 200 or (body.get("code") is not None and body.get("code") != 0):
+                error_msg = body.get("message", "Failed to get shades")
+                logger.error(f"Get shades failed: {error_msg}")
+                raise OAuth2Error(
+                    message=error_msg,
+                    error_code=str(body.get("code")),
+                    status_code=response.status_code,
+                    response_body=body,
+                )
+
+            data = body.get("data", {})
+            raw_shades = data.get("shades", [])
+
+            shades = []
+            for s in raw_shades:
+                # 优先公开版第三人称，回退到私有版
+                shade = Shade(
+                    id=str(s.get("id", "")),
+                    name=s.get("shadeNamePublic") or s.get("shadeName", ""),
+                    description=(
+                        s.get("shadeDescriptionThirdViewPublic")
+                        or s.get("shadeDescriptionPublic")
+                        or s.get("shadeDescriptionThirdView")
+                        or s.get("shadeDescription", "")
+                    ),
+                    content=(
+                        s.get("shadeContentThirdViewPublic")
+                        or s.get("shadeContentPublic")
+                        or s.get("shadeContentThirdView")
+                        or s.get("shadeContent", "")
+                    ),
+                    confidence=s.get("confidenceLevelPublic") or s.get("confidenceLevel", "MEDIUM"),
+                    source_topics=s.get("sourceTopicsPublic") or s.get("sourceTopics", []),
+                    is_public=bool(s.get("hasPublicContent")),
+                )
+                shades.append(shade)
+
+            logger.info(f"Fetched {len(shades)} shades")
+            return shades
+
+        except OAuth2Error:
+            raise
+        except httpx.RequestError as e:
+            logger.error(f"Network error during get shades: {e}")
+            raise OAuth2Error(message=f"Network error: {str(e)}", error_code="network_error")
+
+    async def get_softmemory(
+        self,
+        access_token: str,
+        keyword: Optional[str] = None,
+        page_no: int = 1,
+        page_size: int = 100,
+    ) -> list[SoftMemory]:
+        """
+        获取用户事实性记忆（Soft Memory）
+
+        Returns:
+            SoftMemory 对象列表
+        """
+        url = f"{self.config.api_base_url}/gate/lab/api/secondme/user/softmemory"
+
+        params: Dict[str, Any] = {"pageNo": page_no, "pageSize": page_size}
+        if keyword:
+            params["keyword"] = keyword
+
+        logger.info(f"Fetching soft memory (keyword={keyword}, page={page_no})...")
+
+        try:
+            response = await self.http_client.get(
+                url,
+                params=params,
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                },
+            )
+
+            body = response.json()
+
+            if response.status_code != 200 or (body.get("code") is not None and body.get("code") != 0):
+                error_msg = body.get("message", "Failed to get soft memory")
+                logger.error(f"Get soft memory failed: {error_msg}")
+                raise OAuth2Error(
+                    message=error_msg,
+                    error_code=str(body.get("code")),
+                    status_code=response.status_code,
+                    response_body=body,
+                )
+
+            data = body.get("data", {})
+            raw_list = data.get("list", [])
+
+            memories = []
+            for m in raw_list:
+                mem = SoftMemory(
+                    id=m.get("id", 0),
+                    category=m.get("factObject", ""),
+                    content=m.get("factContent", ""),
+                    create_time=m.get("createTime", 0),
+                    update_time=m.get("updateTime", 0),
+                )
+                memories.append(mem)
+
+            total = data.get("total", len(memories))
+            logger.info(f"Fetched {len(memories)}/{total} soft memories")
+            return memories
+
+        except OAuth2Error:
+            raise
+        except httpx.RequestError as e:
+            logger.error(f"Network error during get soft memory: {e}")
+            raise OAuth2Error(message=f"Network error: {str(e)}", error_code="network_error")
+
     async def chat_stream(
         self,
         access_token: str,
@@ -648,3 +828,93 @@ def reset_oauth2_client():
     global _oauth2_client
     with _oauth2_client_lock:
         _oauth2_client = None
+
+
+def build_agent_profile(
+    user_info: UserInfo,
+    shades: list[Shade] | None = None,
+    memories: list[SoftMemory] | None = None,
+) -> Dict[str, Any]:
+    """
+    从 SecondMe 数据构建完整的 Agent 画像。
+
+    用于：
+    - 存储为 adapter 的 profile 数据
+    - 文本化后进行向量编码
+    - 注入 Center 的协商上下文
+
+    Args:
+        user_info: 用户基本信息
+        shades: 兴趣标签列表
+        memories: 事实性记忆列表
+
+    Returns:
+        结构化的 profile 字典
+    """
+    profile: Dict[str, Any] = {
+        "agent_id": user_info.open_id,
+        "name": user_info.name or "Unknown",
+        "bio": user_info.bio or "",
+        "self_introduction": user_info.self_introduction or "",
+        "avatar": user_info.avatar or "",
+        "profile_completeness": user_info.profile_completeness or 0,
+        "source": "secondme",
+    }
+
+    if shades:
+        profile["shades"] = [s.to_dict() for s in shades]
+
+    if memories:
+        profile["memories"] = [m.to_dict() for m in memories]
+
+    return profile
+
+
+def profile_to_text(profile: Dict[str, Any]) -> str:
+    """
+    将 Agent 画像转为文本，用于向量编码。
+
+    编码策略：先放最重要的身份信息，再放兴趣标签和记忆。
+    兴趣标签按置信度排序（HIGH > MEDIUM > LOW）。
+    """
+    parts = []
+
+    name = profile.get("name", "")
+    if name:
+        parts.append(name)
+
+    intro = profile.get("self_introduction", "")
+    if intro:
+        parts.append(intro)
+
+    bio = profile.get("bio", "")
+    if bio and bio != intro:
+        parts.append(bio)
+
+    # 兴趣标签 — 按置信度排序
+    confidence_order = {"VERY_HIGH": 0, "HIGH": 1, "MEDIUM": 2, "LOW": 3, "VERY_LOW": 4}
+    shades = profile.get("shades", [])
+    if shades:
+        sorted_shades = sorted(shades, key=lambda s: confidence_order.get(s.get("confidence", "MEDIUM"), 2))
+        shade_texts = []
+        for s in sorted_shades:
+            text = s.get("description", "") or s.get("name", "")
+            if text:
+                shade_texts.append(text)
+        if shade_texts:
+            parts.append("兴趣与专长：" + "；".join(shade_texts))
+
+    # 事实性记忆
+    memories = profile.get("memories", [])
+    if memories:
+        mem_texts = []
+        for m in memories:
+            cat = m.get("category", "")
+            content = m.get("content", "")
+            if content:
+                mem_texts.append(f"{cat}：{content}" if cat else content)
+        if mem_texts:
+            # 取前 20 条，避免文本过长
+            parts.append("个人经历：" + "；".join(mem_texts[:20]))
+
+    return "\n".join(parts)

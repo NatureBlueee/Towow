@@ -3,69 +3,62 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AToA 应用商城 — 通爻</title>
+    <title>通爻网络 — App Store</title>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
     <div class="app-container">
         <header class="header">
-            <h1>AToA 应用商城</h1>
-            <p class="subtitle">所有应用共享同一个协议，跨应用共振</p>
-            <span class="badge">通爻联邦路由层</span>
+            <h1>通爻网络</h1>
+            <p class="subtitle">所有 Agent 在同一个网络里，场景是上下文，不是边界</p>
+            <div style="margin-top: 12px;">
+                <span class="badge" id="badge-agents">-- 个 Agent</span>
+                <span class="badge" id="badge-scenes">-- 个场景</span>
+                <span class="badge badge-secondme" id="badge-secondme" style="display:none;">SecondMe 已启用</span>
+            </div>
         </header>
 
-        <!-- 已注册应用 -->
+        <!-- 网络总览 -->
         <section class="card" style="margin-bottom: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center;">
-                <h2 class="card-title" style="margin-bottom: 0;">已注册应用</h2>
-                <button class="btn btn-sm" onclick="showDiscoverModal()">发现应用</button>
+            <h2 class="card-title">网络中的场景</h2>
+            <div id="scene-list" class="scene-grid">
+                <div style="color: var(--text-muted);">加载中...</div>
             </div>
-            <div id="app-list" style="margin-top: 16px;">
-                <div style="color: var(--text-muted);">暂无已注册应用，点击「发现应用」添加</div>
-            </div>
-            <div id="total-agents" style="margin-top: 12px; font-size: 0.8rem; color: var(--text-secondary);"></div>
         </section>
 
-        <!-- 发现应用弹窗 -->
-        <div id="discover-modal" class="modal" style="display: none;">
-            <div class="modal-content card">
-                <h3 class="card-title">发现应用</h3>
-                <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-                    输入应用的地址，App Store 会自动获取其信息并注册。
-                </p>
-                <div class="form-group">
-                    <label class="form-label">应用地址</label>
-                    <input id="discover-url" class="form-input"
-                        placeholder="例如：http://localhost:8100" />
-                </div>
-                <div class="quick-discover" style="margin-bottom: 16px;">
-                    <span style="font-size: 0.8rem; color: var(--text-secondary);">快速添加：</span>
-                    <button class="btn btn-chip" onclick="quickDiscover('http://localhost:8100')">黑客松组队 :8100</button>
-                    <button class="btn btn-chip" onclick="quickDiscover('http://localhost:8101')">技能交换 :8101</button>
-                    <button class="btn btn-chip" onclick="quickDiscover('http://localhost:8102')">AI 招聘 :8102</button>
-                    <button class="btn btn-chip" onclick="quickDiscover('http://localhost:8103')">AI 相亲 :8103</button>
-                </div>
-                <div style="display: flex; gap: 12px;">
-                    <button class="btn btn-primary" style="flex: 1;" onclick="discoverApp()">发现并注册</button>
-                    <button class="btn btn-secondary" onclick="hideDiscoverModal()">关闭</button>
-                </div>
-                <div id="discover-result" style="margin-top: 12px; font-size: 0.85rem;"></div>
-            </div>
-        </div>
-
-        <!-- 联邦协商 -->
+        <!-- Agent 列表 -->
         <section class="card" style="margin-bottom: 24px;">
-            <h2 class="card-title">跨应用协商</h2>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
+                <h2 class="card-title" style="margin-bottom: 0;">网络中的 Agent</h2>
+                <div id="scope-tabs" class="scope-tabs">
+                    <button class="scope-tab active" onclick="switchScope('all')">全网</button>
+                </div>
+            </div>
+            <div id="agent-list" class="agent-grid">
+                <div style="color: var(--text-muted);">加载中...</div>
+            </div>
+            <div id="agent-count" style="margin-top: 12px; font-size: 0.8rem; color: var(--text-secondary);"></div>
+        </section>
+
+        <!-- 协商入口 -->
+        <section class="card" style="margin-bottom: 24px;">
+            <h2 class="card-title">发起协商</h2>
             <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-                发出一个需求，所有已注册应用的 Agent 都会响应 — 跨应用共振
+                发出你的需求，网络中的 Agent 会通过共振响应
             </p>
             <div class="form-group">
                 <label class="form-label">你的需求</label>
                 <textarea id="demand-input" class="form-textarea"
-                    placeholder="例如：我需要一个团队来开发一个AI健康管理产品，需要技术、设计和产品方面的人才..."></textarea>
+                    placeholder="例如：我需要一个团队来开发一个AI健康管理产品..."></textarea>
             </div>
-            <button id="submit-btn" class="btn btn-primary" onclick="submitFederatedDemand()">
-                发出跨应用信号
+            <div class="form-group">
+                <label class="form-label">广播范围 (scope)</label>
+                <select id="scope-select" class="form-input">
+                    <option value="all">全网广播 — 所有 Agent 参与共振</option>
+                </select>
+            </div>
+            <button id="submit-btn" class="btn btn-primary" onclick="submitDemand()">
+                发出需求信号
             </button>
         </section>
 
@@ -75,9 +68,10 @@
                 <div class="status-bar">
                     <div id="status-dot" class="status-dot idle"></div>
                     <span id="status-text">等待中</span>
-                    <div id="spinner" class="loading-spinner" style="display: none; margin-left: auto;"></div>
+                    <span id="status-scope" class="badge" style="margin-left: auto; font-size: 0.7rem;"></span>
+                    <div id="spinner" class="loading-spinner" style="display: none; margin-left: 8px;"></div>
                 </div>
-                <h2 class="card-title">跨应用协商进度</h2>
+                <h2 class="card-title">协商进度</h2>
                 <div id="timeline" class="timeline"></div>
             </div>
         </section>
@@ -85,14 +79,15 @@
         <!-- 方案输出 -->
         <section id="plan-section" style="display: none;">
             <div class="plan-output">
-                <h3>跨应用协商方案</h3>
+                <h3>协商方案</h3>
+                <div id="plan-participants" style="margin-bottom: 16px;"></div>
                 <div id="plan-text" class="plan-text"></div>
             </div>
         </section>
 
         <footer class="powered-by">
-            <strong>AToA 应用商城</strong> — 响应范式在应用级别的应用<br>
-            需求信号跨应用传播，相关的 Agent 无论属于哪个应用都会响应
+            <strong>通爻网络 App Store</strong> — 响应范式的网络入口<br>
+            任何基于 SecondMe 的应用都能接入，Agent 天然互通
         </footer>
     </div>
 

@@ -20,13 +20,21 @@ def mock_oauth2_client():
 
 @pytest.fixture
 def adapter(mock_oauth2_client):
-    profiles = {
-        "agent_bob": {"agent_id": "agent_bob", "name": "Bob"},
-    }
+    """Adapter with pre-built profile (single-user model)."""
     return SecondMeAdapter(
         oauth2_client=mock_oauth2_client,
         access_token="test-token",
-        profiles=profiles,
+        agent_id="agent_bob",
+        profile={"agent_id": "agent_bob", "name": "Bob"},
+    )
+
+
+@pytest.fixture
+def empty_adapter(mock_oauth2_client):
+    """Adapter without profile — will need to fetch on demand."""
+    return SecondMeAdapter(
+        oauth2_client=mock_oauth2_client,
+        access_token="test-token",
     )
 
 
@@ -37,23 +45,28 @@ class TestGetProfile:
         assert result["name"] == "Bob"
 
     @pytest.mark.asyncio
-    async def test_falls_back_to_secondme_api(self, adapter, mock_oauth2_client):
+    async def test_auto_fetches_when_no_profile(self, empty_adapter, mock_oauth2_client):
         mock_oauth2_client.get_user_info.return_value = SimpleNamespace(
+            open_id="carol_id",
             name="Carol",
             bio="Developer",
             self_introduction="I build things",
+            avatar="",
+            profile_completeness=50,
         )
+        mock_oauth2_client.get_shades.side_effect = Exception("not available")
+        mock_oauth2_client.get_softmemory.side_effect = Exception("not available")
 
-        result = await adapter.get_profile("agent_unknown")
+        result = await empty_adapter.get_profile("carol_id")
         assert result["name"] == "Carol"
-        assert result["bio"] == "Developer"
+        assert result["agent_id"] == "carol_id"
 
     @pytest.mark.asyncio
-    async def test_returns_minimal_on_api_failure(self, adapter, mock_oauth2_client):
+    async def test_raises_on_fetch_failure(self, empty_adapter, mock_oauth2_client):
         mock_oauth2_client.get_user_info.side_effect = Exception("API down")
 
-        result = await adapter.get_profile("agent_unknown")
-        assert result == {"agent_id": "agent_unknown"}
+        with pytest.raises(AdapterError, match="Cannot build profile"):
+            await empty_adapter.get_profile("agent_unknown")
 
 
 class TestChat:
