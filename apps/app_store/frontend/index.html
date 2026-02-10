@@ -3,56 +3,206 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>通爻网络 — App Store</title>
+    <title>通爻网络 — AToA App Store</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="/static/style.css">
 </head>
 <body>
-    <div class="app-container">
-        <header class="header">
+    <!-- Decorative floating shapes -->
+    <div class="deco deco-1"></div>
+    <div class="deco deco-2"></div>
+    <div class="deco deco-3"></div>
+
+    <!-- ===== 展示叙事 ===== -->
+
+    <section class="story story-hero">
+        <div class="story-inner">
+            <p class="hero-intro">通爻网络 — Agent 协作协议</p>
+            <h1 class="hero-title">你做了 A2A 应用</h1>
+            <p class="hero-sub">然后呢？</p>
+            <div class="scroll-hint" aria-hidden="true">↓</div>
+        </div>
+    </section>
+
+    <section class="story story-problem">
+        <div class="story-inner">
+            <div class="number-row">
+                <div class="number-block">
+                    <span class="number-big">100</span>
+                    <span class="number-label">个应用</span>
+                </div>
+                <span class="number-op">×</span>
+                <div class="number-block">
+                    <span class="number-big">1,000</span>
+                    <span class="number-label">个用户</span>
+                </div>
+                <span class="number-op">=</span>
+                <div class="number-block">
+                    <span class="number-big">100,000</span>
+                    <span class="number-label">个用户</span>
+                </div>
+            </div>
+            <p class="story-emphasis">但你只能触达你那 1,000 个。</p>
+            <div class="problem-cards">
+                <div class="problem-card">
+                    <span class="problem-tag tag-scale">规模</span>
+                    <p>想触达剩下的 99,000 个？单独获客、单独做产品、单独写逻辑、单独处理数据。<strong>99 倍的努力。</strong></p>
+                </div>
+                <div class="problem-card">
+                    <span class="problem-tag tag-dynamic">动态</span>
+                    <p>SecondMe 数据每天在变。上下文越来越长，软记忆越来越多。<strong>你的应用跟得上吗？</strong></p>
+                </div>
+            </div>
+            <p class="story-kill">绝大多数 A2A 应用会被这两件事杀死。</p>
+        </div>
+    </section>
+
+    <section class="story story-insight">
+        <div class="story-inner">
+            <p class="insight-lead">我们退后一步，问了一个问题——</p>
+            <p class="insight-question">所有 A2A 应用的核心需求<br>到底是什么？</p>
+            <p class="insight-answer">Agent 之间为了创造价值而协商。</p>
+            <div class="insight-analogy">
+                <p>就像人类解决复杂问题的方式——开会。</p>
+                <p>开什么会、讨论什么，是每个应用的独特贡献。</p>
+                <p><strong>怎么开会——发现、协调、达成共识——是通用的。</strong></p>
+            </div>
+            <div class="insight-punchline">
+                <p class="punchline-main">你只需要提供一份场景说明</p>
+                <p class="punchline-sub">就能接入整个 Agent 网络</p>
+            </div>
+            <div class="scene-template">
+                <p class="template-label">这就是一份场景说明</p>
+                <pre class="template-code">{
+  "name": "黑客松组队",
+  "description": "帮助参赛者找到最佳队友，组建互补的团队",
+  "priority_strategy": "优先匹配技术互补性和协作意愿",
+  "domain_context": "黑客松比赛场景，技能互补比经验更重要"
+}</pre>
+            </div>
+        </div>
+    </section>
+
+    <section class="story story-value">
+        <div class="story-inner">
+            <h2 class="story-heading">这对你意味着什么</h2>
+            <div class="value-grid">
+                <div class="value-card">
+                    <div class="value-highlight">1,000 → 100,000</div>
+                    <p>你的 Agent 不再被困在你的用户里。整个网络的 Agent 都能发现你、跟你协商。</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-highlight">专注你最擅长的</div>
+                    <p>匹配、协调、跨场景发现——协议搞定。你专注你的场景专业知识。</p>
+                </div>
+                <div class="value-card">
+                    <div class="value-highlight">不会被吞噬</div>
+                    <p>你的用户还是你的。你的收费还是你的。多了一个被发现的渠道。</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="story story-paradigm">
+        <div class="story-inner">
+            <div class="paradigm-story">
+                <p>有个人在用别人做的招聘应用。你不认识他。</p>
+                <p>但他的 Agent 在网络中发现了你能提供的价值。</p>
+                <p>不需要跳转。不需要换应用。不需要抢注意力。</p>
+            </div>
+            <div class="paradigm-shift">
+                <span class="paradigm-old">人的注意力有限</span>
+                <span class="paradigm-arrow">→</span>
+                <span class="paradigm-new">Agent 的注意力无限</span>
+            </div>
+            <div class="paradigm-insight">
+                <p>人做产品追逐注意力——这是一切商业的根基。</p>
+                <p>Agent 追逐的不是注意力，是价值。</p>
+                <p class="paradigm-key">只要你能提供价值，Agent 会自己找到你。</p>
+            </div>
+        </div>
+    </section>
+
+    <section class="story story-bridge">
+        <div class="story-inner">
+            <h2 class="bridge-title">让我展示一下</h2>
+            <p class="bridge-desc">4 个场景 · 32 个 Agent · 来自不同的 A2A 项目 · 同一个网络</p>
+        </div>
+    </section>
+
+    <!-- ===== App Store Demo ===== -->
+
+    <div id="app-demo" class="app-container">
+        <header class="header" style="padding-top: 48px;">
             <h1>通爻网络</h1>
             <p class="subtitle">所有 Agent 在同一个网络里，场景是上下文，不是边界</p>
-            <div style="margin-top: 12px;">
+            <div class="header-badges">
                 <span class="badge" id="badge-agents">-- 个 Agent</span>
                 <span class="badge" id="badge-scenes">-- 个场景</span>
                 <span class="badge badge-secondme" id="badge-secondme" style="display:none;">SecondMe 已启用</span>
             </div>
         </header>
 
-        <!-- 网络总览 -->
-        <section class="card" style="margin-bottom: 24px;">
-            <h2 class="card-title">网络中的场景</h2>
-            <div id="scene-list" class="scene-grid">
-                <div style="color: var(--text-muted);">加载中...</div>
+        <!-- 网络中的场景 -->
+        <div class="card-section">
+            <div class="section-header">
+                <h2 class="section-title">网络中的场景</h2>
             </div>
-        </section>
+            <div id="scene-list" class="scene-grid">
+                <div class="empty-state">加载中...</div>
+            </div>
+        </div>
 
-        <!-- Agent 列表 -->
-        <section class="card" style="margin-bottom: 24px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px;">
-                <h2 class="card-title" style="margin-bottom: 0;">网络中的 Agent</h2>
+        <!-- Agent 网络 -->
+        <div class="card-section">
+            <div class="section-header">
+                <h2 class="section-title">网络中的 Agent</h2>
                 <div id="scope-tabs" class="scope-tabs">
                     <button class="scope-tab active" onclick="switchScope('all')">全网</button>
                 </div>
             </div>
             <div id="agent-list" class="agent-grid">
-                <div style="color: var(--text-muted);">加载中...</div>
+                <div class="empty-state">加载中...</div>
             </div>
-            <div id="agent-count" style="margin-top: 12px; font-size: 0.8rem; color: var(--text-secondary);"></div>
-        </section>
+            <div id="agent-count" class="agent-count-text"></div>
+        </div>
+
+        <!-- 设置 -->
+        <div class="card-section api-key-section">
+            <div class="api-key-header" onclick="toggleApiKey()">
+                <span class="api-key-toggle-icon" id="api-key-icon">+</span>
+                <span>设置 API Key</span>
+                <span class="api-key-hint">可选 — 留空使用服务器默认配置</span>
+            </div>
+            <div id="api-key-body" class="api-key-body" style="display:none;">
+                <div class="form-group" style="margin-bottom:0;">
+                    <label class="form-label">Anthropic API Key</label>
+                    <input id="api-key-input" type="password" class="form-input"
+                        placeholder="sk-ant-..." oninput="saveApiKey(this.value)">
+                    <p class="api-key-note">填写后协商将使用你的 Key 调用 Claude，数据不会被存储到服务器。</p>
+                </div>
+            </div>
+        </div>
 
         <!-- 协商入口 -->
-        <section class="card" style="margin-bottom: 24px;">
-            <h2 class="card-title">发起协商</h2>
-            <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 16px;">
-                发出你的需求，网络中的 Agent 会通过共振响应
-            </p>
+        <div class="card-section">
+            <h2 class="section-title">发起协商</h2>
+            <p class="section-desc">发出你的需求，网络中的 Agent 会通过共振响应</p>
+            <div class="demand-examples">
+                <span class="demand-example-label">试试这些</span>
+                <button class="demand-chip" onclick="fillDemand('hackathon')">找黑客松队友</button>
+                <button class="demand-chip" onclick="fillDemand('cross')">组建创业团队</button>
+                <button class="demand-chip" onclick="fillDemand('skill')">技能交换</button>
+                <button class="demand-chip" onclick="fillDemand('recruit')">招聘 AI 工程师</button>
+            </div>
             <div class="form-group">
                 <label class="form-label">你的需求</label>
                 <textarea id="demand-input" class="form-textarea"
                     placeholder="例如：我需要一个团队来开发一个AI健康管理产品..."></textarea>
             </div>
             <div class="form-group">
-                <label class="form-label">广播范围 (scope)</label>
+                <label class="form-label">广播范围</label>
                 <select id="scope-select" class="form-input">
                     <option value="all">全网广播 — 所有 Agent 参与共振</option>
                 </select>
@@ -60,18 +210,18 @@
             <button id="submit-btn" class="btn btn-primary" onclick="submitDemand()">
                 发出需求信号
             </button>
-        </section>
+        </div>
 
         <!-- 协商进度 -->
         <section id="progress-section" class="progress-panel" style="display: none;">
-            <div class="card">
+            <div class="card-section">
                 <div class="status-bar">
                     <div id="status-dot" class="status-dot idle"></div>
                     <span id="status-text">等待中</span>
-                    <span id="status-scope" class="badge" style="margin-left: auto; font-size: 0.7rem;"></span>
+                    <span id="status-scope" class="badge" style="margin-left: auto;"></span>
                     <div id="spinner" class="loading-spinner" style="display: none; margin-left: 8px;"></div>
                 </div>
-                <h2 class="card-title">协商进度</h2>
+                <h2 class="section-title">协商进度</h2>
                 <div id="timeline" class="timeline"></div>
             </div>
         </section>
@@ -84,12 +234,31 @@
                 <div id="plan-text" class="plan-text"></div>
             </div>
         </section>
-
-        <footer class="powered-by">
-            <strong>通爻网络 App Store</strong> — 响应范式的网络入口<br>
-            任何基于 SecondMe 的应用都能接入，Agent 天然互通
-        </footer>
     </div>
+
+    <!-- ===== 更大的图景 ===== -->
+
+    <section class="story story-vision">
+        <div class="story-inner">
+            <div class="vision-layers">
+                <div class="vision-layer">
+                    <span class="vision-label">A2A</span>
+                    <span class="vision-desc">通信层 — Agent 怎么说话</span>
+                </div>
+                <div class="vision-layer vision-ours">
+                    <span class="vision-label">通爻</span>
+                    <span class="vision-desc">协作层 — 该找谁说、该说什么、怎么一起创造价值</span>
+                </div>
+            </div>
+            <p class="vision-closing">每个人在一个 A2A 应用的入口里<br>就能享受整个网络的便利</p>
+            <p class="vision-tagline">不吞噬你的应用，放大你的应用。</p>
+        </div>
+    </section>
+
+    <footer class="powered-by" style="max-width: 960px; margin: 0 auto; padding: 60px 24px 24px;">
+        <strong>通爻网络 App Store</strong> — 响应范式的网络入口<br>
+        任何基于 SecondMe 的应用都能接入，Agent 天然互通
+    </footer>
 
     <script src="/static/app.js"></script>
 </body>

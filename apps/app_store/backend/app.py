@@ -422,14 +422,21 @@ def create_store_app() -> FastAPI:
 
     @application.get("/api/agents")
     async def list_agents(request: Request, scope: str = "all"):
-        """列出网络中的 Agent（支持 scope 过滤）。"""
+        """列出网络中的 Agent（支持 scope 过滤），含画像摘要。"""
         state = request.app.state
         agent_ids = state.composite.get_agents_by_scope(scope)
         agents = []
         for aid in agent_ids:
             info = state.composite.get_agent_info(aid)
-            if info:
-                agents.append(info)
+            if not info:
+                continue
+            # 全量合并 profile 字段（前端按场景自选展示）
+            # NOTE: JSON adapter 是内存字典 O(1)；SecondMe adapter 未来需要缓存层
+            profile = await state.composite.get_profile(aid)
+            for key, value in profile.items():
+                if key not in ("agent_id", "source", "scene_ids"):
+                    info.setdefault(key, value)
+            agents.append(info)
         return {"agents": agents, "count": len(agents), "scope": scope}
 
     @application.get("/api/scenes")
@@ -604,9 +611,17 @@ def create_store_app() -> FastAPI:
         def _register(s):
             state.sessions[s.negotiation_id] = s
 
+        # 支持用户自带 API Key
+        user_api_key = request.headers.get("x-api-key", "")
+        if user_api_key:
+            from towow.infra.llm_client import ClaudePlatformClient
+            req_llm_client = ClaudePlatformClient(api_key=user_api_key)
+        else:
+            req_llm_client = state.llm_client
+
         run_defaults = {
             "adapter": composite,
-            "llm_client": state.llm_client,
+            "llm_client": req_llm_client,
             "center_skill": state.skills["center"],
             "formulation_skill": state.skills["formulation"],
             "offer_skill": state.skills["offer"],
