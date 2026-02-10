@@ -1,6 +1,7 @@
 // app/page.tsx
 import { getTranslations, getLocale } from 'next-intl/server';
 import { Hero } from '@/components/home/Hero';
+import { SecondMeLogin } from '@/components/home/SecondMeLogin';
 import { ContentSection } from '@/components/home/ContentSection';
 import { NetworkJoin } from '@/components/home/NetworkJoin';
 import { Footer } from '@/components/layout/Footer';
@@ -30,6 +31,11 @@ export default async function Home() {
         primaryButtonText={t('primaryButton')}
         primaryButtonHref="/articles/join-us"
       />
+
+      {/* SecondMe Login */}
+      <div style={{ display: 'flex', justifyContent: 'center', marginTop: '-40px', marginBottom: '40px', position: 'relative', zIndex: 20 }}>
+        <SecondMeLogin />
+      </div>
 
       {/* Content Sections */}
       {sections.map((section) => (
