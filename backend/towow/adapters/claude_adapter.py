@@ -34,8 +34,12 @@ class ClaudeAdapter(BaseAdapter):
         model: str = "claude-sonnet-4-5-20250929",
         max_tokens: int = 4096,
         profiles: dict[str, dict[str, Any]] | None = None,
+        base_url: str | None = None,
     ):
-        self._client = anthropic.AsyncAnthropic(api_key=api_key)
+        client_kwargs: dict[str, Any] = {"api_key": api_key}
+        if base_url:
+            client_kwargs["base_url"] = base_url
+        self._client = anthropic.AsyncAnthropic(**client_kwargs)
         self._model = model
         self._max_tokens = max_tokens
         # V1: profile data is stored in-memory, passed at construction

@@ -271,13 +271,23 @@ async def lifespan(app: FastAPI):
     app.state.composite = composite
     app.state.scene_registry = scene_registry
 
-    # LLM 客户端
+    # LLM 客户端（支持多 key 轮转）
+    api_keys_raw = os.environ.get("TOWOW_ANTHROPIC_API_KEYS", "")
     api_key = os.environ.get("TOWOW_ANTHROPIC_API_KEY", "")
+    base_url = os.environ.get("TOWOW_ANTHROPIC_BASE_URL", "") or None
     llm_client = None
-    if api_key:
+
+    # 优先用逗号分隔的多 key，否则回退到单 key
+    keys: list[str] = []
+    if api_keys_raw:
+        keys = [k.strip() for k in api_keys_raw.split(",") if k.strip()]
+    elif api_key:
+        keys = [api_key]
+
+    if keys:
         from towow.infra.llm_client import ClaudePlatformClient
-        llm_client = ClaudePlatformClient(api_key=api_key)
-        logger.info("App Store: 使用 Claude API")
+        llm_client = ClaudePlatformClient(api_key=keys, base_url=base_url)
+        logger.info("App Store: 使用 Claude API (%d key(s), base_url=%s)", len(keys), base_url or "default")
     else:
         import sys
         apps_dir = Path(__file__).resolve().parent.parent.parent
@@ -557,7 +567,8 @@ def create_store_app() -> FastAPI:
         user_api_key = request.headers.get("x-api-key", "")
         if user_api_key:
             from towow.infra.llm_client import ClaudePlatformClient
-            req_llm_client = ClaudePlatformClient(api_key=user_api_key)
+            user_base_url = os.environ.get("TOWOW_ANTHROPIC_BASE_URL", "") or None
+            req_llm_client = ClaudePlatformClient(api_key=user_api_key, base_url=user_base_url)
         else:
             req_llm_client = state.llm_client
 

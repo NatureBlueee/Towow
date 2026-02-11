@@ -91,6 +91,76 @@ class ConnectUserRequest(BaseModel):
     scene_id: str = ""
 
 
+class AssistDemandRequest(BaseModel):
+    mode: str = Field(..., pattern="^(polish|surprise)$")
+    scene_id: str = ""
+    raw_text: str = ""
+
+
+# ============ SecondMe 辅助需求 ============
+
+SESSION_COOKIE_NAME = "towow_session"
+
+ASSIST_PROMPTS = {
+    "polish": """你是用户的 AI 分身，正在帮用户完善一个协作需求。
+
+用户在「{scene_name}」场景中写了一个初步的想法。请基于你对用户的理解，帮助优化和丰富这个需求表达。
+
+规则：
+- 保留用户的核心意图，不要偏离
+- 补充具体细节：时间、规模、期望的协作方式
+- 表达用户可能没说出来的真实偏好
+- 直接输出优化后的需求文本，不加任何解释或前缀
+
+当前场景：{scene_description}
+网络中已有的参与者：
+{agent_summaries}""",
+
+    "surprise": """你是用户的 AI 分身。用户选了「{scene_name}」场景，想看看你能帮他发现什么有价值的协作需求。
+
+基于你对用户的深层理解——他的兴趣、经历、能力、未被满足的好奇心——结合这个场景和已有的参与者，创造一个他可能真正需要但还没想到的需求。
+
+规则：
+- 需求要具体，不要泛泛而谈
+- 要有意外感——用户看到会觉得"对啊，我确实需要这个"
+- 让需求自然地连接用户的特质和场景中的可能性
+- 直接输出需求文本，不加任何解释或前缀
+
+当前场景：{scene_description}
+网络中已有的参与者：
+{agent_summaries}""",
+}
+
+
+def _build_agent_summaries(composite, scope: str, max_agents: int = 10) -> str:
+    """构建 Agent 列表摘要供 SecondMe 参考。"""
+    agent_ids = composite.get_agents_by_scope(scope)[:max_agents]
+    lines = []
+    for aid in agent_ids:
+        info = composite.get_agent_info(aid)
+        if not info:
+            continue
+        name = info.get("display_name", aid)
+        skills = info.get("skills", [])
+        bio = info.get("bio", "")
+        line = f"- {name}"
+        if skills:
+            line += f"（擅长：{', '.join(skills[:3])}）"
+        if bio:
+            line += f"：{bio[:80]}"
+        lines.append(line)
+    return "\n".join(lines) if lines else "（暂无参与者信息）"
+
+
+async def _get_agent_id_from_session(request: Request) -> Optional[str]:
+    """从 cookie 中解析 agent_id。"""
+    session_id = request.cookies.get(SESSION_COOKIE_NAME)
+    if not session_id:
+        return None
+    session_store = request.app.state.session_store
+    return await session_store.get(f"session:{session_id}")
+
+
 # ============ Router ============
 
 router = APIRouter()
@@ -179,6 +249,60 @@ async def connect_user_to_scene(
         scene_ids=[scene_id],
     )
     return {"status": "ok", **result}
+
+
+# ── SecondMe 辅助需求 API ──
+
+@router.post("/api/assist-demand")
+async def assist_demand(req: AssistDemandRequest, request: Request):
+    """让用户的 SecondMe 分身帮助填写或创造需求。"""
+    agent_id = await _get_agent_id_from_session(request)
+    if not agent_id:
+        raise HTTPException(401, "需要登录 SecondMe 才能使用分身辅助")
+
+    state = request.app.state
+    composite = state.store_composite
+
+    # 验证 agent 在网络中
+    info = composite.get_agent_info(agent_id)
+    if not info:
+        raise HTTPException(401, "Agent 不在网络中，请重新登录")
+
+    if info.get("source") != "SecondMe":
+        raise HTTPException(400, "仅 SecondMe 用户可使用分身辅助")
+
+    if req.mode == "polish" and not req.raw_text.strip():
+        raise HTTPException(400, "润色模式需要提供初始需求文本")
+
+    # 构建上下文
+    scope = f"scene:{req.scene_id}" if req.scene_id else "all"
+    scene = state.store_scene_registry.get(req.scene_id) if req.scene_id else None
+    scene_name = scene.name if scene else "全网络"
+    scene_description = scene.description if scene else "跨场景协作"
+
+    agent_summaries = _build_agent_summaries(composite, scope)
+
+    # 组装 system prompt
+    system_prompt = ASSIST_PROMPTS[req.mode].format(
+        scene_name=scene_name,
+        scene_description=scene_description,
+        agent_summaries=agent_summaries,
+    )
+
+    # 构建用户消息
+    if req.mode == "polish":
+        user_message = f"请帮我优化这个需求：\n\n{req.raw_text}"
+    else:
+        user_message = "请帮我在这个场景中发现一个有价值的协作需求。"
+
+    messages = [{"role": "user", "content": user_message}]
+
+    try:
+        result = await composite.chat(agent_id, messages, system_prompt)
+        return {"demand_text": result, "mode": req.mode}
+    except Exception as e:
+        logger.error("SecondMe 辅助需求失败 agent=%s: %s", agent_id, e)
+        raise HTTPException(502, f"分身暂时无法响应：{e}")
 
 
 # ── 协商 API ──

@@ -132,7 +132,12 @@ export async function confirmNegotiation(negId: string): Promise<void> {
 // ============ WebSocket URL ============
 
 export function getStoreWebSocketUrl(negId: string): string {
-  const protocol = typeof window !== 'undefined' && window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-  const host = typeof window !== 'undefined' ? window.location.host : 'localhost:3000';
-  return `${protocol}//${host}/store/ws/${negId}`;
+  // Vercel rewrites only proxy HTTP, not WebSocket.
+  // In production, connect directly to the backend.
+  const wsBackend = process.env.NEXT_PUBLIC_WS_BACKEND_URL;
+  if (wsBackend) {
+    return `${wsBackend}/store/ws/${negId}`;
+  }
+  // Local dev: connect directly to backend on port 8080
+  return `ws://localhost:8080/store/ws/${negId}`;
 }

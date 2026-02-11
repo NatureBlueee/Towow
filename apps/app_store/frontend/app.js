@@ -164,18 +164,24 @@ function fillDemand(key) {
 
 // ============ SecondMe 登录 ============
 
+let currentUser = null;
+
 function renderLoginState(user) {
+    currentUser = user;
     const loginBtn = document.getElementById('login-btn');
     const userInfo = document.getElementById('user-info');
+    const assistBtns = document.getElementById('assist-buttons');
 
     if (user && user.display_name) {
         loginBtn.style.display = 'none';
         userInfo.style.display = 'flex';
         document.getElementById('user-avatar').textContent = getInitial(user.display_name);
         document.getElementById('user-name').textContent = user.display_name;
+        if (assistBtns) assistBtns.style.display = 'flex';
     } else {
         loginBtn.style.display = '';
         userInfo.style.display = 'none';
+        if (assistBtns) assistBtns.style.display = 'none';
     }
 }
 
@@ -190,6 +196,71 @@ async function checkAuth() {
         }
     } catch {}
     renderLoginState(null);
+}
+
+// ============ SecondMe 辅助需求 ============
+
+async function assistDemand(mode) {
+    if (!currentUser) {
+        loginWithSecondMe();
+        return;
+    }
+
+    const input = document.getElementById('demand-input');
+    const rawText = input.value.trim();
+
+    if (mode === 'polish' && !rawText) {
+        input.placeholder = '先写点什么，分身才能帮你润色...';
+        input.focus();
+        setTimeout(() => { input.placeholder = getSceneConfig().placeholder; }, 3000);
+        return;
+    }
+
+    // 获取当前场景
+    const scopeSelect = document.getElementById('scope-select');
+    const scopeValue = scopeSelect.value;
+    let sceneId = '';
+    if (scopeValue.startsWith('scene:')) {
+        sceneId = scopeValue.substring(6);
+    }
+
+    // UI loading 状态
+    const polishBtn = document.getElementById('assist-polish-btn');
+    const surpriseBtn = document.getElementById('assist-surprise-btn');
+    const activeBtn = mode === 'polish' ? polishBtn : surpriseBtn;
+    const originalText = activeBtn.textContent;
+    activeBtn.disabled = true;
+    activeBtn.textContent = '分身思考中...';
+    if (mode === 'polish') { surpriseBtn.disabled = true; }
+    else { polishBtn.disabled = true; }
+
+    try {
+        const resp = await fetch(`${API_BASE}/api/assist-demand`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({ mode, scene_id: sceneId, raw_text: rawText }),
+        });
+
+        if (!resp.ok) {
+            const err = await resp.json().catch(() => ({}));
+            throw new Error(err.detail || `HTTP ${resp.status}`);
+        }
+
+        const data = await resp.json();
+        input.value = data.demand_text;
+        input.style.borderColor = 'var(--c-primary)';
+        setTimeout(() => { input.style.borderColor = ''; }, 2000);
+    } catch (e) {
+        console.error('Assist demand failed:', e);
+        input.placeholder = `分身暂时无法响应: ${e.message}`;
+        setTimeout(() => { input.placeholder = getSceneConfig().placeholder; }, 4000);
+    } finally {
+        activeBtn.disabled = false;
+        activeBtn.textContent = originalText;
+        polishBtn.disabled = false;
+        surpriseBtn.disabled = false;
+    }
 }
 
 async function loginWithSecondMe() {

@@ -69,28 +69,31 @@ async def lifespan(app: FastAPI):
     )
     app.state.engine = engine
 
-    # Platform LLM client (for Center)
-    if config.anthropic_api_key:
+    # Platform LLM client (multi-key round-robin)
+    api_keys = config.get_api_keys()
+    if api_keys:
         from towow.infra.llm_client import ClaudePlatformClient
         llm_client = ClaudePlatformClient(
-            api_key=config.anthropic_api_key,
+            api_key=api_keys,
             model=config.default_model,
             max_tokens=config.max_tokens,
+            base_url=config.get_base_url(),
         )
         app.state.llm_client = llm_client
-        logger.info("ClaudePlatformClient initialized")
+        logger.info("ClaudePlatformClient initialized (%d key(s))", len(api_keys))
     else:
         app.state.llm_client = None
-        logger.warning("No TOWOW_ANTHROPIC_API_KEY set — LLM calls will fail")
+        logger.warning("No TOWOW_ANTHROPIC_API_KEY(S) set — LLM calls will fail")
 
     # Default adapter (for users without their own LLM)
     # Pass profiles dict by reference — agent registrations auto-visible to adapter
-    if config.anthropic_api_key:
+    if api_keys:
         from towow.adapters.claude_adapter import ClaudeAdapter
         adapter = ClaudeAdapter(
-            api_key=config.anthropic_api_key,
+            api_key=api_keys[0],
             model=config.default_model,
             profiles=app.state.profiles,
+            base_url=config.get_base_url(),
         )
         app.state.adapter = adapter
     else:

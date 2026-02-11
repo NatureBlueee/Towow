@@ -23,7 +23,7 @@ class TestChat:
             content=[SimpleNamespace(type="text", text="The answer is 42.")],
             stop_reason="end_turn",
         )
-        client._client.messages.create = AsyncMock(return_value=mock_response)
+        client._clients[0].messages.create = AsyncMock(return_value=mock_response)
 
         result = await client.chat(
             messages=[{"role": "user", "content": "What is the answer?"}],
@@ -46,7 +46,7 @@ class TestChat:
             ],
             stop_reason="tool_use",
         )
-        client._client.messages.create = AsyncMock(return_value=mock_response)
+        client._clients[0].messages.create = AsyncMock(return_value=mock_response)
 
         result = await client.chat(
             messages=[{"role": "user", "content": "Make a plan"}],
@@ -74,7 +74,7 @@ class TestChat:
             ],
             stop_reason="tool_use",
         )
-        client._client.messages.create = AsyncMock(return_value=mock_response)
+        client._clients[0].messages.create = AsyncMock(return_value=mock_response)
 
         result = await client.chat(
             messages=[{"role": "user", "content": "Coordinate"}],
@@ -90,7 +90,7 @@ class TestChat:
             content=[SimpleNamespace(type="text", text="OK")],
             stop_reason="end_turn",
         )
-        client._client.messages.create = AsyncMock(return_value=mock_response)
+        client._clients[0].messages.create = AsyncMock(return_value=mock_response)
 
         tools = [{"name": "test_tool", "description": "A tool", "input_schema": {"type": "object"}}]
         await client.chat(
@@ -99,7 +99,7 @@ class TestChat:
             tools=tools,
         )
 
-        call_kwargs = client._client.messages.create.call_args[1]
+        call_kwargs = client._clients[0].messages.create.call_args[1]
         assert call_kwargs["system"] == "Be helpful."
         assert call_kwargs["tools"] == tools
 
@@ -107,7 +107,7 @@ class TestChat:
     async def test_raises_llm_error_on_api_failure(self, client):
         import anthropic
 
-        client._client.messages.create = AsyncMock(
+        client._clients[0].messages.create = AsyncMock(
             side_effect=anthropic.APIError(
                 message="Server error",
                 request=MagicMock(),

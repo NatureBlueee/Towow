@@ -57,6 +57,14 @@
                 </div>
                 <textarea id="demand-input" class="form-textarea"
                     placeholder="例如：我需要一个团队来开发一个AI健康管理产品..."></textarea>
+                <div id="assist-buttons" class="assist-buttons" style="display: none;">
+                    <button id="assist-polish-btn" class="btn btn-assist" onclick="assistDemand('polish')">
+                        让分身润色
+                    </button>
+                    <button id="assist-surprise-btn" class="btn btn-assist btn-assist-surprise" onclick="assistDemand('surprise')">
+                        通向惊喜
+                    </button>
+                </div>
                 <div class="demand-actions">
                     <select id="scope-select" class="form-input">
                         <option value="all">全网广播 — 所有 Agent 参与共振</option>

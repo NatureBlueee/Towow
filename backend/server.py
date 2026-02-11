@@ -108,27 +108,30 @@ async def lifespan(app: FastAPI):
     )
     app.state.engine = engine
 
-    # V1 LLM client
-    if config.anthropic_api_key:
+    # V1 LLM client (multi-key round-robin)
+    v1_keys = config.get_api_keys()
+    if v1_keys:
         from towow.infra.llm_client import ClaudePlatformClient
         llm_client = ClaudePlatformClient(
-            api_key=config.anthropic_api_key,
+            api_key=v1_keys,
             model=config.default_model,
             max_tokens=config.max_tokens,
+            base_url=config.get_base_url(),
         )
         app.state.llm_client = llm_client
-        logger.info("V1: ClaudePlatformClient initialized")
+        logger.info("V1: ClaudePlatformClient initialized (%d key(s))", len(v1_keys))
     else:
         app.state.llm_client = None
-        logger.warning("V1: No TOWOW_ANTHROPIC_API_KEY — LLM calls will fail")
+        logger.warning("V1: No TOWOW_ANTHROPIC_API_KEY(S) — LLM calls will fail")
 
-    # V1 Adapter
-    if config.anthropic_api_key:
+    # V1 Adapter (uses first available key)
+    if v1_keys:
         from towow.adapters.claude_adapter import ClaudeAdapter
         adapter = ClaudeAdapter(
-            api_key=config.anthropic_api_key,
+            api_key=v1_keys[0],
             model=config.default_model,
             profiles=app.state.profiles,
+            base_url=config.get_base_url(),
         )
         app.state.adapter = adapter
     else:
@@ -195,12 +198,12 @@ def _init_app_store(app: FastAPI, config) -> None:
     app.state.store_composite = composite
     app.state.store_scene_registry = scene_registry
 
-    # LLM client (share with V1 if available)
-    api_key = os.environ.get("TOWOW_ANTHROPIC_API_KEY", "")
+    # LLM client (multi-key round-robin, reuse V1 config)
+    store_keys = config.get_api_keys()
     llm_client = None
-    if api_key:
+    if store_keys:
         from towow.infra.llm_client import ClaudePlatformClient
-        llm_client = ClaudePlatformClient(api_key=api_key)
+        llm_client = ClaudePlatformClient(api_key=store_keys, base_url=config.get_base_url())
     else:
         try:
             from apps.shared.mock_llm import MockLLMClient

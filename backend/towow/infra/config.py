@@ -25,8 +25,22 @@ class TowowConfig(BaseSettings):
 
     # LLM
     anthropic_api_key: str = ""
+    anthropic_api_keys: str = ""  # Comma-separated keys for round-robin
+    anthropic_base_url: str = ""  # Proxy base URL (e.g. https://www.packyapi.com)
     default_model: str = "claude-sonnet-4-5-20250929"
     max_tokens: int = 4096
+
+    def get_api_keys(self) -> list[str]:
+        """Return list of API keys (multi-key preferred, fallback to single)."""
+        if self.anthropic_api_keys:
+            return [k.strip() for k in self.anthropic_api_keys.split(",") if k.strip()]
+        if self.anthropic_api_key:
+            return [self.anthropic_api_key]
+        return []
+
+    def get_base_url(self) -> str | None:
+        """Return base URL or None for Anthropic default."""
+        return self.anthropic_base_url or None
 
     # Center coordination
     max_center_rounds: int = 2

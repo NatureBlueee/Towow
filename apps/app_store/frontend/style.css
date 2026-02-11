@@ -444,6 +444,48 @@ html {
     color: var(--c-text-gray);
 }
 
+/* ==================== Assist Buttons (SecondMe) ==================== */
+
+.assist-buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+}
+
+.btn-assist {
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    cursor: pointer;
+    border: 1.5px solid var(--c-border);
+    background: var(--c-bg);
+    color: var(--c-text-secondary);
+    transition: all 0.2s ease;
+}
+
+.btn-assist:hover:not(:disabled) {
+    border-color: var(--c-primary);
+    color: var(--c-primary);
+    background: rgba(99, 102, 241, 0.04);
+}
+
+.btn-assist:disabled {
+    opacity: 0.6;
+    cursor: wait;
+}
+
+.btn-assist-surprise {
+    border-color: var(--c-warm, #F9A87C);
+    color: var(--c-warm, #F9A87C);
+}
+
+.btn-assist-surprise:hover:not(:disabled) {
+    border-color: var(--c-warm, #F9A87C);
+    color: var(--c-warm, #F9A87C);
+    background: rgba(249, 168, 124, 0.06);
+}
+
 /* ==================== Demand Actions ==================== */
 
 .demand-actions {
