@@ -40,6 +40,7 @@ SESSION_MAX_AGE = 7 * 24 * 60 * 60  # 7 days
 AUTH_STATE_TTL = 10 * 60  # 10 minutes
 
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
+COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", "")  # e.g. "towow.net" for prod
 
 REDIRECT_URI_MAP = {
     "localhost:8080": "http://localhost:8080/api/auth/secondme/callback",
@@ -223,7 +224,7 @@ async def auth_callback(
 
     # 设 cookie + 重定向
     response = RedirectResponse(url=return_to, status_code=302)
-    response.set_cookie(
+    cookie_kwargs = dict(
         key=SESSION_COOKIE_NAME,
         value=session_id,
         max_age=SESSION_MAX_AGE,
@@ -231,6 +232,9 @@ async def auth_callback(
         samesite="lax",
         secure=COOKIE_SECURE,
     )
+    if COOKIE_DOMAIN:
+        cookie_kwargs["domain"] = COOKIE_DOMAIN
+    response.set_cookie(**cookie_kwargs)
 
     logger.info("Auth callback: 登录成功 agent_id=%s, return_to=%s", agent_id, return_to)
     return response
@@ -277,10 +281,13 @@ async def auth_logout(
         session_store = request.app.state.session_store
         await session_store.delete(f"session:{towow_session}")
 
-    response.delete_cookie(
+    delete_kwargs = dict(
         key=SESSION_COOKIE_NAME,
         httponly=True,
         samesite="lax",
     )
+    if COOKIE_DOMAIN:
+        delete_kwargs["domain"] = COOKIE_DOMAIN
+    response.delete_cookie(**delete_kwargs)
 
     return {"success": True, "message": "已登出"}

@@ -156,9 +156,14 @@ async def _get_agent_id_from_session(request: Request) -> Optional[str]:
     """从 cookie 中解析 agent_id。"""
     session_id = request.cookies.get(SESSION_COOKIE_NAME)
     if not session_id:
+        logger.warning("assist-demand: cookie '%s' 不存在，所有 cookies: %s",
+                        SESSION_COOKIE_NAME, list(request.cookies.keys()))
         return None
     session_store = request.app.state.session_store
-    return await session_store.get(f"session:{session_id}")
+    agent_id = await session_store.get(f"session:{session_id}")
+    if not agent_id:
+        logger.warning("assist-demand: session '%s...' 在 store 中不存在", session_id[:8])
+    return agent_id
 
 
 # ============ Router ============
