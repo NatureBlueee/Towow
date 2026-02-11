@@ -1,0 +1,47 @@
+<svg viewBox="8 0 84 84" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="oceanBack" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#26686F" stop-opacity="0.35" />
+      <stop offset="100%" stop-color="#3D7A7A" stop-opacity="0.55" />
+    </linearGradient>
+    <linearGradient id="oceanFront" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#3D7A7A" stop-opacity="1" />
+      <stop offset="40%" stop-color="#5DBDB3" stop-opacity="1" />
+      <stop offset="100%" stop-color="#8DCDC5" stop-opacity="0.92" />
+    </linearGradient>
+    <linearGradient id="oceanNetwork" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#5DBDB3" stop-opacity="0.5" />
+      <stop offset="50%" stop-color="#8DCDC5" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#5DBDB3" stop-opacity="0.5" />
+    </linearGradient>
+    <radialGradient id="oceanNode">
+      <stop offset="0%" stop-color="#8DCDC5" stop-opacity="1" />
+      <stop offset="60%" stop-color="#5DBDB3" stop-opacity="0.95" />
+      <stop offset="100%" stop-color="#3D7A7A" stop-opacity="0.85" />
+    </radialGradient>
+  </defs>
+  <!-- Back layer -->
+  <g opacity="0.4">
+    <path d="M 28 14 Q 36 36 46 56 Q 50 62 56 64" stroke="url(#oceanBack)" stroke-width="2.5" stroke-linecap="round" />
+    <path d="M 88 14 Q 80 36 70 56 Q 66 62 60 64" stroke="url(#oceanBack)" stroke-width="2.5" stroke-linecap="round" />
+    <circle cx="28" cy="14" r="3.5" fill="#3D7A7A" opacity="0.45" />
+    <circle cx="88" cy="14" r="3.5" fill="#3D7A7A" opacity="0.45" />
+    <circle cx="58" cy="64" r="4.5" fill="#3D7A7A" opacity="0.55" />
+  </g>
+  <!-- Front layer -->
+  <g>
+    <path d="M 16 24 Q 26 44 36 62 Q 40 68 46 69" stroke="url(#oceanFront)" stroke-width="3" stroke-linecap="round" />
+    <path d="M 76 24 Q 66 44 56 62 Q 52 68 48 69" stroke="url(#oceanFront)" stroke-width="3" stroke-linecap="round" />
+    <circle cx="16" cy="24" r="4.5" fill="url(#oceanNode)" />
+    <circle cx="76" cy="24" r="4.5" fill="url(#oceanNode)" />
+    <circle cx="47" cy="69" r="5.5" fill="url(#oceanNode)" />
+  </g>
+  <!-- Network connections -->
+  <g>
+    <line x1="28" y1="14" x2="16" y2="24" stroke="url(#oceanNetwork)" stroke-width="1.2" opacity="0.65" />
+    <line x1="88" y1="14" x2="76" y2="24" stroke="url(#oceanNetwork)" stroke-width="1.2" opacity="0.65" />
+    <line x1="58" y1="64" x2="47" y2="69" stroke="url(#oceanNetwork)" stroke-width="1.2" opacity="0.65" />
+    <line x1="28" y1="14" x2="76" y2="24" stroke="#8DCDC5" stroke-width="0.8" opacity="0.35" stroke-dasharray="2,3" />
+    <line x1="88" y1="14" x2="16" y2="24" stroke="#8DCDC5" stroke-width="0.8" opacity="0.35" stroke-dasharray="2,3" />
+  </g>
+</svg>
