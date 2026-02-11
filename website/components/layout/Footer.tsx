@@ -44,7 +44,7 @@ export function Footer({ variant = 'home' }: FooterProps) {
           <div className={styles.qrSection}>
             <div className={styles.qrCode}>
               <Image
-                src="/微信图片_20260130164654_1683_1902.jpg"
+                src="/towow-wechat-qr.jpg"
                 alt={t('scanQR')}
                 width={120}
                 height={120}

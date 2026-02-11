@@ -16,8 +16,12 @@ const nextConfig: NextConfig = {
         destination: `${backendUrl}/v1/:path*`,
       },
       {
-        source: '/store/:path*',
-        destination: `${backendUrl}/store/:path*`,
+        source: '/store/api/:path*',
+        destination: `${backendUrl}/store/api/:path*`,
+      },
+      {
+        source: '/store/ws/:path*',
+        destination: `${backendUrl}/store/ws/:path*`,
       },
     ];
   },

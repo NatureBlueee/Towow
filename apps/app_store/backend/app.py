@@ -47,6 +47,7 @@ class NegotiationResponse(BaseModel):
     demand_formulated: Optional[str] = None
     participants: list[dict[str, Any]] = Field(default_factory=list)
     plan_output: Optional[str] = None
+    plan_json: Optional[dict[str, Any]] = None
     center_rounds: int = 0
     scope: str = "all"
     agent_count: int = 0
@@ -519,11 +520,16 @@ def create_store_app() -> FastAPI:
             raise HTTPException(400, f"scope '{req.scope}' 下没有可用的 Agent")
 
         # 获取场景上下文（如果是场景模式）
-        scene_context = ""
+        scene_context = None
         scene_id = ""
         if req.scope.startswith("scene:"):
             scene_id = req.scope[len("scene:"):]
-            scene_context = state.scene_registry.get_center_context(scene_id)
+            scene_obj = state.scene_registry.get(scene_id)
+            if scene_obj:
+                scene_context = {
+                    "priority_strategy": scene_obj.priority_strategy,
+                    "domain_context": scene_obj.domain_context,
+                }
 
         neg_id = generate_id("neg")
         session = NegotiationSession(
@@ -613,6 +619,7 @@ def create_store_app() -> FastAPI:
             demand_formulated=session.demand.formulated_text,
             participants=participants,
             plan_output=session.plan_output,
+            plan_json=session.plan_json,
             center_rounds=session.center_rounds,
             scope=session.demand.scene_id or "all",
         )
@@ -667,7 +674,7 @@ def create_store_app() -> FastAPI:
     return application
 
 
-async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
+async def _run_negotiation(engine, session, defaults, scene_context: dict | None = None):
     """运行协商（带自动确认和场景上下文注入）。"""
     from towow import NegotiationState
 
@@ -680,9 +687,7 @@ async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
                     return
         confirm_task = asyncio.create_task(auto_confirm())
 
-        # TODO: 场景上下文注入 — 当 Center skill 支持 context 参数时启用
-        # 目前 scene_context 暂不注入，等 Center skill 支持后再接入
-        await engine.start_negotiation(session=session, **defaults)
+        await engine.start_negotiation(session=session, scene_context=scene_context, **defaults)
         confirm_task.cancel()
     except Exception as e:
         logger.error("协商 %s 失败: %s", session.negotiation_id, e, exc_info=True)

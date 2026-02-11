@@ -7,7 +7,6 @@ Towow 统一后端 — Auth + V1 Engine + App Store Network.
   /v1/ws/*        ← V1 WebSocket
   /store/api/*    ← App Store 网络
   /store/ws/*     ← App Store WebSocket
-  /store/         ← App Store 前端
   /health         ← 健康检查
 
 启动：
@@ -401,13 +400,9 @@ def create_app() -> FastAPI:
     from apps.app_store.backend.routers import (
         router as store_router,
         ws_router as store_ws_router,
-        mount_store_static,
     )
     application.include_router(store_router, prefix="/store")
     application.include_router(store_ws_router, prefix="/store")
-
-    # App Store static files (/store/, /store/static/*)
-    mount_store_static(application, prefix="/store")
 
     return application
 

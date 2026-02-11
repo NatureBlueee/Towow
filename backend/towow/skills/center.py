@@ -16,8 +16,6 @@ import logging
 import re
 from typing import Any
 
-import re
-
 from ..core.errors import SkillError
 from .base import BaseSkill
 
@@ -33,14 +31,73 @@ def _detect_cjk(text: str) -> bool:
 
 TOOL_OUTPUT_PLAN = {
     "name": "output_plan",
-    "description": "Output a text plan (suggestion, analysis, recommendation). This terminates the negotiation.",
+    "description": "Output the negotiation plan. Provide BOTH plan_text (summary) and plan_json (structured). This terminates the negotiation.",
     "input_schema": {
         "type": "object",
         "properties": {
             "plan_text": {
                 "type": "string",
-                "description": "The complete plan text including resource allocation, coordination approach, and expected outcomes.",
-            }
+                "description": "A human-readable text summary of the plan.",
+            },
+            "plan_json": {
+                "type": "object",
+                "description": "Structured plan with participants, tasks, and dependency topology.",
+                "properties": {
+                    "summary": {
+                        "type": "string",
+                        "description": "One-sentence summary.",
+                    },
+                    "participants": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "agent_id": {"type": "string"},
+                                "display_name": {"type": "string"},
+                                "role_in_plan": {"type": "string"},
+                            },
+                            "required": ["agent_id", "display_name", "role_in_plan"],
+                        },
+                    },
+                    "tasks": {
+                        "type": "array",
+                        "items": {
+                            "type": "object",
+                            "properties": {
+                                "id": {"type": "string"},
+                                "title": {"type": "string"},
+                                "description": {"type": "string"},
+                                "assignee_id": {"type": "string"},
+                                "prerequisites": {
+                                    "type": "array",
+                                    "items": {"type": "string"},
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "enum": ["pending", "in_progress", "done"],
+                                },
+                            },
+                            "required": ["id", "title", "assignee_id"],
+                        },
+                    },
+                    "topology": {
+                        "type": "object",
+                        "properties": {
+                            "edges": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object",
+                                    "properties": {
+                                        "from": {"type": "string"},
+                                        "to": {"type": "string"},
+                                    },
+                                    "required": ["from", "to"],
+                                },
+                            },
+                        },
+                    },
+                },
+            },
         },
         "required": ["plan_text"],
     },
@@ -155,6 +212,20 @@ SYSTEM_PROMPT_ZH = """\
 - 当两个参与者可能有隐藏的互补性时，使用 start_discovery。
 - 当当前参与者无法填补某个缺口时，使用 create_sub_demand。
 
+## 输出格式
+当使用 output_plan 时，同时提供：
+- plan_text: 可读的方案全文
+- plan_json: 结构化方案，包含：
+  - summary: 一句话总结
+  - participants: 每个参与者的 {agent_id, display_name, role_in_plan}
+  - tasks: 每个任务的 {id, title, description, assignee_id, prerequisites, status}
+    - id 用 "task_1", "task_2" ... 格式
+    - prerequisites 列出前置任务的 id 数组（无前置则为空数组）
+    - status 统一为 "pending"
+  - topology.edges: 从 prerequisites 展平得到的 {from, to} 边列表
+
+agent_id 和 display_name 必须与上面 Participant Responses 中给出的完全一致。
+
 ## 语言
 用中文输出方案。
 """
@@ -184,6 +255,20 @@ Use the provided tools to take action. You may call multiple tools at once.
 - Use ask_agent when you need more information from a specific participant.
 - Use start_discovery when two participants might have hidden complementarities.
 - Use create_sub_demand when there's a gap that current participants cannot fill.
+
+## Output Format
+When using output_plan, provide both:
+- plan_text: A human-readable full plan text
+- plan_json: A structured plan containing:
+  - summary: One-sentence summary
+  - participants: Each participant's {agent_id, display_name, role_in_plan}
+  - tasks: Each task's {id, title, description, assignee_id, prerequisites, status}
+    - id uses "task_1", "task_2" ... format
+    - prerequisites lists prerequisite task id array (empty array if none)
+    - status should be "pending"
+  - topology.edges: Flattened {from, to} edge list derived from prerequisites
+
+agent_id and display_name must exactly match those in the Participant Responses above.
 """
 
 
@@ -258,6 +343,14 @@ class CenterCoordinatorSkill(BaseSkill):
             user_content += f"\n\n{history_section}"
 
         system = SYSTEM_PROMPT_ZH if _detect_cjk(demand_text) else SYSTEM_PROMPT_EN
+
+        # Scene context injection (B1): append scene-specific guidance to system prompt
+        scene_context = context.get("scene_context")
+        if scene_context and isinstance(scene_context, dict):
+            priority = scene_context.get("priority_strategy", "")
+            domain = scene_context.get("domain_context", "通用")
+            system += f"\n\n## 场景上下文\n优先策略：{priority}\n领域：{domain}"
+
         messages = [{"role": "user", "content": user_content}]
         return system, messages
 

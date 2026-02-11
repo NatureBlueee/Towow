@@ -144,15 +144,19 @@ def plan_ready(
     plan_text: str,
     center_rounds: int,
     participating_agents: list[str],
+    plan_json: dict | None = None,
 ) -> NegotiationEvent:
+    data = {
+        "plan_text": plan_text,
+        "center_rounds": center_rounds,
+        "participating_agents": participating_agents,
+    }
+    if plan_json is not None:
+        data["plan_json"] = plan_json
     return NegotiationEvent(
         event_type=EventType.PLAN_READY,
         negotiation_id=negotiation_id,
-        data={
-            "plan_text": plan_text,
-            "center_rounds": center_rounds,
-            "participating_agents": participating_agents,
-        },
+        data=data,
     )
 
 

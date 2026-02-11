@@ -78,5 +78,6 @@ class NegotiationResponse(BaseModel):
 class PlanResponse(BaseModel):
     negotiation_id: str
     plan_text: str
+    plan_json: Optional[dict] = None
     center_rounds: int
     participating_agents: list[str]

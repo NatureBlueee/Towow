@@ -220,6 +220,7 @@ class NegotiationEngine:
         sub_negotiation_skill: Optional[Skill] = None,
         gap_recursion_skill: Optional[Skill] = None,
         register_session: Optional[Callable[[NegotiationSession], None]] = None,
+        scene_context: Optional[dict] = None,
     ) -> NegotiationSession:
         """
         Drive a negotiation from CREATED to COMPLETED.
@@ -246,6 +247,7 @@ class NegotiationEngine:
             "sub_negotiation_skill": sub_negotiation_skill,
             "gap_recursion_skill": gap_recursion_skill,
             "register_session": register_session,
+            "scene_context": scene_context,
         }
 
         try:
@@ -566,6 +568,7 @@ class NegotiationEngine:
             session.center_rounds += 1
 
             # Build context for Center
+            neg_ctx = self._neg_contexts.get(session.negotiation_id, {})
             context: dict[str, Any] = {
                 "demand": session.demand,
                 "offers": session.collected_offers,
@@ -575,6 +578,7 @@ class NegotiationEngine:
                 "round_number": session.center_rounds,
                 "tools_restricted": session.tools_restricted,
                 "llm_client": llm_client,
+                "scene_context": neg_ctx.get("scene_context"),
             }
 
             result = await center_skill.execute(context)
@@ -614,7 +618,8 @@ class NegotiationEngine:
                 if tool_name == TOOL_OUTPUT_PLAN:
                     # Always built-in: triggers state transition to COMPLETED
                     plan_text = tool_args.get("plan_text", "")
-                    await self._finish_with_plan(session, plan_text, t0)
+                    plan_json = tool_args.get("plan_json")
+                    await self._finish_with_plan(session, plan_text, t0, plan_json=plan_json)
                     return
 
                 # SDK: check custom handler registry first
@@ -696,15 +701,17 @@ class NegotiationEngine:
 
                 plan_calls = result.get("tool_calls", [])
                 plan_text = "Plan could not be generated (round limit reached)."
+                forced_plan_json = None
                 for pc in plan_calls:
                     if pc["name"] == TOOL_OUTPUT_PLAN:
                         plan_text = pc.get("arguments", {}).get("plan_text", plan_text)
+                        forced_plan_json = pc.get("arguments", {}).get("plan_json")
                         break
                 else:
                     # LLM returned text content instead of tool call
                     plan_text = result.get("content", plan_text)
 
-                await self._finish_with_plan(session, plan_text, t0)
+                await self._finish_with_plan(session, plan_text, t0, plan_json=forced_plan_json)
                 return
 
             # Loop back: Center will be called again with updated history
@@ -907,9 +914,11 @@ class NegotiationEngine:
         session: NegotiationSession,
         plan_text: str,
         start_time: float,
+        plan_json: Optional[dict] = None,
     ) -> None:
         """Finalize the negotiation with a plan output."""
         session.plan_output = plan_text
+        session.plan_json = plan_json
         self._transition(session, NegotiationState.COMPLETED)
         session.completed_at = datetime.now(timezone.utc)
         if session.trace:
@@ -926,6 +935,7 @@ class NegotiationEngine:
                     for p in session.participants
                     if p.state == AgentState.REPLIED
                 ],
+                plan_json=plan_json,
             ),
         )
 

@@ -1,0 +1,116 @@
+'use client';
+
+import { useState } from 'react';
+import { StoreHeader } from '@/components/store/StoreHeader';
+import { SceneTabs } from '@/components/store/SceneTabs';
+import { DemandInput } from '@/components/store/DemandInput';
+import { AgentScroll } from '@/components/store/AgentScroll';
+import { NegotiationProgress } from '@/components/store/NegotiationProgress';
+import { PlanOutput } from '@/components/store/PlanOutput';
+import { DeveloperPanel } from '@/components/store/DeveloperPanel';
+import { useStoreNegotiation } from '@/hooks/useStoreNegotiation';
+import { getSceneConfig } from '@/lib/store-scenes';
+
+export default function StorePage() {
+  const [activeScene, setActiveScene] = useState<string | null>(null);
+  const negotiation = useStoreNegotiation();
+
+  const scope = activeScene ? `scene:${activeScene}` : 'all';
+  const scene = getSceneConfig(activeScene || 'hackathon');
+
+  const handleSubmit = (intent: string) => {
+    negotiation.submit(intent, scope);
+  };
+
+  return (
+    <div
+      style={{
+        minHeight: '100vh',
+        backgroundColor: activeScene ? scene.bg : '#F8F6F3',
+        transition: 'background-color 0.3s ease',
+      }}
+    >
+      <StoreHeader />
+
+      {/* Hero */}
+      <div style={{ padding: '48px 24px 24px', textAlign: 'center' }}>
+        <h1
+          style={{
+            fontSize: 28,
+            fontWeight: 700,
+            marginBottom: 8,
+            color: '#1A1A1A',
+          }}
+        >
+          {activeScene ? scene.hero : '通爻网络'}
+        </h1>
+        <p style={{ fontSize: 15, color: '#666', maxWidth: 480, margin: '0 auto' }}>
+          {activeScene
+            ? scene.heroDesc
+            : '描述你的需求，网络中的 Agent 会通过共振响应'}
+        </p>
+      </div>
+
+      {/* Scene tabs */}
+      <SceneTabs activeScene={activeScene} onSelect={setActiveScene} />
+
+      {/* Demand input */}
+      <DemandInput
+        sceneId={activeScene}
+        onSubmit={handleSubmit}
+        isSubmitting={negotiation.phase === 'submitting'}
+      />
+
+      {/* Agent list */}
+      <div style={{ marginBottom: 8 }}>
+        <div
+          style={{
+            padding: '0 24px 8px',
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#999',
+            letterSpacing: 1,
+          }}
+        >
+          AGENTS
+        </div>
+        <AgentScroll scope={scope} cardTemplate={activeScene ? scene.cardTemplate : 'default'} />
+      </div>
+
+      {/* Negotiation progress */}
+      {negotiation.phase !== 'idle' && (
+        <div style={{ padding: '16px 24px' }}>
+          <NegotiationProgress
+            phase={negotiation.phase}
+            participants={negotiation.participants}
+            events={negotiation.events}
+            timeline={negotiation.timeline}
+            graphState={negotiation.graphState}
+            error={negotiation.error}
+            onReset={negotiation.reset}
+          />
+        </div>
+      )}
+
+      {/* Plan output */}
+      {negotiation.planOutput && (
+        <div style={{ padding: '0 24px 16px' }}>
+          <PlanOutput
+            planText={negotiation.planOutput}
+            planJson={negotiation.planJson}
+            participants={negotiation.participants}
+            planTemplate={activeScene ? scene.planTemplate : 'default'}
+          />
+        </div>
+      )}
+
+      {/* Developer panel */}
+      <DeveloperPanel
+        negotiationId={negotiation.negotiationId}
+        phase={negotiation.phase}
+        engineState={negotiation.engineState}
+        events={negotiation.events}
+      />
+    </div>
+  );
+}

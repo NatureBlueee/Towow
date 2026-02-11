@@ -159,6 +159,7 @@ class NegotiationSession:
     center_rounds: int = 0
     max_center_rounds: int = 2
     plan_output: Optional[str] = None
+    plan_json: Optional[dict] = None
     parent_negotiation_id: Optional[str] = None  # For sub-negotiations (recursion)
     depth: int = 0                                # Recursion depth (0 = top-level)
     sub_session_ids: list[str] = field(default_factory=list)  # Child negotiation IDs
