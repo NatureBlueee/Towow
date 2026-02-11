@@ -27,10 +27,8 @@ export default async function Home() {
         subtitle={t('heroSubtitle')}
         outlineButtonText={t('outlineButton')}
         outlineButtonHref="/articles"
-        primaryButtonText={t('primaryButton')}
-        primaryButtonHref="/articles/join-us"
-        secondaryButtonText={t('secondaryButton')}
-        secondaryButtonHref="/api/auth/secondme/start?return_to=/store/"
+        primaryButtonText={t('secondaryButton')}
+        primaryButtonHref="/api/auth/secondme/start?return_to=/store/"
       />
 
       {/* Content Sections */}

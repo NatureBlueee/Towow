@@ -31,7 +31,7 @@ const SCENE_DISPLAY: Record<string, SceneDisplayConfig> = {
     },
     tagSource: (a) => (a.skills || []).slice(0, 3),
   },
-  recruit: {
+  recruitment: {
     color: '#8FD5A3',
     highlight: (a) => {
       const parts: string[] = [];
@@ -47,7 +47,7 @@ const SCENE_DISPLAY: Record<string, SceneDisplayConfig> = {
       return tags.slice(0, 3);
     },
   },
-  'skill-exchange': {
+  skill_exchange: {
     color: '#FFE4B5',
     highlight: (a) => {
       const parts: string[] = [];
