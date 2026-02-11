@@ -131,16 +131,14 @@ async def _register_agent_from_secondme(
     profile = await adapter.fetch_and_build_profile()
     agent_id = profile["agent_id"]
 
-    # 检查是否已注册（幂等）
-    existing = composite.get_agent_info(agent_id)
-    if not existing:
-        composite.register_agent(
-            agent_id=agent_id,
-            adapter=adapter,
-            source="SecondMe",
-            scene_ids=[],
-            display_name=profile.get("name", agent_id),
-        )
+    # 注册或更新 adapter（每次登录都要更新 token）
+    composite.register_agent(
+        agent_id=agent_id,
+        adapter=adapter,
+        source="SecondMe",
+        scene_ids=[],
+        display_name=profile.get("name", agent_id),
+    )
 
     # 向量编码
     text = profile_to_text(profile)
