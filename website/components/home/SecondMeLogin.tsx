@@ -21,16 +21,9 @@ export function SecondMeLogin() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleLogin = useCallback(async () => {
-    try {
-      const res = await fetch('/api/auth/login');
-      const data = await res.json();
-      if (data.authorization_url) {
-        window.location.href = data.authorization_url;
-      }
-    } catch (err) {
-      console.error('Login failed:', err);
-    }
+  const handleLogin = useCallback(() => {
+    const returnTo = encodeURIComponent(window.location.pathname);
+    window.location.href = `/api/auth/secondme/start?return_to=${returnTo}`;
   }, []);
 
   const handleLogout = useCallback(async () => {

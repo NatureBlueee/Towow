@@ -1,0 +1,685 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<title>通爻网络 — 结构拓扑全图</title>
+<style>
+  :root {
+    --warm: #c2553a;
+    --warm-soft: #f5ebe6;
+    --ink: #1a1a1a;
+    --gray: #888;
+    --light: #faf8f5;
+    --purple: #7b68a8;
+    --blue: #4a7fb5;
+    --green: #5a8f6a;
+    --gold: #b8953e;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  html { overflow: hidden; background: var(--light); }
+  body {
+    font-family: -apple-system, "Noto Sans SC", "PingFang SC", sans-serif;
+    background: var(--light);
+    color: var(--ink);
+    width: 1800px;
+    height: 1200px;
+    position: relative;
+    overflow: hidden;
+    transform-origin: 0 0;
+  }
+
+  /* ========== 大标题 ========== */
+  .title-block {
+    position: absolute;
+    top: 32px;
+    left: 48px;
+  }
+  .title-block h1 {
+    font-size: 36px;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+  }
+  .title-block h1 span { color: var(--warm); }
+  .title-block p {
+    font-size: 15px;
+    color: var(--gray);
+    margin-top: 4px;
+  }
+
+  /* ========== 底部签名 ========== */
+  .sig {
+    position: absolute;
+    bottom: 28px;
+    right: 48px;
+    font-size: 13px;
+    color: #bbb;
+    text-align: right;
+  }
+  .sig .dao {
+    font-size: 16px;
+    color: var(--warm);
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  /* ========== 中央大环 ========== */
+  .ring {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 720px;
+    height: 720px;
+  }
+  .ring-circle {
+    position: absolute;
+    inset: 0;
+    border: 2px solid #e0dcd8;
+    border-radius: 50%;
+  }
+  .ring-circle-inner {
+    position: absolute;
+    inset: 140px;
+    border: 1.5px dashed #e0dcd8;
+    border-radius: 50%;
+  }
+
+  /* ========== 环上节点 ========== */
+  .node {
+    position: absolute;
+    width: 110px;
+    text-align: center;
+  }
+  .node-dot {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    margin: 0 auto 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    font-weight: 700;
+    border: 3px solid;
+    position: relative;
+    z-index: 2;
+  }
+  .node-label {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.3;
+  }
+  .node-sub {
+    font-size: 11px;
+    color: var(--gray);
+    margin-top: 2px;
+    line-height: 1.4;
+  }
+
+  /* 节点位置 — 8 个节点在 r=320 的圆上 (顺时针，从12点开始) */
+  .n-intent     { top: 12px;  left: 305px; }
+  .n-formulate  { top: 106px; left: 531px; }
+  .n-broadcast  { top: 332px; left: 625px; }
+  .n-offer      { top: 558px; left: 531px; }
+  .n-center     { top: 652px; left: 305px; }
+  .n-recurse    { top: 558px; left: 79px; }
+  .n-plan       { top: 332px; left: -15px; }
+  .n-echo       { top: 106px; left: 79px; }
+
+  /* 节点颜色 */
+  .nd-purple { background: #f3eef8; border-color: var(--purple); color: var(--purple); }
+  .nd-warm   { background: #fdf2ef; border-color: var(--warm); color: var(--warm); }
+  .nd-blue   { background: #edf3f8; border-color: var(--blue); color: var(--blue); }
+  .nd-green  { background: #eef5ef; border-color: var(--green); color: var(--green); }
+  .nd-gold   { background: #f8f3ea; border-color: var(--gold); color: var(--gold); }
+  .nd-gray   { background: #f2f2f0; border-color: #aaa; color: #888; }
+
+  /* ========== 环上边标签（投影操作，在 r=260 的弧中点） ========== */
+  .edge-label {
+    position: absolute;
+    font-size: 11px;
+    color: var(--warm);
+    font-weight: 600;
+    background: var(--light);
+    padding: 2px 8px;
+    border-radius: 3px;
+    z-index: 4;
+    white-space: nowrap;
+    transform: translate(-50%, -50%);
+  }
+  .el-1 { left: 460px; top: 120px; }  /* 意→丰 22.5° */
+  .el-2 { left: 600px; top: 260px; }  /* 丰→振 67.5° */
+  .el-3 { left: 600px; top: 460px; }  /* 振→应 112.5° */
+  .el-4 { left: 460px; top: 600px; }  /* 应→聚 157.5° */
+  .el-5 { left: 260px; top: 600px; }  /* 聚→递 202.5° */
+  .el-6 { left: 120px; top: 460px; }  /* 递→案 247.5° */
+  .el-7 { left: 120px; top: 260px; }  /* 案→回 292.5° */
+  .el-8 { left: 260px; top: 120px; }  /* 回→意 337.5° */
+
+  /* ========== 环中心 ========== */
+  .ring-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    text-align: center;
+    z-index: 3;
+  }
+  .rc-icon {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: var(--warm-soft);
+    border: 3px solid var(--warm);
+    margin: 0 auto 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+    color: var(--warm);
+    font-weight: 700;
+  }
+  .rc-label {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--warm);
+  }
+  .rc-sub {
+    font-size: 12px;
+    color: var(--gray);
+    margin-top: 2px;
+  }
+
+  /* ========== SVG 箭头环 ========== */
+  .ring-svg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  /* ========== 左侧："自"→ Agent ========== */
+  .self-panel {
+    position: absolute;
+    top: 140px;
+    left: 48px;
+    width: 320px;
+  }
+  .sp-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .sp-title span { color: var(--warm); }
+  .sp-flow {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+  }
+  .sp-node {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 16px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e4e0;
+  }
+  .sp-dot {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    border: 2px solid;
+  }
+  .sp-text { flex: 1; }
+  .sp-text .spt-name { font-size: 14px; font-weight: 600; }
+  .sp-text .spt-desc { font-size: 11px; color: var(--gray); }
+  .sp-connector {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0 4px 36px;
+  }
+  .sp-arrow {
+    color: var(--warm);
+    font-size: 14px;
+  }
+  .sp-lens {
+    font-size: 11px;
+    color: var(--warm);
+    background: var(--warm-soft);
+    padding: 1px 8px;
+    border-radius: 3px;
+  }
+
+  /* ========== 右侧：四层 ========== */
+  .layers-panel {
+    position: absolute;
+    top: 140px;
+    right: 48px;
+    width: 340px;
+  }
+  .lp-title {
+    font-size: 20px;
+    font-weight: 700;
+    margin-bottom: 16px;
+  }
+  .lp-title span { color: var(--warm); }
+  .lp-row {
+    display: flex;
+    align-items: stretch;
+    margin-bottom: 8px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e4e0;
+    overflow: hidden;
+  }
+  .lp-label {
+    width: 80px;
+    padding: 12px 10px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-align: center;
+    flex-shrink: 0;
+  }
+  .lp-label .lpl-name { font-size: 13px; font-weight: 700; }
+  .lp-label .lpl-en { font-size: 10px; color: var(--gray); }
+  .lp-chips {
+    flex: 1;
+    padding: 10px 12px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+    border-left: 1px solid #eee;
+  }
+  .lp-chip {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    white-space: nowrap;
+  }
+
+  .lp-protocol .lp-label { background: #fdf2ef; }
+  .lp-protocol .lp-chip { background: #fdf2ef; color: #8b3a22; }
+  .lp-infra .lp-label { background: #edf3f8; }
+  .lp-infra .lp-chip { background: #edf3f8; color: #3a5f7b; }
+  .lp-capability .lp-label { background: #eef5ef; }
+  .lp-capability .lp-chip { background: #eef5ef; color: #3a6b44; }
+  .lp-application .lp-label { background: #f3eef8; }
+  .lp-application .lp-chip { background: #f3eef8; color: #5a4878; }
+
+  .lp-principle {
+    margin-top: 16px;
+    padding: 12px 16px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e4e0;
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.8;
+  }
+  .lp-principle strong { color: var(--ink); }
+
+  /* ========== 左下：复杂度 ========== */
+  .complexity-panel {
+    position: absolute;
+    bottom: 40px;
+    left: 48px;
+    width: 320px;
+  }
+  .cp-box {
+    padding: 16px 20px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e4e0;
+  }
+  .cp-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 8px;
+  }
+  .cp-formula {
+    font-size: 22px;
+    font-weight: 700;
+    color: var(--warm);
+    margin-bottom: 4px;
+  }
+  .cp-desc {
+    font-size: 12px;
+    color: var(--gray);
+    line-height: 1.6;
+  }
+
+  /* ========== 右下：状态机 ========== */
+  .state-panel {
+    position: absolute;
+    bottom: 40px;
+    right: 48px;
+    width: 340px;
+  }
+  .stp-box {
+    padding: 16px 20px;
+    background: #fff;
+    border-radius: 10px;
+    border: 1px solid #e8e4e0;
+  }
+  .stp-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .stp-flow {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    align-items: center;
+  }
+  .stp-state {
+    font-size: 11px;
+    font-family: "SF Mono", "Fira Code", monospace;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: var(--warm-soft);
+    color: var(--warm);
+    font-weight: 600;
+  }
+  .stp-arrow {
+    color: #ccc;
+    font-size: 12px;
+  }
+  .stp-events {
+    margin-top: 10px;
+    font-size: 11px;
+    color: var(--gray);
+    line-height: 1.8;
+    font-family: "SF Mono", monospace;
+  }
+  .stp-events span { color: var(--warm); }
+</style>
+</head>
+<body>
+
+<!-- ===== 标题 ===== -->
+<div class="title-block">
+  <h1>通爻网络 — <span>结构拓扑</span></h1>
+  <p>一个操作，在不同尺度上反复应用，生万物</p>
+</div>
+
+<!-- ===== 签名 ===== -->
+<div class="sig">
+  <div class="dao">道生一，一生二，二生三，三生万物</div>
+  ToWow Protocol · 2026
+</div>
+
+<!-- ===== 中央大环：协商单元 ===== -->
+<div class="ring">
+  <!-- 外环 -->
+  <div class="ring-circle"></div>
+  <!-- 内环 -->
+  <div class="ring-circle-inner"></div>
+
+  <!-- SVG 弧线箭头 (r=320 圆弧, 每段 ±10° 偏移避开节点) -->
+  <svg class="ring-svg" viewBox="0 0 720 720">
+    <defs>
+      <marker id="ah" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+        <path d="M0,0 L10,3.5 L0,7" fill="#c2553a" opacity="0.7"/>
+      </marker>
+    </defs>
+    <!-- 意→丰 (10°→35°) -->
+    <path d="M 416 45 A 320 320 0 0 1 544 98" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 丰→振 (55°→80°) -->
+    <path d="M 622 176 A 320 320 0 0 1 675 304" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 振→应 (100°→125°) -->
+    <path d="M 675 416 A 320 320 0 0 1 622 544" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 应→聚 (145°→170°) -->
+    <path d="M 544 622 A 320 320 0 0 1 416 675" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 聚→递 (190°→215°) -->
+    <path d="M 304 675 A 320 320 0 0 1 176 622" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 递→案 (235°→260°) -->
+    <path d="M 98 544 A 320 320 0 0 1 45 416" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 案→回 (280°→305°) -->
+    <path d="M 45 304 A 320 320 0 0 1 98 176" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+    <!-- 回→意 (325°→350°) -->
+    <path d="M 176 98 A 320 320 0 0 1 304 45" stroke="#c2553a" stroke-width="1.5" opacity="0.5" fill="none" marker-end="url(#ah)"/>
+  </svg>
+
+  <!-- 投影操作标签 (边上) -->
+  <div class="edge-label el-1">Profile 透镜</div>
+  <div class="edge-label el-2">HDC 编码</div>
+  <div class="edge-label el-3">并行独立</div>
+  <div class="edge-label el-4">聚合透镜</div>
+  <div class="edge-label el-5">Gap 透镜</div>
+  <div class="edge-label el-6">输出</div>
+  <div class="edge-label el-7">Echo 透镜</div>
+  <div class="edge-label el-8">演化</div>
+
+  <!-- 环上 8 个节点 -->
+  <div class="node n-intent">
+    <div class="node-dot nd-purple">意</div>
+    <div class="node-label">表达意图</div>
+    <div class="node-sub">原始的、模糊的</div>
+  </div>
+
+  <div class="node n-formulate">
+    <div class="node-dot nd-warm">丰</div>
+    <div class="node-label">Formulation</div>
+    <div class="node-sub">理解真实需求<br>用户确认</div>
+  </div>
+
+  <div class="node n-broadcast">
+    <div class="node-dot nd-blue">振</div>
+    <div class="node-label">广播 → 共振</div>
+    <div class="node-sub">Bloom 90%<br>HDC 9% · LLM 1%</div>
+  </div>
+
+  <div class="node n-offer">
+    <div class="node-dot nd-green">应</div>
+    <div class="node-label">Offer 响应</div>
+    <div class="node-sub">并行 · 互不可见<br>等待屏障</div>
+  </div>
+
+  <div class="node n-center">
+    <div class="node-dot nd-gold">聚</div>
+    <div class="node-label">Center 聚合</div>
+    <div class="node-sub">追问 · 识别缺口<br>5 tools</div>
+  </div>
+
+  <div class="node n-recurse">
+    <div class="node-dot nd-warm">递</div>
+    <div class="node-label">缺口递归</div>
+    <div class="node-sub">子需求 → 同流程<br>分形</div>
+  </div>
+
+  <div class="node n-plan">
+    <div class="node-dot nd-purple">案</div>
+    <div class="node-label">方案输出</div>
+    <div class="node-sub">协商的自然<br>终止态</div>
+  </div>
+
+  <div class="node n-echo">
+    <div class="node-dot nd-gray">回</div>
+    <div class="node-label">回声 Echo</div>
+    <div class="node-sub">执行信号回流<br>Profile 演化</div>
+  </div>
+
+  <!-- 环中心 -->
+  <div class="ring-center">
+    <div class="rc-icon">投影</div>
+    <div class="rc-label">基本操作</div>
+    <div class="rc-sub">丰富 → 透镜 → 聚焦<br>同一操作，反复应用</div>
+  </div>
+</div>
+
+<!-- ===== 左侧："自" → Agent ===== -->
+<div class="self-panel">
+  <div class="sp-title">一自<span>多我</span></div>
+  <div class="sp-flow">
+    <div class="sp-node">
+      <div class="sp-dot" style="background:linear-gradient(135deg,#e8e4f0,#f0e8e4); border-color:#ccc; color:#888;">自</div>
+      <div class="sp-text">
+        <div class="spt-name">"自" — 系统之外</div>
+        <div class="spt-desc">活的、完备的、与世界连通的。不可被完整数字化。</div>
+      </div>
+    </div>
+    <div class="sp-connector">
+      <span class="sp-arrow">↓</span>
+      <span class="sp-lens">数据源 (SecondMe / 交互历史)</span>
+    </div>
+    <div class="sp-node">
+      <div class="sp-dot" style="background:#f5f3f0; border-color:#ccc; color:#888;">影</div>
+      <div class="sp-text">
+        <div class="spt-name">Profile Data</div>
+        <div class="spt-desc">"自"的数据影子，不是"自"本身。连通性 > 数据量。</div>
+      </div>
+    </div>
+    <div class="sp-connector">
+      <span class="sp-arrow">↓</span>
+      <span class="sp-lens">通才透镜</span>
+    </div>
+    <div class="sp-node">
+      <div class="sp-dot nd-purple">窗</div>
+      <div class="sp-text">
+        <div class="spt-name">Edge Agent</div>
+        <div class="spt-desc">全维度投影。门卫。捕捉意外关联。</div>
+      </div>
+    </div>
+    <div class="sp-connector">
+      <span class="sp-arrow">↓</span>
+      <span class="sp-lens">场景透镜 / 经验沉淀</span>
+    </div>
+    <div class="sp-node">
+      <div class="sp-dot nd-green">面</div>
+      <div class="sp-text">
+        <div class="spt-name">Service Agent · 面具</div>
+        <div class="spt-desc">专才投影。快速精准。多个聚集 → 市场涌现。</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 右侧：四层架构 ===== -->
+<div class="layers-panel">
+  <div class="lp-title">四层<span>架构</span></div>
+
+  <div class="lp-row lp-protocol">
+    <div class="lp-label">
+      <div class="lpl-name">协议层</div>
+      <div class="lpl-en">Protocol</div>
+    </div>
+    <div class="lp-chips">
+      <span class="lp-chip">8 状态</span>
+      <span class="lp-chip">7 事件</span>
+      <span class="lp-chip">5 Tools</span>
+      <span class="lp-chip">投影</span>
+      <span class="lp-chip">共振</span>
+      <span class="lp-chip">屏障</span>
+      <span class="lp-chip">递归</span>
+    </div>
+  </div>
+
+  <div class="lp-row lp-infra">
+    <div class="lp-label">
+      <div class="lpl-name">基础设施</div>
+      <div class="lpl-en">Infra</div>
+    </div>
+    <div class="lp-chips">
+      <span class="lp-chip">WebSocket</span>
+      <span class="lp-chip">FastAPI</span>
+      <span class="lp-chip">OAuth2</span>
+      <span class="lp-chip">Session</span>
+    </div>
+  </div>
+
+  <div class="lp-row lp-capability">
+    <div class="lp-label">
+      <div class="lpl-name">能力层</div>
+      <div class="lpl-en">Capability</div>
+    </div>
+    <div class="lp-chips">
+      <span class="lp-chip">Claude</span>
+      <span class="lp-chip">HDC 384d</span>
+      <span class="lp-chip">余弦共振</span>
+      <span class="lp-chip">SecondMe</span>
+    </div>
+  </div>
+
+  <div class="lp-row lp-application">
+    <div class="lp-label">
+      <div class="lpl-name">应用层</div>
+      <div class="lpl-en">Application</div>
+    </div>
+    <div class="lp-chips">
+      <span class="lp-chip">黑客松</span>
+      <span class="lp-chip">招聘</span>
+      <span class="lp-chip">技能交换</span>
+      <span class="lp-chip">创业匹配</span>
+    </div>
+  </div>
+
+  <div class="lp-principle">
+    <strong>协议层不可改，基础设施层可替换</strong><br>
+    <strong>代码保障 > Prompt 保障</strong> — 状态机、屏障、轮次限制全是代码<br>
+    <strong>需求 ≠ 要求</strong> — 不硬筛选，保留发现未知价值的能力<br>
+    <strong>完备性 ≠ 完全性</strong> — 窗户，不是照片
+  </div>
+</div>
+
+<!-- ===== 左下：复杂度 ===== -->
+<div class="complexity-panel">
+  <div class="cp-box">
+    <div class="cp-title">响应范式 vs 搜索范式</div>
+    <div class="cp-formula">O(N + M)</div>
+    <div class="cp-desc">
+      N 个 Agent · M 条信号<br>
+      签名广播 (M) + 端侧检测 (N) = 线性<br>
+      99% 在前两层过滤，1% 进入深度处理<br><br>
+      <strong style="color:var(--ink);">你不搜索。你发出信号。<br>能响应的，自己来。</strong>
+    </div>
+  </div>
+</div>
+
+<!-- ===== 右下：状态机 ===== -->
+<div class="state-panel">
+  <div class="stp-box">
+    <div class="stp-title">V1 状态机 · 8 states</div>
+    <div class="stp-flow">
+      <span class="stp-state">CREATED</span>
+      <span class="stp-arrow">→</span>
+      <span class="stp-state">FORMULATING</span>
+      <span class="stp-arrow">→</span>
+      <span class="stp-state">FORMULATED</span>
+      <span class="stp-arrow">→</span>
+      <span class="stp-state">ENCODING</span>
+      <span class="stp-arrow">→</span>
+      <span class="stp-state">OFFERING</span>
+      <span class="stp-arrow">→</span>
+      <span class="stp-state">BARRIER</span>
+      <span class="stp-arrow">→</span>
+      <span class="stp-state">SYNTHESIZING</span>
+      <span class="stp-arrow">→</span>
+      <span class="stp-state">COMPLETED</span>
+    </div>
+    <div class="stp-events">
+      <span>formulation.ready</span> → <span>resonance.activated</span> → <span>offer.received</span> ×N → <span>barrier.complete</span> → <span>center.tool_call</span> ×N → <span>plan.ready</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function fitToViewport() {
+  var sx = window.innerWidth / 1800;
+  var sy = window.innerHeight / 1200;
+  var s = Math.min(sx, sy);
+  document.body.style.transform = 'scale(' + s + ')';
+}
+window.addEventListener('load', fitToViewport);
+window.addEventListener('resize', fitToViewport);
+</script>
+</body>
+</html>

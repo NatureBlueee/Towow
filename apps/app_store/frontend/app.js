@@ -273,6 +273,7 @@ function switchProgressView(view) {
 
 function renderScenes(sceneList) {
     const container = document.getElementById('scene-list');
+    if (!container) return;
     if (!sceneList.length) {
         container.innerHTML = '<div class="empty-state">暂无场景</div>';
         return;
@@ -341,38 +342,17 @@ function renderAgents(agents) {
         return;
     }
 
-    const config = getSceneConfig();
-
     container.innerHTML = agents.map(a => {
         const color = getAvatarColor(a);
         const initial = getInitial(a.display_name);
         const name = escapeHtml(a.display_name);
-        const role = escapeHtml(a.role || '');
-
-        const tags = (config.tagSource(a) || []).slice(0, 3);
-        const tagsHtml = tags.length > 0
-            ? `<div class="agent-tags">${tags.map(t => `<span class="agent-tag">${escapeHtml(String(t))}</span>`).join('')}</div>`
-            : '';
-
-        const highlight = config.highlight(a);
-        const metaHtml = highlight
-            ? `<div class="agent-meta"><span class="agent-meta-highlight">${escapeHtml(highlight)}</span></div>`
-            : '';
-
-        const bioHtml = a.bio && !highlight
-            ? `<div class="agent-bio">${escapeHtml(a.bio)}</div>`
-            : '';
+        const tag = (a.skills || []).slice(0, 1).map(t => escapeHtml(String(t)))[0];
 
         return `
         <div class="agent-card">
             <div class="agent-avatar" style="background: ${color};">${initial}</div>
-            <div class="agent-info">
-                <div class="agent-name">${name}</div>
-                ${role ? `<div class="agent-role">${role}</div>` : ''}
-                ${tagsHtml}
-                ${metaHtml}
-                ${bioHtml}
-            </div>
+            <div class="agent-name">${name}</div>
+            ${tag ? `<span class="agent-tag">${tag}</span>` : ''}
         </div>`;
     }).join('');
 }

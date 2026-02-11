@@ -44,31 +44,7 @@
         <!-- ====== 体验面板 ====== -->
         <div id="experience-panel">
 
-            <!-- 场景卡片 -->
-            <div class="card-section">
-                <div class="section-header">
-                    <h2 class="section-title">选一个场景，看看会发生什么</h2>
-                </div>
-                <div id="scene-list" class="scene-grid">
-                    <div class="empty-state">加载中...</div>
-                </div>
-            </div>
-
-            <!-- Agent 网络 -->
-            <div class="card-section">
-                <div class="section-header">
-                    <h2 class="section-title">网络中的 Agent</h2>
-                    <div id="scope-tabs" class="scope-tabs">
-                        <button class="scope-tab active" onclick="switchScope('all')">全网</button>
-                    </div>
-                </div>
-                <div id="agent-list" class="agent-grid">
-                    <div class="empty-state">加载中...</div>
-                </div>
-                <div id="agent-count" class="agent-count-text"></div>
-            </div>
-
-            <!-- 协商入口 -->
+            <!-- 协商入口 (最重要，放在最上面) -->
             <div class="card-section">
                 <h2 class="section-title">发起协商</h2>
                 <p class="section-desc">发出你的需求，网络中的 Agent 会通过共振响应</p>
@@ -79,20 +55,30 @@
                     <button class="demand-chip" onclick="fillDemand('skill')">技能交换</button>
                     <button class="demand-chip" onclick="fillDemand('recruit')">招聘 AI 工程师</button>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">你的需求</label>
-                    <textarea id="demand-input" class="form-textarea"
-                        placeholder="例如：我需要一个团队来开发一个AI健康管理产品..."></textarea>
-                </div>
-                <div class="form-group">
-                    <label class="form-label">广播范围</label>
+                <textarea id="demand-input" class="form-textarea"
+                    placeholder="例如：我需要一个团队来开发一个AI健康管理产品..."></textarea>
+                <div class="demand-actions">
                     <select id="scope-select" class="form-input">
                         <option value="all">全网广播 — 所有 Agent 参与共振</option>
                     </select>
+                    <button id="submit-btn" class="btn btn-primary" onclick="submitDemand()">
+                        发出需求信号
+                    </button>
                 </div>
-                <button id="submit-btn" class="btn btn-primary" onclick="submitDemand()">
-                    发出需求信号
-                </button>
+            </div>
+
+            <!-- Agent 网络 (横向滚动) -->
+            <div class="card-section">
+                <div class="section-header">
+                    <h2 class="section-title">网络中的 Agent</h2>
+                    <div id="scope-tabs" class="scope-tabs">
+                        <button class="scope-tab active" onclick="switchScope('all')">全网</button>
+                    </div>
+                </div>
+                <div id="agent-list" class="agent-scroll">
+                    <div class="empty-state">加载中...</div>
+                </div>
+                <div id="agent-count" class="agent-count-text"></div>
             </div>
 
         </div><!-- /experience-panel -->
