@@ -303,10 +303,17 @@ async def assist_demand(req: AssistDemandRequest, request: Request):
     messages = [{"role": "user", "content": user_message}]
 
     try:
+        logger.info("assist-demand: agent=%s, mode=%s, scene=%s", agent_id, req.mode, scene_name)
         result = await composite.chat(agent_id, messages, system_prompt)
+        if not result or not result.strip():
+            logger.warning("assist-demand: SecondMe 返回空内容 agent=%s", agent_id)
+            raise HTTPException(502, "分身思考后没有产出内容，请重试")
+        logger.info("assist-demand: 成功, 返回 %d 字符", len(result))
         return {"demand_text": result, "mode": req.mode}
+    except HTTPException:
+        raise
     except Exception as e:
-        logger.error("SecondMe 辅助需求失败 agent=%s: %s", agent_id, e)
+        logger.error("SecondMe 辅助需求失败 agent=%s: %s", agent_id, e, exc_info=True)
         raise HTTPException(502, f"分身暂时无法响应：{e}")
 
 

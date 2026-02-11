@@ -79,7 +79,11 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
         scene_id: sceneId || '',
         raw_text: text.trim(),
       });
-      setText(result.demand_text);
+      if (result.demand_text && result.demand_text.trim()) {
+        setText(result.demand_text);
+      } else {
+        setAssistError('分身思考后没有产出内容，请重试');
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('401') || msg.includes('登录')) {
