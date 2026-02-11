@@ -46,7 +46,8 @@ REDIRECT_URI_MAP = {
     "localhost:3000": "http://localhost:8080/api/auth/secondme/callback",
     "127.0.0.1:8080": "http://localhost:8080/api/auth/secondme/callback",
     "towow.net": "https://towow.net/api/auth/secondme/callback",
-    "towow-api-production.up.railway.app": "https://towow.net/api/auth/secondme/callback",
+    "www.towow.net": "https://towow.net/api/auth/secondme/callback",
+    "towow-api-production-69e3.up.railway.app": "https://towow.net/api/auth/secondme/callback",
 }
 
 
