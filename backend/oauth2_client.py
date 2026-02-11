@@ -289,6 +289,7 @@ class SecondMeOAuth2Client:
             f"&redirect_uri={uri}"
             f"&response_type=code"
             f"&state={state}"
+            f"&scope=user.info+user.info.shades+user.info.softmemory+chat"
         )
         return url, state
 
@@ -758,9 +759,18 @@ class SecondMeOAuth2Client:
                                     "sessionId": data.get("sessionId", ""),
                                 }
                             elif event_type == "data":
+                                # 兼容两种格式：
+                                # 1. {"content": "text"}
+                                # 2. {"choices": [{"delta": {"content": "text"}}]}
+                                content = data.get("content", "")
+                                if not content and "choices" in data:
+                                    try:
+                                        content = data["choices"][0]["delta"]["content"]
+                                    except (IndexError, KeyError, TypeError):
+                                        content = ""
                                 yield {
                                     "type": "data",
-                                    "content": data.get("content", ""),
+                                    "content": content,
                                 }
                             elif event_type == "tool_call":
                                 yield {
