@@ -1,7 +1,7 @@
 import type { Viewport } from "next";
 import { NextIntlClientProvider } from 'next-intl';
 import { getLocale, getMessages, getTranslations } from 'next-intl/server';
-import { Analytics } from '@vercel/analytics/react';
+import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { NoiseTexture } from '@/components/layout/NoiseTexture';
 import { ScrollGradientBackground } from '@/components/ui/ScrollGradientBackground';
