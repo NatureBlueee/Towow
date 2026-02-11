@@ -10,6 +10,7 @@ interface DemandInputProps {
   isSubmitting: boolean;
   isAuthenticated?: boolean;
   onLoginRequest?: () => void;
+  onAuthExpired?: () => void;
 }
 
 interface DemandExample {
@@ -41,9 +42,10 @@ const DEMAND_EXAMPLES: DemandExample[] = [
   },
 ];
 
-export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, onLoginRequest }: DemandInputProps) {
+export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, onLoginRequest, onAuthExpired }: DemandInputProps) {
   const [text, setText] = useState('');
   const [assistLoading, setAssistLoading] = useState<'polish' | 'surprise' | null>(null);
+  const [assistError, setAssistError] = useState<string | null>(null);
   const scene = getSceneConfig(sceneId || 'hackathon');
 
   const handleSubmit = () => {
@@ -70,6 +72,7 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
     }
     if (mode === 'polish' && !text.trim()) return;
     setAssistLoading(mode);
+    setAssistError(null);
     try {
       const result = await assistDemand({
         mode,
@@ -77,8 +80,14 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
         raw_text: text.trim(),
       });
       setText(result.demand_text);
-    } catch (err) {
-      console.error('Assist demand failed:', err);
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes('401') || msg.includes('登录')) {
+        onAuthExpired?.();
+        setAssistError('登录已过期，请重新登录');
+      } else {
+        setAssistError('分身暂时无法响应，请稍后再试');
+      }
     } finally {
       setAssistLoading(null);
     }
@@ -204,6 +213,22 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
           </div>
         </div>
       </div>
+
+      {/* Assist error */}
+      {assistError && (
+        <div
+          style={{
+            padding: '8px 16px',
+            marginTop: 8,
+            fontSize: 13,
+            color: '#c0392b',
+            backgroundColor: 'rgba(192,57,43,0.06)',
+            borderRadius: 8,
+          }}
+        >
+          {assistError}
+        </div>
+      )}
 
       {/* Example demands */}
       <div

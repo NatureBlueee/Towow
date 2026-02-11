@@ -63,6 +63,7 @@ export default function StorePage() {
         isSubmitting={negotiation.phase === 'submitting'}
         isAuthenticated={auth.isAuthenticated}
         onLoginRequest={auth.login}
+        onAuthExpired={auth.logout}
       />
 
       {/* Agent list */}
