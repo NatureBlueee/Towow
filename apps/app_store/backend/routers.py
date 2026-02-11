@@ -181,67 +181,6 @@ async def connect_user_to_scene(
     return {"status": "ok", **result}
 
 
-# ── OAuth2 登录 API ──
-
-@router.get("/auth/login")
-async def oauth_login(request: Request, scene_id: str = ""):
-    state = request.app.state
-    if not state.store_oauth2_client:
-        raise HTTPException(503, "SecondMe OAuth2 未配置")
-
-    auth_url, oauth_state = await state.store_oauth2_client.build_authorization_url()
-
-    if not hasattr(state, "store_oauth_states"):
-        state.store_oauth_states = {}
-    state.store_oauth_states[oauth_state] = scene_id
-
-    return {"auth_url": auth_url}
-
-
-@router.get("/auth/callback")
-async def oauth_callback(
-    request: Request,
-    code: str = "",
-    state: str = "",
-):
-    app_state = request.app.state
-    if not code:
-        raise HTTPException(400, "缺少授权码")
-
-    if not app_state.store_oauth2_client:
-        raise HTTPException(503, "SecondMe OAuth2 未配置")
-
-    scene_id = ""
-    if hasattr(app_state, "store_oauth_states"):
-        scene_id = app_state.store_oauth_states.pop(state, "")
-
-    try:
-        token_set = await app_state.store_oauth2_client.exchange_token(code)
-    except Exception as e:
-        raise HTTPException(400, f"授权码无效: {e}")
-
-    from .app import _register_secondme_user
-
-    scene_ids = [scene_id] if scene_id else []
-    result = await _register_secondme_user(
-        _StoreStateProxy(app_state),
-        access_token=token_set.access_token,
-        scene_ids=scene_ids,
-    )
-
-    return {"status": "ok", "message": "登录成功，你的 AI 分身已加入网络", **result}
-
-
-@router.get("/auth/me")
-async def get_my_info(request: Request, agent_id: str = ""):
-    if not agent_id:
-        raise HTTPException(400, "请提供 agent_id")
-    info = request.app.state.store_composite.get_agent_info(agent_id)
-    if not info:
-        raise HTTPException(404, "Agent 不存在")
-    return info
-
-
 # ── 协商 API ──
 
 @router.post("/api/negotiate", response_model=NegotiationResponse, status_code=201)

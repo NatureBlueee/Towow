@@ -164,24 +164,6 @@ function fillDemand(key) {
 
 // ============ SecondMe 登录 ============
 
-function getLoginState() {
-    try {
-        const data = localStorage.getItem('towow_user');
-        return data ? JSON.parse(data) : null;
-    } catch { return null; }
-}
-
-function setLoginState(user) {
-    if (user) {
-        localStorage.setItem('towow_user', JSON.stringify({
-            agent_id: user.agent_id,
-            display_name: user.display_name,
-        }));
-    } else {
-        localStorage.removeItem('towow_user');
-    }
-}
-
 function renderLoginState(user) {
     const loginBtn = document.getElementById('login-btn');
     const userInfo = document.getElementById('user-info');
@@ -198,57 +180,21 @@ function renderLoginState(user) {
 }
 
 async function checkAuth() {
-    // Check URL params first (OAuth callback redirect)
-    const params = new URLSearchParams(window.location.search);
-    if (params.has('agent_id')) {
-        const user = {
-            agent_id: params.get('agent_id'),
-            display_name: params.get('display_name') || params.get('agent_id'),
-        };
-        setLoginState(user);
-        renderLoginState(user);
-        // Clean URL
-        window.history.replaceState({}, '', window.location.pathname);
-        // Refresh agents to show user's SecondMe agent
-        loadAgents(currentScope);
-        return;
-    }
-
-    // Check localStorage
-    const cached = getLoginState();
-    if (cached) {
-        renderLoginState(cached);
-        return;
-    }
-
-    // Try server session
     try {
-        const resp = await fetch(`${API_BASE}/auth/me`);
+        // Auth 是平台级，路径 /api/auth/me，不走 API_BASE
+        const resp = await fetch('/api/auth/me', { credentials: 'same-origin' });
         if (resp.ok) {
-            const data = await resp.json();
-            if (data.agent_id) {
-                setLoginState(data);
-                renderLoginState(data);
-                return;
-            }
+            const user = await resp.json();
+            renderLoginState(user);
+            return;
         }
-    } catch { /* not logged in */ }
-
+    } catch {}
     renderLoginState(null);
 }
 
 async function loginWithSecondMe() {
-    try {
-        const resp = await fetch(`${API_BASE}/auth/login`);
-        if (!resp.ok) throw new Error('登录服务不可用');
-        const data = await resp.json();
-        if (data.auth_url) {
-            window.location.href = data.auth_url;
-        }
-    } catch (e) {
-        console.warn('登录失败:', e);
-        alert('登录服务暂不可用，请稍后重试');
-    }
+    // 直接浏览器跳转到平台 auth，不再 fetch
+    window.location.href = '/api/auth/secondme/start?return_to=/store/';
 }
 
 // ============ 初始化 ============
