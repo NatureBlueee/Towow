@@ -2,11 +2,14 @@
 
 import { useState } from 'react';
 import { getSceneConfig } from '@/lib/store-scenes';
+import { assistDemand } from '@/lib/store-api';
 
 interface DemandInputProps {
   sceneId: string | null;
   onSubmit: (intent: string, scope?: string) => void;
   isSubmitting: boolean;
+  isAuthenticated?: boolean;
+  onLoginRequest?: () => void;
 }
 
 interface DemandExample {
@@ -38,8 +41,9 @@ const DEMAND_EXAMPLES: DemandExample[] = [
   },
 ];
 
-export function DemandInput({ sceneId, onSubmit, isSubmitting }: DemandInputProps) {
+export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, onLoginRequest }: DemandInputProps) {
   const [text, setText] = useState('');
+  const [assistLoading, setAssistLoading] = useState<'polish' | 'surprise' | null>(null);
   const scene = getSceneConfig(sceneId || 'hackathon');
 
   const handleSubmit = () => {
@@ -57,6 +61,27 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting }: DemandInputProp
 
   const handleExampleClick = (example: DemandExample) => {
     setText(example.text);
+  };
+
+  const handleAssist = async (mode: 'polish' | 'surprise') => {
+    if (!isAuthenticated) {
+      onLoginRequest?.();
+      return;
+    }
+    if (mode === 'polish' && !text.trim()) return;
+    setAssistLoading(mode);
+    try {
+      const result = await assistDemand({
+        mode,
+        scene_id: sceneId || '',
+        raw_text: text.trim(),
+      });
+      setText(result.demand_text);
+    } catch (err) {
+      console.error('Assist demand failed:', err);
+    } finally {
+      setAssistLoading(null);
+    }
   };
 
   return (
@@ -119,23 +144,64 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting }: DemandInputProp
               </button>
             ))}
           </div>
-          <button
-            onClick={handleSubmit}
-            disabled={!text.trim() || isSubmitting}
-            style={{
-              padding: '8px 20px',
-              borderRadius: 8,
-              border: 'none',
-              backgroundColor: text.trim() && !isSubmitting ? scene.primary : '#e0e0e0',
-              color: text.trim() && !isSubmitting ? '#fff' : '#999',
-              fontSize: 14,
-              fontWeight: 600,
-              cursor: text.trim() && !isSubmitting ? 'pointer' : 'default',
-              transition: 'background-color 0.2s',
-            }}
-          >
-            {isSubmitting ? '提交中...' : '发起协商'}
-          </button>
+          <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+            {isAuthenticated && (
+              <>
+                <button
+                  onClick={() => handleAssist('polish')}
+                  disabled={!text.trim() || !!assistLoading}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 16,
+                    border: '1.5px solid rgba(0,0,0,0.1)',
+                    backgroundColor: 'transparent',
+                    color: !text.trim() || assistLoading ? '#bbb' : '#666',
+                    fontSize: 13,
+                    cursor: !text.trim() || assistLoading ? 'default' : 'pointer',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {assistLoading === 'polish' ? '思考中...' : '让分身润色'}
+                </button>
+                <button
+                  onClick={() => handleAssist('surprise')}
+                  disabled={!!assistLoading}
+                  style={{
+                    padding: '6px 14px',
+                    borderRadius: 16,
+                    border: '1.5px solid #F9A87C',
+                    backgroundColor: 'transparent',
+                    color: assistLoading ? '#dbb' : '#F9A87C',
+                    fontSize: 13,
+                    cursor: assistLoading ? 'default' : 'pointer',
+                    transition: 'all 0.2s',
+                    whiteSpace: 'nowrap',
+                  }}
+                >
+                  {assistLoading === 'surprise' ? '通向中...' : '通向惊喜'}
+                </button>
+              </>
+            )}
+            <button
+              onClick={handleSubmit}
+              disabled={!text.trim() || isSubmitting}
+              style={{
+                padding: '8px 20px',
+                borderRadius: 8,
+                border: 'none',
+                backgroundColor: text.trim() && !isSubmitting ? scene.primary : '#e0e0e0',
+                color: text.trim() && !isSubmitting ? '#fff' : '#999',
+                fontSize: 14,
+                fontWeight: 600,
+                cursor: text.trim() && !isSubmitting ? 'pointer' : 'default',
+                transition: 'background-color 0.2s',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {isSubmitting ? '提交中...' : '发起协商'}
+            </button>
+          </div>
         </div>
       </div>
 

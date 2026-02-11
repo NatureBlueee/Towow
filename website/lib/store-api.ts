@@ -129,6 +129,23 @@ export async function confirmNegotiation(negId: string): Promise<void> {
   await request(`/api/negotiate/${negId}/confirm`, { method: 'POST' });
 }
 
+// ============ SecondMe 辅助需求 ============
+
+export async function assistDemand(params: {
+  mode: 'polish' | 'surprise';
+  scene_id?: string;
+  raw_text?: string;
+}): Promise<{ demand_text: string; mode: string }> {
+  return request('/api/assist-demand', {
+    method: 'POST',
+    body: JSON.stringify({
+      mode: params.mode,
+      scene_id: params.scene_id || '',
+      raw_text: params.raw_text || '',
+    }),
+  });
+}
+
 // ============ WebSocket URL ============
 
 export function getStoreWebSocketUrl(negId: string): string {

@@ -9,11 +9,13 @@ import { NegotiationProgress } from '@/components/store/NegotiationProgress';
 import { PlanOutput } from '@/components/store/PlanOutput';
 import { DeveloperPanel } from '@/components/store/DeveloperPanel';
 import { useStoreNegotiation } from '@/hooks/useStoreNegotiation';
+import { useStoreAuth } from '@/hooks/useStoreAuth';
 import { getSceneConfig } from '@/lib/store-scenes';
 
 export default function StorePage() {
   const [activeScene, setActiveScene] = useState<string | null>(null);
   const negotiation = useStoreNegotiation();
+  const auth = useStoreAuth();
 
   const scope = activeScene ? `scene:${activeScene}` : 'all';
   const scene = getSceneConfig(activeScene || 'hackathon');
@@ -59,6 +61,8 @@ export default function StorePage() {
         sceneId={activeScene}
         onSubmit={handleSubmit}
         isSubmitting={negotiation.phase === 'submitting'}
+        isAuthenticated={auth.isAuthenticated}
+        onLoginRequest={auth.login}
       />
 
       {/* Agent list */}
