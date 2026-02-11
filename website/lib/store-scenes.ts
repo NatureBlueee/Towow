@@ -35,8 +35,8 @@ export const SCENES: Record<string, SceneConfig> = {
     cardTemplate: 'hackathon',
     planTemplate: 'team',
   },
-  'skill-exchange': {
-    id: 'skill-exchange',
+  skill_exchange: {
+    id: 'skill_exchange',
     name: '技能交换',
     primary: '#FFE4B5',
     accent: '#D4A84A',
@@ -49,8 +49,8 @@ export const SCENES: Record<string, SceneConfig> = {
     cardTemplate: 'default',
     planTemplate: 'default',
   },
-  recruit: {
-    id: 'recruit',
+  recruitment: {
+    id: 'recruitment',
     name: '智能招聘',
     primary: '#8FD5A3',
     accent: '#5AB87A',
