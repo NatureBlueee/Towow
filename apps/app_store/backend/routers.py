@@ -304,9 +304,24 @@ async def assist_demand(req: AssistDemandRequest, request: Request):
 
     try:
         logger.info("assist-demand: agent=%s, mode=%s, scene=%s", agent_id, req.mode, scene_name)
-        result = await composite.chat(agent_id, messages, system_prompt)
+        # 用 chat_stream 逐 chunk 收集，便于调试
+        chunks: list[str] = []
+        chunk_count = 0
+        try:
+            async for chunk in composite.chat_stream(agent_id, messages, system_prompt):
+                chunk_count += 1
+                chunks.append(chunk)
+                logger.info("assist-demand chunk #%d: %r", chunk_count, chunk[:100])
+        except Exception as stream_err:
+            logger.error("assist-demand stream 错误 (已收到 %d chunks): %s",
+                         chunk_count, stream_err, exc_info=True)
+            raise
+
+        result = "".join(chunks)
+        logger.info("assist-demand: 收到 %d chunks, 总长 %d 字符", chunk_count, len(result))
+
         if not result or not result.strip():
-            logger.warning("assist-demand: SecondMe 返回空内容 agent=%s", agent_id)
+            logger.warning("assist-demand: SecondMe 返回空内容 agent=%s (chunks=%d)", agent_id, chunk_count)
             raise HTTPException(502, "分身思考后没有产出内容，请重试")
         logger.info("assist-demand: 成功, 返回 %d 字符", len(result))
         return {"demand_text": result, "mode": req.mode}

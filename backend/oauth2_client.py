@@ -716,8 +716,15 @@ class SecondMeOAuth2Client:
 
                     # 解析 SSE 流
                     current_event_type = None
+                    line_count = 0
+                    data_event_count = 0
                     async for line in response.aiter_lines():
                         line = line.strip()
+                        line_count += 1
+
+                        # 前 20 行全量打日志（调试用）
+                        if line_count <= 20:
+                            logger.info(f"SSE L{line_count}: {line!r}")
 
                         # 空行表示事件结束
                         if not line:
@@ -736,7 +743,10 @@ class SecondMeOAuth2Client:
 
                             # 检查流结束标记
                             if data_str == "[DONE]":
-                                logger.info("Chat stream completed")
+                                logger.info(
+                                    "Chat stream completed: %d lines, %d data events",
+                                    line_count, data_event_count,
+                                )
                                 yield {"type": "done"}
                                 return
 
@@ -744,7 +754,7 @@ class SecondMeOAuth2Client:
                             try:
                                 data = json.loads(data_str)
                             except json.JSONDecodeError:
-                                logger.debug(f"Non-JSON data line: {data_str[:100]}")
+                                logger.warning(f"Non-JSON data line: {data_str[:200]}")
                                 # 非 JSON 数据作为纯文本 data 事件
                                 if current_event_type:
                                     yield {"type": current_event_type, "raw": data_str}
@@ -759,15 +769,25 @@ class SecondMeOAuth2Client:
                                     "sessionId": data.get("sessionId", ""),
                                 }
                             elif event_type == "data":
+                                data_event_count += 1
                                 # 兼容两种格式：
-                                # 1. {"content": "text"}
-                                # 2. {"choices": [{"delta": {"content": "text"}}]}
+                                # 1. {"content": "text"}  (直接 content)
+                                # 2. {"choices": [{"delta": {"content": "text"}}]}  (OpenAI 格式)
                                 content = data.get("content", "")
                                 if not content and "choices" in data:
                                     try:
                                         content = data["choices"][0]["delta"]["content"]
                                     except (IndexError, KeyError, TypeError):
                                         content = ""
+                                # 前 5 个 data event 打日志
+                                if data_event_count <= 5:
+                                    logger.info(
+                                        "SSE data #%d: content=%r, has_choices=%s, keys=%s",
+                                        data_event_count,
+                                        content[:50] if content else "(empty)",
+                                        "choices" in data,
+                                        list(data.keys()),
+                                    )
                                 yield {
                                     "type": "data",
                                     "content": content,
@@ -786,9 +806,14 @@ class SecondMeOAuth2Client:
                                 }
                             else:
                                 # 未知事件类型，透传
+                                logger.info(f"SSE unknown event: {event_type}, data_keys={list(data.keys())}")
                                 yield {"type": event_type, **data}
 
-                            logger.debug(f"SSE event yielded: type={event_type}")
+                    # 流结束但没收到 [DONE]
+                    logger.warning(
+                        "SSE stream ended without [DONE]: %d lines, %d data events",
+                        line_count, data_event_count,
+                    )
 
         except ChatError:
             # 已处理的 ChatError，直接向上抛出
