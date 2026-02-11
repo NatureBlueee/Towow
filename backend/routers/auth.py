@@ -21,9 +21,11 @@ Platform-level Auth — 统一身份认证。
 
 from __future__ import annotations
 
+import json
 import logging
 import os
 import secrets
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, Cookie, HTTPException, Query, Request, Response
@@ -50,6 +52,50 @@ REDIRECT_URI_MAP = {
     "www.towow.net": "https://towow.net/api/auth/secondme/callback",
     "towow-api-production-69e3.up.railway.app": "https://towow.net/api/auth/secondme/callback",
 }
+
+
+# ============ 统计追踪 ============
+
+STATS_TTL = 90 * 24 * 60 * 60  # 90 天不过期
+
+
+async def _track_event(session_store, event_type: str, agent_id: str = "", extra: str = ""):
+    """记录一个统计事件到 session_store（持久化）。"""
+    ts = datetime.now(timezone.utc).isoformat()
+
+    # 递增计数器
+    count_key = f"stats:{event_type}_count"
+    current = await session_store.get(count_key)
+    count = int(current) + 1 if current else 1
+    await session_store.set(count_key, str(count), ttl_seconds=STATS_TTL)
+
+    # 记录最近事件（存最近 200 条）
+    log_key = f"stats:{event_type}_log"
+    entry = {"ts": ts, "agent_id": agent_id, "extra": extra}
+    existing = await session_store.get(log_key)
+    if existing:
+        try:
+            log_list = json.loads(existing)
+        except (json.JSONDecodeError, TypeError):
+            log_list = []
+    else:
+        log_list = []
+    log_list.append(entry)
+    log_list = log_list[-200:]  # 只保留最近 200 条
+    await session_store.set(log_key, json.dumps(log_list, ensure_ascii=False), ttl_seconds=STATS_TTL)
+
+    # 唯一用户追踪
+    if agent_id:
+        user_key = f"stats:user:{agent_id}"
+        if not await session_store.get(user_key):
+            await session_store.set(user_key, ts, ttl_seconds=STATS_TTL)
+            # 递增唯一用户数
+            ucount_key = "stats:unique_users_count"
+            ucurrent = await session_store.get(ucount_key)
+            ucount = int(ucurrent) + 1 if ucurrent else 1
+            await session_store.set(ucount_key, str(ucount), ttl_seconds=STATS_TTL)
+
+    logger.info("STATS: %s agent=%s count=%d", event_type, agent_id or "-", count)
 
 
 def _get_redirect_uri(host: str) -> str:
@@ -150,6 +196,9 @@ async def auth_start(
         ttl_seconds=AUTH_STATE_TTL,
     )
 
+    # 统计：登录发起
+    await _track_event(session_store, "auth_start", extra=host)
+
     logger.info("Auth start: host=%s, redirect_uri=%s, return_to=%s", host, redirect_uri, return_to)
     return RedirectResponse(url=auth_url, status_code=302)
 
@@ -236,6 +285,9 @@ async def auth_callback(
         cookie_kwargs["domain"] = COOKIE_DOMAIN
     response.set_cookie(**cookie_kwargs)
 
+    # 统计：登录完成
+    await _track_event(session_store, "auth_complete", agent_id=agent_id)
+
     logger.info("Auth callback: 登录成功 agent_id=%s, return_to=%s", agent_id, return_to)
     return response
 
@@ -291,3 +343,42 @@ async def auth_logout(
     response.delete_cookie(**delete_kwargs)
 
     return {"success": True, "message": "已登出"}
+
+
+@router.get("/stats")
+async def auth_stats(
+    request: Request,
+    detail: bool = Query(False, description="是否返回详细事件列表"),
+):
+    """
+    查询登录统计。
+
+    访问：GET /api/auth/stats
+    详细：GET /api/auth/stats?detail=true
+    """
+    session_store = request.app.state.session_store
+
+    # 读取计数器
+    starts = await session_store.get("stats:auth_start_count")
+    completions = await session_store.get("stats:auth_complete_count")
+    unique = await session_store.get("stats:unique_users_count")
+
+    result = {
+        "auth_starts": int(starts) if starts else 0,
+        "auth_completions": int(completions) if completions else 0,
+        "unique_users": int(unique) if unique else 0,
+        "conversion_rate": (
+            f"{int(completions) / int(starts) * 100:.1f}%"
+            if starts and int(starts) > 0
+            else "N/A"
+        ),
+    }
+
+    if detail:
+        # 返回最近事件列表
+        start_log = await session_store.get("stats:auth_start_log")
+        complete_log = await session_store.get("stats:auth_complete_log")
+        result["recent_starts"] = json.loads(start_log) if start_log else []
+        result["recent_completions"] = json.loads(complete_log) if complete_log else []
+
+    return result
