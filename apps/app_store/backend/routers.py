@@ -562,6 +562,10 @@ async def negotiate(req: NegotiateRequest, request: Request):
 async def get_negotiation(neg_id: str, request: Request):
     session = request.app.state.store_sessions.get(neg_id)
     if not session:
+        # Memory miss — try file persistence (survives container restarts)
+        persisted = _load_persisted_session(neg_id)
+        if persisted:
+            return persisted
         raise HTTPException(404, f"协商 {neg_id} 不存在")
 
     participants = []
@@ -652,6 +656,60 @@ def mount_store_static(app_instance, prefix: str = "/store"):
 
 # ── 协商运行 ──
 
+_NEG_DATA_DIR = Path("data/negotiations")
+
+
+def _persist_session(session, agent_registry=None) -> None:
+    """Save completed negotiation response to JSON file for restart survival."""
+    try:
+        _NEG_DATA_DIR.mkdir(parents=True, exist_ok=True)
+        participants = []
+        for p in session.participants:
+            entry = {
+                "agent_id": p.agent_id,
+                "display_name": p.display_name,
+                "resonance_score": p.resonance_score,
+                "state": p.state.value,
+            }
+            if p.offer:
+                entry["offer_content"] = p.offer.content
+            if agent_registry:
+                agent_info = agent_registry.get_agent_info(p.agent_id)
+                if agent_info:
+                    entry["source"] = agent_info.get("source", "")
+                    entry["scene_ids"] = agent_info.get("scene_ids", [])
+            participants.append(entry)
+
+        resp = NegotiationResponse(
+            negotiation_id=session.negotiation_id,
+            state=session.state.value,
+            demand_raw=session.demand.raw_intent,
+            demand_formulated=session.demand.formulated_text,
+            participants=participants,
+            plan_output=session.plan_output,
+            plan_json=session.plan_json,
+            center_rounds=session.center_rounds,
+            scope=session.demand.scene_id or "all",
+        )
+        path = _NEG_DATA_DIR / f"{session.negotiation_id}.json"
+        path.write_text(resp.model_dump_json(indent=2), encoding="utf-8")
+        logger.info("协商 %s 已持久化到 %s", session.negotiation_id, path)
+    except Exception as exc:
+        logger.warning("协商 %s 持久化失败: %s", session.negotiation_id, exc)
+
+
+def _load_persisted_session(neg_id: str) -> NegotiationResponse | None:
+    """Load a previously persisted negotiation response from disk."""
+    path = _NEG_DATA_DIR / f"{neg_id}.json"
+    if not path.exists():
+        return None
+    try:
+        return NegotiationResponse.model_validate_json(path.read_text(encoding="utf-8"))
+    except Exception as exc:
+        logger.warning("加载持久化协商 %s 失败: %s", neg_id, exc)
+        return None
+
+
 async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
     from towow import NegotiationState
 
@@ -671,3 +729,6 @@ async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
         session.metadata["error"] = str(e)
         if session.state != NegotiationState.COMPLETED:
             session.state = NegotiationState.COMPLETED
+    finally:
+        agent_registry = defaults.get("adapter")
+        _persist_session(session, agent_registry)
