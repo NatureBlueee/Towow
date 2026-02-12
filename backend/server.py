@@ -90,14 +90,21 @@ async def lifespan(app: FastAPI):
     event_pusher = WebSocketEventPusher(ws_manager)
     app.state.event_pusher = event_pusher
 
-    # V1 Encoder — lazy, may fail
+    # Encoder — try local first, fallback to HF API
     encoder = None
     try:
         from towow.hdc.encoder import EmbeddingEncoder
         encoder = EmbeddingEncoder()
-        logger.info("V1: EmbeddingEncoder initialized")
+        logger.info("Encoder: local EmbeddingEncoder (backend=%s)", encoder._backend)
     except Exception as e:
-        logger.warning(f"V1: EmbeddingEncoder not available: {e}")
+        logger.info("Encoder: local not available (%s), trying HF API...", e)
+        try:
+            from towow.hdc.api_encoder import HuggingFaceAPIEncoder
+            hf_token = os.environ.get("HF_API_TOKEN", "")
+            encoder = HuggingFaceAPIEncoder(api_token=hf_token or None)
+            logger.info("Encoder: HuggingFace API (token=%s)", "yes" if hf_token else "no")
+        except Exception as e2:
+            logger.warning("Encoder: no encoder available (%s)", e2)
 
     app.state.encoder = encoder
 
@@ -343,21 +350,49 @@ def _init_app_store(app: FastAPI, config, registry) -> None:
 
 
 async def _encode_store_agent_vectors(app: FastAPI, registry) -> None:
-    """Pre-encode vectors for all Store agents so resonance works.
+    """Load pre-computed agent vectors, or encode live if local model available.
 
-    Encodes in batches to control memory usage on constrained environments.
+    Priority:
+    1. Pre-computed .npz file (fast, no model needed — production path)
+    2. Live encoding with local EmbeddingEncoder (dev path)
+    3. Skip resonance (degraded — API encoder can't batch-encode 400+ agents)
     """
+    vectors = app.state.store_agent_vectors
+
+    # 1. Try loading pre-computed vectors
+    npz_path = _project_dir / "data" / "agent_vectors.npz"
+    if npz_path.exists():
+        try:
+            data = __import__("numpy").load(str(npz_path), allow_pickle=True)
+            agent_ids = data["agent_ids"]
+            vecs = data["vectors"]
+            loaded = 0
+            for aid, vec in zip(agent_ids, vecs):
+                aid_str = str(aid)
+                if aid_str in registry.all_agent_ids:
+                    vectors[aid_str] = vec
+                    loaded += 1
+            logger.info("Store vectors: loaded %d/%d from %s", loaded, len(agent_ids), npz_path.name)
+            if loaded > 0:
+                return
+        except Exception as e:
+            logger.warning("Store vectors: failed to load .npz: %s", e)
+
+    # 2. Try live encoding with local model (dev only — needs sentence-transformers)
     encoder = app.state.encoder
     if encoder is None:
-        logger.warning("Store vectors: no encoder available, skipping")
+        logger.warning("Store vectors: no encoder and no pre-computed file, resonance disabled")
         return
 
-    vectors = app.state.store_agent_vectors
+    # Check if this is a local encoder (not API — API is too slow for 400+ agents)
+    encoder_type = type(encoder).__name__
+    if "API" in encoder_type:
+        logger.info("Store vectors: API encoder detected, skipping batch pre-encoding (use precompute_vectors.py)")
+        return
+
     encoded = 0
     skipped = 0
-
-    # Collect texts first, then encode in batches
-    to_encode: list[tuple[str, str]] = []  # (agent_id, text)
+    to_encode: list[tuple[str, str]] = []
 
     for aid in registry.all_agent_ids:
         if aid in vectors:
@@ -380,39 +415,23 @@ async def _encode_store_agent_vectors(app: FastAPI, registry) -> None:
             desc = shade.get("description", "") or shade.get("name", "")
             if desc:
                 text_parts.append(desc)
-
         text = " ".join(text_parts) if text_parts else aid
         to_encode.append((aid, text))
 
-    # Batch encode to reduce memory spikes (batch_size=32)
     BATCH_SIZE = 32
-    logger.info("Store vectors: encoding %d agents in batches of %d...", len(to_encode), BATCH_SIZE)
-
+    logger.info("Store vectors: live encoding %d agents (batch=%d)...", len(to_encode), BATCH_SIZE)
     for i in range(0, len(to_encode), BATCH_SIZE):
         batch = to_encode[i:i + BATCH_SIZE]
-        batch_texts = [text for _, text in batch]
-        try:
-            batch_vecs = await encoder.batch_encode(batch_texts)
-            for (aid, _), vec in zip(batch, batch_vecs):
+        for aid, text in batch:
+            try:
+                vec = await encoder.encode(text)
                 vectors[aid] = vec
                 encoded += 1
-        except Exception as e:
-            logger.warning("Store vectors: batch %d failed, falling back to single: %s", i // BATCH_SIZE, e)
-            # Fallback: encode one by one
-            for aid, text in batch:
-                try:
-                    vec = await encoder.encode(text)
-                    vectors[aid] = vec
-                    encoded += 1
-                except Exception as e2:
-                    logger.warning("Store vectors: failed to encode %s: %s", aid, e2)
-                    skipped += 1
+            except Exception as e:
+                logger.warning("Store vectors: failed %s: %s", aid, e)
+                skipped += 1
 
-        if (i + BATCH_SIZE) % 128 == 0:
-            logger.info("Store vectors: progress %d/%d", min(i + BATCH_SIZE, len(to_encode)), len(to_encode))
-
-    logger.info("Store vectors: encoded %d agents, skipped %d (total in dict: %d)",
-                encoded, skipped, len(vectors))
+    logger.info("Store vectors: encoded %d, skipped %d (total: %d)", encoded, skipped, len(vectors))
 
 
 def _seed_demo_scene(app: FastAPI, registry, default_adapter) -> None:

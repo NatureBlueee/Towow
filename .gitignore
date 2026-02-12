@@ -40,6 +40,8 @@ worktree-*/
 
 # Data directories
 data/
+# Allow pre-computed vectors (production needs this, no ML framework required)
+!data/agent_vectors.npz
 # Allow AToA app agent data (config, not runtime)
 !apps/*/data/
 apps/*/data/*
