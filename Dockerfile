@@ -7,10 +7,9 @@ COPY backend/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt && \
     pip install --no-cache-dir numpy
 
-# Install sentence-transformers with CPU-only torch (~200MB instead of ~460MB)
-RUN pip install --no-cache-dir \
-    torch --index-url https://download.pytorch.org/whl/cpu && \
-    pip install --no-cache-dir sentence-transformers
+# PyTorch CPU-only (needed for sentence-transformers import) + ONNX Runtime (actual inference)
+RUN pip install --no-cache-dir torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir onnxruntime sentence-transformers
 
 # Copy backend code
 COPY backend/ /app/backend/
@@ -19,5 +18,7 @@ COPY backend/ /app/backend/
 COPY apps/ /app/apps/
 
 ENV PYTHONPATH=/app/backend:/app
+# Force ONNX backend to minimize runtime memory
+ENV TOWOW_ENCODER_BACKEND=onnx
 
 CMD uvicorn backend.server:app --host 0.0.0.0 --port ${PORT:-8080}

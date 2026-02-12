@@ -343,7 +343,10 @@ def _init_app_store(app: FastAPI, config, registry) -> None:
 
 
 async def _encode_store_agent_vectors(app: FastAPI, registry) -> None:
-    """Pre-encode vectors for all Store agents so resonance works."""
+    """Pre-encode vectors for all Store agents so resonance works.
+
+    Encodes in batches to control memory usage on constrained environments.
+    """
     encoder = app.state.encoder
     if encoder is None:
         logger.warning("Store vectors: no encoder available, skipping")
@@ -352,6 +355,9 @@ async def _encode_store_agent_vectors(app: FastAPI, registry) -> None:
     vectors = app.state.store_agent_vectors
     encoded = 0
     skipped = 0
+
+    # Collect texts first, then encode in batches
+    to_encode: list[tuple[str, str]] = []  # (agent_id, text)
 
     for aid in registry.all_agent_ids:
         if aid in vectors:
@@ -376,15 +382,36 @@ async def _encode_store_agent_vectors(app: FastAPI, registry) -> None:
                 text_parts.append(desc)
 
         text = " ".join(text_parts) if text_parts else aid
-        try:
-            vec = await encoder.encode(text)
-            vectors[aid] = vec
-            encoded += 1
-        except Exception as e:
-            logger.warning("Store vectors: failed to encode %s: %s", aid, e)
-            skipped += 1
+        to_encode.append((aid, text))
 
-    logger.info("Store vectors: encoded %d agents, skipped %d (total %d)",
+    # Batch encode to reduce memory spikes (batch_size=32)
+    BATCH_SIZE = 32
+    logger.info("Store vectors: encoding %d agents in batches of %d...", len(to_encode), BATCH_SIZE)
+
+    for i in range(0, len(to_encode), BATCH_SIZE):
+        batch = to_encode[i:i + BATCH_SIZE]
+        batch_texts = [text for _, text in batch]
+        try:
+            batch_vecs = await encoder.batch_encode(batch_texts)
+            for (aid, _), vec in zip(batch, batch_vecs):
+                vectors[aid] = vec
+                encoded += 1
+        except Exception as e:
+            logger.warning("Store vectors: batch %d failed, falling back to single: %s", i // BATCH_SIZE, e)
+            # Fallback: encode one by one
+            for aid, text in batch:
+                try:
+                    vec = await encoder.encode(text)
+                    vectors[aid] = vec
+                    encoded += 1
+                except Exception as e2:
+                    logger.warning("Store vectors: failed to encode %s: %s", aid, e2)
+                    skipped += 1
+
+        if (i + BATCH_SIZE) % 128 == 0:
+            logger.info("Store vectors: progress %d/%d", min(i + BATCH_SIZE, len(to_encode)), len(to_encode))
+
+    logger.info("Store vectors: encoded %d agents, skipped %d (total in dict: %d)",
                 encoded, skipped, len(vectors))
 
 
