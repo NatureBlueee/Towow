@@ -2,11 +2,15 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-# Install deps (exclude sentence-transformers to save ~460MB)
+# Install deps
 COPY backend/requirements.txt /tmp/requirements.txt
-RUN grep -v sentence-transformers /tmp/requirements.txt > /tmp/req-slim.txt && \
-    pip install --no-cache-dir -r /tmp/req-slim.txt && \
+RUN pip install --no-cache-dir -r /tmp/requirements.txt && \
     pip install --no-cache-dir numpy
+
+# Install sentence-transformers with CPU-only torch (~200MB instead of ~460MB)
+RUN pip install --no-cache-dir \
+    torch --index-url https://download.pytorch.org/whl/cpu && \
+    pip install --no-cache-dir sentence-transformers
 
 # Copy backend code
 COPY backend/ /app/backend/

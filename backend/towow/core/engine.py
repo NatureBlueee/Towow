@@ -426,8 +426,6 @@ class NegotiationEngine:
             session.negotiation_id, demand_text[:80],
             len(agent_vectors) if agent_vectors else 0, k_star, min_score,
         )
-        demand_vector = await self._encoder.encode(demand_text)
-        logger.info("🔵 [%s] encoding: demand_vector dim=%d norm=%.4f", session.negotiation_id, len(demand_vector), float(__import__('numpy').linalg.norm(demand_vector)))
 
         if not agent_vectors:
             # No agent vectors provided — skip resonance, move forward with empty participants
@@ -450,6 +448,10 @@ class NegotiationEngine:
             self._transition(session, NegotiationState.OFFERING)
             self._trace(session, "encoding", t0, output_summary="no candidates after excluding submitter")
             return
+
+        # Encode demand AFTER confirming we have candidate vectors to compare against
+        demand_vector = await self._encoder.encode(demand_text)
+        logger.info("🔵 [%s] encoding: demand_vector dim=%d", session.negotiation_id, len(demand_vector))
 
         # detect() returns (activated, filtered) tuple per PLAN-003
         activated, filtered = await self._resonance_detector.detect(

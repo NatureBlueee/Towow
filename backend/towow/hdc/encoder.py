@@ -37,6 +37,14 @@ class EmbeddingEncoder:
     DEFAULT_MODEL = "paraphrase-multilingual-MiniLM-L12-v2"
 
     def __init__(self, model_name: Optional[str] = None):
+        # Fail-fast: check dependency at construction, not at first encode()
+        try:
+            import sentence_transformers  # noqa: F401
+        except ImportError as e:
+            raise ImportError(
+                "sentence-transformers is required for EmbeddingEncoder. "
+                "Install with: pip install sentence-transformers"
+            ) from e
         self._model_name = model_name or self.DEFAULT_MODEL
         self._model = None
 
