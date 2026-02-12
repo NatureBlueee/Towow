@@ -356,6 +356,12 @@ class NegotiationEngine:
         session.demand.formulated_text = formulated_text
         self._transition(session, NegotiationState.FORMULATED)
 
+        logger.info(
+            "🔵 [%s] formulation done (%.1fs): degraded=%s reason=%s text='%s'",
+            session.negotiation_id, time.monotonic() - t0,
+            degraded, degraded_reason, formulated_text[:100],
+        )
+
         await self._push_event(
             session,
             formulation_ready(
@@ -370,6 +376,7 @@ class NegotiationEngine:
         # Protocol layer required step: wait for user confirmation (Section 10.2)
         confirm_event = asyncio.Event()
         self._confirmation_events[session.negotiation_id] = confirm_event
+        logger.info("🔵 [%s] waiting for confirmation (timeout=%.0fs)...", session.negotiation_id, self._confirmation_timeout_s)
 
         # Sub-negotiations: Center (the initiator) auto-confirms — "谁发起谁确认"
         if session.depth > 0:
@@ -379,9 +386,10 @@ class NegotiationEngine:
             await asyncio.wait_for(
                 confirm_event.wait(), timeout=self._confirmation_timeout_s,
             )
+            logger.info("🔵 [%s] confirmation received", session.negotiation_id)
         except asyncio.TimeoutError:
             logger.warning(
-                "Negotiation %s: confirmation timeout (%.0fs), auto-confirming with original text",
+                "🟡 [%s] confirmation timeout (%.0fs), auto-confirming with original text",
                 session.negotiation_id,
                 self._confirmation_timeout_s,
             )
@@ -413,10 +421,17 @@ class NegotiationEngine:
         self._transition(session, NegotiationState.ENCODING)
 
         demand_text = session.demand.formulated_text or session.demand.raw_intent
+        logger.info(
+            "🔵 [%s] encoding: demand='%s' agent_vectors=%s k_star=%d min_score=%.2f",
+            session.negotiation_id, demand_text[:80],
+            len(agent_vectors) if agent_vectors else 0, k_star, min_score,
+        )
         demand_vector = await self._encoder.encode(demand_text)
+        logger.info("🔵 [%s] encoding: demand_vector dim=%d norm=%.4f", session.negotiation_id, len(demand_vector), float(__import__('numpy').linalg.norm(demand_vector)))
 
         if not agent_vectors:
             # No agent vectors provided — skip resonance, move forward with empty participants
+            logger.warning("🟡 [%s] encoding: NO agent vectors, skipping resonance", session.negotiation_id)
             self._transition(session, NegotiationState.OFFERING)
             self._trace(session, "encoding", t0, output_summary="no agent vectors")
             return
@@ -426,7 +441,12 @@ class NegotiationEngine:
         candidate_vectors = {
             aid: vec for aid, vec in agent_vectors.items() if aid != submitter_id
         }
+        logger.info(
+            "🔵 [%s] encoding: submitter=%s excluded, candidates=%d (from %d)",
+            session.negotiation_id, submitter_id, len(candidate_vectors), len(agent_vectors),
+        )
         if not candidate_vectors:
+            logger.warning("🟡 [%s] encoding: 0 candidates after excluding submitter", session.negotiation_id)
             self._transition(session, NegotiationState.OFFERING)
             self._trace(session, "encoding", t0, output_summary="no candidates after excluding submitter")
             return
@@ -437,6 +457,14 @@ class NegotiationEngine:
             agent_vectors=candidate_vectors,
             k_star=k_star,
             min_score=min_score,
+        )
+        # Log top scores for debugging
+        all_scores = activated + filtered
+        top5 = sorted(all_scores, key=lambda x: x[1], reverse=True)[:5]
+        logger.info(
+            "🔵 [%s] resonance: activated=%d filtered=%d top5=%s",
+            session.negotiation_id, len(activated), len(filtered),
+            [(aid[:20], f"{s:.3f}") for aid, s in top5],
         )
 
         # Only activated agents (>= min_score, up to k_star) become participants
@@ -502,6 +530,11 @@ class NegotiationEngine:
         offer_skill: Optional[Skill],
     ) -> None:
         t0 = time.monotonic()
+        logger.info(
+            "🔵 [%s] offers START: %d participants, offer_skill=%s",
+            session.negotiation_id, len(session.participants),
+            type(offer_skill).__name__ if offer_skill else "None",
+        )
 
         if not session.participants:
             # No participants — go straight to barrier
@@ -633,6 +666,8 @@ class NegotiationEngine:
         """
         t0 = time.monotonic()
         history: list[dict[str, Any]] = []
+        logger.info("🔵 [%s] synthesis START: %d participants with offers", session.negotiation_id,
+                     sum(1 for p in session.participants if p.offer))
 
         while True:
             round_t0 = time.monotonic()

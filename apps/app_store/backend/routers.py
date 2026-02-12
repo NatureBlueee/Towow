@@ -567,6 +567,12 @@ async def negotiate(req: NegotiateRequest, request: Request):
         if aid in state.store_agent_vectors
     }
 
+    logger.info(
+        "🔵 negotiate: neg=%s scope=%s candidates=%d vectors=%d intent='%s'",
+        neg_id, req.scope, len(candidate_ids), len(candidate_vectors),
+        req.intent[:80],
+    )
+
     def _register(s):
         state.store_sessions[s.negotiation_id] = s
 
@@ -576,6 +582,9 @@ async def negotiate(req: NegotiateRequest, request: Request):
         req_llm_client = ClaudePlatformClient(api_key=user_api_key)
     else:
         req_llm_client = state.store_llm_client
+
+    llm_type = type(req_llm_client).__name__ if req_llm_client else "None"
+    logger.info("🔵 negotiate: neg=%s llm=%s scene_context=%s", neg_id, llm_type, scene_context)
 
     run_defaults = {
         "adapter": composite,
@@ -803,22 +812,32 @@ def _persist_to_db(session, agent_registry=None) -> None:
 
 async def _run_negotiation(engine, session, defaults, scene_context: dict | None = None):
     from towow import NegotiationState
+    neg_id = session.negotiation_id
+
+    logger.info("🟢 [%s] _run_negotiation START", neg_id)
 
     try:
         async def auto_confirm():
-            for _ in range(120):
+            for i in range(120):
                 await asyncio.sleep(0.5)
-                if engine.is_awaiting_confirmation(session.negotiation_id):
-                    engine.confirm_formulation(session.negotiation_id)
+                if engine.is_awaiting_confirmation(neg_id):
+                    logger.info("🟢 [%s] auto_confirm: 确认 formulation (waited %.1fs)", neg_id, i * 0.5)
+                    engine.confirm_formulation(neg_id)
                     return
+            logger.warning("🟡 [%s] auto_confirm: 60s 内未等到确认请求", neg_id)
 
         confirm_task = asyncio.create_task(auto_confirm())
         await engine.start_negotiation(
             session=session, scene_context=scene_context, **defaults
         )
         confirm_task.cancel()
+        logger.info(
+            "🟢 [%s] _run_negotiation DONE: state=%s participants=%d plan=%s",
+            neg_id, session.state.value, len(session.participants),
+            "yes" if session.plan_output else "no",
+        )
     except Exception as e:
-        logger.error("协商 %s 失败: %s", session.negotiation_id, e, exc_info=True)
+        logger.error("🔴 [%s] _run_negotiation FAILED: %s", neg_id, e, exc_info=True)
         session.metadata["error"] = str(e)
         if session.state != NegotiationState.COMPLETED:
             session.state = NegotiationState.COMPLETED
