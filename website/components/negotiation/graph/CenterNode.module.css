@@ -1,9 +1,58 @@
 /* CenterNode — the synthesizing center hexagon, appears after barrier.complete */
+/* CSS-only: converging particles, hexagon entrance, label fade-in */
 
 .centerGroup {
   cursor: pointer;
+  transition: transform 0.3s ease-out;
 }
 
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.visible {
+  opacity: 1;
+}
+
+/* Converging particles: animate from offset to origin, then fade */
+.particle {
+  animation: convergeParticle 0.6s ease-in forwards;
+}
+
+@keyframes convergeParticle {
+  from {
+    transform: translate(var(--start-x), var(--start-y));
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(0, 0);
+    opacity: 0;
+  }
+}
+
+/* Outer ring — static opacity, no infinite pulse */
+.outerRing {
+  transition: stroke-opacity 0.3s ease-out;
+}
+
+/* Main hexagon entrance */
+.hexagon {
+  animation: hexEnter 0.45s cubic-bezier(0.34, 1.56, 0.64, 1) 0.35s both;
+}
+
+@keyframes hexEnter {
+  from {
+    scale: 0;
+    opacity: 0;
+  }
+  to {
+    scale: 1;
+    opacity: 1;
+  }
+}
+
+/* Label fade-in with delay */
 .centerLabel {
   font-size: 11px;
   font-weight: 600;
@@ -12,6 +61,7 @@
   dominant-baseline: central;
   pointer-events: none;
   user-select: none;
+  animation: labelFadeIn 0.3s ease-out 0.6s both;
 }
 
 .roundLabel {
@@ -22,4 +72,10 @@
   dominant-baseline: central;
   pointer-events: none;
   user-select: none;
+  animation: labelFadeIn 0.3s ease-out 0.65s both;
+}
+
+@keyframes labelFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
 }

@@ -125,8 +125,8 @@ export interface DetailPanelProps {
 export interface PlanViewProps {
   planText: string;
   planJson: PlanJson;
-  onAccept: () => void;
-  onReject: () => void;
+  onAccept?: () => void;
+  onReject?: () => void;
   onTaskClick: (taskId: string) => void;
 }
 

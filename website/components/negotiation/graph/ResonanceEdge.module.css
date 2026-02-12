@@ -1,16 +1,38 @@
 /* ResonanceEdge — resonance connection from demand center to agent node */
+/* CSS-only: line draw animation, visibility toggle. Decorative infinite pulse removed. */
 
 .edgeGroup {
   cursor: default;
+  transition: opacity 0.3s ease-out;
 }
 
 .edgeGroupClickable {
   cursor: pointer;
+  transition: opacity 0.3s ease-out;
 }
 
+.hidden {
+  opacity: 0;
+  pointer-events: none;
+}
+
+.visible {
+  opacity: 1;
+}
+
+/* Line draw: pathLength="1" on SVG, animate stroke-dashoffset 1→0 */
 .resonanceLine {
   fill: none;
   stroke-linecap: round;
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: drawLine 0.4s ease-out forwards;
+}
+
+@keyframes drawLine {
+  to {
+    stroke-dashoffset: 0;
+  }
 }
 
 .offerParticle {

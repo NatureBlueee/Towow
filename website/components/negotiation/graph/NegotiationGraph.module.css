@@ -146,18 +146,8 @@
 }
 
 .centerCircleSynthesizing {
-  animation: centerPulse 1.5s ease-in-out infinite;
-}
-
-@keyframes centerPulse {
-  0%, 100% {
-    fill: #fbbf24;
-    stroke: #f59e0b;
-  }
-  50% {
-    fill: #fde68a;
-    stroke: #fbbf24;
-  }
+  fill: #fde68a;
+  stroke: #fbbf24;
 }
 
 .centerLabel {
@@ -214,16 +204,7 @@
 }
 
 .interactionEdgeAnimating {
-  animation: dashFlow 1s linear infinite;
-}
-
-@keyframes dashFlow {
-  from {
-    stroke-dashoffset: 0;
-  }
-  to {
-    stroke-dashoffset: -18;
-  }
+  stroke-dashoffset: -18;
 }
 
 .taskDependencyEdge {

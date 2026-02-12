@@ -1,4 +1,5 @@
 /* DetailPanel — right-sliding detail panel */
+/* CSS-only: overlay fade + panel slide transition (both entry and exit) */
 
 .overlay {
   position: fixed;
@@ -7,6 +8,14 @@
   right: 0;
   bottom: 0;
   z-index: 99;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.15s ease-out;
+}
+
+.overlayVisible {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .panel {
@@ -23,6 +32,14 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  transform: translateX(100%);
+  pointer-events: none;
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.panelVisible {
+  transform: translateX(0);
+  pointer-events: auto;
 }
 
 /* ---- Header ---- */

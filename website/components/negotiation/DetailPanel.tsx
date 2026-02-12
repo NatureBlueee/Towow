@@ -1,7 +1,6 @@
 'use client';
 
-import { useEffect, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { useEffect, useCallback, useRef } from 'react';
 import type { DetailPanelProps, DetailPanelContentType } from './graph/types';
 import type { CenterToolCallData, PlanJsonTask } from '@/types/negotiation';
 import styles from './DetailPanel.module.css';
@@ -10,9 +9,10 @@ import styles from './DetailPanel.module.css';
  * DetailPanel — right-sliding panel that displays detailed information
  * about a clicked graph element (agent, center, demand, task, edge).
  *
- * Renders 7 different content types based on `type` prop.
- * Slides in from the right with framer-motion AnimatePresence.
- * Closes on X button click or overlay click.
+ * CSS-only animations:
+ *  - Overlay: CSS opacity transition
+ *  - Panel: CSS translateX transition (both entry and exit)
+ *  - Last valid content preserved during exit via ref
  */
 
 // ============ Type Icons ============
@@ -388,6 +388,18 @@ function PanelContent({ type, data }: { type: Exclude<DetailPanelContentType, nu
 // ============ Main Component ============
 
 export function DetailPanel({ type, data, onClose }: DetailPanelProps) {
+  const isOpen = type !== null && data !== null;
+
+  // Preserve last valid content during exit animation
+  const lastTypeRef = useRef<Exclude<DetailPanelContentType, null>>('agent');
+  const lastDataRef = useRef<Record<string, unknown>>({});
+  if (type !== null && data !== null) {
+    lastTypeRef.current = type;
+    lastDataRef.current = data;
+  }
+  const displayType = type ?? lastTypeRef.current;
+  const displayData = data ?? lastDataRef.current;
+
   // Close on Escape key
   const handleKeyDown = useCallback(
     (e: KeyboardEvent) => {
@@ -397,56 +409,42 @@ export function DetailPanel({ type, data, onClose }: DetailPanelProps) {
   );
 
   useEffect(() => {
-    if (type !== null) {
+    if (isOpen) {
       document.addEventListener('keydown', handleKeyDown);
       return () => document.removeEventListener('keydown', handleKeyDown);
     }
-  }, [type, handleKeyDown]);
+  }, [isOpen, handleKeyDown]);
 
   return (
-    <AnimatePresence>
-      {type !== null && data !== null && (
-        <>
-          {/* Invisible overlay to catch outside clicks */}
-          <motion.div
-            className={styles.overlay}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.15 }}
+    <>
+      {/* Invisible overlay to catch outside clicks */}
+      <div
+        className={`${styles.overlay} ${isOpen ? styles.overlayVisible : ''}`}
+        onClick={isOpen ? onClose : undefined}
+      />
+
+      {/* Sliding panel — CSS transition for both entry and exit */}
+      <div className={`${styles.panel} ${isOpen ? styles.panelVisible : ''}`}>
+        {/* Header */}
+        <div className={styles.header}>
+          <div className={`${styles.typeIcon} ${styles[`typeIcon_${displayType}`]}`}>
+            {TYPE_ICONS[displayType]}
+          </div>
+          <h3 className={styles.headerTitle}>{TYPE_TITLES[displayType]}</h3>
+          <button
+            className={styles.closeButton}
             onClick={onClose}
-          />
-
-          {/* Sliding panel */}
-          <motion.div
-            className={styles.panel}
-            initial={{ x: 360 }}
-            animate={{ x: 0 }}
-            exit={{ x: 360 }}
-            transition={{ type: 'spring', stiffness: 340, damping: 32 }}
+            aria-label="Close panel"
           >
-            {/* Header */}
-            <div className={styles.header}>
-              <div className={`${styles.typeIcon} ${styles[`typeIcon_${type}`]}`}>
-                {TYPE_ICONS[type]}
-              </div>
-              <h3 className={styles.headerTitle}>{TYPE_TITLES[type]}</h3>
-              <button
-                className={styles.closeButton}
-                onClick={onClose}
-                aria-label="Close panel"
-              >
-                {'\u00D7'}
-              </button>
-            </div>
+            {'\u00D7'}
+          </button>
+        </div>
 
-            {/* Scrollable content */}
-            <div className={styles.content}>
-              <PanelContent type={type} data={data} />
-            </div>
-          </motion.div>
-        </>
-      )}
-    </AnimatePresence>
+        {/* Scrollable content */}
+        <div className={styles.content}>
+          <PanelContent type={displayType} data={displayData} />
+        </div>
+      </div>
+    </>
   );
 }

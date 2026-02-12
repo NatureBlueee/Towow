@@ -1,4 +1,5 @@
 /* InteractionEdge — interaction connections (ask_agent, discover, task_assignment) */
+/* CSS-only: group entry, line draw, label fade-in, midpoint dot scale */
 
 .edgeGroup {
   cursor: default;
@@ -8,13 +9,64 @@
   cursor: pointer;
 }
 
+/* Group entry animation */
+.edgeEntry {
+  animation: edgeGroupEnter 0.3s ease-out both;
+}
+
+@keyframes edgeGroupEnter {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* Base line styles — dashed lines (ask_agent, discover) fade in with parent group */
 .interactionLine {
   fill: none;
   stroke-linecap: round;
 }
 
-.labelContainer {
+/* Solid line draw animation (task_assignment only) */
+.solidLineDraw {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: drawInteractionLine 0.35s ease-out forwards;
+}
+
+@keyframes drawInteractionLine {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Discover midpoint dot — scale entrance */
+.midpointDot {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: dotScale 0.3s ease-out 0.2s both;
+}
+
+@keyframes dotScale {
+  from {
+    scale: 0;
+  }
+  to {
+    scale: 1;
+  }
+}
+
+/* Label fade-in with delay */
+.labelFadeIn {
   pointer-events: none;
+  animation: labelEnter 0.3s ease-out 0.2s both;
+}
+
+@keyframes labelEnter {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .labelBubble {

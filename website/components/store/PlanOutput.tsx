@@ -1,7 +1,11 @@
 'use client';
 
+import { useState, useCallback } from 'react';
 import type { StoreParticipant } from '@/lib/store-api';
-import { TopologyView, type TopologyViewProps } from './TopologyView';
+import type { PlanJson, PlanJsonTask } from '@/types/negotiation';
+import type { DetailPanelContentType } from '@/components/negotiation/graph/types';
+import { PlanView } from '@/components/negotiation/PlanView';
+import { DetailPanel } from '@/components/negotiation/DetailPanel';
 
 interface PlanOutputProps {
   planText: string | null;
@@ -11,37 +15,48 @@ interface PlanOutputProps {
 }
 
 /**
- * Ensure planJson is always valid for TopologyView.
- * If planJson is missing tasks, construct a minimal version from participants.
- * This mirrors the backend's _build_minimal_plan_json fallback.
+ * Ensure planJson is always valid for PlanView (ADR-003 compliance).
+ *
+ * When backend provides plan_json with tasks + prerequisites → use directly.
+ * When backend data is missing/empty → construct from participants with
+ * fan-out dependencies (first task → all others) to create visible topology edges.
  */
-function ensureTopologyPlan(
+function ensurePlanJson(
   json: Record<string, unknown> | null | undefined,
   participants: StoreParticipant[],
-): TopologyViewProps['planJson'] {
-  // If planJson already has valid tasks, use it
-  if (json && Array.isArray(json.tasks) && json.tasks.length > 0 && Array.isArray(json.participants)) {
-    return json as TopologyViewProps['planJson'];
+): PlanJson {
+  // Backend provided valid plan_json — use it directly
+  if (
+    json &&
+    Array.isArray(json.tasks) &&
+    json.tasks.length > 0 &&
+    Array.isArray(json.participants)
+  ) {
+    return json as unknown as PlanJson;
   }
-  // Construct minimal plan from participants (last-resort frontend fallback)
-  const replied = participants.filter(p => p.offer_content);
-  const allParticipants = (replied.length > 0 ? replied : participants);
+
+  // Construct plan from participants (last-resort frontend fallback)
+  const replied = participants.filter((p) => p.offer_content);
+  const allParticipants = replied.length > 0 ? replied : participants;
+
+  const tasks: PlanJsonTask[] = allParticipants.map((p, i) => ({
+    id: `task_${i + 1}`,
+    title: `${p.display_name} 的贡献`,
+    description: p.offer_content || '',
+    assignee_id: p.agent_id,
+    // Fan-out: all subsequent tasks depend on the first (creates visible edges)
+    prerequisites: i > 0 ? [`task_1`] : [],
+    status: 'pending',
+  }));
+
   return {
     summary: '',
-    participants: allParticipants.map(p => ({
+    participants: allParticipants.map((p) => ({
       agent_id: p.agent_id,
       display_name: p.display_name,
       role_in_plan: '参与者',
     })),
-    tasks: allParticipants.map((p, i) => ({
-      id: `task_${i + 1}`,
-      title: `${p.display_name} 的贡献`,
-      description: p.offer_content ? p.offer_content.substring(0, 100) : '',
-      assignee_id: p.agent_id,
-      prerequisites: [] as string[],
-      status: 'pending' as const,
-    })),
-    topology: { edges: [] },
+    tasks,
   };
 }
 
@@ -50,8 +65,39 @@ const SOURCE_COLORS: Record<string, string> = {
   json_file: '#C4A0CA',
 };
 
-export function PlanOutput({ planText, planJson, participants, planTemplate = 'default' }: PlanOutputProps) {
+export function PlanOutput({
+  planText,
+  planJson,
+  participants,
+  planTemplate = 'default',
+}: PlanOutputProps) {
   if (!planText && !planJson) return null;
+
+  const validPlanJson = ensurePlanJson(planJson, participants);
+
+  // ============ Detail Panel State (ADR-003 共识 6: 侧滑详情) ============
+
+  const [detailPanel, setDetailPanel] = useState<{
+    type: DetailPanelContentType;
+    data: Record<string, unknown> | null;
+  }>({ type: null, data: null });
+
+  const handleTaskClick = useCallback(
+    (taskId: string) => {
+      const task = validPlanJson.tasks.find((t) => t.id === taskId);
+      if (task) {
+        setDetailPanel({
+          type: 'task',
+          data: task as unknown as Record<string, unknown>,
+        });
+      }
+    },
+    [validPlanJson.tasks],
+  );
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailPanel({ type: null, data: null });
+  }, []);
 
   return (
     <div
@@ -75,8 +121,19 @@ export function PlanOutput({ planText, planJson, participants, planTemplate = 'd
         )
       )}
 
-      {/* Always render TopologyView — never fall back to plain text */}
-      <TopologyView planJson={ensureTopologyPlan(planJson, participants)} />
+      {/* PlanView: structured topology with dependency edges (ADR-003 共识 5) */}
+      <PlanView
+        planText={planText || ''}
+        planJson={validPlanJson}
+        onTaskClick={handleTaskClick}
+      />
+
+      {/* DetailPanel: right-sliding task details (ADR-003 共识 6) */}
+      <DetailPanel
+        type={detailPanel.type}
+        data={detailPanel.data}
+        onClose={handleCloseDetail}
+      />
     </div>
   );
 }

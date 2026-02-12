@@ -1,7 +1,6 @@
 'use client';
 
 import { useMemo } from 'react';
-import { motion, type Variants } from 'framer-motion';
 import { computeTopologyLayout as computeLayeredLayout, type TaskNode } from '@/lib/topology-layout';
 import type { PlanViewProps } from './graph/types';
 import type { PlanJsonTask } from '@/types/negotiation';
@@ -11,9 +10,11 @@ import styles from './PlanView.module.css';
  * PlanView — displays the final negotiation plan with a structured
  * task topology, participant list, text summary, and action buttons.
  *
- * The task topology is rendered as an independent SVG element using a
- * layered layout algorithm: tasks with no prerequisites are placed in
- * column 0, tasks depending on column-0 tasks go to column 1, etc.
+ * CSS-only animations:
+ *  - Container: fade-in + slide-up entry
+ *  - Task cards: scale-in with column-based stagger via --col custom property
+ *  - Dependency edges: stroke-dashoffset draw animation
+ *  - Actions: delayed fade-in + slide-up
  */
 
 // ============ Layout Constants ============
@@ -167,7 +168,6 @@ function renderPlanText(text: string) {
     if (trimmed === '') {
       return <p key={i} className={styles.planTextSpacer} />;
     }
-    // Detect list items (lines starting with - or * or a numbered list)
     if (/^[-*]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed)) {
       const content = trimmed.replace(/^[-*]\s/, '').replace(/^\d+\.\s/, '');
       return (
@@ -179,48 +179,6 @@ function renderPlanText(text: string) {
     );
   });
 }
-
-// ============ Animation Variants ============
-
-const containerVariants: Variants = {
-  hidden: { opacity: 0, y: 40 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { duration: 0.5, ease: 'easeOut' },
-  },
-};
-
-const cardVariants: Variants = {
-  hidden: { opacity: 0, scale: 0.85 },
-  visible: (col: number) => ({
-    opacity: 1,
-    scale: 1,
-    transition: {
-      delay: 0.15 + col * 0.1,
-      duration: 0.35,
-      ease: 'easeOut',
-    },
-  }),
-};
-
-const edgeVariants: Variants = {
-  hidden: { pathLength: 0, opacity: 0 },
-  visible: {
-    pathLength: 1,
-    opacity: 1,
-    transition: { delay: 0.3, duration: 0.6, ease: 'easeOut' },
-  },
-};
-
-const actionVariants: Variants = {
-  hidden: { opacity: 0, y: 12 },
-  visible: {
-    opacity: 1,
-    y: 0,
-    transition: { delay: 0.6, duration: 0.3, ease: 'easeOut' },
-  },
-};
 
 // ============ Main Component ============
 
@@ -240,12 +198,7 @@ export function PlanView({
   const hasParticipants = planJson.participants && planJson.participants.length > 0;
 
   return (
-    <motion.div
-      className={styles.container}
-      variants={containerVariants}
-      initial="hidden"
-      animate="visible"
-    >
+    <div className={styles.container}>
       {/* Summary */}
       {planJson.summary && (
         <p className={styles.summary}>{planJson.summary}</p>
@@ -277,31 +230,27 @@ export function PlanView({
                 </marker>
               </defs>
 
-              {/* Dependency edges */}
+              {/* Dependency edges — CSS draw animation */}
               {layout.edges.map((e, i) => (
-                <motion.path
+                <path
                   key={`edge-${i}`}
                   d={bezierPath(e)}
                   className={styles.depEdge}
                   markerEnd="url(#planArrow)"
-                  variants={edgeVariants}
-                  initial="hidden"
-                  animate="visible"
+                  pathLength={1}
                 />
               ))}
 
-              {/* Task cards using foreignObject */}
+              {/* Task cards using foreignObject — stagger via --col */}
               {layout.positions.map((pos) => (
-                <motion.foreignObject
+                <foreignObject
                   key={pos.task.id}
+                  className={styles.taskCardEntry}
                   x={pos.x}
                   y={pos.y}
                   width={CARD_WIDTH}
                   height={CARD_HEIGHT}
-                  variants={cardVariants}
-                  custom={pos.col}
-                  initial="hidden"
-                  animate="visible"
+                  style={{ '--col': pos.col } as React.CSSProperties}
                 >
                   <div
                     className={styles.taskCard}
@@ -317,7 +266,7 @@ export function PlanView({
                       </span>
                     </div>
                   </div>
-                </motion.foreignObject>
+                </foreignObject>
               ))}
             </svg>
           </div>
@@ -351,20 +300,21 @@ export function PlanView({
         </div>
       )}
 
-      {/* Action Buttons */}
-      <motion.div
-        className={styles.actions}
-        variants={actionVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        <button className={styles.rejectButton} onClick={onReject}>
-          Reject
-        </button>
-        <button className={styles.acceptButton} onClick={onAccept}>
-          Accept Plan
-        </button>
-      </motion.div>
-    </motion.div>
+      {/* Action Buttons — only when handlers are provided */}
+      {(onAccept || onReject) && (
+        <div className={styles.actions}>
+          {onReject && (
+            <button className={styles.rejectButton} onClick={onReject}>
+              Reject
+            </button>
+          )}
+          {onAccept && (
+            <button className={styles.acceptButton} onClick={onAccept}>
+              Accept Plan
+            </button>
+          )}
+        </div>
+      )}
+    </div>
   );
 }
