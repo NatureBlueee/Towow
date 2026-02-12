@@ -29,7 +29,7 @@ export default function StorePage() {
   const scene = getSceneConfig(activeScene || 'hackathon');
 
   const handleSubmit = (intent: string) => {
-    negotiation.submit(intent, scope);
+    negotiation.submit(intent, scope, auth.user?.agent_id);
   };
 
   return (

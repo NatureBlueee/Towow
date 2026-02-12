@@ -48,7 +48,7 @@ export default function ScenePage({
   const scope = `scene:${sceneId}`;
 
   const handleSubmit = (intent: string) => {
-    negotiation.submit(intent, scope);
+    negotiation.submit(intent, scope, auth.user?.agent_id);
   };
 
   return (
