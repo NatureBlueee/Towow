@@ -10,13 +10,39 @@ interface PlanOutputProps {
   planTemplate?: 'team' | 'default';
 }
 
-/** Type-guard: check if planJson has the shape needed for TopologyView */
-function isTopologyPlan(
+/**
+ * Ensure planJson is always valid for TopologyView.
+ * If planJson is missing tasks, construct a minimal version from participants.
+ * This mirrors the backend's _build_minimal_plan_json fallback.
+ */
+function ensureTopologyPlan(
   json: Record<string, unknown> | null | undefined,
-): json is TopologyViewProps['planJson'] {
-  if (!json) return false;
-  const tasks = json.tasks;
-  return Array.isArray(tasks) && tasks.length > 0 && Array.isArray(json.participants);
+  participants: StoreParticipant[],
+): TopologyViewProps['planJson'] {
+  // If planJson already has valid tasks, use it
+  if (json && Array.isArray(json.tasks) && json.tasks.length > 0 && Array.isArray(json.participants)) {
+    return json as TopologyViewProps['planJson'];
+  }
+  // Construct minimal plan from participants (last-resort frontend fallback)
+  const replied = participants.filter(p => p.offer_content);
+  const allParticipants = (replied.length > 0 ? replied : participants);
+  return {
+    summary: '',
+    participants: allParticipants.map(p => ({
+      agent_id: p.agent_id,
+      display_name: p.display_name,
+      role_in_plan: '参与者',
+    })),
+    tasks: allParticipants.map((p, i) => ({
+      id: `task_${i + 1}`,
+      title: `${p.display_name} 的贡献`,
+      description: p.offer_content ? p.offer_content.substring(0, 100) : '',
+      assignee_id: p.agent_id,
+      prerequisites: [] as string[],
+      status: 'pending' as const,
+    })),
+    topology: { edges: [] },
+  };
 }
 
 const SOURCE_COLORS: Record<string, string> = {
@@ -49,25 +75,8 @@ export function PlanOutput({ planText, planJson, participants, planTemplate = 'd
         )
       )}
 
-      {/* Topology view or plain text fallback */}
-      {isTopologyPlan(planJson) ? (
-        <TopologyView planJson={planJson} />
-      ) : (
-        planText && (
-          <div
-            style={{
-              padding: '16px',
-              borderRadius: 8,
-              backgroundColor: '#F8F6F3',
-              fontSize: 14,
-              lineHeight: 1.7,
-              whiteSpace: 'pre-wrap',
-            }}
-          >
-            {planText}
-          </div>
-        )
-      )}
+      {/* Always render TopologyView — never fall back to plain text */}
+      <TopologyView planJson={ensureTopologyPlan(planJson, participants)} />
     </div>
   );
 }
