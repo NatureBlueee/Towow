@@ -23,6 +23,15 @@ from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from database import (
+    save_negotiation,
+    update_negotiation,
+    save_offers,
+    get_user_history,
+    get_negotiation_detail,
+    save_assist_output,
+)
+
 logger = logging.getLogger(__name__)
 
 
@@ -386,18 +395,32 @@ async def assist_demand(req: AssistDemandRequest, request: Request):
     async def _sse_generator():
         chunk_count = 0
         has_content = False
+        accumulated_text = []
         try:
             async with asyncio.timeout(60):
                 async for chunk in composite.chat_stream(agent_id, messages, system_prompt):
                     chunk_count += 1
                     if chunk:
                         has_content = True
+                        accumulated_text.append(chunk)
                         yield f"data: {json.dumps(chunk)}\n\n"
             if not has_content:
                 logger.warning("assist-demand: SecondMe 返回空内容 agent=%s (chunks=%d)", agent_id, chunk_count)
                 yield "event: error\ndata: 分身思考后没有产出内容，请重试\n\n"
             else:
                 logger.info("assist-demand: 成功, %d chunks", chunk_count)
+                # 持久化：assist 输出写入 DB (ADR-007)
+                try:
+                    full_text = "".join(accumulated_text)
+                    save_assist_output(
+                        user_id=agent_id,
+                        scene_id=req.scene_id or "network",
+                        demand_mode=req.mode,
+                        assist_output=full_text,
+                        raw_text=req.raw_text,
+                    )
+                except Exception as db_err:
+                    logger.warning("History: assist_demand DB write failed: %s", db_err)
             yield "data: [DONE]\n\n"
         except TimeoutError:
             logger.error("assist-demand: 超时 60s agent=%s (已收到 %d chunks)", agent_id, chunk_count)
@@ -514,6 +537,23 @@ async def negotiate(req: NegotiateRequest, request: Request):
     )
     state.store_sessions[neg_id] = session
 
+    # 持久化：协商创建时写入 DB (ADR-007)
+    # 优先从 cookie session 获取真实 agent_id，fallback 到 request body 的 user_id
+    real_agent_id = await _get_agent_id_from_session(request)
+    persist_user_id = real_agent_id or req.user_id
+    try:
+        save_negotiation(
+            negotiation_id=neg_id,
+            user_id=persist_user_id,
+            demand_text=req.intent,
+            scene_id=scene_id or "network",
+            demand_mode="manual",
+            scope=req.scope,
+            agent_count=len(candidate_ids),
+        )
+    except Exception as e:
+        logger.warning("History: negotiate DB write failed %s: %s", neg_id, e)
+
     candidate_vectors = {
         aid: state.store_agent_vectors[aid]
         for aid in candidate_ids
@@ -562,10 +602,32 @@ async def negotiate(req: NegotiateRequest, request: Request):
 async def get_negotiation(neg_id: str, request: Request):
     session = request.app.state.store_sessions.get(neg_id)
     if not session:
-        # Memory miss — try file persistence (survives container restarts)
-        persisted = _load_persisted_session(neg_id)
-        if persisted:
-            return persisted
+        # Memory miss — try DB persistence (ADR-007)
+        history, offers = get_negotiation_detail(neg_id)
+        if history:
+            participants = [
+                {
+                    "agent_id": o.agent_id,
+                    "display_name": o.agent_name,
+                    "resonance_score": o.resonance_score,
+                    "state": o.agent_state,
+                    "offer_content": o.offer_text,
+                    "source": o.source or "",
+                }
+                for o in offers
+            ]
+            return NegotiationResponse(
+                negotiation_id=history.negotiation_id,
+                state=history.status,
+                demand_raw=history.demand_text,
+                demand_formulated=history.formulated_text,
+                participants=participants,
+                plan_output=history.plan_output,
+                plan_json=history.plan_json,
+                center_rounds=history.center_rounds,
+                scope=history.scope or "all",
+                agent_count=history.agent_count,
+            )
         raise HTTPException(404, f"协商 {neg_id} 不存在")
 
     participants = []
@@ -595,6 +657,35 @@ async def get_negotiation(neg_id: str, request: Request):
         center_rounds=session.center_rounds,
         scope=session.demand.scene_id or "all",
     )
+
+
+# ── 历史 API (ADR-007) ──
+
+@router.get("/api/history")
+async def get_history(request: Request, scene_id: str = ""):
+    """返回当前用户的协商历史列表。"""
+    agent_id = await _get_agent_id_from_session(request)
+    if not agent_id:
+        raise HTTPException(401, "需要登录才能查看历史")
+
+    history = get_user_history(agent_id, scene_id or None)
+    return [h.to_dict() for h in history]
+
+
+@router.get("/api/history/{negotiation_id}")
+async def get_history_detail_endpoint(negotiation_id: str, request: Request):
+    """返回单次协商详情（含所有 Offer）。"""
+    agent_id = await _get_agent_id_from_session(request)
+    if not agent_id:
+        raise HTTPException(401, "需要登录才能查看历史")
+
+    history, offers = get_negotiation_detail(negotiation_id)
+    if not history or history.user_id != agent_id:
+        raise HTTPException(404, "协商记录不存在")
+
+    result = history.to_dict()
+    result["offers"] = [o.to_dict() for o in offers]
+    return result
 
 
 @router.post("/api/negotiate/{neg_id}/confirm")
@@ -656,58 +747,50 @@ def mount_store_static(app_instance, prefix: str = "/store"):
 
 # ── 协商运行 ──
 
-_NEG_DATA_DIR = Path("data/negotiations")
 
-
-def _persist_session(session, agent_registry=None) -> None:
-    """Save completed negotiation response to JSON file for restart survival."""
+def _persist_to_db(session, agent_registry=None) -> None:
+    """协商完成后写入 DB (ADR-007)。更新主记录 + 保存所有 Offer。"""
+    neg_id = session.negotiation_id
     try:
-        _NEG_DATA_DIR.mkdir(parents=True, exist_ok=True)
-        participants = []
-        for p in session.participants:
-            entry = {
-                "agent_id": p.agent_id,
-                "display_name": p.display_name,
-                "resonance_score": p.resonance_score,
-                "state": p.state.value,
-            }
-            if p.offer:
-                entry["offer_content"] = p.offer.content
-            if agent_registry:
-                agent_info = agent_registry.get_agent_info(p.agent_id)
-                if agent_info:
-                    entry["source"] = agent_info.get("source", "")
-                    entry["scene_ids"] = agent_info.get("scene_ids", [])
-            participants.append(entry)
+        from towow import NegotiationState
+        status = "completed" if session.state == NegotiationState.COMPLETED else "failed"
+        if session.metadata.get("error"):
+            status = "failed"
 
-        resp = NegotiationResponse(
-            negotiation_id=session.negotiation_id,
-            state=session.state.value,
-            demand_raw=session.demand.raw_intent,
-            demand_formulated=session.demand.formulated_text,
-            participants=participants,
+        update_negotiation(
+            neg_id,
+            status=status,
+            formulated_text=session.demand.formulated_text,
             plan_output=session.plan_output,
             plan_json=session.plan_json,
             center_rounds=session.center_rounds,
-            scope=session.demand.scene_id or "all",
+            agent_count=len(session.participants),
         )
-        path = _NEG_DATA_DIR / f"{session.negotiation_id}.json"
-        path.write_text(resp.model_dump_json(indent=2), encoding="utf-8")
-        logger.info("协商 %s 已持久化到 %s", session.negotiation_id, path)
-    except Exception as exc:
-        logger.warning("协商 %s 持久化失败: %s", session.negotiation_id, exc)
 
+        offer_list = []
+        for p in session.participants:
+            source = ""
+            if agent_registry:
+                agent_info = agent_registry.get_agent_info(p.agent_id)
+                if agent_info:
+                    source = agent_info.get("source", "")
+            offer_list.append({
+                "agent_id": p.agent_id,
+                "agent_name": p.display_name,
+                "resonance_score": p.resonance_score,
+                "offer_text": p.offer.content if p.offer else "",
+                "confidence": getattr(p.offer, "confidence", None) if p.offer else None,
+                "agent_state": p.state.value,
+                "source": source,
+            })
 
-def _load_persisted_session(neg_id: str) -> NegotiationResponse | None:
-    """Load a previously persisted negotiation response from disk."""
-    path = _NEG_DATA_DIR / f"{neg_id}.json"
-    if not path.exists():
-        return None
-    try:
-        return NegotiationResponse.model_validate_json(path.read_text(encoding="utf-8"))
+        if offer_list:
+            save_offers(neg_id, offer_list)
+
+        logger.info("History: 协商 %s 已持久化到 DB (status=%s, offers=%d)",
+                     neg_id, status, len(offer_list))
     except Exception as exc:
-        logger.warning("加载持久化协商 %s 失败: %s", neg_id, exc)
-        return None
+        logger.warning("History: 协商 %s DB 持久化失败: %s", neg_id, exc)
 
 
 async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
@@ -730,5 +813,6 @@ async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
         if session.state != NegotiationState.COMPLETED:
             session.state = NegotiationState.COMPLETED
     finally:
+        # 持久化到 DB (ADR-007) — 替代旧的 JSON 文件持久化
         agent_registry = defaults.get("adapter")
-        _persist_session(session, agent_registry)
+        _persist_to_db(session, agent_registry)

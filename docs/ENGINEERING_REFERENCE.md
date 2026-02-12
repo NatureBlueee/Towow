@@ -246,7 +246,76 @@ backend/tests/
 
 ---
 
+## 12. App Store API 契约
+
+### 协商 API（已有）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| POST | `/store/api/negotiate` | 发起协商 |
+| GET | `/store/api/negotiate/{neg_id}` | 查询协商状态（内存 → DB fallback） |
+| POST | `/store/api/negotiate/{neg_id}/confirm` | 确认 formulation |
+| POST | `/store/api/assist-demand` | SecondMe 分身辅助需求（SSE） |
+| GET | `/store/api/agents` | 网络中的 Agent 列表 |
+| GET | `/store/api/scenes` | 场景列表 |
+| GET | `/store/api/info` | 网络基本信息 |
+| WS | `/store/ws/{neg_id}` | 协商事件推送 |
+
+### 历史 API（ADR-007，2026-02-12 新增）
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| GET | `/store/api/history?scene_id=xxx` | 当前用户的协商历史列表（按时间倒序） | Cookie session |
+| GET | `/store/api/history/{negotiation_id}` | 单次协商详情（含所有 Offer） | Cookie session + 归属校验 |
+
+**History 列表响应 schema**:
+```json
+[{
+  "negotiation_id": "neg_xxx",
+  "user_id": "secondme_xxx",
+  "scene_id": "hackathon",
+  "demand_text": "用户原始输入",
+  "demand_mode": "manual | surprise | polish",
+  "assist_output": "分身生成的文本 | null",
+  "formulated_text": "丰富化后的需求 | null",
+  "status": "pending | negotiating | completed | failed | draft",
+  "plan_output": "方案文本 | null",
+  "agent_count": 5,
+  "created_at": "ISO8601",
+  "updated_at": "ISO8601"
+}]
+```
+
+**History 详情响应 schema**（在列表基础上增加）:
+```json
+{
+  "...所有列表字段...",
+  "plan_json": {},
+  "center_rounds": 2,
+  "scope": "scene:hackathon",
+  "chain_ref": null,
+  "offers": [{
+    "agent_id": "agent_xxx",
+    "agent_name": "Alice",
+    "resonance_score": 0.85,
+    "offer_text": "完整 Offer 内容",
+    "confidence": 0.9,
+    "agent_state": "offered | exited",
+    "source": "SecondMe | Claude",
+    "created_at": "ISO8601"
+  }]
+}
+```
+
+**持久化写入点**:
+- `negotiate()` 创建时 → `save_negotiation(user_id=cookie_agent_id, status="pending")`
+- `_run_negotiation()` 完成时 → `update_negotiation(status, plan_output, ...) + save_offers()`
+- `assist_demand()` SSE 完成时 → `save_assist_output(user_id=cookie_agent_id, status="draft")`
+
+---
+
 ## 更新日志
 
 - 2026-02-09：初始版本，基于架构讨论确认的工程决策创建
 - 2026-02-09：V1 Phase 2 完成后更新——实际代码结构、实现决策、测试覆盖
+- 2026-02-12：新增 Section 12 — App Store API 契约 + 历史 API (ADR-007)

@@ -49,6 +49,10 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Towow unified backend starting...")
 
+    # ── 0. Database ──────────────────────────────────────
+    from database import get_engine
+    get_engine()  # 自动建表 (NegotiationHistory, NegotiationOffer, User)
+
     # ── 1. Auth subsystem ──────────────────────────────────
     from backend.session_store import get_session_store, close_session_store
     from backend.agent_manager import get_agent_manager

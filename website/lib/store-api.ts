@@ -210,6 +210,51 @@ export async function assistDemandStream(
   return accumulated;
 }
 
+// ============ History (ADR-007) ============
+
+export interface HistoryItem {
+  negotiation_id: string;
+  user_id: string;
+  scene_id: string;
+  demand_text: string;
+  demand_mode: string;
+  assist_output: string | null;
+  formulated_text: string | null;
+  status: string;
+  plan_output: string | null;
+  agent_count: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface HistoryOffer {
+  agent_id: string;
+  agent_name: string;
+  resonance_score: number;
+  offer_text: string;
+  confidence: number | null;
+  agent_state: string;
+  source: string | null;
+  created_at: string | null;
+}
+
+export interface HistoryDetail extends HistoryItem {
+  plan_json: Record<string, unknown> | null;
+  center_rounds: number;
+  scope: string;
+  chain_ref: string | null;
+  offers: HistoryOffer[];
+}
+
+export async function getHistory(sceneId?: string): Promise<HistoryItem[]> {
+  const params = sceneId ? `?scene_id=${encodeURIComponent(sceneId)}` : '';
+  return request(`/api/history${params}`, { method: 'GET' });
+}
+
+export async function getHistoryDetail(negId: string): Promise<HistoryDetail> {
+  return request(`/api/history/${negId}`, { method: 'GET' });
+}
+
 // ============ WebSocket URL ============
 
 export function getStoreWebSocketUrl(negId: string): string {

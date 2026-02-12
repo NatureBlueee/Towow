@@ -1,16 +1,16 @@
 """
 Database - SQLite + SQLAlchemy 数据层
 
-提供用户和需求的持久化存储，替代原有的 JSON 文件存储。
+提供用户持久化存储和协商历史持久化（ADR-007）。
 """
 
 import logging
 from datetime import datetime
 from pathlib import Path
-from typing import Optional, List, Dict, Any
+from typing import Optional, List, Dict, Any, Tuple
 
-from sqlalchemy import create_engine, Column, String, Text, Boolean, DateTime, Integer, JSON
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import create_engine, Column, String, Text, Boolean, DateTime, Integer, Float, JSON, ForeignKey
+from sqlalchemy.orm import sessionmaker, declarative_base, relationship
 from sqlalchemy.pool import StaticPool
 
 logger = logging.getLogger(__name__)
@@ -50,7 +50,6 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     def to_dict(self) -> Dict[str, Any]:
-        """转为字典"""
         return {
             "agent_id": self.agent_id,
             "display_name": self.display_name,
@@ -66,60 +65,82 @@ class User(Base):
         }
 
 
-class Requirement(Base):
-    """需求模型"""
-    __tablename__ = "requirements"
+class NegotiationHistory(Base):
+    """协商历史主记录（ADR-007）"""
+    __tablename__ = "negotiation_history"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    requirement_id = Column(String(64), unique=True, nullable=False, index=True)
-    title = Column(String(200), nullable=False)
-    description = Column(Text, nullable=False)
-    submitter_id = Column(String(64), index=True)  # agent_id
-    status = Column(String(32), default="pending")  # pending, processing, completed, cancelled
-    channel_id = Column(String(64), nullable=True, index=True)
-    extra_data = Column(JSON, default=dict)  # 改名避免与 SQLAlchemy 的 metadata 冲突
+    negotiation_id = Column(String(64), unique=True, nullable=False, index=True)
+    user_id = Column(String(64), nullable=False, index=True)  # agent_id
+    scene_id = Column(String(64), index=True)
+    demand_text = Column(Text, nullable=False)               # 用户原始输入
+    demand_mode = Column(String(20), default="manual")       # manual | surprise | polish
+    assist_output = Column(Text, nullable=True)              # "通向惊喜"生成的文本
+    formulated_text = Column(Text, nullable=True)            # 丰富化后的需求
+    status = Column(String(20), default="pending")           # pending | negotiating | completed | failed
+    plan_output = Column(Text, nullable=True)                # 方案文本
+    plan_json = Column(JSON, nullable=True)                  # 方案结构化数据
+    center_rounds = Column(Integer, default=0)
+    scope = Column(String(64), default="all")
+    agent_count = Column(Integer, default=0)
+    chain_ref = Column(String(128), nullable=True)           # 链上 Machine address (ADR-006)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
+    offers = relationship("NegotiationOffer", back_populates="negotiation", lazy="select")
+
     def to_dict(self) -> Dict[str, Any]:
-        """转为字典"""
         return {
-            "requirement_id": self.requirement_id,
-            "title": self.title,
-            "description": self.description,
-            "submitter_id": self.submitter_id,
+            "negotiation_id": self.negotiation_id,
+            "user_id": self.user_id,
+            "scene_id": self.scene_id,
+            "demand_text": self.demand_text,
+            "demand_mode": self.demand_mode,
+            "assist_output": self.assist_output,
+            "formulated_text": self.formulated_text,
             "status": self.status,
-            "channel_id": self.channel_id,
-            "metadata": self.extra_data or {},  # 对外仍然叫 metadata
+            "plan_output": self.plan_output,
+            "plan_json": self.plan_json,
+            "center_rounds": self.center_rounds,
+            "scope": self.scope,
+            "agent_count": self.agent_count,
+            "chain_ref": self.chain_ref,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
 
 
-class ChannelMessage(Base):
-    """Channel 消息模型"""
-    __tablename__ = "channel_messages"
+class NegotiationOffer(Base):
+    """协商 Offer 详情（ADR-007）"""
+    __tablename__ = "negotiation_offers"
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    message_id = Column(String(64), unique=True, nullable=False, index=True)
-    channel_id = Column(String(64), nullable=False, index=True)
-    sender_id = Column(String(64), nullable=False, index=True)  # agent_id
-    sender_name = Column(String(100), nullable=True)
-    content = Column(Text, nullable=False)
-    message_type = Column(String(32), default="text")  # text, system, action
-    extra_data = Column(JSON, default=dict)  # 改名避免与 SQLAlchemy 的 metadata 冲突
+    negotiation_id = Column(
+        String(64),
+        ForeignKey("negotiation_history.negotiation_id"),
+        nullable=False,
+        index=True,
+    )
+    agent_id = Column(String(64), nullable=False)
+    agent_name = Column(String(100), default="")
+    resonance_score = Column(Float, default=0.0)
+    offer_text = Column(Text, default="")                    # 完整 Offer 内容
+    confidence = Column(Float, nullable=True)
+    agent_state = Column(String(20), default="")             # offered | exited
+    source = Column(String(20), nullable=True)               # SecondMe | Claude
     created_at = Column(DateTime, default=datetime.now)
 
+    negotiation = relationship("NegotiationHistory", back_populates="offers")
+
     def to_dict(self) -> Dict[str, Any]:
-        """转为字典"""
         return {
-            "message_id": self.message_id,
-            "channel_id": self.channel_id,
-            "sender_id": self.sender_id,
-            "sender_name": self.sender_name,
-            "content": self.content,
-            "message_type": self.message_type,
-            "metadata": self.extra_data or {},  # 对外仍然叫 metadata
+            "agent_id": self.agent_id,
+            "agent_name": self.agent_name,
+            "resonance_score": self.resonance_score,
+            "offer_text": self.offer_text,
+            "confidence": self.confidence,
+            "agent_state": self.agent_state,
+            "source": self.source,
             "created_at": self.created_at.isoformat() if self.created_at else None,
         }
 
@@ -140,7 +161,6 @@ def get_engine():
             connect_args={"check_same_thread": False},
             poolclass=StaticPool,
         )
-        # 创建表
         Base.metadata.create_all(_engine)
         logger.info(f"Database initialized at {DB_PATH}")
     return _engine
@@ -169,7 +189,6 @@ def create_user(
     refresh_token: Optional[str] = None,
     token_expires_at: Optional[datetime] = None,
 ) -> User:
-    """创建用户"""
     session = get_session()
     try:
         user = User(
@@ -199,7 +218,6 @@ def create_user(
 
 
 def get_user_by_agent_id(agent_id: str) -> Optional[User]:
-    """根据 agent_id 获取用户"""
     session = get_session()
     try:
         return session.query(User).filter(User.agent_id == agent_id).first()
@@ -208,7 +226,6 @@ def get_user_by_agent_id(agent_id: str) -> Optional[User]:
 
 
 def get_user_by_secondme_id(secondme_id: str) -> Optional[User]:
-    """根据 secondme_id 获取用户"""
     session = get_session()
     try:
         return session.query(User).filter(User.secondme_id == secondme_id).first()
@@ -217,7 +234,6 @@ def get_user_by_secondme_id(secondme_id: str) -> Optional[User]:
 
 
 def get_all_users(active_only: bool = False) -> List[User]:
-    """获取所有用户"""
     session = get_session()
     try:
         query = session.query(User)
@@ -229,7 +245,6 @@ def get_all_users(active_only: bool = False) -> List[User]:
 
 
 def update_user(agent_id: str, **kwargs) -> Optional[User]:
-    """更新用户"""
     session = get_session()
     try:
         user = session.query(User).filter(User.agent_id == agent_id).first()
@@ -250,7 +265,6 @@ def update_user(agent_id: str, **kwargs) -> Optional[User]:
 
 
 def delete_user(agent_id: str) -> bool:
-    """删除用户"""
     session = get_session()
     try:
         user = session.query(User).filter(User.agent_id == agent_id).first()
@@ -268,187 +282,158 @@ def delete_user(agent_id: str) -> bool:
         session.close()
 
 
-# ============ Requirement CRUD ============
+# ============ NegotiationHistory CRUD (ADR-007) ============
 
-def create_requirement(
-    requirement_id: str,
-    title: str,
-    description: str,
-    submitter_id: Optional[str] = None,
-    channel_id: Optional[str] = None,
-    metadata: Optional[Dict[str, Any]] = None,
-) -> Requirement:
-    """创建需求"""
+def save_negotiation(
+    negotiation_id: str,
+    user_id: str,
+    demand_text: str,
+    scene_id: str = "",
+    demand_mode: str = "manual",
+    scope: str = "all",
+    agent_count: int = 0,
+    assist_output: Optional[str] = None,
+) -> NegotiationHistory:
+    """创建协商历史记录。在 negotiate() 提交时和 assist_demand() 完成时调用。"""
     session = get_session()
     try:
-        req = Requirement(
-            requirement_id=requirement_id,
-            title=title,
-            description=description,
-            submitter_id=submitter_id,
-            channel_id=channel_id,
-            extra_data=metadata or {},  # 使用 extra_data 字段
+        history = NegotiationHistory(
+            negotiation_id=negotiation_id,
+            user_id=user_id,
+            demand_text=demand_text,
+            scene_id=scene_id,
+            demand_mode=demand_mode,
+            status="pending",
+            scope=scope,
+            agent_count=agent_count,
+            assist_output=assist_output,
         )
-        session.add(req)
+        session.add(history)
         session.commit()
-        session.refresh(req)
-        logger.info(f"Created requirement: {requirement_id}")
-        return req
+        session.refresh(history)
+        logger.info(f"History: saved negotiation {negotiation_id} (user={user_id}, mode={demand_mode})")
+        return history
     except Exception as e:
         session.rollback()
-        logger.error(f"Failed to create requirement: {e}")
+        logger.error(f"History: failed to save negotiation {negotiation_id}: {e}")
         raise
     finally:
         session.close()
 
 
-def get_requirement(requirement_id: str) -> Optional[Requirement]:
-    """获取需求"""
+def update_negotiation(negotiation_id: str, **kwargs) -> Optional[NegotiationHistory]:
+    """更新协商历史字段（status, plan_output, formulated_text 等）。"""
     session = get_session()
     try:
-        return session.query(Requirement).filter(
-            Requirement.requirement_id == requirement_id
+        history = session.query(NegotiationHistory).filter(
+            NegotiationHistory.negotiation_id == negotiation_id
         ).first()
-    finally:
-        session.close()
-
-
-def get_all_requirements(
-    status: Optional[str] = None,
-    submitter_id: Optional[str] = None,
-    limit: int = 100,
-    offset: int = 0,
-) -> List[Requirement]:
-    """获取需求列表"""
-    session = get_session()
-    try:
-        query = session.query(Requirement)
-        if status:
-            query = query.filter(Requirement.status == status)
-        if submitter_id:
-            query = query.filter(Requirement.submitter_id == submitter_id)
-        return query.order_by(Requirement.created_at.desc()).offset(offset).limit(limit).all()
-    finally:
-        session.close()
-
-
-def update_requirement(requirement_id: str, **kwargs) -> Optional[Requirement]:
-    """更新需求"""
-    session = get_session()
-    try:
-        req = session.query(Requirement).filter(
-            Requirement.requirement_id == requirement_id
-        ).first()
-        if req:
+        if history:
             for key, value in kwargs.items():
-                if hasattr(req, key):
-                    setattr(req, key, value)
+                if hasattr(history, key):
+                    setattr(history, key, value)
             session.commit()
-            session.refresh(req)
-            logger.info(f"Updated requirement: {requirement_id}")
-        return req
+            session.refresh(history)
+            logger.info(f"History: updated negotiation {negotiation_id} ({list(kwargs.keys())})")
+        return history
     except Exception as e:
         session.rollback()
-        logger.error(f"Failed to update requirement: {e}")
+        logger.error(f"History: failed to update negotiation {negotiation_id}: {e}")
         raise
     finally:
         session.close()
 
 
-# ============ ChannelMessage CRUD ============
-
-def create_channel_message(
-    message_id: str,
-    channel_id: str,
-    sender_id: str,
-    content: str,
-    sender_name: Optional[str] = None,
-    message_type: str = "text",
-    metadata: Optional[Dict[str, Any]] = None,
-) -> ChannelMessage:
-    """创建消息"""
+def save_offers(negotiation_id: str, offers: List[Dict[str, Any]]) -> None:
+    """批量保存 Offer 详情。每个 offer dict 应含 agent_id, agent_name, offer_text 等字段。"""
     session = get_session()
     try:
-        msg = ChannelMessage(
-            message_id=message_id,
-            channel_id=channel_id,
-            sender_id=sender_id,
-            sender_name=sender_name,
-            content=content,
-            message_type=message_type,
-            extra_data=metadata or {},  # 使用 extra_data 字段
-        )
-        session.add(msg)
-        session.commit()
-        session.refresh(msg)
-        return msg
-    except Exception as e:
-        session.rollback()
-        logger.error(f"Failed to create message: {e}")
-        raise
-    finally:
-        session.close()
-
-
-def get_channel_messages(
-    channel_id: str,
-    limit: int = 100,
-    offset: int = 0,
-    after_id: Optional[str] = None,
-) -> List[ChannelMessage]:
-    """获取 Channel 消息"""
-    session = get_session()
-    try:
-        query = session.query(ChannelMessage).filter(
-            ChannelMessage.channel_id == channel_id
-        )
-        if after_id:
-            # 获取 after_id 对应消息的 id
-            after_msg = session.query(ChannelMessage).filter(
-                ChannelMessage.message_id == after_id
-            ).first()
-            if after_msg:
-                query = query.filter(ChannelMessage.id > after_msg.id)
-        return query.order_by(ChannelMessage.created_at.asc()).offset(offset).limit(limit).all()
-    finally:
-        session.close()
-
-
-# ============ 数据迁移 ============
-
-def migrate_from_json(json_file: Path) -> int:
-    """从 JSON 文件迁移数据到 SQLite"""
-    import json
-
-    if not json_file.exists():
-        logger.info(f"JSON file not found: {json_file}")
-        return 0
-
-    try:
-        with open(json_file, "r", encoding="utf-8") as f:
-            data = json.load(f)
-
-        count = 0
-        for agent_id, config in data.items():
-            # 检查是否已存在
-            existing = get_user_by_agent_id(agent_id)
-            if existing:
-                logger.info(f"User already exists: {agent_id}, skipping")
-                continue
-
-            create_user(
-                agent_id=config.get("agent_id", agent_id),
-                display_name=config.get("display_name", "Unknown"),
-                skills=config.get("skills", []),
-                specialties=config.get("specialties", []),
-                secondme_id=config.get("secondme_id"),
-                bio=config.get("bio"),
+        for offer_data in offers:
+            offer = NegotiationOffer(
+                negotiation_id=negotiation_id,
+                agent_id=offer_data.get("agent_id", ""),
+                agent_name=offer_data.get("agent_name", ""),
+                resonance_score=offer_data.get("resonance_score", 0.0),
+                offer_text=offer_data.get("offer_text", ""),
+                confidence=offer_data.get("confidence"),
+                agent_state=offer_data.get("agent_state", ""),
+                source=offer_data.get("source", ""),
             )
-            count += 1
-
-        logger.info(f"Migrated {count} users from JSON")
-        return count
-
+            session.add(offer)
+        session.commit()
+        logger.info(f"History: saved {len(offers)} offers for {negotiation_id}")
     except Exception as e:
-        logger.error(f"Migration failed: {e}")
+        session.rollback()
+        logger.error(f"History: failed to save offers for {negotiation_id}: {e}")
         raise
+    finally:
+        session.close()
+
+
+def get_user_history(
+    user_id: str,
+    scene_id: Optional[str] = None,
+) -> List[NegotiationHistory]:
+    """获取用户的全部协商历史，按时间倒序。"""
+    session = get_session()
+    try:
+        query = session.query(NegotiationHistory).filter(
+            NegotiationHistory.user_id == user_id
+        )
+        if scene_id:
+            query = query.filter(NegotiationHistory.scene_id == scene_id)
+        return query.order_by(NegotiationHistory.created_at.desc()).all()
+    finally:
+        session.close()
+
+
+def get_negotiation_detail(
+    negotiation_id: str,
+) -> Tuple[Optional[NegotiationHistory], List[NegotiationOffer]]:
+    """获取单次协商的详情（含所有 Offer）。"""
+    session = get_session()
+    try:
+        history = session.query(NegotiationHistory).filter(
+            NegotiationHistory.negotiation_id == negotiation_id
+        ).first()
+        if not history:
+            return None, []
+        offers = session.query(NegotiationOffer).filter(
+            NegotiationOffer.negotiation_id == negotiation_id
+        ).order_by(NegotiationOffer.resonance_score.desc()).all()
+        return history, offers
+    finally:
+        session.close()
+
+
+def save_assist_output(
+    user_id: str,
+    scene_id: str,
+    demand_mode: str,
+    assist_output: str,
+    raw_text: str = "",
+) -> NegotiationHistory:
+    """保存"通向惊喜"或"润色"的输出。创建一条 status=draft 的历史记录。"""
+    from towow.core.models import generate_id
+    session = get_session()
+    try:
+        history = NegotiationHistory(
+            negotiation_id=generate_id("assist"),
+            user_id=user_id,
+            demand_text=raw_text or assist_output,
+            scene_id=scene_id,
+            demand_mode=demand_mode,
+            assist_output=assist_output,
+            status="draft",
+        )
+        session.add(history)
+        session.commit()
+        session.refresh(history)
+        logger.info(f"History: saved assist output (user={user_id}, mode={demand_mode})")
+        return history
+    except Exception as e:
+        session.rollback()
+        logger.error(f"History: failed to save assist output: {e}")
+        raise
+    finally:
+        session.close()

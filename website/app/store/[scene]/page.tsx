@@ -8,6 +8,7 @@ import { AgentScroll } from '@/components/store/AgentScroll';
 import { NegotiationProgress } from '@/components/store/NegotiationProgress';
 import { PlanOutput } from '@/components/store/PlanOutput';
 import { DeveloperPanel } from '@/components/store/DeveloperPanel';
+import { HistoryPanel } from '@/components/store/HistoryPanel';
 import { useStoreNegotiation } from '@/hooks/useStoreNegotiation';
 import { useStoreAuth } from '@/hooks/useStoreAuth';
 
@@ -99,6 +100,9 @@ export default function ScenePage({
         </div>
         <AgentScroll scope={scope} cardTemplate={config.cardTemplate} />
       </div>
+
+      {/* History panel (ADR-007) */}
+      <HistoryPanel sceneId={sceneId} isAuthenticated={auth.isAuthenticated} />
 
       {/* Negotiation progress */}
       {negotiation.phase !== 'idle' && (

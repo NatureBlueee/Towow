@@ -8,6 +8,7 @@ import { AgentScroll } from '@/components/store/AgentScroll';
 import { NegotiationProgress } from '@/components/store/NegotiationProgress';
 import { PlanOutput } from '@/components/store/PlanOutput';
 import { DeveloperPanel } from '@/components/store/DeveloperPanel';
+import { HistoryPanel } from '@/components/store/HistoryPanel';
 import { useStoreNegotiation } from '@/hooks/useStoreNegotiation';
 import { useStoreAuth } from '@/hooks/useStoreAuth';
 import { getSceneConfig } from '@/lib/store-scenes';
@@ -89,6 +90,9 @@ export default function StorePage() {
         <AgentScroll scope={scope} cardTemplate={activeScene ? scene.cardTemplate : 'default'} />
       </div>
 
+      {/* History panel (ADR-007) */}
+      <HistoryPanel sceneId={activeScene || undefined} isAuthenticated={auth.isAuthenticated} />
+
       {/* Negotiation progress */}
       {negotiation.phase !== 'idle' && (
         <div style={{ padding: '16px 24px' }}>
@@ -104,8 +108,8 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Plan output */}
-      {negotiation.planOutput && (
+      {/* Plan output — show when plan data arrives (WS planJson or REST planOutput) */}
+      {(negotiation.planOutput || negotiation.planJson || negotiation.phase === 'completed') && (
         <div style={{ padding: '0 24px 16px' }}>
           <PlanOutput
             planText={negotiation.planOutput}
