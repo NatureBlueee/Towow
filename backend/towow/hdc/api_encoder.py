@@ -23,7 +23,7 @@ from towow.core.protocols import Vector
 
 logger = logging.getLogger(__name__)
 
-HF_API_URL = "https://router.huggingface.co/pipeline/feature-extraction/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+HF_API_URL = "https://router.huggingface.co/hf-inference/models/sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2/pipeline/feature-extraction"
 
 
 class HuggingFaceAPIEncoder:
