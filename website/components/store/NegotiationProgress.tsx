@@ -1,6 +1,10 @@
 'use client';
 
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import NegotiationGraph from '@/components/negotiation/graph/NegotiationGraph';
+import { DetailPanel } from '@/components/negotiation/DetailPanel';
+import { buildNegotiationState } from '@/lib/store-negotiation-adapter';
+import type { DetailPanelContentType } from '@/components/negotiation/graph/types';
 import type { StoreParticipant } from '@/lib/store-api';
 import type { StoreEvent } from '@/hooks/useStoreWebSocket';
 import type { TimelineEntry, GraphState, NegotiationPhase } from '@/hooks/useStoreNegotiation';
@@ -45,7 +49,129 @@ export function NegotiationProgress({
   error,
   onReset,
 }: NegotiationProgressProps) {
-  const [view, setView] = useState<ProgressView>('timeline');
+  const [view, setView] = useState<ProgressView>('graph');
+
+  // ============ NegotiationGraph State ============
+
+  const negotiationState = useMemo(
+    () => buildNegotiationState(events, phase),
+    [events, phase],
+  );
+
+  // ============ Detail Panel State ============
+
+  const [detailPanel, setDetailPanel] = useState<{
+    type: DetailPanelContentType;
+    data: Record<string, unknown> | null;
+  }>({ type: null, data: null });
+
+  // ============ Graph Interaction Handlers ============
+
+  const handleNodeClick = useCallback(
+    (nodeType: 'demand' | 'agent' | 'center', id: string) => {
+      const ns = negotiationState;
+      if (nodeType === 'demand') {
+        setDetailPanel({
+          type: 'demand',
+          data: ns.formulation
+            ? {
+                raw_intent: ns.formulation.raw_intent,
+                formulated_text: ns.formulation.formulated_text,
+                enrichments: ns.formulation.enrichments,
+              }
+            : null,
+        });
+      } else if (nodeType === 'agent') {
+        const agent =
+          ns.resonanceAgents.find((a) => a.agent_id === id) ||
+          ns.filteredAgents.find((a) => a.agent_id === id);
+        const offer = ns.offers.find((o) => o.agent_id === id);
+        const planParticipant = ns.plan?.plan_json?.participants?.find(
+          (p) => p.agent_id === id,
+        );
+        const isFiltered = ns.filteredAgents.some((a) => a.agent_id === id);
+        setDetailPanel({
+          type: 'agent',
+          data: {
+            agent_id: id,
+            display_name: agent?.display_name || id,
+            resonance_score: agent?.resonance_score || 0,
+            isFiltered,
+            offerContent: offer?.content,
+            capabilities: offer?.capabilities || [],
+            roleInPlan: planParticipant?.role_in_plan,
+          },
+        });
+      } else if (nodeType === 'center') {
+        const currentRound =
+          ns.centerActivities.length > 0
+            ? ns.centerActivities[ns.centerActivities.length - 1].round_number
+            : 0;
+        setDetailPanel({
+          type: 'center',
+          data: {
+            activities: ns.centerActivities,
+            roundNumber: currentRound,
+          },
+        });
+      }
+    },
+    [negotiationState],
+  );
+
+  const handleEdgeClick = useCallback(
+    (edgeId: string) => {
+      const ns = negotiationState;
+      if (edgeId.startsWith('res_')) {
+        const agentId = edgeId.replace('res_', '');
+        const agent =
+          ns.resonanceAgents.find((a) => a.agent_id === agentId) ||
+          ns.filteredAgents.find((a) => a.agent_id === agentId);
+        setDetailPanel({
+          type: 'resonance_edge',
+          data: {
+            agent_id: agentId,
+            display_name: agent?.display_name || agentId,
+            resonance_score: agent?.resonance_score || 0,
+          },
+        });
+      } else if (edgeId.startsWith('int_')) {
+        const match = edgeId.match(/^int_(\d+)/);
+        if (!match) return;
+        const activityIdx = parseInt(match[1], 10);
+        const activity = ns.centerActivities[activityIdx];
+        setDetailPanel({
+          type: 'interaction_edge',
+          data: {
+            edgeId,
+            interactionType: activity?.tool_name || 'ask_agent',
+            toolArgs: activity?.tool_args || {},
+            roundNumber: activity?.round_number || 0,
+          },
+        });
+      }
+    },
+    [negotiationState],
+  );
+
+  const handleTaskClick = useCallback(
+    (taskId: string) => {
+      const task = negotiationState.plan?.plan_json?.tasks?.find(
+        (t) => t.id === taskId,
+      );
+      if (task) {
+        setDetailPanel({
+          type: 'task',
+          data: task as unknown as Record<string, unknown>,
+        });
+      }
+    },
+    [negotiationState],
+  );
+
+  const handleCloseDetail = useCallback(() => {
+    setDetailPanel({ type: null, data: null });
+  }, []);
 
   if (phase === 'idle') return null;
 
@@ -88,8 +214,8 @@ export function NegotiationProgress({
           </span>
         </div>
         <div style={{ display: 'flex', gap: 4 }}>
-          <ViewTab label="时间线" isActive={view === 'timeline'} onClick={() => setView('timeline')} />
           <ViewTab label="图谱" isActive={view === 'graph'} onClick={() => setView('graph')} />
+          <ViewTab label="时间线" isActive={view === 'timeline'} onClick={() => setView('timeline')} />
         </div>
       </div>
 
@@ -113,7 +239,14 @@ export function NegotiationProgress({
       {view === 'timeline' ? (
         <TimelineView timeline={timeline} />
       ) : (
-        <RadialGraphView graphState={graphState} />
+        <div style={{ width: '100%', maxWidth: 800, margin: '0 auto' }}>
+          <NegotiationGraph
+            state={negotiationState}
+            onNodeClick={handleNodeClick}
+            onEdgeClick={handleEdgeClick}
+            onTaskClick={handleTaskClick}
+          />
+        </div>
       )}
 
       {/* Participants */}
@@ -164,6 +297,13 @@ export function NegotiationProgress({
           重新开始
         </button>
       )}
+
+      {/* Detail Panel (fixed position, slides from right on node click) */}
+      <DetailPanel
+        type={detailPanel.type}
+        data={detailPanel.data}
+        onClose={handleCloseDetail}
+      />
     </div>
   );
 }
@@ -296,177 +436,6 @@ function TimelineView({ timeline }: { timeline: TimelineEntry[] }) {
           </div>
         </div>
       ))}
-    </div>
-  );
-}
-
-// ============ Radial Graph View ============
-
-function RadialGraphView({ graphState }: { graphState: GraphState }) {
-  const { agents, centerVisible, done } = graphState;
-  const size = 300;
-  const cx = size / 2;
-  const cy = size / 2;
-  const radius = size / 2 - 40;
-
-  return (
-    <div
-      style={{
-        position: 'relative',
-        width: size,
-        height: size,
-        margin: '0 auto',
-      }}
-    >
-      <style>{`
-        @keyframes nodeAppear {
-          from { transform: scale(0); opacity: 0; }
-          to { transform: scale(1); opacity: 1; }
-        }
-        @keyframes lineGrow {
-          from { stroke-dashoffset: 200; }
-          to { stroke-dashoffset: 0; }
-        }
-        @keyframes centerPulse {
-          0%, 100% { box-shadow: 0 0 0 0 rgba(212,184,217,0.4); }
-          50% { box-shadow: 0 0 0 8px rgba(212,184,217,0); }
-        }
-      `}</style>
-      {/* SVG lines */}
-      <svg
-        width={size}
-        height={size}
-        style={{ position: 'absolute', top: 0, left: 0 }}
-      >
-        {agents.map((agent, i) => {
-          const angle = (2 * Math.PI * i) / agents.length - Math.PI / 2;
-          const ax = cx + radius * Math.cos(angle);
-          const ay = cy + radius * Math.sin(angle);
-          return (
-            <line
-              key={`line-${agent.id}`}
-              x1={cx}
-              y1={cy}
-              x2={ax}
-              y2={ay}
-              stroke={agent.active ? '#8FD5A3' : 'rgba(0,0,0,0.08)'}
-              strokeWidth={agent.active ? 2 : 1}
-              style={{
-                strokeDasharray: 200,
-                strokeDashoffset: 0,
-                animation: `lineGrow 0.5s ease-out ${i * 0.05}s both`,
-                transition: 'stroke 0.3s, stroke-width 0.3s',
-              }}
-            />
-          );
-        })}
-        {/* Center-to-agent lines (when center visible) */}
-        {centerVisible && agents.filter((a) => a.active).map((agent, i, arr) => {
-          const origIdx = agents.indexOf(agent);
-          const angle = (2 * Math.PI * origIdx) / agents.length - Math.PI / 2;
-          const ax = cx + radius * Math.cos(angle);
-          const ay = cy + radius * Math.sin(angle);
-          const centerX = cx + 35;
-          const centerY = cy - 35;
-          return (
-            <line
-              key={`center-line-${agent.id}`}
-              x1={centerX}
-              y1={centerY}
-              x2={ax}
-              y2={ay}
-              stroke="#D4B8D9"
-              strokeWidth={1.5}
-              strokeDasharray="4 2"
-              style={{
-                animation: `lineGrow 0.4s ease-out ${i * 0.08}s both`,
-              }}
-            />
-          );
-        })}
-      </svg>
-
-      {/* Demand node (center) */}
-      <div
-        style={{
-          position: 'absolute',
-          left: cx - 28,
-          top: cy - 28,
-          width: 56,
-          height: 56,
-          borderRadius: '50%',
-          backgroundColor: done ? '#8FD5A3' : '#D4B8D9',
-          color: '#fff',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          fontSize: 12,
-          fontWeight: 600,
-          zIndex: 2,
-        }}
-      >
-        {done ? 'Done' : '需求'}
-      </div>
-
-      {/* Agent nodes */}
-      {agents.map((agent, i) => {
-        const angle = (2 * Math.PI * i) / agents.length - Math.PI / 2;
-        const ax = cx + radius * Math.cos(angle);
-        const ay = cy + radius * Math.sin(angle);
-        const label = agent.name.length > 8 ? agent.name.substring(0, 7) + '..' : agent.name;
-        return (
-          <div
-            key={agent.id}
-            title={agent.name}
-            style={{
-              position: 'absolute',
-              left: ax - 22,
-              top: ay - 22,
-              width: 44,
-              height: 44,
-              borderRadius: '50%',
-              backgroundColor: agent.active ? '#F9A87C' : 'rgba(0,0,0,0.06)',
-              color: agent.active ? '#fff' : '#999',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: 11,
-              fontWeight: 500,
-              zIndex: 2,
-              transition: 'background-color 0.3s, color 0.3s',
-              animation: `nodeAppear 0.3s ease-out ${i * 0.05}s both`,
-            }}
-          >
-            {label}
-          </div>
-        );
-      })}
-
-      {/* Center coordinator node */}
-      {centerVisible && (
-        <div
-          style={{
-            position: 'absolute',
-            left: cx + 35 - 20,
-            top: cy - 35 - 20,
-            width: 40,
-            height: 40,
-            borderRadius: '50%',
-            backgroundColor: '#D4B8D9',
-            color: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            fontSize: 10,
-            fontWeight: 600,
-            zIndex: 2,
-            border: '2px solid #fff',
-            animation: 'nodeAppear 0.3s ease-out, centerPulse 2s ease-in-out infinite 0.3s',
-          }}
-        >
-          Center
-        </div>
-      )}
     </div>
   );
 }

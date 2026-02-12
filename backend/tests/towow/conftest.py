@@ -134,14 +134,20 @@ class MockEncoder:
 # ============ Mock Resonance Detector ============
 
 class MockResonanceDetector:
-    """Mock resonance detector that uses cosine similarity."""
+    """Mock resonance detector that uses cosine similarity.
+
+    Returns (activated, filtered) tuple per PLAN-003 contract:
+    - activated: agents with score >= min_score, limited to k_star
+    - filtered: agents with score < min_score
+    """
 
     async def detect(
         self,
         demand_vector: Vector,
         agent_vectors: dict[str, Vector],
         k_star: int,
-    ) -> list[tuple[str, float]]:
+        min_score: float = 0.0,
+    ) -> tuple[list[tuple[str, float]], list[tuple[str, float]]]:
         results = []
         for agent_id, agent_vec in agent_vectors.items():
             sim = float(np.dot(demand_vector, agent_vec) / (
@@ -149,7 +155,15 @@ class MockResonanceDetector:
             ))
             results.append((agent_id, sim))
         results.sort(key=lambda x: x[1], reverse=True)
-        return results[:k_star]
+
+        # Split by min_score threshold
+        activated = [(aid, s) for aid, s in results if s >= min_score]
+        filtered = [(aid, s) for aid, s in results if s < min_score]
+
+        # Apply k_star limit to activated only
+        activated = activated[:k_star]
+
+        return activated, filtered
 
 
 # ============ Mock Platform LLM Client ============

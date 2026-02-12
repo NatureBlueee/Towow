@@ -75,8 +75,12 @@ export async function submitDemand(
   sceneId: string,
   userId: string,
   intent: string,
+  kStar?: number,
+  minScore?: number,
 ): Promise<string> {
   const body: SubmitDemandRequest = { scene_id: sceneId, user_id: userId, intent };
+  if (kStar !== undefined) body.k_star = kStar;
+  if (minScore !== undefined) body.min_score = minScore;
   const data = await request<SubmitDemandResponse>('/api/negotiations/submit', {
     method: 'POST',
     body: JSON.stringify(body),

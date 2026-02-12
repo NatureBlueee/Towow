@@ -160,6 +160,7 @@ class TestHappyPath:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -201,6 +202,7 @@ class TestHappyPath:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         event_types = [e.event_type for e in pusher.events]
@@ -365,6 +367,7 @@ class TestParallelOffers:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         # All participants should have REPLIED
@@ -430,6 +433,7 @@ class TestParallelOffers:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -502,6 +506,7 @@ class TestParallelOffers:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         bob = next(
@@ -550,6 +555,7 @@ class TestBarrier:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         barrier_events = pusher.get_events_by_type(EventType.BARRIER_COMPLETE)
@@ -594,6 +600,7 @@ class TestBarrier:
             center_skill=center_skill,
             agent_vectors=None,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -655,6 +662,7 @@ class TestCenterMultiRound:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -744,6 +752,7 @@ class TestCenterMultiRound:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
             sub_negotiation_skill=sub_neg_skill,
         )
 
@@ -828,6 +837,7 @@ class TestCenterMultiRound:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
             gap_recursion_skill=gap_skill,
             register_session=_register,
         )
@@ -878,6 +888,7 @@ class TestCenterMultiRound:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -955,6 +966,7 @@ class TestRoundLimit:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -1015,6 +1027,7 @@ class TestEventCompleteness:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         types = [e.event_type for e in pusher.events]
@@ -1062,6 +1075,7 @@ class TestEventCompleteness:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         for event in pusher.events:
@@ -1106,6 +1120,7 @@ class TestTraceChain:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         assert result.trace is not None
@@ -1148,6 +1163,7 @@ class TestTraceChain:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         for entry in result.trace.entries:
@@ -1186,6 +1202,7 @@ class TestTraceChain:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         assert result.trace.completed_at is not None
@@ -1222,6 +1239,7 @@ class TestTraceChain:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         trace_dict = result.trace.to_dict()
@@ -1290,6 +1308,7 @@ class TestAgentExits:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -1356,6 +1375,7 @@ class TestAgentExits:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -1408,6 +1428,7 @@ class TestEdgeCases:
             formulation_skill=None,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.demand.formulated_text == result.demand.raw_intent
@@ -1690,6 +1711,7 @@ class TestSubNegotiation:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
             gap_recursion_skill=GapRecursionSkill(),
         )
 
@@ -1829,6 +1851,7 @@ class TestSubNegotiation:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
             sub_negotiation_skill=SubNegotiationSkill(),
         )
 
@@ -1890,6 +1913,7 @@ class TestSubNegotiation:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
             # No sub_negotiation_skill provided
         )
 
@@ -1956,6 +1980,7 @@ class TestSubNegotiation:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
             register_session=lambda s: registered.append(s),
             # No gap_recursion_skill — raw gap_description used as sub-demand
         )
@@ -2021,6 +2046,7 @@ class TestFormulationPipeline:
             formulation_skill=SlowFormulationSkill(),
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -2081,6 +2107,7 @@ class TestFormulationPipeline:
             formulation_skill=TrackingFormulationSkill(),
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -2130,6 +2157,7 @@ class TestFormulationPipeline:
             formulation_skill=FailingFormulationSkill(),
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.state == NegotiationState.COMPLETED
@@ -2177,6 +2205,7 @@ class TestFormulationPipeline:
             formulation_skill=GoodFormulationSkill(),
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=0.0,
         )
 
         assert result.demand.formulated_text == "enriched demand text"
@@ -2188,3 +2217,488 @@ class TestFormulationPipeline:
         assert len(form_events) == 1
         assert form_events[0].data["degraded"] is False
         assert form_events[0].data["degraded_reason"] == ""
+
+
+# ============ PLAN-003: min_score Filtering ============
+
+
+class TestMinScoreFiltering:
+    """Test that min_score parameter correctly filters participants in _run_encoding."""
+
+    @pytest.mark.asyncio
+    async def test_start_negotiation_accepts_min_score(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """start_negotiation should accept min_score parameter."""
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Should not raise with min_score parameter
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            min_score=0.3,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+
+    @pytest.mark.asyncio
+    async def test_min_score_filters_low_scoring_participants(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """With high min_score, low-scoring agents should not become participants."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Test min_score filtering", user_id="user_1"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Use very high min_score to filter most agents
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=10,
+            min_score=0.99,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        # With random vectors and high min_score, most/all agents should be filtered
+        # Participants should have fewer agents than total
+        assert len(result.participants) < len(agent_vectors)
+
+    @pytest.mark.asyncio
+    async def test_min_score_zero_includes_all(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """min_score=0.0 should include all agents (backward-compatible)."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Test min_score=0", user_id="user_1"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=10,
+            min_score=0.0,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        # With min_score=0.0, all non-negative agents should be participants
+        assert len(result.participants) > 0
+
+    @pytest.mark.asyncio
+    async def test_resonance_activated_event_contains_filtered_agents(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """resonance_activated event should include both agents and filtered_agents."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Test filtered agents event", user_id="user_1"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Use a moderate min_score so we might get some in each group
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=10,
+            min_score=0.0,
+        )
+
+        res_events = pusher.get_events_by_type(EventType.RESONANCE_ACTIVATED)
+        assert len(res_events) == 1
+        event_data = res_events[0].data
+        assert "agents" in event_data
+        assert "filtered_agents" in event_data
+        assert isinstance(event_data["agents"], list)
+        assert isinstance(event_data["filtered_agents"], list)
+        # Every agent in the event should have the required fields
+        for agent in event_data["agents"]:
+            assert "agent_id" in agent
+            assert "display_name" in agent
+            assert "resonance_score" in agent
+        for agent in event_data["filtered_agents"]:
+            assert "agent_id" in agent
+            assert "display_name" in agent
+            assert "resonance_score" in agent
+
+    @pytest.mark.asyncio
+    async def test_high_min_score_puts_agents_in_filtered(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """With very high min_score, agents should appear in filtered_agents, not agents."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Test high min_score filtering", user_id="user_1"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=10,
+            min_score=0.99,
+        )
+
+        res_events = pusher.get_events_by_type(EventType.RESONANCE_ACTIVATED)
+        assert len(res_events) == 1
+        event_data = res_events[0].data
+        # With min_score=0.99 and random vectors, most agents should be filtered
+        total_agents = len(event_data["agents"]) + len(event_data["filtered_agents"])
+        assert total_agents > 0
+        # At least some should be filtered
+        assert len(event_data["filtered_agents"]) > 0
+
+    @pytest.mark.asyncio
+    async def test_only_activated_become_participants(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """Only activated agents (not filtered) should become session participants."""
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Test participant filtering", user_id="user_1"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=10,
+            min_score=0.0,
+        )
+
+        # Check that participants match the activated list from the event
+        res_events = pusher.get_events_by_type(EventType.RESONANCE_ACTIVATED)
+        activated_ids = {a["agent_id"] for a in res_events[0].data["agents"]}
+        participant_ids = {p.agent_id for p in result.participants}
+        assert participant_ids == activated_ids
+
+    @pytest.mark.asyncio
+    async def test_min_score_stored_in_context_for_sub_negotiation(
+        self,
+        engine: NegotiationEngine,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """min_score should be stored in neg_contexts and used for sub-negotiations."""
+        agent_vectors = await _build_agent_vectors(encoder)
+        registered = []
+
+        # Parent Center R1: create_sub_demand
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_CREATE_SUB_DEMAND,
+                    "arguments": {"gap_description": "Need a designer"},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Sub-negotiation Center: output_plan
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Sub plan."},
+                    "id": "call_sub",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        # Parent Center R2: output_plan
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Parent plan."},
+                    "id": "call_2",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        nid = generate_id("neg")
+        session = NegotiationSession(
+            negotiation_id=nid,
+            demand=DemandSnapshot(raw_intent="Test sub-neg min_score"),
+            trace=TraceChain(negotiation_id=nid),
+        )
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            min_score=0.0,
+            register_session=lambda s: registered.append(s),
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        # Sub-session should have been created and completed
+        assert len(registered) == 1
+        assert registered[0].state == NegotiationState.COMPLETED
+
+
+# ============ PLAN-003: plan_json Always Present ============
+
+
+class TestPlanJsonGuaranteed:
+    """Test that plan_ready event always contains plan_json (three-layer defense)."""
+
+    @pytest.mark.asyncio
+    async def test_plan_ready_event_always_has_plan_json(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """plan_ready event data should always contain plan_json, never None."""
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {
+                        "plan_text": "Plan without explicit plan_json.",
+                    },
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            min_score=0.0,
+        )
+
+        plan_events = pusher.get_events_by_type(EventType.PLAN_READY)
+        assert len(plan_events) == 1
+        plan_data = plan_events[0].data
+        assert "plan_json" in plan_data
+        assert plan_data["plan_json"] is not None
+        assert isinstance(plan_data["plan_json"], dict)
+        # Three-layer defense guarantees tasks[] exist
+        assert "tasks" in plan_data["plan_json"]
+        assert len(plan_data["plan_json"]["tasks"]) > 0
+
+    @pytest.mark.asyncio
+    async def test_plan_json_from_llm_passed_through(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """When LLM provides valid plan_json, it should be used as-is."""
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        plan_json = {
+            "summary": "Custom plan",
+            "participants": [
+                {"agent_id": "agent_alice", "display_name": "Alice", "role_in_plan": "developer"},
+            ],
+            "tasks": [
+                {"id": "t1", "title": "Build feature", "assignee_id": "agent_alice", "prerequisites": [], "status": "pending"},
+            ],
+            "topology": {"edges": []},
+        }
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {
+                        "plan_text": "Plan with plan_json.",
+                        "plan_json": plan_json,
+                    },
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            min_score=0.0,
+        )
+
+        plan_events = pusher.get_events_by_type(EventType.PLAN_READY)
+        assert len(plan_events) == 1
+        assert plan_events[0].data["plan_json"] == plan_json
+
+    @pytest.mark.asyncio
+    async def test_plan_json_on_session_always_set(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """session.plan_json should always be set after completion."""
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {
+                    "name": TOOL_OUTPUT_PLAN,
+                    "arguments": {"plan_text": "Simple plan."},
+                    "id": "call_1",
+                }
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            agent_vectors=agent_vectors,
+            k_star=3,
+            min_score=0.0,
+        )
+
+        assert result.plan_json is not None
+        assert isinstance(result.plan_json, dict)
+        assert "tasks" in result.plan_json

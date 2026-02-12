@@ -31,9 +31,10 @@ export interface TopologyViewProps {
   };
 }
 
-const NODE_W = 160;
-const NODE_H = 70;
-const PAD = 20;
+const NODE_W = 220;
+const NODE_H = 100;
+const GAP = 24;
+const PAD = 24;
 
 /** Deterministic color from string hash */
 function hashColor(s: string): string {
@@ -58,7 +59,7 @@ export function TopologyView({ planJson }: TopologyViewProps) {
   );
 
   const layout = useMemo(
-    () => computeTopologyLayout(taskNodes, 200, 90),
+    () => computeTopologyLayout(taskNodes, NODE_W + GAP, NODE_H + GAP),
     [taskNodes],
   );
 
@@ -97,10 +98,11 @@ export function TopologyView({ planJson }: TopologyViewProps) {
     <div style={{ overflowX: 'auto', margin: '12px 0' }}>
       <svg
         width={svgW}
-        height={svgH + (selectedTask ? 100 : 0)}
+        height={svgH + (selectedTask ? 120 : 0)}
         style={{ display: 'block' }}
         onClick={(e) => {
-          if ((e.target as SVGElement).tagName === 'svg') setSelected(null);
+          const tag = (e.target as Element).tagName;
+          if (tag === 'svg' || tag === 'rect') setSelected(null);
         }}
       >
         {/* Edges */}
@@ -121,14 +123,14 @@ export function TopologyView({ planJson }: TopologyViewProps) {
               key={`${e.from}-${e.to}`}
               d={`M${x1},${y1} C${mx},${y1} ${mx},${y2} ${x2},${y2}`}
               fill="none"
-              stroke={isHighlighted ? '#5B8DEF' : '#D0D0D0'}
+              stroke={isHighlighted ? '#7c3aed' : '#D0D0D0'}
               strokeWidth={isHighlighted ? 2 : 1.5}
               opacity={dimmed ? 0.3 : 1}
             />
           );
         })}
 
-        {/* Nodes */}
+        {/* Nodes — foreignObject HTML cards for rich text rendering */}
         {layout.nodes.map((n) => {
           const task = taskMap.get(n.id);
           const assignee = task ? partMap.get(task.assignee_id) : null;
@@ -140,52 +142,93 @@ export function TopologyView({ planJson }: TopologyViewProps) {
           const ny = n.y + PAD;
 
           return (
-            <g
+            <foreignObject
               key={n.id}
-              transform={`translate(${nx},${ny})`}
-              style={{ cursor: 'pointer', opacity: dimmed ? 0.3 : 1 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelected(selected === n.id ? null : n.id);
-              }}
+              x={nx}
+              y={ny}
+              width={NODE_W}
+              height={NODE_H}
+              style={{ opacity: dimmed ? 0.3 : 1, transition: 'opacity 0.2s' }}
             >
-              <rect
-                width={NODE_W}
-                height={NODE_H}
-                rx={8}
-                fill="#fff"
-                stroke={isSelected ? '#5B8DEF' : 'rgba(0,0,0,0.08)'}
-                strokeWidth={isSelected ? 2 : 1}
-                filter="url(#shadow)"
-              />
-              {/* Avatar circle */}
-              <circle cx={24} cy={NODE_H / 2} r={14} fill={color} />
-              <text
-                x={24}
-                y={NODE_H / 2}
-                textAnchor="middle"
-                dominantBaseline="central"
-                fill="#fff"
-                fontSize={12}
-                fontWeight={600}
+              <div
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelected(selected === n.id ? null : n.id);
+                }}
+                style={{
+                  width: NODE_W,
+                  height: NODE_H,
+                  boxSizing: 'border-box',
+                  background: '#fff',
+                  borderRadius: 10,
+                  border: isSelected ? '2px solid #7c3aed' : '1px solid rgba(0,0,0,0.08)',
+                  borderLeft: `4px solid ${color}`,
+                  boxShadow: '0 2px 8px rgba(0,0,0,0.06)',
+                  padding: '10px 12px 10px 14px',
+                  cursor: 'pointer',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: 4,
+                  overflow: 'hidden',
+                  transition: 'border-color 0.2s, box-shadow 0.2s',
+                }}
               >
-                {initial}
-              </text>
-              {/* Title */}
-              <text
-                x={46}
-                y={26}
-                fontSize={12}
-                fontWeight={500}
-                fill="#333"
-              >
-                {n.title.length > 12 ? n.title.slice(0, 12) + '...' : n.title}
-              </text>
-              {/* Assignee name */}
-              <text x={46} y={48} fontSize={11} fill="#999">
-                {assignee?.display_name || n.assigneeId}
-              </text>
-            </g>
+                {/* Header: avatar + title */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <div
+                    style={{
+                      width: 24,
+                      height: 24,
+                      borderRadius: '50%',
+                      background: color,
+                      flexShrink: 0,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      fontSize: 11,
+                      fontWeight: 600,
+                      color: '#fff',
+                    }}
+                  >
+                    {initial}
+                  </div>
+                  <div
+                    style={{
+                      fontSize: 13,
+                      fontWeight: 600,
+                      color: '#1a1a1a',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      flex: 1,
+                    }}
+                  >
+                    {n.title}
+                  </div>
+                </div>
+                {/* Assignee */}
+                <div style={{ fontSize: 11, color: '#888', paddingLeft: 32 }}>
+                  {assignee?.display_name || n.assigneeId}
+                </div>
+                {/* Description (2-line clamp) */}
+                {task?.description && (
+                  <div
+                    style={{
+                      fontSize: 11,
+                      color: '#666',
+                      lineHeight: 1.4,
+                      paddingLeft: 32,
+                      overflow: 'hidden',
+                      display: '-webkit-box',
+                      WebkitLineClamp: 2,
+                      WebkitBoxOrient: 'vertical',
+                    }}
+                  >
+                    {task.description}
+                  </div>
+                )}
+              </div>
+            </foreignObject>
           );
         })}
 
@@ -194,15 +237,15 @@ export function TopologyView({ planJson }: TopologyViewProps) {
           <foreignObject
             x={selectedNode.x + PAD}
             y={selectedNode.y + PAD + NODE_H + 8}
-            width={260}
-            height={90}
+            width={280}
+            height={100}
           >
             <div
               style={{
                 background: '#fff',
                 border: '1px solid rgba(0,0,0,0.08)',
-                borderRadius: 8,
-                padding: '8px 12px',
+                borderRadius: 10,
+                padding: '10px 14px',
                 fontSize: 12,
                 lineHeight: 1.6,
                 boxShadow: '0 2px 8px rgba(0,0,0,0.08)',

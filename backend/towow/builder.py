@@ -63,6 +63,7 @@ class EngineBuilder:
         self._gap_recursion_skill: Skill | None = None
         self._agent_vectors: dict[str, Vector] | None = None
         self._k_star: int = 5
+        self._min_score: float = 0.5
         self._agent_display_names: dict[str, str] | None = None
         self._register_session: Callable[[NegotiationSession], None] | None = None
 
@@ -128,6 +129,10 @@ class EngineBuilder:
 
     def with_k_star(self, k: int) -> EngineBuilder:
         self._k_star = k
+        return self
+
+    def with_min_score(self, score: float) -> EngineBuilder:
+        self._min_score = score
         return self
 
     def with_display_names(self, names: dict[str, str]) -> EngineBuilder:
@@ -202,6 +207,7 @@ class EngineBuilder:
         if self._agent_vectors is not None:
             per_run["agent_vectors"] = self._agent_vectors
         per_run["k_star"] = self._k_star
+        per_run["min_score"] = self._min_score
         if self._agent_display_names is not None:
             per_run["agent_display_names"] = self._agent_display_names
         if self._register_session is not None:

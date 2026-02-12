@@ -129,7 +129,7 @@ async def submit_demand(req: SubmitDemandRequest, request: Request):
 
     # Start negotiation as background task
     task = asyncio.create_task(
-        _run_negotiation(state, session, scene)
+        _run_negotiation(state, session, scene, req.k_star, req.min_score)
     )
     state.tasks[negotiation_id] = task
 
@@ -269,12 +269,23 @@ async def _run_negotiation(
     state: Any,
     session: NegotiationSession,
     scene: SceneDefinition,
+    user_k_star: int | None = None,
+    user_min_score: float | None = None,
 ) -> None:
-    """Run the full negotiation pipeline as a background task."""
+    """Run the full negotiation pipeline as a background task.
+
+    Args:
+        user_k_star: User-specified max participant count; falls back to scene.expected_responders.
+        user_min_score: User-specified min resonance threshold; falls back to 0.5.
+    """
     try:
         engine = state.engine
         registry = state.agent_registry
         llm_client = state.llm_client
+
+        # Resolve k_star and min_score: user-specified → scene default → hard default
+        k_star = user_k_star if user_k_star is not None else scene.expected_responders
+        min_score = user_min_score if user_min_score is not None else 0.5
 
         # 向量编码（从 registry 获取 profile）
         agent_vectors = {}
@@ -320,7 +331,8 @@ async def _run_negotiation(
             formulation_skill=state.skills.get("formulation"),
             offer_skill=state.skills.get("offer"),
             agent_vectors=agent_vectors or None,
-            k_star=scene.expected_responders,
+            k_star=k_star,
+            min_score=min_score,
             agent_display_names=agent_display_names,
             sub_negotiation_skill=state.skills.get("sub_negotiation"),
             gap_recursion_skill=state.skills.get("gap_recursion"),

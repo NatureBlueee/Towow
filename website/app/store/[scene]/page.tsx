@@ -102,7 +102,7 @@ export default function ScenePage({
 
       {/* Negotiation progress */}
       {negotiation.phase !== 'idle' && (
-        <div style={{ padding: '16px 24px' }}>
+        <div style={{ padding: '16px 8px' }}>
           <NegotiationProgress
             phase={negotiation.phase}
             participants={negotiation.participants}
@@ -115,8 +115,8 @@ export default function ScenePage({
         </div>
       )}
 
-      {/* Plan output */}
-      {negotiation.planOutput && (
+      {/* Plan output — show when plan data arrives (WS planJson or REST planOutput) */}
+      {(negotiation.planOutput || negotiation.planJson || negotiation.phase === 'completed') && (
         <div style={{ padding: '0 24px 16px' }}>
           <PlanOutput
             planText={negotiation.planOutput}

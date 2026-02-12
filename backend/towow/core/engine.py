@@ -220,6 +220,7 @@ class NegotiationEngine:
         offer_skill: Optional[Skill] = None,
         agent_vectors: Optional[dict[str, Vector]] = None,
         k_star: int = 5,
+        min_score: float = 0.5,
         agent_display_names: Optional[dict[str, str]] = None,
         sub_negotiation_skill: Optional[Skill] = None,
         gap_recursion_skill: Optional[Skill] = None,
@@ -247,6 +248,7 @@ class NegotiationEngine:
             "offer_skill": offer_skill,
             "agent_vectors": agent_vectors,
             "k_star": k_star,
+            "min_score": min_score,
             "agent_display_names": agent_display_names or {},
             "sub_negotiation_skill": sub_negotiation_skill,
             "gap_recursion_skill": gap_recursion_skill,
@@ -259,7 +261,7 @@ class NegotiationEngine:
             await self._run_formulation(session, adapter, formulation_skill)
 
             # Step 2: Encoding + resonance detection
-            await self._run_encoding(session, agent_vectors, k_star)
+            await self._run_encoding(session, agent_vectors, k_star, min_score)
 
             # Step 3: Parallel offer generation + barrier
             await self._run_offers(session, adapter, offer_skill)
@@ -405,6 +407,7 @@ class NegotiationEngine:
         session: NegotiationSession,
         agent_vectors: Optional[dict[str, Vector]],
         k_star: int,
+        min_score: float = 0.5,
     ) -> None:
         t0 = time.monotonic()
         self._transition(session, NegotiationState.ENCODING)
@@ -428,13 +431,16 @@ class NegotiationEngine:
             self._trace(session, "encoding", t0, output_summary="no candidates after excluding submitter")
             return
 
-        results = await self._resonance_detector.detect(
+        # detect() returns (activated, filtered) tuple per PLAN-003
+        activated, filtered = await self._resonance_detector.detect(
             demand_vector=demand_vector,
             agent_vectors=candidate_vectors,
             k_star=k_star,
+            min_score=min_score,
         )
 
-        for agent_id, score in results:
+        # Only activated agents (>= min_score, up to k_star) become participants
+        for agent_id, score in activated:
             session.participants.append(
                 AgentParticipant(
                     agent_id=agent_id,
@@ -450,16 +456,33 @@ class NegotiationEngine:
             session,
             resonance_activated(
                 negotiation_id=session.negotiation_id,
-                activated_count=len(results),
+                activated_count=len(activated),
                 agents=[
                     {
                         "agent_id": aid,
                         "display_name": self._display_names(session).get(aid, aid),
                         "resonance_score": score,
                     }
-                    for aid, score in results
+                    for aid, score in activated
+                ],
+                filtered_agents=[
+                    {
+                        "agent_id": aid,
+                        "display_name": self._display_names(session).get(aid, aid),
+                        "resonance_score": score,
+                    }
+                    for aid, score in filtered
                 ],
             ),
+        )
+
+        logger.info(
+            "Negotiation %s: resonance detection complete — %d activated, %d filtered (min_score=%.2f, k_star=%d)",
+            session.negotiation_id,
+            len(activated),
+            len(filtered),
+            min_score,
+            k_star,
         )
 
         self._trace(
@@ -467,7 +490,7 @@ class NegotiationEngine:
             "encoding_resonance",
             t0,
             input_summary=demand_text[:100],
-            output_summary=f"{len(results)} agents activated",
+            output_summary=f"{len(activated)} activated, {len(filtered)} filtered",
         )
 
     # ============ Step 3: Parallel Offers + Barrier ============
@@ -922,6 +945,7 @@ class NegotiationEngine:
                 offer_skill=ctx.get("offer_skill"),
                 agent_vectors=ctx.get("agent_vectors"),
                 k_star=ctx.get("k_star", 5),
+                min_score=ctx.get("min_score", 0.5),
                 agent_display_names=ctx.get("agent_display_names"),
                 sub_negotiation_skill=ctx.get("sub_negotiation_skill"),
                 gap_recursion_skill=ctx.get("gap_recursion_skill"),
@@ -1093,6 +1117,6 @@ class NegotiationEngine:
                 or "协商方案"
             ),
             "participants": participants,
-            "tasks": tasks or [{"id": "task_1", "title": "待分配", "assignee_id": "unknown", "prerequisites": [], "status": "pending"}],
+            "tasks": tasks or [{"id": "task_1", "title": "待分配", "description": "", "assignee_id": "unknown", "prerequisites": [], "status": "pending"}],
             "topology": {"edges": []},
         }

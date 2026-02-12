@@ -96,7 +96,32 @@ export function computeTopologyLayout(
     group.sort((a, b) => a.assigneeId.localeCompare(b.assigneeId));
   }
 
-  // Compute coordinates
+  // Grid layout fallback: when all tasks are in layer 0 (no dependencies),
+  // distribute them in a 2D grid instead of a single vertical column.
+  if (maxLayer === 0) {
+    const group = layers.get(0) ?? [];
+    const cols = Math.min(Math.ceil(Math.sqrt(group.length)), 4);
+    const nodes: LayoutNode[] = [];
+    for (let i = 0; i < group.length; i++) {
+      const col = i % cols;
+      const row = Math.floor(i / cols);
+      nodes.push({
+        ...group[i],
+        layer: 0,
+        x: col * layerWidth,
+        y: row * nodeHeight,
+      });
+    }
+    const totalRows = Math.ceil(group.length / cols);
+    return {
+      nodes,
+      edges: [],
+      width: cols * layerWidth,
+      height: totalRows * nodeHeight,
+    };
+  }
+
+  // Compute coordinates (normal layered DAG layout)
   let maxNodesInLayer = 0;
   const nodes: LayoutNode[] = [];
 

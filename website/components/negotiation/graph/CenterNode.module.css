@@ -1,0 +1,25 @@
+/* CenterNode — the synthesizing center hexagon, appears after barrier.complete */
+
+.centerGroup {
+  cursor: pointer;
+}
+
+.centerLabel {
+  font-size: 11px;
+  font-weight: 600;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+.roundLabel {
+  font-size: 9px;
+  font-weight: 500;
+  fill: rgba(255, 255, 255, 0.8);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}

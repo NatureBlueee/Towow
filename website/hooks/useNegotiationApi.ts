@@ -10,7 +10,7 @@ interface ApiState {
 }
 
 export interface UseNegotiationApiReturn {
-  submitDemand: (sceneId: string, userId: string, intent: string) => Promise<string>;
+  submitDemand: (sceneId: string, userId: string, intent: string, kStar?: number, minScore?: number) => Promise<string>;
   confirmFormulation: (negotiationId: string, formulatedText: string) => Promise<void>;
   userAction: (
     negotiationId: string,
@@ -51,10 +51,13 @@ export function useNegotiationApi(): UseNegotiationApiReturn {
   }, []);
 
   const submitDemand = useCallback(
-    async (sceneId: string, userId: string, intent: string): Promise<string> => {
+    async (sceneId: string, userId: string, intent: string, kStar?: number, minScore?: number): Promise<string> => {
+      const body: Record<string, unknown> = { scene_id: sceneId, user_id: userId, intent };
+      if (kStar !== undefined) body.k_star = kStar;
+      if (minScore !== undefined) body.min_score = minScore;
       const data = await request<{ negotiation_id: string }>(
         '/api/negotiations/submit',
-        { scene_id: sceneId, user_id: userId, intent },
+        body,
       );
       return data.negotiation_id;
     },

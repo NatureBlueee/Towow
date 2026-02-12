@@ -21,6 +21,7 @@ const initialState: NegotiationState = {
   negotiationId: null,
   formulation: null,
   resonanceAgents: [],
+  filteredAgents: [],
   offers: [],
   barrierInfo: null,
   centerActivities: [],
@@ -74,6 +75,7 @@ function negotiationReducer(
             events: newEvents,
             phase: 'collecting_offers',
             resonanceAgents: data.agents,
+            filteredAgents: data.filtered_agents || [],
           };
         }
 

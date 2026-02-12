@@ -171,6 +171,7 @@ class TestHappyPathFullNegotiation:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=5,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         # Verify session state
@@ -275,6 +276,7 @@ class TestCenterMultiRound:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         # Verify session state
@@ -328,6 +330,7 @@ class TestNoAgentsStillCompletes:
             center_skill=center_skill,
             agent_vectors={},
             k_star=5,
+            min_score=-1.0,  # No agents anyway, min_score irrelevant
         )
 
         # Verify session state
@@ -397,6 +400,7 @@ class TestAgentTimeoutGraceful:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=5,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         # Verify negotiation completed
@@ -465,6 +469,7 @@ class TestTraceChainComplete:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=3,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         # Verify trace exists and is populated
@@ -523,6 +528,7 @@ class TestTraceChainComplete:
             center_skill=center_skill,
             agent_vectors=agent_vectors,
             k_star=2,
+            min_score=-1.0,  # Allow negative cosine sims from mock vectors
         )
 
         trace = result.trace

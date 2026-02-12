@@ -79,6 +79,7 @@ def resonance_activated(
     negotiation_id: str,
     activated_count: int,
     agents: list[dict[str, Any]],
+    filtered_agents: list[dict[str, Any]] | None = None,
 ) -> NegotiationEvent:
     return NegotiationEvent(
         event_type=EventType.RESONANCE_ACTIVATED,
@@ -86,6 +87,7 @@ def resonance_activated(
         data={
             "activated_count": activated_count,
             "agents": agents,  # [{agent_id, display_name, resonance_score}]
+            "filtered_agents": filtered_agents or [],
         },
     )
 
@@ -148,19 +150,17 @@ def plan_ready(
     plan_text: str,
     center_rounds: int,
     participating_agents: list[str],
-    plan_json: dict | None = None,
+    plan_json: dict,
 ) -> NegotiationEvent:
-    data = {
-        "plan_text": plan_text,
-        "center_rounds": center_rounds,
-        "participating_agents": participating_agents,
-    }
-    if plan_json is not None:
-        data["plan_json"] = plan_json
     return NegotiationEvent(
         event_type=EventType.PLAN_READY,
         negotiation_id=negotiation_id,
-        data=data,
+        data={
+            "plan_text": plan_text,
+            "center_rounds": center_rounds,
+            "participating_agents": participating_agents,
+            "plan_json": plan_json,
+        },
     )
 
 

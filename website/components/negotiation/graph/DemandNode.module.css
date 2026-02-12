@@ -1,0 +1,36 @@
+/* DemandNode — the central demand bubble in the negotiation graph */
+
+.demandGroup {
+  cursor: pointer;
+}
+
+.label {
+  font-size: 11px;
+  font-weight: 500;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+.labelLine {
+  font-size: 10px;
+  font-weight: 400;
+  fill: rgba(255, 255, 255, 0.85);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+.phaseLabel {
+  font-size: 9px;
+  font-weight: 600;
+  fill: rgba(255, 255, 255, 0.7);
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}

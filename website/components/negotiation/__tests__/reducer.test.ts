@@ -38,6 +38,7 @@ const initialState: NegotiationState = {
   negotiationId: null,
   formulation: null,
   resonanceAgents: [],
+  filteredAgents: [],
   offers: [],
   barrierInfo: null,
   centerActivities: [],
@@ -72,7 +73,7 @@ function negotiationReducer(
         }
         case 'resonance.activated': {
           const data = event.data as unknown as ResonanceActivatedData;
-          return { ...state, events: newEvents, phase: 'collecting_offers', resonanceAgents: data.agents };
+          return { ...state, events: newEvents, phase: 'collecting_offers', resonanceAgents: data.agents, filteredAgents: data.filtered_agents || [] };
         }
         case 'offer.received': {
           const data = event.data as unknown as OfferReceivedData;

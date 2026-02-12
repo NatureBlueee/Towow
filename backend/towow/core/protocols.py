@@ -64,10 +64,12 @@ class ResonanceDetector(Protocol):
         demand_vector: Vector,
         agent_vectors: dict[str, Vector],  # agent_id -> vector
         k_star: int,
-    ) -> list[tuple[str, float]]:
+        min_score: float = 0.0,
+    ) -> tuple[list[tuple[str, float]], list[tuple[str, float]]]:
         """
-        Returns list of (agent_id, resonance_score), sorted descending.
-        Length <= k_star.
+        Returns (activated, filtered):
+        - activated: (agent_id, score) where score >= min_score, max k_star, descending
+        - filtered: (agent_id, score) where score < min_score, descending
         """
         ...
 

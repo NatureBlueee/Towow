@@ -1,0 +1,380 @@
+/* DetailPanel — right-sliding detail panel */
+
+.overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 99;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: 360px;
+  max-width: 100vw;
+  background: #ffffff;
+  border-left: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: -4px 0 24px rgba(0, 0, 0, 0.06);
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ---- Header ---- */
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 24px 16px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  flex-shrink: 0;
+}
+
+.typeIcon {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.typeIcon_agent {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+}
+
+.typeIcon_center {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+.typeIcon_demand {
+  background: rgba(245, 158, 11, 0.1);
+  color: #d97706;
+}
+
+.typeIcon_task {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.typeIcon_resonance_edge {
+  background: rgba(6, 182, 212, 0.1);
+  color: #0891b2;
+}
+
+.typeIcon_interaction_edge {
+  background: rgba(244, 63, 94, 0.1);
+  color: #e11d48;
+}
+
+.headerTitle {
+  flex: 1;
+  font-size: 16px;
+  font-weight: 600;
+  color: #222222;
+  margin: 0;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.closeButton {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 8px;
+  cursor: pointer;
+  color: #666666;
+  font-size: 16px;
+  flex-shrink: 0;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.closeButton:hover {
+  background: rgba(0, 0, 0, 0.04);
+  border-color: rgba(0, 0, 0, 0.12);
+}
+
+/* ---- Content ---- */
+
+.content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px 24px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+/* ---- Shared Section Styles ---- */
+
+.sectionLabel {
+  font-size: 11px;
+  font-weight: 600;
+  color: #999999;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  margin: 0 0 8px;
+}
+
+.sectionValue {
+  font-size: 14px;
+  color: #333333;
+  line-height: 1.65;
+  margin: 0;
+  word-break: break-word;
+}
+
+.sectionBlock {
+  display: flex;
+  flex-direction: column;
+}
+
+/* ---- Score Bar ---- */
+
+.scoreRow {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.scoreBarTrack {
+  flex: 1;
+  height: 8px;
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.scoreBarFill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, #86efac, #22c55e);
+  transition: width 0.5s ease-out;
+}
+
+.scoreLabel {
+  font-size: 14px;
+  font-weight: 700;
+  color: #16a34a;
+  min-width: 42px;
+  text-align: right;
+}
+
+/* ---- Tags ---- */
+
+.tagList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tag {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #4f46e5;
+  background: rgba(79, 70, 229, 0.06);
+  border: 1px solid rgba(79, 70, 229, 0.12);
+  border-radius: 4px;
+  white-space: nowrap;
+}
+
+.roleTag {
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 500;
+  color: #7c3aed;
+  background: rgba(139, 92, 246, 0.08);
+  border: 1px solid rgba(139, 92, 246, 0.15);
+  border-radius: 4px;
+}
+
+.statusTag {
+  display: inline-block;
+  padding: 3px 10px;
+  font-size: 11px;
+  font-weight: 600;
+  border-radius: 4px;
+}
+
+.statusTag_pending {
+  color: #92400e;
+  background: #fef3c7;
+}
+
+.statusTag_in_progress {
+  color: #1e40af;
+  background: #dbeafe;
+}
+
+.statusTag_completed {
+  color: #065f46;
+  background: #d1fae5;
+}
+
+/* ---- Offer / Long Text Block ---- */
+
+.textBlock {
+  font-size: 13px;
+  color: #555555;
+  line-height: 1.7;
+  margin: 0;
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border-left: 3px solid #d4f4dd;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ---- Tool Call Card ---- */
+
+.toolCallCard {
+  padding: 12px 16px;
+  background: rgba(0, 0, 0, 0.02);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.toolCallName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  font-family: 'SF Mono', 'Menlo', 'Consolas', monospace;
+}
+
+.toolCallArgs {
+  font-size: 12px;
+  color: #666666;
+  line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.toolCallRound {
+  font-size: 11px;
+  font-weight: 500;
+  color: #999999;
+}
+
+/* ---- Prerequisite List ---- */
+
+.prereqList {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.prereqItem {
+  font-size: 13px;
+  color: #555555;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prereqItem::before {
+  content: '';
+  width: 6px;
+  height: 6px;
+  background: #3b82f6;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* ---- Interaction Edge ---- */
+
+.interactionTypeRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.interactionIcon {
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+}
+
+.interactionIcon_ask_agent {
+  background: rgba(59, 130, 246, 0.1);
+  color: #2563eb;
+}
+
+.interactionIcon_discover {
+  background: rgba(139, 92, 246, 0.1);
+  color: #7c3aed;
+}
+
+.interactionIcon_task_assignment {
+  background: rgba(34, 197, 94, 0.1);
+  color: #16a34a;
+}
+
+.interactionLabel {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333333;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: rgba(0, 0, 0, 0.06);
+  margin: 4px 0;
+}
+
+/* ---- Enrichment Tags ---- */
+
+.enrichmentBlock {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.enrichmentRow {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.enrichmentKey {
+  font-size: 12px;
+  font-weight: 600;
+  color: #888888;
+  min-width: 60px;
+}
+
+.enrichmentValue {
+  font-size: 13px;
+  color: #444444;
+  line-height: 1.5;
+  word-break: break-word;
+}

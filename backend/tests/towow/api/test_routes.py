@@ -61,9 +61,9 @@ def _create_test_app() -> FastAPI:
 
     app.state.encoder = StubEncoder()
 
-    # Mock resonance detector
+    # Mock resonance detector — returns (activated, filtered) tuple per PLAN-003
     resonance = AsyncMock()
-    resonance.detect = AsyncMock(return_value=[])
+    resonance.detect = AsyncMock(return_value=([], []))
 
     # Engine with mock pusher
     engine = NegotiationEngine(
@@ -189,6 +189,55 @@ class TestSubmitDemand:
         assert data["negotiation_id"].startswith("neg_")
         assert data["demand_raw"] == "I need a co-founder"
         assert data["state"] == "created"
+
+    def test_submits_demand_with_k_star_and_min_score(self, client):
+        """Submit endpoint should accept optional k_star and min_score parameters."""
+        scene_id = self._setup_scene(client)
+        resp = client.post("/api/negotiations/submit", json={
+            "scene_id": scene_id,
+            "user_id": "user_1",
+            "intent": "I need help",
+            "k_star": 3,
+            "min_score": 0.7,
+        })
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["negotiation_id"].startswith("neg_")
+        assert data["state"] == "created"
+
+    def test_submits_demand_without_k_star_min_score(self, client):
+        """Submit endpoint should work without k_star and min_score (uses defaults)."""
+        scene_id = self._setup_scene(client)
+        resp = client.post("/api/negotiations/submit", json={
+            "scene_id": scene_id,
+            "user_id": "user_1",
+            "intent": "I need help",
+        })
+        assert resp.status_code == 201
+        data = resp.json()
+        assert data["negotiation_id"].startswith("neg_")
+
+    def test_submits_demand_with_only_k_star(self, client):
+        """Submit endpoint should accept k_star alone (min_score defaults to 0.5)."""
+        scene_id = self._setup_scene(client)
+        resp = client.post("/api/negotiations/submit", json={
+            "scene_id": scene_id,
+            "user_id": "user_1",
+            "intent": "I need help",
+            "k_star": 10,
+        })
+        assert resp.status_code == 201
+
+    def test_submits_demand_with_only_min_score(self, client):
+        """Submit endpoint should accept min_score alone (k_star defaults from scene)."""
+        scene_id = self._setup_scene(client)
+        resp = client.post("/api/negotiations/submit", json={
+            "scene_id": scene_id,
+            "user_id": "user_1",
+            "intent": "I need help",
+            "min_score": 0.3,
+        })
+        assert resp.status_code == 201
 
     def test_404_nonexistent_scene(self, client):
         resp = client.post("/api/negotiations/submit", json={

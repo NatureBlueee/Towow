@@ -37,6 +37,7 @@ export interface ResonanceActivatedData {
   [key: string]: unknown;
   activated_count: number;
   agents: ResonanceAgent[];
+  filtered_agents: ResonanceAgent[];
 }
 
 export interface OfferReceivedData {
@@ -61,11 +62,36 @@ export interface CenterToolCallData {
   round_number: number;
 }
 
+export interface PlanJsonParticipant {
+  agent_id: string;
+  display_name: string;
+  role_in_plan: string;
+}
+
+export interface PlanJsonTask {
+  id: string;
+  title: string;
+  description: string;
+  assignee_id: string;
+  prerequisites: string[];
+  status: string;
+}
+
+export interface PlanJson {
+  summary?: string;
+  participants: PlanJsonParticipant[];
+  tasks: PlanJsonTask[];
+  topology?: {
+    edges: Array<{ from: string; to: string }>;
+  };
+}
+
 export interface PlanReadyData {
   [key: string]: unknown;
   plan_text: string;
   center_rounds: number;
   participating_agents: string[];
+  plan_json: PlanJson;
 }
 
 export interface SubNegotiationStartedData {
@@ -142,6 +168,7 @@ export interface NegotiationState {
   negotiationId: string | null;
   formulation: FormulationReadyData | null;
   resonanceAgents: ResonanceAgent[];
+  filteredAgents: ResonanceAgent[];
   offers: OfferReceivedData[];
   barrierInfo: BarrierCompleteData | null;
   centerActivities: CenterToolCallData[];
@@ -167,6 +194,8 @@ export interface SubmitDemandRequest {
   scene_id: string;
   user_id: string;
   intent: string;
+  k_star?: number;
+  min_score?: number;
 }
 
 export interface SubmitDemandResponse {

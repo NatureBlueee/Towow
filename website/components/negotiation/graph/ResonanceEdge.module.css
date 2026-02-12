@@ -1,0 +1,18 @@
+/* ResonanceEdge — resonance connection from demand center to agent node */
+
+.edgeGroup {
+  cursor: default;
+}
+
+.edgeGroupClickable {
+  cursor: pointer;
+}
+
+.resonanceLine {
+  fill: none;
+  stroke-linecap: round;
+}
+
+.offerParticle {
+  pointer-events: none;
+}

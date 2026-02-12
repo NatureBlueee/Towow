@@ -1,0 +1,101 @@
+/* ============ ResonanceControls ============ */
+
+.container {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  width: 100%;
+  max-width: 720px;
+  height: 48px;
+  padding: 8px 16px;
+  background: rgba(212, 184, 217, 0.06);
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: var(--radius-sm, 8px);
+  box-sizing: border-box;
+}
+
+.container.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+
+.sliderGroup {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
+}
+
+.label {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--c-text-sec, #555555);
+  white-space: nowrap;
+  min-width: 56px;
+  user-select: none;
+}
+
+.slider {
+  flex: 1;
+  min-width: 0;
+  height: 4px;
+  appearance: none;
+  -webkit-appearance: none;
+  background: rgba(0, 0, 0, 0.1);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-primary, #D4B8D9);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  transition: transform 0.15s ease;
+}
+
+.slider::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+}
+
+.slider::-moz-range-thumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--c-primary, #D4B8D9);
+  border: 2px solid #ffffff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+}
+
+.value {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--c-text-dark, #222222);
+  min-width: 32px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+}
+
+/* ============ Responsive ============ */
+
+@media (max-width: 540px) {
+  .container {
+    flex-direction: column;
+    height: auto;
+    gap: 8px;
+    padding: 10px 16px;
+  }
+
+  .sliderGroup {
+    width: 100%;
+  }
+}

@@ -25,19 +25,23 @@ class CosineResonanceDetector:
         demand_vector: Vector,
         agent_vectors: dict[str, Vector],
         k_star: int,
-    ) -> list[tuple[str, float]]:
+        min_score: float = 0.0,
+    ) -> tuple[list[tuple[str, float]], list[tuple[str, float]]]:
         """
         Detect resonance between demand and agents.
 
-        Returns list of (agent_id, score) sorted descending by cosine similarity.
-        Length is min(k_star, len(agent_vectors)).
+        Returns (activated, filtered):
+        - activated: agents with score >= min_score, sorted descending, max k_star
+        - filtered: agents with score < min_score, sorted descending
+
+        When min_score=0.0 (default), all agents go to activated (backward-compatible).
         """
         if k_star <= 0 or not agent_vectors:
-            return []
+            return ([], [])
 
         demand_norm = np.linalg.norm(demand_vector)
         if demand_norm < 1e-10:
-            return []
+            return ([], [])
 
         results: list[tuple[str, float]] = []
         for agent_id, agent_vec in agent_vectors.items():
@@ -51,4 +55,8 @@ class CosineResonanceDetector:
             results.append((agent_id, sim))
 
         results.sort(key=lambda x: x[1], reverse=True)
-        return results[:k_star]
+
+        activated = [(aid, score) for aid, score in results if score >= min_score][:k_star]
+        filtered = [(aid, score) for aid, score in results if score < min_score]
+
+        return (activated, filtered)

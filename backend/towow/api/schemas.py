@@ -51,6 +51,8 @@ class SubmitDemandRequest(BaseModel):
     scene_id: str
     user_id: str
     intent: str
+    k_star: Optional[int] = None
+    min_score: Optional[float] = None
 
 
 class ConfirmFormulationRequest(BaseModel):

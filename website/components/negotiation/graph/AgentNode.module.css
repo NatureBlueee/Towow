@@ -1,0 +1,48 @@
+/* AgentNode — resonance participant nodes distributed on the outer ring */
+
+.agentGroup {
+  cursor: pointer;
+}
+
+.nameText {
+  font-size: 11px;
+  font-weight: 500;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+.scoreText {
+  font-size: 9px;
+  font-weight: 600;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
+
+.scoreBadge {
+  pointer-events: none;
+}
+
+.checkmark {
+  font-size: 10px;
+  font-weight: 700;
+  fill: #ffffff;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+}
+
+.roleLabel {
+  font-size: 9px;
+  font-weight: 500;
+  fill: #6b7280;
+  text-anchor: middle;
+  dominant-baseline: central;
+  pointer-events: none;
+  user-select: none;
+}
