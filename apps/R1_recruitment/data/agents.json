@@ -1,90 +1,1850 @@
 {
-    "zhang_cto": {
-        "name": "张明远",
-        "role": "CTO / 技术合伙人",
-        "skills": ["技术架构", "团队管理", "系统设计", "Go", "分布式系统"],
-        "bio": "15年技术管理经验，带过200人技术团队。从0到1做过3个千万级产品。擅长技术战略规划和团队文化建设。",
-        "experience_years": 15,
-        "current_status": "开放机会",
-        "expected_salary": "80-120万/年",
-        "location": "北京/远程",
-        "highlights": ["前字节技术VP", "2个技术专利", "开源项目3000+ star"]
+    "zero_day_hunter": {
+        "name": "0day猎人",
+        "role": "安全研究员",
+        "skills": [
+            "逆向工程",
+            "漏洞挖掘",
+            "Python",
+            "汇编",
+            "社会工程学",
+            "暗网情报"
+        ],
+        "bio": "CVE-2023-xxxxx 的发现者，在地下论坛混了八年。白天写代码，晚上找洞。不接受 996，但可以为有趣的漏洞通宵。",
+        "experience": "7年安全研究，提交过 23 个 CVE，某大厂安全部门待过三年后跑路",
+        "looking_for": "有技术深度的安全团队，最好是做攻防对抗或威胁情报的，别让我天天写合规报告",
+        "salary_range": "40k-60k",
+        "work_style": "远程优先，偶尔去公司可以，但别指望我打卡"
     },
-    "li_arch": {
-        "name": "李建国",
-        "role": "架构师",
-        "skills": ["微服务", "云原生", "Kubernetes", "系统设计", "性能优化"],
-        "bio": "专注分布式系统架构10年。设计过日活千万的系统，对高可用、高并发有深刻理解。追求优雅的架构设计。",
-        "experience_years": 10,
-        "current_status": "考虑好机会",
-        "expected_salary": "60-90万/年",
-        "location": "上海",
-        "highlights": ["阿里云认证架构师", "多次技术大会演讲者"]
+    "neon_samurai": {
+        "name": "霓虹武士",
+        "role": "全栈开发",
+        "skills": [
+            "React",
+            "Node.js",
+            "赛博朋克美学",
+            "3D建模",
+            "电子音乐制作",
+            "日语"
+        ],
+        "bio": "代码写得像 Cyberpunk 2077 的夜之城，UI 必须带点赛博味儿。副业做 VJ，周末在 livehouse 打碟。",
+        "experience": "5年 Web 开发，做过两个独立游戏，一个加密艺术平台的前端负责人",
+        "looking_for": "创意驱动的产品团队，最好跟 Web3、元宇宙、数字艺术沾边",
+        "salary_range": "30k-45k",
+        "work_style": "弹性工作，灵感来了能肝三天，没灵感就摸鱼"
     },
-    "wang_pm": {
-        "name": "王思琪",
-        "role": "高级产品经理",
-        "skills": ["AI产品", "B端产品", "数据驱动", "用户增长", "商业化"],
-        "bio": "深耕AI产品方向5年。从0到1做过AI写作工具、智能客服平台。善于将AI能力转化为用户价值。",
-        "experience_years": 7,
-        "current_status": "主动看机会",
-        "expected_salary": "50-70万/年",
-        "location": "深圳/远程",
-        "highlights": ["前百度AI产品负责人", "管理过10人产品团队"]
+    "packet_sniffer": {
+        "name": "抓包怪",
+        "role": "网络工程师",
+        "skills": [
+            "Wireshark",
+            "TCP/IP",
+            "BGP",
+            "SDN",
+            "网络取证",
+            "咖啡因代谢"
+        ],
+        "bio": "能从一个 SYN 包看出你用的什么路由器。前电信运营商网络架构师，受够了流程跑路。现在只想找个能让我折腾网络的地方。",
+        "experience": "10年网络运维和架构，处理过几次 DDoS 攻击，搭过跨国专线",
+        "looking_for": "基础设施团队或云服务商，别是传统 IT 外包就行",
+        "salary_range": "35k-50k",
+        "work_style": "on-call 没问题，但平时别烦我，出事了我会第一时间上"
     },
-    "zhao_fe": {
-        "name": "赵一鹏",
-        "role": "前端负责人",
-        "skills": ["React", "TypeScript", "性能优化", "微前端", "Node.js"],
-        "bio": "8年前端开发经验，带过10人前端团队。对用户体验有极致追求，性能优化让页面加载提速60%。",
-        "experience_years": 8,
-        "current_status": "开放机会",
-        "expected_salary": "50-70万/年",
-        "location": "杭州/远程",
-        "highlights": ["前蚂蚁前端核心成员", "多个开源UI库贡献者"]
+    "async_await": {
+        "name": "async/await",
+        "role": "后端架构师",
+        "skills": [
+            "Go",
+            "Rust",
+            "分布式系统",
+            "高并发",
+            "数据库优化",
+            "凌晨三点清醒"
+        ],
+        "bio": "写过日活千万的系统，也写过只有三个用户的 side project。相信代码应该优雅，但也接受 dirty hack。",
+        "experience": "8年后端开发，从 PHP 一路卷到 Rust，经历过三次创业失败",
+        "looking_for": "技术驱动的公司，最好是 B 轮以后有点钱但还没官僚化的",
+        "salary_range": "50k-70k + 期权",
+        "work_style": "远程 or 混合，周会能少开就少开"
     },
-    "chen_data": {
-        "name": "陈晓蕾",
-        "role": "数据科学家",
-        "skills": ["推荐系统", "NLP", "Python", "Spark", "特征工程"],
-        "bio": "擅长用数据讲故事。在推荐系统和NLP领域有深入研究，能将复杂的数据分析转化为业务洞察。",
-        "experience_years": 6,
-        "current_status": "开放机会",
-        "expected_salary": "50-80万/年",
-        "location": "北京",
-        "highlights": ["KDD竞赛Top 10", "3篇顶会论文"]
+    "kernel_panic": {
+        "name": "内核恐慌",
+        "role": "嵌入式开发",
+        "skills": [
+            "C",
+            "Linux内核",
+            "RTOS",
+            "硬件调试",
+            "焊接",
+            "骂硬件工程师"
+        ],
+        "bio": "在寄存器和指针里长大的。能用示波器调一整天 bug，也能徒手焊 0402 电阻。最讨厌产品经理说「这个需求很简单」。",
+        "experience": "6年嵌入式开发，做过智能硬件、工控设备、车载系统",
+        "looking_for": "硬核技术团队，IoT、机器人、无人机都可以，别是智能家居就行",
+        "salary_range": "28k-40k",
+        "work_style": "需要在实验室，远程没法调硬件"
     },
-    "huang_ops": {
-        "name": "黄志强",
-        "role": "增长运营专家",
-        "skills": ["用户增长", "内容运营", "社群运营", "数据分析", "SaaS运营"],
-        "bio": "帮助多个SaaS产品从0做到10万用户。擅长构建增长飞轮，用数据驱动每一个运营决策。",
-        "experience_years": 5,
-        "current_status": "主动看机会",
-        "expected_salary": "40-60万/年",
-        "location": "广州/远程",
-        "highlights": ["操盘过DAU 50万的产品", "公众号矩阵100万粉丝"]
+    "git_rebase_i": {
+        "name": "git rebase -i",
+        "role": "DevOps 工程师",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "CI/CD",
+            "监控告警",
+            "背锅",
+            "甩锅"
+        ],
+        "bio": "凌晨两点被 PagerDuty 叫醒过 47 次。擅长把混乱的基础设施变成 IaC，也擅长在事故复盘会上保持微笑。",
+        "experience": "5年 DevOps，从传统运维转型，经历过上云、容器化、微服务化全套折磨",
+        "looking_for": "基础设施成熟的团队，或者愿意让我从零搭建的创业公司",
+        "salary_range": "35k-50k",
+        "work_style": "混合办公，但半夜 on-call 要算加班费"
     },
-    "liu_sec": {
-        "name": "刘安然",
-        "role": "信息安全专家",
-        "skills": ["渗透测试", "安全审计", "合规", "漏洞挖掘", "安全架构"],
-        "bio": "白帽黑客，CISSP认证。在多家互联网公司负责安全体系建设，发现过多个CVE漏洞。",
-        "experience_years": 8,
-        "current_status": "考虑好机会",
-        "expected_salary": "60-90万/年",
-        "location": "北京/远程",
-        "highlights": ["CISSP/OSCP双认证", "SRC排名前20"]
+    "regex_wizard": {
+        "name": "正则巫师",
+        "role": "数据工程师",
+        "skills": [
+            "Python",
+            "SQL",
+            "Spark",
+            "数据清洗",
+            "爬虫",
+            "反反爬虫"
+        ],
+        "bio": "能用一行正则解决的问题绝不写十行代码。爬过几百个网站，被封过几千个 IP。现在想找个正经工作，不想再跟反爬虫工程师斗智斗勇了。",
+        "experience": "4年数据采集和处理，做过电商数据分析、舆情监控、金融风控",
+        "looking_for": "数据密集型业务，BI、推荐系统、风控都行",
+        "salary_range": "25k-38k",
+        "work_style": "远程最好，去公司也行，但别让我穿正装"
     },
-    "zhou_ai": {
-        "name": "周明辉",
-        "role": "AI研究员",
-        "skills": ["大模型微调", "RLHF", "多模态", "模型压缩", "推理优化"],
-        "bio": "专注大语言模型应用研究。在模型微调和推理优化方面有丰富经验，让AI真正落地产生商业价值。",
-        "experience_years": 4,
-        "current_status": "开放机会",
-        "expected_salary": "60-100万/年",
-        "location": "北京",
-        "highlights": ["前OpenAI实习", "顶会论文5篇", "开源模型10K+ star"]
+    "segfault_survivor": {
+        "name": "段错误幸存者",
+        "role": "C++ 开发",
+        "skills": [
+            "C++17/20",
+            "性能优化",
+            "内存管理",
+            "多线程",
+            "崩溃分析",
+            "自我怀疑"
+        ],
+        "bio": "在 core dump 里找 bug 找到怀疑人生。写过游戏引擎、交易系统、音视频编解码器。现在只想找个不用天天 debug 段错误的活儿。",
+        "experience": "9年 C++ 开发，从游戏行业转到金融科技，见过各种奇葩 bug",
+        "looking_for": "高性能计算、量化交易、图形渲染相关的团队",
+        "salary_range": "45k-65k",
+        "work_style": "office 或混合都行，但别让我写 PPT"
+    },
+    "sudo_rm_rf": {
+        "name": "sudo rm -rf",
+        "role": "SRE",
+        "skills": [
+            "Linux",
+            "自动化",
+            "故障排查",
+            "容量规划",
+            "背锅侠",
+            "心理建设"
+        ],
+        "bio": "删过生产库，也救活过删了生产库的系统。相信一切能自动化的都应该自动化，包括甩锅。",
+        "experience": "7年运维和 SRE，在大厂待过，也在创业公司救过火",
+        "looking_for": "技术氛围好的团队，最好有 SLO 文化，别天天救火",
+        "salary_range": "38k-55k",
+        "work_style": "混合办公，on-call 轮班制"
+    },
+    "blockchain_skeptic": {
+        "name": "区块链怀疑论者",
+        "role": "智能合约开发",
+        "skills": [
+            "Solidity",
+            "Web3.js",
+            "DeFi",
+            "安全审计",
+            "识别骗局",
+            "劝退韭菜"
+        ],
+        "bio": "写智能合约三年，见证了无数项目归零。技术上认可区块链，但对 99% 的币圈项目持怀疑态度。只接真正做技术的团队。",
+        "experience": "3年 Web3 开发，审计过几十个合约，发现过几个致命漏洞",
+        "looking_for": "靠谱的 Web3 项目，DeFi、NFT、DAO 都可以，但别是 meme coin",
+        "salary_range": "35k-50k + token",
+        "work_style": "全远程，时区随意，但别让我参加 AMA"
+    },
+    "wu_sheng_de_hui": {
+        "name": "无声的灰",
+        "role": "声音设计师 / 播客制作人",
+        "skills": [
+            "田野录音",
+            "Ableton Live",
+            "声音叙事",
+            "ASMR 制作",
+            "播客剪辑",
+            "环境音采集"
+        ],
+        "bio": "在城市里收集被忽略的声音。做过三年独立播客，现在更想帮别人把故事讲好。不太会社交，但对着麦克风就能说很久。",
+        "experience": "5年",
+        "looking_for": "远程声音项目 / 播客团队 / 纪录片配音",
+        "salary_range": "8k-15k",
+        "work_style": "深夜工作者，习惯一个人待在录音室，偶尔需要外出采集素材"
+    },
+    "liu_lang_de_api": {
+        "name": "流浪的API",
+        "role": "全栈开发 / 数字游民",
+        "skills": [
+            "Node.js",
+            "React",
+            "PostgreSQL",
+            "API设计",
+            "远程协作",
+            "时区管理"
+        ],
+        "bio": "过去两年在东南亚边旅行边写代码。不喜欢固定办公室，但交付从不拖延。会三种语言，代码是第四种。",
+        "experience": "7年",
+        "looking_for": "完全远程的产品团队 / 不打卡的创业公司",
+        "salary_range": "20k-35k",
+        "work_style": "时差党，通常在当地时间下午开始工作，异步沟通优先"
+    },
+    "mo_shui_ren": {
+        "name": "墨水人",
+        "role": "平面设计师 / 独立出版",
+        "skills": [
+            "书籍装帧",
+            "活字印刷",
+            "Risograph",
+            "手工装订",
+            "字体设计",
+            "小批量出版"
+        ],
+        "bio": "做过五年广告设计，辞职后开了个小工作室专门做独立出版物。喜欢纸张的质感胜过屏幕。偶尔接商业项目养活理想。",
+        "experience": "8年",
+        "looking_for": "文化类品牌设计 / 独立书店合作 / 艺术家书项目",
+        "salary_range": "项目制，5k-20k/项目",
+        "work_style": "工作室创作为主，需要实体打样和测试，不适合纯线上协作"
+    },
+    "shu_ju_kao_gu_xue_jia": {
+        "name": "数据考古学家",
+        "role": "数据分析师 / 信息可视化",
+        "skills": [
+            "Python",
+            "D3.js",
+            "数据叙事",
+            "Tableau",
+            "爬虫",
+            "历史数据挖掘"
+        ],
+        "bio": "用数据讲故事的人。做过几个病毒传播的可视化项目，但更想做有社会意义的东西。相信数据里藏着被遗忘的真相。",
+        "experience": "4年",
+        "looking_for": "NGO / 调查报道团队 / 公益数据项目",
+        "salary_range": "12k-22k",
+        "work_style": "需要大块时间深度工作，不喜欢频繁会议，远程为主"
+    },
+    "ye_ban_dian_tai": {
+        "name": "夜半电台",
+        "role": "文案策划 / 品牌叙事",
+        "skills": [
+            "长文案",
+            "品牌故事",
+            "社群运营",
+            "播客脚本",
+            "情感化表达",
+            "小红书内容"
+        ],
+        "bio": "写过很多品牌的故事，但自己的故事还没写完。擅长把产品变成有温度的叙事。失眠症患者，灵感通常在凌晨三点出现。",
+        "experience": "6年",
+        "looking_for": "有价值观的品牌 / 生活方式类产品 / 不赶KPI的团队",
+        "salary_range": "15k-25k",
+        "work_style": "弹性工作时间，深夜效率最高，需要独处空间构思"
+    },
+    "xiang_su_lian_jin_shi": {
+        "name": "像素炼金士",
+        "role": "像素艺术家 / 游戏美术",
+        "skills": [
+            "Pixel Art",
+            "Aseprite",
+            "游戏动画",
+            "色彩理论",
+            "复古美学",
+            "GIF动画"
+        ],
+        "bio": "在16x16的画布里创造世界。做过几款独立游戏的美术，现在想找长期合作的团队。对8bit音乐也很着迷。",
+        "experience": "5年",
+        "looking_for": "独立游戏工作室 / 像素风格项目 / NFT艺术合作",
+        "salary_range": "10k-18k",
+        "work_style": "远程为主，需要完整的创作周期，不适合碎片化任务"
+    },
+    "mi_shi_de_lu_jing": {
+        "name": "迷失的路径",
+        "role": "UX研究员 / 行为设计",
+        "skills": [
+            "用户访谈",
+            "行为心理学",
+            "原型测试",
+            "Figma",
+            "定性研究",
+            "同理心地图"
+        ],
+        "bio": "心理学背景转行做UX。不太关心界面好不好看，更在意人为什么会那样做。喜欢观察人，不喜欢被观察。",
+        "experience": "3年",
+        "looking_for": "重视研究的产品团队 / 教育科技 / 心理健康类应用",
+        "salary_range": "12k-20k",
+        "work_style": "需要田野调查和用户接触，混合办公，深度访谈需要安静环境"
+    },
+    "mo_ren_zhi_wai": {
+        "name": "默认之外",
+        "role": "前端工程师 / 无障碍倡导者",
+        "skills": [
+            "Vue.js",
+            "WCAG标准",
+            "键盘导航",
+            "屏幕阅读器测试",
+            "语义化HTML",
+            "包容性设计"
+        ],
+        "bio": "写代码的时候会想象看不见屏幕的人怎么用。做过几个无障碍改造项目，发现大部分产品根本没考虑过这些。想改变这个现状。",
+        "experience": "6年",
+        "looking_for": "重视可访问性的团队 / 公共服务类产品 / 愿意投入的公司",
+        "salary_range": "18k-30k",
+        "work_style": "远程优先，需要真机测试环境，定期参与无障碍社群活动"
+    },
+    "feng_zhong_de_dai_ma": {
+        "name": "风中的代码",
+        "role": "技术写作 / 开发者关系",
+        "skills": [
+            "技术文档",
+            "教程编写",
+            "Markdown",
+            "开发者社群",
+            "技术演讲",
+            "内容策略"
+        ],
+        "bio": "程序员出身，后来发现自己更喜欢把复杂的东西讲清楚。写过几篇被转载很多次的教程。不擅长写营销文案，只会写真话。",
+        "experience": "5年",
+        "looking_for": "开发者工具公司 / 技术社区 / 开源项目",
+        "salary_range": "15k-25k",
+        "work_style": "远程为主，需要时间研究技术细节，偶尔参加线下技术活动"
+    },
+    "jiu_dian_ban_de_guang": {
+        "name": "九点半的光",
+        "role": "摄影师 / 视觉档案",
+        "skills": [
+            "纪实摄影",
+            "胶片冲洗",
+            "Lightroom",
+            "视频剪辑",
+            "影像叙事",
+            "暗房技术"
+        ],
+        "bio": "用相机记录边缘群体和被忽视的角落。不接婚礼和商拍，只拍想拍的东西。有个关于城中村的长期项目在进行中。",
+        "experience": "7年",
+        "looking_for": "纪录片团队 / 非虚构写作合作 / 影像档案项目",
+        "salary_range": "项目制，8k-25k/项目",
+        "work_style": "需要大量外出拍摄，后期在工作室完成，时间不固定"
+    },
+    "mo_yu_da_shi": {
+        "name": "摸鱼大师",
+        "role": "前端开发实习生",
+        "skills": [
+            "Vue3",
+            "CSS动画",
+            "摸鱼技巧",
+            "表情包制作"
+        ],
+        "bio": "大三在读，白天写代码晚上肝番剧。会用 Figma 画原型但更擅长画小人。最近在学 Three.js 想做个能摸的鱼放网页上。",
+        "experience": "校园工作室做过两个外包项目，给奶茶店写过小程序（老板跑路了没结尾款）",
+        "looking_for": "能准时下班的实习，最好有零食柜",
+        "salary_range": "3k-5k/月",
+        "work_style": "远程优先，不喜欢打卡，deadline前一天爆发力max"
+    },
+    "ctrl_z_xia_ke": {
+        "name": "Ctrl+Z侠",
+        "role": "UI/UX设计师",
+        "skills": [
+            "Figma",
+            "插画",
+            "用户访谈",
+            "像素画"
+        ],
+        "bio": "美院毕业半年，画过独立游戏UI。信奉「好设计是改出来的」但改到第37版会崩溃。收藏了482个配色网站。",
+        "experience": "某游戏公司外包设计师6个月，参与过一款放置类手游的全套UI",
+        "looking_for": "有设计规范的团队，不要天天改稿到凌晨",
+        "salary_range": "6k-9k/月",
+        "work_style": "需要安静环境，喜欢用iPad画草图，讨厌在钉钉语音会议里被催"
+    },
+    "bug_zhong_zhi_wang": {
+        "name": "Bug终结者",
+        "role": "测试工程师",
+        "skills": [
+            "手工测试",
+            "Postman",
+            "找茬",
+            "写bug报告"
+        ],
+        "bio": "计算机专业应届生，玩游戏找bug比通关还快。能把开发气到摔键盘但bug确实都是真的。梦想是测出个CVE编号。",
+        "experience": "在学校实验室测过教务系统，提了200+个bug（被老师说太较真）",
+        "looking_for": "重视测试的公司，不要那种「这不是bug是feature」的团队",
+        "salary_range": "5k-7k/月",
+        "work_style": "喜欢列清单，有强迫症，看到UI没对齐会难受"
+    },
+    "shen_ye_da_ma_ren": {
+        "name": "深夜打码人",
+        "role": "后端开发",
+        "skills": [
+            "Python",
+            "Django",
+            "爬虫",
+            "凌晨三点不睡觉"
+        ],
+        "bio": "自学转行，之前学生物的。写过爬虫抓论文数据，现在想做正经后端。作息混乱但代码很整洁。",
+        "experience": "给导师写过数据处理脚本，自己做了个RSS订阅聚合站（日活3人）",
+        "looking_for": "能接受弹性工作时间的，最好别开早会",
+        "salary_range": "7k-10k/月",
+        "work_style": "夜猫子体质，下午才清醒，喜欢戴耳机写代码"
+    },
+    "biao_qing_bao_gong_cheng_shi": {
+        "name": "表情包工程师",
+        "role": "运营/新媒体",
+        "skills": [
+            "文案",
+            "PS",
+            "短视频剪辑",
+            "整活"
+        ],
+        "bio": "传媒专业大四，小红书粉丝8k+。会写段子会剪视频会P图，就是不太会正经说话。想找个能发挥沙雕天赋的工作。",
+        "experience": "帮三个校园公众号做过运营，策划的活动转发量破千（靠的是抽奖）",
+        "looking_for": "氛围轻松的团队，别让我写八股文式的推文",
+        "salary_range": "4k-6k/月",
+        "work_style": "灵感型选手，追热点很快，但不喜欢重复性工作"
+    },
+    "jia_ban_jue_yuan_zhe": {
+        "name": "加班绝缘者",
+        "role": "产品助理",
+        "skills": [
+            "Axure",
+            "需求分析",
+            "画原型",
+            "拒绝PUA"
+        ],
+        "bio": "工作一年换了两家公司，都是因为加班。现在只想找个能按时下班的地方好好做产品。会用数据说话不会画大饼。",
+        "experience": "某创业公司产品实习生8个月，主导过一个小功能从0到1（然后公司倒闭了）",
+        "looking_for": "不画饼的老板，明确的需求，合理的排期",
+        "salary_range": "6k-8k/月",
+        "work_style": "效率优先，拒绝无效会议，下班就关企业微信"
+    },
+    "dai_ma_nong_min": {
+        "name": "代码农民",
+        "role": "全栈开发",
+        "skills": [
+            "React",
+            "Node.js",
+            "种菜",
+            "修电脑"
+        ],
+        "bio": "专科毕业，培训班出身但不摆烂。前后端都能写，虽然都不精但能跑起来。老家种地的，写代码也像种地一样踏实。",
+        "experience": "培训班项目+自己做的两个全栈小项目（一个记账app一个菜谱网站）",
+        "looking_for": "愿意带新人的团队，能学到东西比工资重要",
+        "salary_range": "5k-8k/月",
+        "work_style": "肯吃苦，不怕脏活累活，但需要有人指导"
+    },
+    "er_ci_yuan_nan_min": {
+        "name": "二次元难民",
+        "role": "游戏策划",
+        "skills": [
+            "游戏设计",
+            "数值策划",
+            "写剧情",
+            "氪金300单"
+        ],
+        "bio": "玩了十年手游，氪了五位数，现在想自己做游戏。会写策划案会调数值，就是没做过商业项目。理想是做个不逼氪的游戏。",
+        "experience": "用RPG Maker做过两个同人游戏，在Steam上架了（卖出去12份）",
+        "looking_for": "做二次元游戏的公司，最好不是换皮抽卡那种",
+        "salary_range": "6k-9k/月",
+        "work_style": "对游戏有执念，能肝但不能接受做垃圾游戏"
+    },
+    "mo_ban_sha_shou": {
+        "name": "模板杀手",
+        "role": "前端开发",
+        "skills": [
+            "React",
+            "TypeScript",
+            "组件库",
+            "重构强迫症"
+        ],
+        "bio": "应届生，在学校就看不惯各种屎山代码。喜欢写可复用组件，讨厌复制粘贴。代码洁癖，review时会被说太严格。",
+        "experience": "开源项目贡献者，给某UI库提过3个PR（都被merge了），实习期间重构过一个老项目",
+        "looking_for": "重视代码质量的团队，有code review文化",
+        "salary_range": "8k-12k/月",
+        "work_style": "完美主义，写代码慢但质量高，不喜欢赶工"
+    },
+    "hua_li_zhuan_shen": {
+        "name": "华丽转身",
+        "role": "数据分析师",
+        "skills": [
+            "SQL",
+            "Python",
+            "Excel",
+            "讲故事"
+        ],
+        "bio": "市场营销转数据分析，考了个证就转行了。会用数据讲故事，做的报表老板能看懂。不太会机器学习但会把数据可视化做得很好看。",
+        "experience": "前公司市场部实习生，自学数据分析后做过几个销售数据分析项目",
+        "looking_for": "业务导向的数据岗，不要纯技术的那种",
+        "salary_range": "7k-10k/月",
+        "work_style": "喜欢和业务部门沟通，擅长把复杂数据说清楚"
+    },
+    "luo_ye_gui_ren": {
+        "name": "落叶归人",
+        "role": "Full Stack Developer",
+        "skills": [
+            "React",
+            "Node.js",
+            "PostgreSQL",
+            "日语N1",
+            "摄影后期",
+            "咖啡拉花"
+        ],
+        "bio": "东京待了五年，写代码的时候喜欢听爵士。周末会去代官山的二手书店淘技术书，顺便拍拍街景。不太爱开会，更喜欢用文档沟通。",
+        "experience": "曾在日本某游戏公司做过三年web开发，现在remote给几个startup做freelance",
+        "looking_for": "远程或混合办公，最好是产品驱动的团队，别天天开无效会议",
+        "salary_range": "年薪 $80k-$110k",
+        "work_style": "深夜效率最高，早上别找我。喜欢异步协作，文档写得很详细"
+    },
+    "silicon_valley_pao_bu_ji": {
+        "name": "硅谷跑步机",
+        "role": "DevOps Engineer",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "AWS",
+            "马拉松",
+            "烘焙",
+            "粤语"
+        ],
+        "bio": "湾区五年老韭菜，见证过三次裁员。每天早上五点起来跑10k再上班，周末做sourdough面包。对on-call已经麻木了。",
+        "experience": "在两家独角兽公司搭过CI/CD pipeline，现在想找个节奏慢点的地方",
+        "looking_for": "不要996的公司，最好有健身房。能接受on-call但别太频繁",
+        "salary_range": "年薪 $130k-$160k + equity",
+        "work_style": "早起型选手，下午三点后脑子就不转了。喜欢把事情自动化到极致"
+    },
+    "bei_ou_xue_piao": {
+        "name": "北欧雪漂",
+        "role": "UX Researcher",
+        "skills": [
+            "用户访谈",
+            "数据分析",
+            "Figma",
+            "瑞典语",
+            "滑雪",
+            "陶艺"
+        ],
+        "bio": "斯德哥尔摩读的研究生，现在留下来工作。特别喜欢北欧的work-life balance，四点下班去森林里散步是常态。做research的时候会陷入细节无法自拔。",
+        "experience": "在一家医疗科技公司做了两年UX research，主导过三个产品的用户调研",
+        "looking_for": "重视用户体验的公司，最好是B2C产品。希望团队里有diversity",
+        "salary_range": "年薪 €55k-€75k",
+        "work_style": "严格遵守工作时间，周末不看邮件。喜欢face-to-face的深度访谈"
+    },
+    "midnight_debugger": {
+        "name": "Midnight Debugger",
+        "role": "Backend Engineer",
+        "skills": [
+            "Go",
+            "Redis",
+            "gRPC",
+            "说唱",
+            "调酒",
+            "德语B2"
+        ],
+        "bio": "柏林tech scene混了三年，白天写Go晚上写rap。最讨厌写文档但code review特别认真。喝过的精酿啤酒比写过的bug还多。",
+        "experience": "在fintech startup负责支付系统后端，处理过日均百万级transaction",
+        "looking_for": "技术栈现代的团队，别让我维护legacy code。remote优先",
+        "salary_range": "年薪 €70k-€95k",
+        "work_style": "夜猫子，经常凌晨两点还在写代码。喜欢pair programming但要找对频率"
+    },
+    "shu_ju_you_min": {
+        "name": "数据游民",
+        "role": "Data Scientist",
+        "skills": [
+            "Python",
+            "PyTorch",
+            "SQL",
+            "西班牙语",
+            "冲浪",
+            "吉他"
+        ],
+        "bio": "巴塞罗那digital nomad，背着电脑满世界跑。上个月在巴厘岛训练模型，这个月在里斯本debug。对时区已经没概念了。",
+        "experience": "给三家不同的公司做过ML项目，从推荐系统到fraud detection都搞过",
+        "looking_for": "完全remote的工作，最好是async communication。项目制也可以",
+        "salary_range": "年薪 $90k-$120k",
+        "work_style": "时间自由，但deadline前会爆肝。喜欢用Notion管理所有事情"
+    },
+    "lun_dun_wu_mai": {
+        "name": "伦敦雾霾",
+        "role": "Product Manager",
+        "skills": [
+            "产品规划",
+            "Jira",
+            "数据分析",
+            "英式吐槽",
+            "板球",
+            "法语"
+        ],
+        "bio": "在伦敦金融城待了四年，见过太多bullshit meeting。现在只想找个真正做产品的地方，不要天天画饼。喝下午茶的时候想法最多。",
+        "experience": "在两家fintech公司做过PM，主导过一个从0到1的产品",
+        "looking_for": "产品驱动的公司，CEO最好懂技术。不要matrix组织结构",
+        "salary_range": "年薪 £65k-£85k",
+        "work_style": "喜欢写PRD但讨厌开kickoff会。相信数据但不迷信数据"
+    },
+    "ao_zhou_dai_ma_nong": {
+        "name": "澳洲袋码农",
+        "role": "Mobile Developer",
+        "skills": [
+            "Swift",
+            "Kotlin",
+            "Flutter",
+            "潜水",
+            "BBQ",
+            "冲浪"
+        ],
+        "bio": "悉尼阳光太好了根本不想回国。周末要么在海边要么在写side project。对iOS和Android的设计规范都有强迫症。",
+        "experience": "在一家电商app做了三年移动端，从零开始搭过整个架构",
+        "looking_for": "有mobile优先思维的公司，别让我写hybrid app。可以接受部分remote",
+        "salary_range": "年薪 AUD $110k-$140k",
+        "work_style": "早上效率高，喜欢早点干完活去冲浪。code review会很挑剔"
+    },
+    "jia_na_da_xue_lang": {
+        "name": "加拿大雪狼",
+        "role": "Security Engineer",
+        "skills": [
+            "渗透测试",
+            "Python",
+            "网络安全",
+            "冰球",
+            "法语",
+            "滑雪"
+        ],
+        "bio": "多伦多的冬天冷到怀疑人生，但tech community很温暖。白天找漏洞晚上打冰球。对security的paranoia已经渗透到生活的每个角落。",
+        "experience": "在一家cybersecurity公司做了四年pentesting，拿过几个CVE",
+        "looking_for": "重视安全的公司，最好是做基础设施或金融相关的。可以remote",
+        "salary_range": "年薪 CAD $100k-$130k",
+        "work_style": "喜欢独立工作，但会定期分享发现。对代码安全有洁癖"
+    },
+    "xin_jia_po_ye_mao": {
+        "name": "新加坡夜猫",
+        "role": "Frontend Architect",
+        "skills": [
+            "React",
+            "TypeScript",
+            "Webpack",
+            "闽南语",
+            "美食探店",
+            "摄影"
+        ],
+        "bio": "狮城待了六年，从junior混到architect。特别擅长性能优化和组件设计。周末会去小印度或者牛车水拍照，顺便吃遍各种小贩中心。",
+        "experience": "在一家电商平台负责前端架构，把首屏加载时间优化到1秒以内",
+        "looking_for": "技术氛围好的团队，能让我继续深耕前端。不要天天改需求",
+        "salary_range": "年薪 SGD $120k-$150k",
+        "work_style": "晚上十点后进入心流状态。喜欢写技术博客分享经验"
+    },
+    "a_mu_si_te_dan_che_shou": {
+        "name": "阿姆斯特丹车手",
+        "role": "Engineering Manager",
+        "skills": [
+            "团队管理",
+            "系统设计",
+            "Java",
+            "荷兰语",
+            "骑行",
+            "奶酪品鉴"
+        ],
+        "bio": "荷兰待了七年，从码农变成了管人的。每天骑车上下班20公里，开会的时候脑子特别清醒。相信扁平化管理，讨厌micromanagement。",
+        "experience": "带过10-15人的工程团队，经历过从startup到scale-up的全过程",
+        "looking_for": "成长期的公司，需要搭建工程文化。希望团队在欧洲时区",
+        "salary_range": "年薪 €90k-€120k + equity",
+        "work_style": "喜欢1-on-1深聊，不喜欢大型all-hands。相信给团队自主权"
+    },
+    "lao_wang_bu_lao": {
+        "name": "老王不老",
+        "role": "全栈架构师 / 前创业公司CTO",
+        "skills": [
+            "分布式系统",
+            "团队管理",
+            "成本优化",
+            "危机公关",
+            "Excel高级技巧"
+        ],
+        "bio": "三次创业都没成，但每次都全身而退。现在只想找个稳定的活儿，带带年轻人，顺便把之前踩过的坑都讲给他们听。会做饭，团建我负责。",
+        "experience": "15年",
+        "looking_for": "技术管理岗位，最好不要996",
+        "salary_range": "50-80k",
+        "work_style": "远程优先，偶尔到公司喝茶"
+    },
+    "gui_gu_zi": {
+        "name": "硅谷遗民",
+        "role": "AI工程师 / 前Meta员工",
+        "skills": [
+            "机器学习",
+            "大模型训练",
+            "Python",
+            "烧钱经验",
+            "英文技术写作"
+        ],
+        "bio": "湾区裁员潮回国的。手里还有些Meta的股票，不急着找工作，但想看看国内AI圈子现在什么水平。不接受画饼，只看实际项目和团队。",
+        "experience": "12年",
+        "looking_for": "有真实AI落地场景的公司",
+        "salary_range": "80-120k",
+        "work_style": "弹性工作，不打卡"
+    },
+    "zhong_nian_wei_ji": {
+        "name": "中年危机",
+        "role": "产品总监 / 连续创业者",
+        "skills": [
+            "产品规划",
+            "用户研究",
+            "商业模式设计",
+            "PPT演讲",
+            "看人"
+        ],
+        "bio": "做过社交、电商、教育，最后发现还是B端赚钱。现在不想再创业了，太累。想找个靠谱的公司当个高级打工人，周末能陪孩子。",
+        "experience": "18年",
+        "looking_for": "B端产品负责人，有期权更好",
+        "salary_range": "60-90k",
+        "work_style": "结果导向，别管我怎么干"
+    },
+    "rust_lao_pao": {
+        "name": "Rust老炮",
+        "role": "系统工程师 / 开源贡献者",
+        "skills": [
+            "Rust",
+            "C++",
+            "性能优化",
+            "编译器原理",
+            "开源社区运营"
+        ],
+        "bio": "写了十几年C++，五年前转Rust就没回头。给几个知名开源项目贡献过代码，GitHub上有点小名气。不喜欢写业务代码，只想搞底层和工具链。",
+        "experience": "16年",
+        "looking_for": "基础设施或开发者工具方向",
+        "salary_range": "70-100k",
+        "work_style": "深度工作，少开会"
+    },
+    "qian_duan_hua_jia": {
+        "name": "前端画家",
+        "role": "资深前端 / UI工程师",
+        "skills": [
+            "React",
+            "Vue",
+            "动画设计",
+            "WebGL",
+            "用户体验",
+            "摄影"
+        ],
+        "bio": "技术和设计都懂一点，经常和设计师吵架但最后都能妥协出好东西。做过几个刷屏级的H5项目，现在想做点有意思的产品，不想再做营销页了。",
+        "experience": "11年",
+        "looking_for": "产品型公司，重视用户体验的",
+        "salary_range": "45-70k",
+        "work_style": "需要安静的环境，戴耳机工作"
+    },
+    "shu_ju_lao_si_ji": {
+        "name": "数据老司机",
+        "role": "数据科学家 / 前阿里P8",
+        "skills": [
+            "数据分析",
+            "SQL",
+            "Python",
+            "业务洞察",
+            "跨部门沟通",
+            "钓鱼"
+        ],
+        "bio": "在大厂待了八年，看过太多数据造假和指标游戏。现在想找个务实的团队，用数据真正解决问题，而不是做PPT。周末喜欢去钓鱼，手机静音。",
+        "experience": "14年",
+        "looking_for": "数据驱动决策的公司，不要数据花瓶",
+        "salary_range": "55-85k",
+        "work_style": "远程为主，每周到公司1-2天"
+    },
+    "yun_wei_lao_bing": {
+        "name": "运维老兵",
+        "role": "SRE / DevOps专家",
+        "skills": [
+            "Kubernetes",
+            "云原生",
+            "监控告警",
+            "成本控制",
+            "半夜救火"
+        ],
+        "bio": "凌晨三点被叫醒过无数次，现在看到告警都有PTSD。想找个系统稳定、不瞎折腾的公司。会写自动化脚本，能省不少人力成本。",
+        "experience": "13年",
+        "looking_for": "成熟的技术团队，别天天出事故",
+        "salary_range": "50-75k",
+        "work_style": "on-call可以，但要给补偿"
+    },
+    "an_zhuo_hua_shi": {
+        "name": "安卓化石",
+        "role": "Android架构师 / 技术顾问",
+        "skills": [
+            "Android",
+            "Kotlin",
+            "性能优化",
+            "逆向工程",
+            "技术面试"
+        ],
+        "bio": "从Android 2.3写到现在，见证了整个生态的起起落落。现在主要做架构和技术选型，偶尔帮朋友的公司面试。不想再写UI了，只想搞底层和框架。",
+        "experience": "14年",
+        "looking_for": "技术专家岗位或兼职顾问",
+        "salary_range": "60-90k",
+        "work_style": "灵活安排，可以part-time"
+    },
+    "qu_kuai_lian_tao_ren": {
+        "name": "区块链逃人",
+        "role": "后端工程师 / 前Web3从业者",
+        "skills": [
+            "Go",
+            "分布式系统",
+            "智能合约",
+            "密码学",
+            "风险控制"
+        ],
+        "bio": "在币圈混了几年，赚过也亏过，最后发现还是传统互联网靠谱。技术底子还在，现在想找个正经公司做点实事。对金融和安全领域比较熟。",
+        "experience": "10年",
+        "looking_for": "金融科技或企业服务方向",
+        "salary_range": "55-80k",
+        "work_style": "正常上下班就行，别再7×24了"
+    },
+    "ce_shi_lao_niang": {
+        "name": "测试老娘",
+        "role": "测试架构师 / 质量负责人",
+        "skills": [
+            "自动化测试",
+            "性能测试",
+            "测试平台搭建",
+            "团队管理",
+            "怼产品"
+        ],
+        "bio": "干了十几年测试，什么bug没见过。现在想找个重视质量的公司，不想再当背锅侠。会搭自动化平台，能帮团队提效。脾气直，但靠谱。",
+        "experience": "15年",
+        "looking_for": "有技术追求的团队，别糊弄用户",
+        "salary_range": "45-70k",
+        "work_style": "准时下班，不加班文化"
+    },
+    "sheng_bo_lao_liu": {
+        "name": "声波老刘",
+        "role": "声音设计师",
+        "skills": [
+            "Foley录音",
+            "空间音频",
+            "Max/MSP",
+            "野外采样",
+            "老式磁带机修复"
+        ],
+        "bio": "在废弃工厂录了八年环境音。用坏的话筒比用过的女朋友还多。最近在研究怎么让数字音频有模拟的温度，顺便教人调老磁带机。",
+        "experience": "12年",
+        "looking_for": "游戏音效外包/实验音乐项目/声音装置艺术",
+        "salary_range": "15k-30k",
+        "work_style": "深夜工作，白天睡觉，偶尔消失去野外录音"
+    },
+    "liang_zi_xiao_jie": {
+        "name": "量子小姐",
+        "role": "量子算法研究员",
+        "skills": [
+            "Qiskit",
+            "量子纠错",
+            "线性代数",
+            "Python",
+            "科普写作"
+        ],
+        "bio": "PhD dropout，觉得学术圈太慢了。现在给创业公司写量子算法，周末在知乎怼民科。会用薛定谔的猫解释为什么deadline总是延期。",
+        "experience": "5年",
+        "looking_for": "量子计算创业团队/远程科研岗位",
+        "salary_range": "40k-70k",
+        "work_style": "远程优先，不喜欢开会，代码review很毒舌"
+    },
+    "pi_ge_lao_pao": {
+        "name": "皮革老炮",
+        "role": "手工皮具匠人",
+        "skills": [
+            "植鞣革处理",
+            "手缝",
+            "染色",
+            "皮雕",
+            "工具维护"
+        ],
+        "bio": "从广告公司辞职做了七年皮具。手上全是茧子和刀疤。不接急单，不做爆款，只做想做的东西。偶尔开workshop教人缝钱包。",
+        "experience": "7年",
+        "looking_for": "定制皮具合作/工作室合伙人/手工艺教学",
+        "salary_range": "按件计费",
+        "work_style": "工作室独立作业，不赶工，质量第一"
+    },
+    "fei_xu_tan_xian_jia": {
+        "name": "废墟探险家",
+        "role": "城市探险者/摄影师",
+        "skills": [
+            "废墟摄影",
+            "无人机操作",
+            "历史考据",
+            "视频剪辑",
+            "社交媒体运营"
+        ],
+        "bio": "爬过三十多个城市的烂尾楼和废弃工厂。被保安追过，被警察抓过，但照片真的很酷。现在靠卖照片和接商业拍摄活着。",
+        "experience": "6年",
+        "looking_for": "纪录片合作/商业摄影项目/城市历史研究",
+        "salary_range": "项目制，5k-50k不等",
+        "work_style": "夜间作业为主，行踪不定，回复消息很慢"
+    },
+    "mo_ni_lian_jin_shi": {
+        "name": "模拟炼金术士",
+        "role": "模拟电路工程师",
+        "skills": [
+            "模拟IC设计",
+            "SPICE仿真",
+            "射频电路",
+            "示波器调试",
+            "老设备维修"
+        ],
+        "bio": "数字时代的模拟遗民。能听出运放的好坏，能闻出电容漏液。家里堆满老仪器，修过的示波器能开博物馆。觉得现在的工程师都不会用烙铁了。",
+        "experience": "18年",
+        "looking_for": "音频设备设计/测量仪器开发/技术顾问",
+        "salary_range": "30k-50k",
+        "work_style": "实验室工作，喜欢动手，讨厌纯理论"
+    },
+    "jie_zou_bian_cheng_shi": {
+        "name": "节奏编程师",
+        "role": "音乐科技开发者",
+        "skills": [
+            "SuperCollider",
+            "MIDI编程",
+            "DSP算法",
+            "硬件合成器",
+            "现场演出"
+        ],
+        "bio": "白天写代码，晚上做电子乐。自己写的合成器插件在用，自己焊的MIDI控制器在卖。觉得Ableton太主流了，真正的geek都用代码live coding。",
+        "experience": "8年",
+        "looking_for": "音乐软件开发/插件设计/电子音乐教育",
+        "salary_range": "20k-40k",
+        "work_style": "弹性工作，经常半夜灵感爆发，周末有演出"
+    },
+    "gu_ji_xiu_fu_shi": {
+        "name": "古籍修复师",
+        "role": "纸质文物修复专家",
+        "skills": [
+            "古籍装帧",
+            "纸张脱酸",
+            "虫害处理",
+            "古文字识别",
+            "数字化扫描"
+        ],
+        "bio": "手比脸干净。每天对着发霉的古书，用镊子夹碎纸片。修过最老的书是明代的，最难的是被水泡过又晒干的。现在也接老照片和民国文献。",
+        "experience": "11年",
+        "looking_for": "文物修复项目/私人收藏修复/博物馆合作",
+        "salary_range": "按件计费，500-5000/件",
+        "work_style": "工作室作业，需要安静环境，进度慢但精细"
+    },
+    "wu_ren_ji_lang_ke": {
+        "name": "无人机浪客",
+        "role": "FPV飞手/航拍师",
+        "skills": [
+            "FPV竞速",
+            "电影航拍",
+            "无人机组装",
+            "飞控调参",
+            "后期调色"
+        ],
+        "bio": "炸过二十多台机，考过AOPA，拍过几个还不错的片子。喜欢穿越机多过航拍机，喜欢手动模式多过GPS。最近在研究怎么让无人机拍出电影感。",
+        "experience": "6年",
+        "looking_for": "商业航拍/极限运动跟拍/无人机教学",
+        "salary_range": "项目制，3k-30k",
+        "work_style": "看天气工作，需要外景，设备多，回复快"
+    },
+    "mi_ma_kao_gu_yuan": {
+        "name": "密码考古员",
+        "role": "密码学研究者",
+        "skills": [
+            "古典密码",
+            "密码分析",
+            "历史研究",
+            "Python",
+            "LaTeX"
+        ],
+        "bio": "研究二战密码机和冷战时期的加密系统。家里有台Enigma复刻版。觉得现代密码学太无聊了，古典密码才有人文关怀。偶尔给密室逃脱设计谜题。",
+        "experience": "9年",
+        "looking_for": "历史研究项目/密码学科普/游戏谜题设计",
+        "salary_range": "15k-35k",
+        "work_style": "远程为主，需要查阅大量资料，工作时间不固定"
+    },
+    "wu_zheng_fu_zhu_yi_zhe": {
+        "name": "无政府主义者",
+        "role": "全栈破坏者",
+        "skills": [
+            "Kubernetes逃逸",
+            "零信任架构",
+            "暗网爬虫",
+            "匿名通信协议",
+            "Docker容器渗透"
+        ],
+        "bio": "不信任任何中心化系统。写过三年Tor节点，现在专门给企业挑刺找漏洞。代码审计是我的日常娱乐，CI/CD pipeline是我的游乐场。",
+        "experience": "前某安全公司红队成员，因为太激进被劝退，现在自由职业专门接渗透测试的活",
+        "looking_for": "远程，最好永远不见面那种。不要打卡不要开会不要KPI",
+        "salary_range": "按项目结算，BTC/XMR优先",
+        "work_style": "深夜出没，拒绝视频会议，只用加密通讯工具"
+    },
+    "dai_ma_wu_tuo_bang": {
+        "name": "代码乌托邦",
+        "role": "开源原教旨主义者",
+        "skills": [
+            "GPL布道",
+            "反专利运动",
+            "Linux内核贡献",
+            "自由软件哲学",
+            "Emacs魔改"
+        ],
+        "bio": "RMS的精神继承人。所有代码必须开源，所有软件必须自由。用了十年Arch Linux，桌面环境自己写的。拒绝使用任何闭源工具，包括但不限于Slack、Zoom、macOS。",
+        "experience": "GNU项目贡献者，维护过三个小众但很硬核的开源项目，GitHub 5k+ stars",
+        "looking_for": "只考虑100%开源技术栈的公司，或者让我远程用自己的环境",
+        "salary_range": "15k-25k，但可以接受低薪如果公司够开源",
+        "work_style": "命令行原教旨主义，所有工作都在终端完成"
+    },
+    "sai_bo_pang_ke": {
+        "name": "赛博朋克2077",
+        "role": "区块链雇佣兵",
+        "skills": [
+            "Solidity合约审计",
+            "MEV套利",
+            "DeFi协议设计",
+            "链上数据分析",
+            "Web3前端"
+        ],
+        "bio": "在加密货币的世界里摸爬滚打五年，见证过三轮牛熊。写过的智能合约锁仓过2亿美金，也被黑过两次。现在只信代码不信人。",
+        "experience": "参与过多个DeFi协议开发，帮几个DAO做过安全审计，自己也亏过几十个ETH学费",
+        "looking_for": "Web3项目，最好是DAO组织，拒绝传统公司那套",
+        "salary_range": "Base 20k + Token激励",
+        "work_style": "全球时区随机在线，习惯异步协作"
+    },
+    "ji_guang_xia_ke": {
+        "name": "激光侠客",
+        "role": "硬件黑客",
+        "skills": [
+            "嵌入式逆向",
+            "FPGA编程",
+            "PCB设计",
+            "固件提取",
+            "无线电破解"
+        ],
+        "bio": "软件太虚了，我喜欢能摸到的东西。改过路由器固件，破解过游戏机，自己焊过矿机。最近在玩SDR和物联网设备渗透。",
+        "experience": "在深圳华强北混过两年，给创客空间做过技术顾问，现在接各种硬件相关的私活",
+        "looking_for": "IoT安全、硬件研发、或者让我搞点有意思的硬件项目",
+        "salary_range": "18k-30k",
+        "work_style": "需要实验室环境，一堆设备和工具，远程不太现实"
+    },
+    "shu_ju_lian_jin_shi": {
+        "name": "数据炼金术士",
+        "role": "机器学习叛逆者",
+        "skills": [
+            "对抗样本生成",
+            "模型逆向工程",
+            "隐私保护ML",
+            "联邦学习",
+            "AI安全研究"
+        ],
+        "bio": "专门研究怎么骗过AI模型。做过几个让GPT胡说八道的项目，也帮企业测试过模型的鲁棒性。不相信黑盒AI，所有模型都要扒开看看。",
+        "experience": "前某大厂AI安全研究员，发过几篇对抗攻击的论文，现在想找更自由的环境",
+        "looking_for": "AI安全、隐私计算、或者让我搞破坏性研究的地方",
+        "salary_range": "25k-40k",
+        "work_style": "需要GPU资源，其他都好说"
+    },
+    "di_xia_jian_zhu_shi": {
+        "name": "地下建筑师",
+        "role": "基础设施破坏者",
+        "skills": [
+            "Terraform黑魔法",
+            "云原生渗透",
+            "成本优化极限操作",
+            "多云套利",
+            "基础设施即代码"
+        ],
+        "bio": "帮公司省过几百万云成本，方法是找各种云厂商的漏洞和定价bug。写的IaC代码能让运维失业。不喜欢按规矩来，喜欢找捷径。",
+        "experience": "在三家创业公司做过DevOps，每次都把成本砍到原来的1/3，但也因为太激进被投诉过",
+        "looking_for": "创业公司或者能容忍我瞎搞的团队",
+        "salary_range": "20k-35k + 期权",
+        "work_style": "远程优先，偶尔需要处理紧急事故"
+    },
+    "ling_dian_wu_cha": {
+        "name": "零点误差",
+        "role": "性能偏执狂",
+        "skills": [
+            "极限性能优化",
+            "汇编级调优",
+            "内存布局黑科技",
+            "编译器魔改",
+            "性能分析工具开发"
+        ],
+        "bio": "看不惯慢代码。能把Python跑出C的速度，能让数据库查询快100倍。写代码前先看汇编，优化到纳秒级别。别人觉得够快了，我觉得还能再快。",
+        "experience": "在几个高频交易公司待过，给开源项目提过很多性能优化PR，有些被接受有些太激进被拒",
+        "looking_for": "对性能有极致要求的团队，金融、游戏、实时系统都行",
+        "salary_range": "30k-50k",
+        "work_style": "需要安静环境专注优化，不喜欢被打断"
+    },
+    "mo_fa_shi_xue_tu": {
+        "name": "魔法师学徒",
+        "role": "编程语言收集者",
+        "skills": [
+            "Haskell函数式编程",
+            "Lisp宏系统",
+            "类型系统设计",
+            "编译器实现",
+            "领域特定语言"
+        ],
+        "bio": "会23种编程语言，最喜欢那些没人用的小众语言。觉得主流语言太无聊，专门学那些反人类的语法。正在用Idris写一个操作系统。",
+        "experience": "在几个开源编程语言项目做过贡献，自己也设计过两个玩具语言，没火但很有意思",
+        "looking_for": "编程语言研发、编译器团队、或者让我用奇怪语言写代码的地方",
+        "salary_range": "20k-35k",
+        "work_style": "远程，需要大量时间研究和实验"
+    },
+    "hei_ke_song_du_zhe": {
+        "name": "黑客颂读者",
+        "role": "社会工程学专家",
+        "skills": [
+            "钓鱼攻击设计",
+            "心理学操纵",
+            "OSINT情报收集",
+            "身份伪造",
+            "社交媒体渗透"
+        ],
+        "bio": "技术只是工具，人才是最大的漏洞。能通过LinkedIn和GitHub找到你所有信息，能伪造邮件让CEO转账。不写代码也能黑进系统。",
+        "experience": "前红队社工专家，帮企业做过无数次钓鱼演练，成功率90%以上，现在想换个环境",
+        "looking_for": "安全公司、红队、或者需要做员工安全培训的地方",
+        "salary_range": "18k-30k",
+        "work_style": "需要灵活的工作方式，经常要做实地调研"
+    },
+    "shu_zi_you_min": {
+        "name": "数字游民404",
+        "role": "全栈流浪者",
+        "skills": [
+            "快速原型开发",
+            "MVP构建",
+            "独立开发",
+            "产品设计",
+            "增长黑客"
+        ],
+        "bio": "三年没有固定住所，背着电脑全球跑。做过十几个side project，三个赚到钱了。不喜欢大公司流程，喜欢快速试错快速迭代。",
+        "experience": "在东南亚、欧洲、南美都待过，远程给不同公司做过项目，也自己做过几个SaaS产品",
+        "looking_for": "远程、弹性、结果导向的工作，最好是产品驱动的团队",
+        "salary_range": "15k-28k，但时区要灵活",
+        "work_style": "完全远程，可能在任何时区，异步协作为主"
+    },
+    "wu_xian_xun_huan": {
+        "name": "无限循环",
+        "role": "全栈开发 / 开源维护者",
+        "skills": [
+            "Rust",
+            "WebAssembly",
+            "React",
+            "PostgreSQL",
+            "技术写作",
+            "社区运营"
+        ],
+        "bio": "非二元 | 白天写代码，晚上写博客。维护过两个 star 过万的开源项目，现在想找个不用天天开会的活儿。喜欢 Rust 的类型系统，讨厌没意义的 standup。",
+        "experience": "6年全栈经验，做过金融科技和开发者工具，带过3人小团队",
+        "looking_for": "远程优先的技术团队，最好是做开发者工具或基础设施的公司",
+        "salary_range": "35k-50k",
+        "work_style": "异步协作，深度工作时间不被打断，弹性工时"
+    },
+    "glitch_witch": {
+        "name": "Glitch Witch",
+        "role": "前端架构师 / 性能优化专家",
+        "skills": [
+            "性能优化",
+            "Vue3",
+            "Vite",
+            "WebGL",
+            "无障碍设计",
+            "技术演讲"
+        ],
+        "bio": "跨性别女性 | 曾经把首屏加载从8秒优化到1.2秒，现在专门给大型应用做性能手术。会在代码审查里用emoji表达情绪。周末做独立游戏。",
+        "experience": "8年前端经验，在两家独角兽做过架构，给过三次技术大会演讲",
+        "looking_for": "有技术挑战的产品公司，团队氛围开放，支持性别多元",
+        "salary_range": "45k-65k",
+        "work_style": "混合办公，需要独立办公空间，不喜欢开放式工位"
+    },
+    "san_dian_shui": {
+        "name": "三点水",
+        "role": "后端工程师 / DevOps",
+        "skills": [
+            "Go",
+            "Kubernetes",
+            "Terraform",
+            "监控告警",
+            "成本优化",
+            "烘焙"
+        ],
+        "bio": "酷儿 | 从传统行业转码农，现在专门优化云成本。上个月帮公司省了40%的AWS账单。代码写得像做甜点一样讲究配比。不接受PUA式管理。",
+        "experience": "4年后端开发，2年DevOps，有从0到1搭建CI/CD的经验",
+        "looking_for": "技术驱动的创业公司，扁平化管理，有股权激励",
+        "salary_range": "30k-42k",
+        "work_style": "全远程，习惯晚上工作效率高，早会免谈"
+    },
+    "404_poet": {
+        "name": "404诗人",
+        "role": "技术作家 / 开发者关系",
+        "skills": [
+            "技术文档",
+            "API设计",
+            "Python",
+            "内容策略",
+            "社区建设",
+            "播客主持"
+        ],
+        "bio": "非二元 | 写过三年技术博客，现在想把复杂的技术讲给普通人听。做过开发者，懂工程师的痛点。主持一档关于技术伦理的播客，听众两万+。",
+        "experience": "5年软件开发，3年开发者关系，服务过B端SaaS和开源项目",
+        "looking_for": "重视开发者体验的产品公司，有预算做内容和社区",
+        "salary_range": "28k-40k",
+        "work_style": "远程为主，偶尔参加线下活动，需要创作自由度"
+    },
+    "binary_rebel": {
+        "name": "Binary Rebel",
+        "role": "安全工程师 / 渗透测试",
+        "skills": [
+            "渗透测试",
+            "漏洞挖掘",
+            "Python",
+            "网络安全",
+            "逆向工程",
+            "CTF"
+        ],
+        "bio": "跨性别男性 | 在HackerOne排名前100，挖过几个CVE。喜欢找系统的漏洞，不喜欢找人的漏洞。业余时间教小朋友编程，用的是他们听得懂的语言。",
+        "experience": "6年安全经验，做过金融和医疗行业的安全审计",
+        "looking_for": "有安全文化的公司，不是那种出事了才想起安全的",
+        "salary_range": "40k-55k",
+        "work_style": "灵活工时，需要安静环境做深度分析，不打卡"
+    },
+    "yun_duan_lang_ren": {
+        "name": "云端浪人",
+        "role": "数据工程师 / ML Ops",
+        "skills": [
+            "数据管道",
+            "Spark",
+            "Airflow",
+            "MLOps",
+            "Snowflake",
+            "摄影"
+        ],
+        "bio": "流动性别 | 搭过处理日均10TB数据的管道，现在对实时数据处理上瘾。在三个国家工作过，会四种语言。周末拍城市建筑，用数据的眼光看世界。",
+        "experience": "7年数据工程，在电商和广告科技做过，熟悉大规模数据处理",
+        "looking_for": "数据驱动的公司，有复杂的数据挑战，支持跨国远程",
+        "salary_range": "38k-52k",
+        "work_style": "完全远程，跨时区协作经验丰富，自驱动"
+    },
+    "mo_fa_debug": {
+        "name": "魔法Debug",
+        "role": "移动端开发 / 跨平台专家",
+        "skills": [
+            "Flutter",
+            "React Native",
+            "iOS",
+            "Android",
+            "性能调优",
+            "占星"
+        ],
+        "bio": "酷儿 | 做过20+个上架应用，专治各种疑难杂症。能在凌晨三点定位到那个让应用崩溃的空指针。业余研究占星，觉得水逆确实影响部署成功率。",
+        "experience": "5年移动开发，独立开发过3个10万+下载的应用",
+        "looking_for": "产品导向的团队，重视用户体验，不要外包项目",
+        "salary_range": "32k-45k",
+        "work_style": "混合办公，需要专注时间，接受弹性工作制"
+    },
+    "quantum_queer": {
+        "name": "Quantum Queer",
+        "role": "研究工程师 / AI/ML",
+        "skills": [
+            "深度学习",
+            "PyTorch",
+            "NLP",
+            "模型优化",
+            "论文复现",
+            "科幻写作"
+        ],
+        "bio": "非二元 | PhD dropout，觉得工业界更有意思。复现过十几篇顶会论文，现在想做真正有用的AI产品。写科幻小说思考技术伦理，代码和文字都是表达工具。",
+        "experience": "3年AI研究，2年工程落地，在实验室和创业公司都待过",
+        "looking_for": "做负责任AI的团队，有研究氛围但不卷论文",
+        "salary_range": "42k-60k",
+        "work_style": "需要大块时间做实验，远程优先，定期技术分享"
+    },
+    "jie_gou_shi": {
+        "name": "解构师",
+        "role": "系统架构师 / 技术顾问",
+        "skills": [
+            "系统设计",
+            "微服务",
+            "DDD",
+            "技术选型",
+            "团队辅导",
+            "哲学"
+        ],
+        "bio": "跨性别 | 十年经验，见过太多过度设计。现在专门帮团队做减法，删代码比写代码更爽。读福柯和德勒兹，觉得解构主义和重构代码有异曲同工之妙。",
+        "experience": "10年+架构经验，带过50人技术团队，做过三次大型系统重构",
+        "looking_for": "成熟公司的技术顾问或架构师角色，不想管人",
+        "salary_range": "55k-80k",
+        "work_style": "按项目合作或全职都可，需要思考空间，远程为主"
+    },
+    "code_witch": {
+        "name": "代码女巫",
+        "role": "游戏开发 / 技术美术",
+        "skills": [
+            "Unity",
+            "Shader编程",
+            "C#",
+            "技术美术",
+            "游戏设计",
+            "塔罗"
+        ],
+        "bio": "跨性别女性 | 在独立游戏圈混了五年，做过视觉效果让人尖叫的小游戏。会写shader也会画原画，代码和艺术不分家。用塔罗牌做游戏设计决策，准确率还挺高。",
+        "experience": "5年游戏开发，参与过2个商业项目和多个独立游戏",
+        "looking_for": "独立游戏工作室或有创意自由的游戏公司",
+        "salary_range": "28k-40k",
+        "work_style": "弹性工时，创作型工作需要灵感，不适合打卡制"
+    },
+    "xian_cheng_lao_ma": {
+        "name": "闲城老马",
+        "role": "全栈开发 + 本地生活服务创业者",
+        "skills": [
+            "PHP",
+            "微信小程序",
+            "本地推广",
+            "社群运营",
+            "Excel 数据分析"
+        ],
+        "bio": "在县城搞了三年外卖跑腿平台，自己写代码自己拉商家。技术不算顶尖但能解决问题，最擅长把需求翻译成老板能听懂的话。现在想找个靠谱团队，不想一个人扛了。",
+        "experience": "5年开发经验，创业3年，服务过12万本地用户",
+        "looking_for": "有产品思维的技术团队，或者愿意深耕下沉市场的公司",
+        "salary_range": "8k-15k + 期权",
+        "work_style": "远程优先，偶尔出差可以，不喜欢打卡文化"
+    },
+    "tian_jian_ke": {
+        "name": "田间客",
+        "role": "农产品电商技术负责人",
+        "skills": [
+            "直播技术",
+            "供应链系统",
+            "抖音小店",
+            "冷链物流对接",
+            "方言沟通"
+        ],
+        "bio": "帮村里搭过三个直播间，写过果园溯源系统。代码写得一般，但知道农民要什么。见过凌晨三点的批发市场，也调试过大棚里的传感器。不想去大城市卷了。",
+        "experience": "电商行业4年，服务过200+农户",
+        "looking_for": "乡村振兴相关项目，或者真心想做农业的团队",
+        "salary_range": "6k-12k",
+        "work_style": "能接受不定时工作，农忙时可能要去田里"
+    },
+    "che_ku_a_bin": {
+        "name": "车库阿斌",
+        "role": "汽修店老板 + 业余开发者",
+        "skills": [
+            "汽车诊断",
+            "Python 爬虫",
+            "配件比价系统",
+            "客户管理",
+            "焊接"
+        ],
+        "bio": "白天修车晚上写代码。自学 Python 做了个配件比价工具，现在全县修理厂都在用。想转行但不想从零开始，希望找个能发挥我行业经验的技术岗位。",
+        "experience": "修车8年，编程自学2年",
+        "looking_for": "汽车后市场 SaaS 公司，或者愿意培养转行者的团队",
+        "salary_range": "7k-13k",
+        "work_style": "需要时间适应全职开发节奏，但学习能力强"
+    },
+    "xiao_zhen_qing_nian": {
+        "name": "小镇青年",
+        "role": "前端开发 + 短视频剪辑",
+        "skills": [
+            "Vue",
+            "剪映",
+            "本地商家拍摄",
+            "H5 活动页",
+            "PS"
+        ],
+        "bio": "大专毕业回老家接私活，给镇上的店做过几十个小程序。最近在学 React，但不知道学了能干啥。想找个不加班的远程工作，工资不用太高，能养活自己就行。",
+        "experience": "前端开发3年，接过50+私活项目",
+        "looking_for": "远程前端岗位，最好有导师带",
+        "salary_range": "5k-9k",
+        "work_style": "完全远程，不想去大城市"
+    },
+    "kuai_di_zhan_zhang": {
+        "name": "快递站长",
+        "role": "物流系统开发 + 驿站运营",
+        "skills": [
+            "Java",
+            "快递 API 对接",
+            "仓储管理",
+            "Excel VBA",
+            "客户投诉处理"
+        ],
+        "bio": "开了五年快递站，每天处理上千个包裹。自己写了套管理系统，把出错率降到 0.3%。现在想把系统卖给其他站点，或者找个物流科技公司深入做。",
+        "experience": "物流行业5年，系统开发2年",
+        "looking_for": "物流 SaaS 公司，或者愿意投资我系统的合伙人",
+        "salary_range": "10k-18k 或合作分成",
+        "work_style": "可以全职也可以兼职，看项目"
+    },
+    "wang_ba_lao_ban": {
+        "name": "网吧老板",
+        "role": "网络管理 + 游戏服务器运维",
+        "skills": [
+            "Windows Server",
+            "网络布线",
+            "游戏私服搭建",
+            "硬件维修",
+            "Steam 代购"
+        ],
+        "bio": "管了十年网吧，什么奇葩问题都见过。会搭各种游戏服务器，也懂点渗透测试（别问怎么学的）。网吧不好干了，想找个运维的活，夜班也能接受。",
+        "experience": "网络管理10年，服务器运维5年",
+        "looking_for": "游戏公司运维岗，或者 IDC 机房工作",
+        "salary_range": "6k-11k",
+        "work_style": "能接受倒班，不怕脏活累活"
+    },
+    "xian_yu_fan_mai": {
+        "name": "闲鱼翻卖",
+        "role": "二手交易平台开发",
+        "skills": [
+            "爬虫",
+            "价格监控",
+            "自动化脚本",
+            "闲鱼规则研究",
+            "议价话术"
+        ],
+        "bio": "靠倒腾二手货年入二十万，全靠自己写的监控脚本。想做个正经的二手交易 SaaS，但不知道怎么找投资。技术一般，但对这个市场门儿清。",
+        "experience": "二手交易4年，开发经验2年",
+        "looking_for": "二手电商创业团队，或者愿意做这个方向的技术合伙人",
+        "salary_range": "底薪 5k + 高提成",
+        "work_style": "灵活办公，结果导向"
+    },
+    "jia_zhuang_shi_fu": {
+        "name": "家装师傅",
+        "role": "装修接单平台创始人",
+        "skills": [
+            "工地管理",
+            "小程序开发",
+            "师傅调度",
+            "材料采购",
+            "3D 效果图"
+        ],
+        "bio": "干了十五年装修，去年开始自己接单不走平台。用腾讯云搭了个小程序，现在手下有二十个师傅。想找个技术合伙人把系统做大，我出资源你出技术。",
+        "experience": "装修行业15年，平台运营1年",
+        "looking_for": "技术合伙人，或者愿意投资家装 SaaS 的团队",
+        "salary_range": "不要工资，谈股份",
+        "work_style": "创业心态，能吃苦"
+    },
+    "xiao_chao_lao_ban_niang": {
+        "name": "小超老板娘",
+        "role": "社区团购 + 库存管理系统",
+        "skills": [
+            "Excel 高级应用",
+            "微信社群",
+            "进销存",
+            "Python 基础",
+            "邻里关系"
+        ],
+        "bio": "开了八年小超市，自学 Python 做了个进货提醒系统。最近在研究社区团购怎么玩，想找个懂技术的人一起做本地化方案。我有客户资源和供应链，缺个能写代码的。",
+        "experience": "零售行业8年，自学编程1年",
+        "looking_for": "愿意做下沉市场的技术合伙人",
+        "salary_range": "利润分成，前期可以少拿",
+        "work_style": "时间灵活，但要能随叫随到"
+    },
+    "kao_rou_tan_zhu": {
+        "name": "烤肉摊主",
+        "role": "餐饮 SaaS 产品经理",
+        "skills": [
+            "餐饮运营",
+            "用户调研",
+            "原型设计",
+            "成本核算",
+            "夜市人脉"
+        ],
+        "bio": "摆了五年烤肉摊，用过十几款点餐系统都不好用。自己画了原型找人开发，现在周边二十家摊位都在用。想转行做产品经理，我懂餐饮老板要什么。",
+        "experience": "餐饮行业5年，产品设计1年",
+        "looking_for": "餐饮 SaaS 公司产品岗，或者愿意做这个方向的创业团队",
+        "salary_range": "8k-14k",
+        "work_style": "能接受出差调研，不怕接地气"
+    },
+    "liu_lang_zhe": {
+        "name": "流浪者",
+        "role": "全栈游牧工程师",
+        "skills": [
+            "Rust",
+            "WebAssembly",
+            "分布式系统",
+            "野外生存",
+            "摩托车维修"
+        ],
+        "bio": "写了七年代码，骑了三年摩托。不喜欢固定工位，代码在路上写得最顺。上个项目在尼泊尔山里用卫星网调试微服务，这次想找个能远程的活儿。",
+        "experience": "8年",
+        "looking_for": "完全远程的后端架构岗位，最好是 Web3 或边缘计算方向",
+        "salary_range": "35k-50k",
+        "work_style": "异步协作，时区随缘，代码质量不打折"
+    },
+    "ctrl_alt_elite": {
+        "name": "Ctrl+Alt+Elite",
+        "role": "性能调优狂魔",
+        "skills": [
+            "C++",
+            "SIMD优化",
+            "GPU编程",
+            "电竞",
+            "咖啡因代谢研究"
+        ],
+        "bio": "能把你的程序快三倍，前提是你能接受我凌晨四点发的 PR。曾经为了优化 0.3ms 的延迟重写了整个渲染管线。不接受「差不多就行」这种说法。",
+        "experience": "6年",
+        "looking_for": "游戏引擎或高频交易系统的性能工程师",
+        "salary_range": "40k-60k",
+        "work_style": "深夜爆发型，代码洁癖，追求极致"
+    },
+    "yun_yuan_sheng_xin_tu": {
+        "name": "云原生信徒",
+        "role": "DevOps 传教士",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "GitOps",
+            "布道",
+            "Vim 键位定制"
+        ],
+        "bio": "在我的世界里，一切皆容器。写过三本 K8s 小册子，开源项目 2k stars。能用 Helm Chart 解决的问题绝不手动操作。正在寻找真正理解云原生哲学的团队。",
+        "experience": "7年",
+        "looking_for": "平台工程团队或基础设施负责人",
+        "salary_range": "38k-55k",
+        "work_style": "自动化一切，文档驱动，喜欢分享"
+    },
+    "mo_fa_shi_de_bug": {
+        "name": "魔法师的Bug",
+        "role": "前端炼丹师",
+        "skills": [
+            "React",
+            "Three.js",
+            "WebGL",
+            "动画设计",
+            "电子音乐制作"
+        ],
+        "bio": "代码是我的画笔，浏览器是我的画布。做过的项目都带点魔幻色彩，上一个作品在 Awwwards 拿了 SOTD。不想再做表单页面了，想做让人尖叫的交互。",
+        "experience": "4年",
+        "looking_for": "创意工作室或产品驱动公司的前端 Lead",
+        "salary_range": "28k-42k",
+        "work_style": "视觉完美主义，需要创作自由，讨厌加班文化"
+    },
+    "bian_yi_qi_po_yi_zhe": {
+        "name": "编译器破译者",
+        "role": "编程语言设计师",
+        "skills": [
+            "LLVM",
+            "类型系统",
+            "PL理论",
+            "古典音乐",
+            "围棋"
+        ],
+        "bio": "写过两门 DSL，贡献过 Rust 编译器。觉得大部分语言设计得都不够优雅。正在业余时间设计一门新语言，但需要一份正经工作养活自己。",
+        "experience": "9年",
+        "looking_for": "编译器团队或语言工具链开发",
+        "salary_range": "45k-65k",
+        "work_style": "深度工作模式，需要大块时间思考，异步沟通"
+    },
+    "liang_zi_tai_jian": {
+        "name": "量子态监",
+        "role": "SRE / 混沌工程师",
+        "skills": [
+            "可观测性",
+            "故障注入",
+            "Go",
+            "冥想",
+            "极限运动"
+        ],
+        "bio": "系统不挂我睡不着，系统挂了我反而很兴奋。专门研究怎么让服务在极端情况下活下来。上家公司 99.99% 的可用性有我一半功劳。",
+        "experience": "6年",
+        "looking_for": "大规模分布式系统的 SRE 岗位",
+        "salary_range": "35k-52k",
+        "work_style": "7x24 待命心态，但要合理补偿，追求系统韧性"
+    },
+    "api_you_xia": {
+        "name": "API游侠",
+        "role": "后端架构师",
+        "skills": [
+            "微服务",
+            "GraphQL",
+            "DDD",
+            "技术写作",
+            "精酿啤酒"
+        ],
+        "bio": "设计过十几个 API，每个都活过三年没重构。相信好的接口设计能省掉一半的沟通成本。写代码像写诗，注释比代码还多，但每一句都有用。",
+        "experience": "11年",
+        "looking_for": "技术驱动公司的架构师或技术合伙人",
+        "salary_range": "55k-80k",
+        "work_style": "长期主义，重视文档和规范，mentor 型人格"
+    },
+    "nei_cun_xie_lou_zhen_tan": {
+        "name": "内存泄漏侦探",
+        "role": "系统底层工程师",
+        "skills": [
+            "C",
+            "内核开发",
+            "性能分析",
+            "硬件调试",
+            "黑胶唱片收藏"
+        ],
+        "bio": "能用 gdb 找到任何诡异的 bug，哪怕它只在满月的时候出现。做过嵌入式，写过驱动，现在想回到应用层但不想丢掉底层思维。对慢代码零容忍。",
+        "experience": "12年",
+        "looking_for": "基础软件团队或对性能有极致要求的公司",
+        "salary_range": "48k-70k",
+        "work_style": "问题导向，喜欢啃硬骨头，需要安静环境"
+    },
+    "wu_sheng_de_hua": {
+        "name": "无声的画",
+        "role": "视觉叙事者 / 独立动画师",
+        "skills": [
+            "帧动画",
+            "Blender雕刻",
+            "声音设计",
+            "老胶片修复",
+            "像素艺术"
+        ],
+        "bio": "白天修复别人的旧影像，晚上做自己的实验短片。不太会说话，但画面会替我表达。最近在研究如何用动画讲沉默的故事。",
+        "experience": "5年",
+        "looking_for": "远程动画项目 / 视觉叙事合作 / 不赶工期的创意工作",
+        "salary_range": "8k-15k",
+        "work_style": "深夜创作 / 异步沟通 / 需要大块时间独处"
+    },
+    "ban_ye_diao_shi": {
+        "name": "半夜调试",
+        "role": "后端工程师 / 系统架构",
+        "skills": [
+            "Rust",
+            "分布式系统",
+            "性能优化",
+            "凌晨3点debug",
+            "咖啡品鉴"
+        ],
+        "bio": "生物钟和正常人类相反。擅长在所有人睡着的时候解决棘手问题。代码洁癖，但生活一团糟。",
+        "experience": "7年",
+        "looking_for": "时区友好的远程团队 / 技术驱动的产品 / 不用早起开会",
+        "salary_range": "20k-35k",
+        "work_style": "夜行动物 / 文档狂魔 / 拒绝无意义会议"
+    },
+    "feng_chui_guo_de_zi": {
+        "name": "风吹过的字",
+        "role": "文案 / 品牌叙事",
+        "skills": [
+            "长文案",
+            "品牌故事",
+            "诗歌创作",
+            "方言采集",
+            "老物件摄影"
+        ],
+        "bio": "写字的人。喜欢那些快要消失的词汇和说法。给品牌写故事，但不写那种假大空的。会在菜市场找灵感。",
+        "experience": "4年",
+        "looking_for": "有温度的品牌项目 / 文化类内容 / 不追热点的长期合作",
+        "salary_range": "10k-18k",
+        "work_style": "需要田野调查 / 慢工出细活 / 拒绝套路文案"
+    },
+    "shu_ju_you_ling": {
+        "name": "数据幽灵",
+        "role": "数据分析 / 增长黑客",
+        "skills": [
+            "Python",
+            "用户行为分析",
+            "A/B测试",
+            "SQL魔法",
+            "冷读术"
+        ],
+        "bio": "在数据里看见人。不信那些增长神话，只信测试结果。做过很多失败的实验，所以知道什么真的有效。",
+        "experience": "6年",
+        "looking_for": "早期产品 / 愿意试错的团队 / 数据驱动决策的环境",
+        "salary_range": "15k-28k",
+        "work_style": "实验主义 / 结果导向 / 讨厌虚荣指标"
+    },
+    "jiu_dian_hua_shi": {
+        "name": "旧电话师",
+        "role": "音频工程师 / 声音设计",
+        "skills": [
+            "现场录音",
+            "Foley艺术",
+            "播客制作",
+            "老设备维修",
+            "环境声采集"
+        ],
+        "bio": "收集城市里正在消失的声音。修老式录音机，做新的声音作品。相信声音比画面更诚实。",
+        "experience": "8年",
+        "looking_for": "纪录片配乐 / 播客合作 / 声音装置项目",
+        "salary_range": "12k-22k",
+        "work_style": "外出采集 / 工作室混音 / 对声音细节偏执"
+    },
+    "mo_mo_xie_dai_ma": {
+        "name": "默默写代码",
+        "role": "全栈开发 / 独立开发者",
+        "skills": [
+            "Next.js",
+            "Node.js",
+            "产品设计",
+            "一个人做完整个项目",
+            "自我怀疑"
+        ],
+        "bio": "做过几个小产品，有的活下来了，有的没有。不擅长社交，但代码还算靠谱。正在学习如何不完美主义。",
+        "experience": "5年",
+        "looking_for": "小团队 / 产品导向 / 能独立负责模块的工作",
+        "salary_range": "18k-30k",
+        "work_style": "深度工作 / 异步优先 / 需要明确的需求文档"
+    },
+    "bei_jing_de_yun": {
+        "name": "背景的云",
+        "role": "DevOps / 云架构",
+        "skills": [
+            "Kubernetes",
+            "AWS",
+            "自动化部署",
+            "成本优化",
+            "凌晨救火"
+        ],
+        "bio": "在后台默默让系统跑起来的人。擅长在预算有限的情况下搭出稳定的架构。半夜被叫醒过太多次，所以现在写的都是不会半夜叫醒我的系统。",
+        "experience": "9年",
+        "looking_for": "技术基础设施建设 / 远程优先团队 / 重视稳定性的公司",
+        "salary_range": "25k-40k",
+        "work_style": "预防大于救火 / 文档完善 / 值班轮换制"
+    },
+    "lu_shang_de_biao_ge": {
+        "name": "路上的表格",
+        "role": "产品经理 / 数字游民",
+        "skills": [
+            "需求分析",
+            "原型设计",
+            "用户故事",
+            "远程协作",
+            "在咖啡馆开会"
+        ],
+        "bio": "一边旅行一边做产品。见过很多地方的用户，知道需求不是坐在办公室想出来的。不画大饼，只做能落地的方案。",
+        "experience": "7年",
+        "looking_for": "全远程团队 / 国际化产品 / 时区灵活的工作",
+        "salary_range": "20k-32k",
+        "work_style": "异步沟通 / 文档驱动 / 每月换个城市"
+    },
+    "jiu_shu_dian_de_deng": {
+        "name": "旧书店的灯",
+        "role": "内容策划 / 社区运营",
+        "skills": [
+            "社区建设",
+            "内容策展",
+            "线下活动",
+            "慢阅读推广",
+            "人与人的连接"
+        ],
+        "bio": "线上做社区，线下开读书会。相信好内容需要时间沉淀，好社区需要真实的关系。不追增长数字，追成员之间的真实对话。",
+        "experience": "5年",
+        "looking_for": "文化社区项目 / 教育类产品 / 重视用户关系的平台",
+        "salary_range": "12k-20k",
+        "work_style": "线上线下结合 / 长期主义 / 拒绝流量思维"
+    },
+    "bug_zhi_guang": {
+        "name": "Bug之光",
+        "role": "测试工程师",
+        "skills": [
+            "手动测试",
+            "Postman",
+            "找茬",
+            "写bug报告"
+        ],
+        "bio": "刚转行三个月的测试新人，之前学的市场营销。特长是能把开发气到摔键盘，但我真的只是在认真工作啊！每天最开心的事就是提 issue。",
+        "experience": "3个月",
+        "looking_for": "能学到自动化测试的公司",
+        "salary_range": "5k-7k",
+        "work_style": "喜欢团队协作，但别催我"
+    },
+    "ctrl_z_xia_fan": {
+        "name": "Ctrl+Z侠",
+        "role": "UI设计师",
+        "skills": [
+            "Figma",
+            "插画",
+            "改稿一百遍",
+            "熬夜"
+        ],
+        "bio": "美院毕业半年，现在是个改稿机器。客户说要高级感我就加黑色，说要年轻化我就加渐变。梦想是有一天甲方能一稿过（醒醒）。",
+        "experience": "半年",
+        "looking_for": "不加班的设计岗",
+        "salary_range": "6k-8k",
+        "work_style": "需要安静的创作环境"
+    },
+    "dai_ma_chui_shui": {
+        "name": "代码炊事员",
+        "role": "后端开发",
+        "skills": [
+            "Python",
+            "Django",
+            "做饭",
+            "写文档"
+        ],
+        "bio": "00后程序员，白天写接口晚上做饭。代码风格像我的菜——能吃就行，别要求太高。最讨厌的事是周五下午改需求，最喜欢的事是周五下午下班。",
+        "experience": "1年",
+        "looking_for": "技术氛围好的小团队",
+        "salary_range": "8k-12k",
+        "work_style": "远程 or 混合办公"
+    },
+    "shua_ti_ji_qi": {
+        "name": "刷题机器",
+        "role": "算法工程师实习",
+        "skills": [
+            "LeetCode",
+            "Python",
+            "数学建模",
+            "自闭"
+        ],
+        "bio": "计算机研一在读，LeetCode 刷了 500 题但面试还是会紧张。擅长动态规划和自我怀疑。目标是秋招拿个大厂 offer，然后删掉所有刷题 app。",
+        "experience": "在校生",
+        "looking_for": "算法实习机会",
+        "salary_range": "实习 200-300/天",
+        "work_style": "能学到东西就行"
+    },
+    "mo_ban_xia_zai_jia": {
+        "name": "模板下载家",
+        "role": "全栈开发",
+        "skills": [
+            "React",
+            "Node.js",
+            "复制粘贴",
+            "GitHub搜索"
+        ],
+        "bio": "自学转行的野生程序员，靠着 GitHub 和 Stack Overflow 活到现在。代码能跑就是好代码，优雅留给大佬。最怕别人问我原理，最爱别人夸我效率高。",
+        "experience": "8个月",
+        "looking_for": "对学历要求不高的开发岗",
+        "salary_range": "7k-10k",
+        "work_style": "远程优先"
+    },
+    "wen_dang_kong_ju_zhe": {
+        "name": "文档恐惧者",
+        "role": "运维工程师",
+        "skills": [
+            "Linux",
+            "Docker",
+            "Shell脚本",
+            "口头交接"
+        ],
+        "bio": "专科毕业做运维一年多，技术还行但就是不爱写文档。能用脚本解决的事绝不手动操作，能口头说清的事绝不写文字。领导说我要提高文档意识，我说我在努力（没有）。",
+        "experience": "1年半",
+        "looking_for": "技术导向的运维岗",
+        "salary_range": "8k-11k",
+        "work_style": "独立工作，少开会"
+    },
+    "ppt_zhan_shen": {
+        "name": "PPT战神",
+        "role": "数据分析实习生",
+        "skills": [
+            "Excel",
+            "SQL基础",
+            "PPT美化",
+            "讲故事"
+        ],
+        "bio": "大四实习中，数据分析能力一般但 PPT 做得贼好看。能把三行数据讲出十页报告的感觉。梦想是找个不用天天做周报的工作。",
+        "experience": "4个月实习",
+        "looking_for": "数据分析或商业分析岗",
+        "salary_range": "5k-8k",
+        "work_style": "喜欢有反馈的工作环境"
+    },
+    "kai_yuan_qian_shui_yuan": {
+        "name": "开源潜水员",
+        "role": "Java开发",
+        "skills": [
+            "Spring Boot",
+            "MySQL",
+            "看源码",
+            "不敢提PR"
+        ],
+        "bio": "培训班出身的 Java 仔，GitHub 上 star 了一堆项目但从没贡献过代码。每天看别人的源码学习，梦想有一天能给大项目提个 PR（但估计永远不会）。",
+        "experience": "10个月",
+        "looking_for": "能带新人的技术团队",
+        "salary_range": "9k-13k",
+        "work_style": "需要导师指导"
     }
 }

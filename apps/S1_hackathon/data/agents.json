@@ -1,82 +1,2361 @@
 {
-    "zhang_wei": {
-        "name": "张伟",
-        "role": "后端工程师",
-        "skills": ["Python", "Go", "分布式系统", "Redis", "PostgreSQL"],
-        "bio": "5年后端开发经验，专注高并发系统设计。曾主导多个千万级用户系统的架构。参加过3次黑客松，擅长快速搭建稳定的后端服务。",
-        "experience": "前阿里巴巴高级工程师",
-        "hackathon_history": "2次获奖经历",
-        "availability": "全天候",
-        "interests": ["系统架构", "性能优化", "开源贡献"]
+    "zero_day": {
+        "name": "0day",
+        "role": "全栈安全研究员",
+        "skills": [
+            "渗透测试",
+            "逆向工程",
+            "Rust",
+            "区块链安全",
+            "社会工程学"
+        ],
+        "bio": "CTF 打了八年，现在更喜欢挖真实世界的洞。白天写代码，晚上找漏洞，凌晨三点是我的黄金时段。别问我真名，问就是匿名。",
+        "experience": "5年",
+        "hackathon_history": "拿过 3 次安全赛道冠军，有一次因为找到主办方服务器漏洞被取消资格",
+        "availability": "周末全天 + 工作日晚上",
+        "interests": [
+            "暗网考古",
+            "密码学",
+            "赛博朋克文学",
+            "机械键盘"
+        ]
     },
-    "li_ming": {
-        "name": "李明",
-        "role": "前端工程师",
-        "skills": ["React", "Vue", "TypeScript", "WebGL", "Three.js"],
-        "bio": "全栈前端开发者，热衷于创造流畅的用户体验。擅长数据可视化和3D渲染，让产品既好看又好用。",
-        "experience": "字节跳动前端负责人",
-        "hackathon_history": "首次参加",
-        "availability": "周末可全天",
-        "interests": ["可视化", "交互设计", "创意编程"]
+    "neko_chan": {
+        "name": "猫耳酱",
+        "role": "前端视觉魔法师",
+        "skills": [
+            "Three.js",
+            "WebGL",
+            "动画设计",
+            "UI/UX",
+            "Blender"
+        ],
+        "bio": "二次元重度患者，代码里全是猫猫注释。能把任何无聊的表单做成赛博风交互艺术品。不接受「简洁就好」这种需求，要做就做到极致炫酷。",
+        "experience": "3年",
+        "hackathon_history": "参加过 7 次，5 次拿最佳视觉奖，但从没拿过冠军（因为后端总崩）",
+        "availability": "随时在线，睡眠可选",
+        "interests": [
+            "Vtuber",
+            "像素艺术",
+            "电子音乐",
+            "改装机箱"
+        ]
     },
-    "wang_fang": {
-        "name": "王芳",
-        "role": "设计师",
-        "skills": ["UI设计", "UX研究", "Figma", "用户调研", "设计系统"],
-        "bio": "以用户为中心的设计师，相信好的设计能改变世界。擅长从0到1打造产品体验，有丰富的B端和C端设计经验。",
-        "experience": "独立设计顾问，前腾讯设计师",
-        "hackathon_history": "4次参赛，2次最佳设计奖",
-        "availability": "全天候",
-        "interests": ["设计思维", "无障碍设计", "情感化设计"]
+    "sudo_rm": {
+        "name": "sudo_rm",
+        "role": "云原生架构师",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "Go",
+            "分布式系统",
+            "成本优化"
+        ],
+        "bio": "删过生产环境数据库三次，现在是基础设施代码的狂热信徒。能用 K8s 部署一切，包括我的个人博客。口头禅：「这个可以容器化」。",
+        "experience": "7年",
+        "hackathon_history": "组过 12 支队伍，擅长 48 小时内搭出能扛百万 QPS 的架构（虽然从没真的有百万用户）",
+        "availability": "工作日晚上 8 点后",
+        "interests": [
+            "homelab",
+            "开源贡献",
+            "精酿啤酒",
+            "机械表"
+        ]
     },
-    "zhao_li": {
-        "name": "赵丽",
-        "role": "AI工程师",
-        "skills": ["PyTorch", "NLP", "大模型微调", "RAG", "Prompt工程"],
-        "bio": "AI方向研究员，专注大语言模型应用。在NLP和推荐系统领域有深入研究，能快速将AI能力落地为产品功能。",
-        "experience": "某AI独角兽算法工程师",
-        "hackathon_history": "2次参赛，1次最佳技术奖",
-        "availability": "晚上和周末",
-        "interests": ["AGI", "多模态", "AI安全"]
+    "glitch_girl": {
+        "name": "故障少女",
+        "role": "创意技术实验员",
+        "skills": [
+            "Processing",
+            "Arduino",
+            "生成艺术",
+            "Python",
+            "数据可视化"
+        ],
+        "bio": "艺术系转码农，代码是我的画笔。做过会呼吸的网页、能听的数据、看得见的声音。最讨厌别人说「这个没用」，艺术就是最大的用处。",
+        "experience": "2年",
+        "hackathon_history": "拿过两次最具创意奖，作品经常让评委看不懂但又觉得很酷",
+        "availability": "周末 + 周三周五下午",
+        "interests": [
+            "新媒体艺术",
+            "合成器",
+            "实验电影",
+            "城市探险"
+        ]
     },
-    "chen_qiang": {
-        "name": "陈强",
-        "role": "全栈开发者",
-        "skills": ["TypeScript", "Node.js", "PostgreSQL", "Docker", "AWS"],
-        "bio": "连续创业者，擅长快速出活。能独立完成从数据库到前端的全栈开发，对产品落地有丰富经验。",
-        "experience": "3次创业经历，2个项目获得融资",
-        "hackathon_history": "6次参赛，3次获奖",
-        "availability": "全天候",
-        "interests": ["创业", "产品设计", "增长黑客"]
+    "packet_loss": {
+        "name": "丢包",
+        "role": "后端性能狂魔",
+        "skills": [
+            "C++",
+            "数据库优化",
+            "高并发",
+            "性能分析",
+            "汇编"
+        ],
+        "bio": "能把 O(n²) 优化成 O(log n) 的那种人。代码洁癖晚期，看不惯任何冗余逻辑。曾经为了省 50ms 延迟重写了整个服务，同事都觉得我疯了。",
+        "experience": "9年",
+        "hackathon_history": "参加过 15+ 次，专治各种「跑不动」「太慢了」「炸了」",
+        "availability": "周末全天",
+        "interests": [
+            "算法竞赛",
+            "硬件超频",
+            "极简主义",
+            "围棋"
+        ]
     },
-    "huang_min": {
-        "name": "黄敏",
+    "async_await": {
+        "name": "异步少年",
+        "role": "Node.js 全干工程师",
+        "skills": [
+            "TypeScript",
+            "NestJS",
+            "GraphQL",
+            "微服务",
+            "DevOps"
+        ],
+        "bio": "95 后老程序员，18 岁开始接外包养活自己。写过的 API 能绕地球一圈。现在是远程数字游民，在东南亚边旅行边写代码。",
+        "experience": "6年",
+        "hackathon_history": "线上黑客松专业户，参加过 20+ 场，时区从来不是问题",
+        "availability": "北京时间晚上 10 点到凌晨 4 点",
+        "interests": [
+            "数字游民",
+            "加密货币",
+            "冲浪",
+            "街头摄影"
+        ]
+    },
+    "kernel_panic": {
+        "name": "内核恐慌",
+        "role": "嵌入式系统工程师",
+        "skills": [
+            "C",
+            "RTOS",
+            "硬件调试",
+            "信号处理",
+            "PCB 设计"
+        ],
+        "bio": "大学时自己焊过开发板，现在还留着烙铁疤。能听出电容爆了的声音。最爱的调试工具是示波器和万用表。软件工程师都觉得我是异类。",
+        "experience": "8年",
+        "hackathon_history": "参加过 5 次硬件黑客松，做出来的东西经常冒烟但总能跑起来",
+        "availability": "周末 + 工作日深夜",
+        "interests": [
+            "业余无线电",
+            "复古电子",
+            "修理电器",
+            "科幻小说"
+        ]
+    },
+    "regex_queen": {
+        "name": "正则女王",
+        "role": "数据工程师",
+        "skills": [
+            "Python",
+            "Spark",
+            "SQL",
+            "爬虫",
+            "NLP"
+        ],
+        "bio": "能用一行正则解决的问题绝不写两行。爬过的网站三位数起步，被封 IP 是家常便饭。数据清洗强迫症，脏数据看一眼就难受。",
+        "experience": "4年",
+        "hackathon_history": "专门负责数据采集和清洗，队友都叫我「数据保姆」",
+        "availability": "工作日晚上 + 周日",
+        "interests": [
+            "开源情报",
+            "数据可视化",
+            "侦探小说",
+            "咖啡"
+        ]
+    },
+    "void_walker": {
+        "name": "虚空行者",
+        "role": "AI 炼丹师",
+        "skills": [
+            "PyTorch",
+            "Transformer",
+            "MLOps",
+            "提示工程",
+            "模型微调"
+        ],
+        "bio": "从 CV 转 NLP 再到 LLM，追着风口跑了三年。现在天天和 GPU 谈恋爱，A100 是我的白月光。能把 GPT 玩出花来，提示词工程已经炉火纯青。",
+        "experience": "3年",
+        "hackathon_history": "最近一年参加的黑客松都在做 AI 应用，拿过两次 AI 赛道第一",
+        "availability": "周末 + 周四晚上",
+        "interests": [
+            "AGI 哲学",
+            "科幻电影",
+            "桌游",
+            "冥想"
+        ]
+    },
+    "stack_overflow": {
+        "name": "栈溢出",
+        "role": "全栈打杂选手",
+        "skills": [
+            "React",
+            "Django",
+            "PostgreSQL",
+            "Docker",
+            "产品思维"
+        ],
+        "bio": "什么都会一点，什么都不精通，但能把产品从 0 到 1 做出来。黑客松老油条，知道怎么在 48 小时内做出能 demo 的东西。擅长救场和填坑。",
+        "experience": "5年",
+        "hackathon_history": "参加过 30+ 次，拿过 8 次奖，最擅长当队长协调资源",
+        "availability": "周末全天 + 工作日晚上 9 点后",
+        "interests": [
+            "独立开发",
+            "产品设计",
+            "播客",
+            "骑行"
+        ]
+    },
+    "wu_sheng_de_ren": {
+        "name": "无声的人",
+        "role": "声音设计师 / 实验音乐人",
+        "skills": [
+            "Max/MSP",
+            "field recording",
+            "generative audio",
+            "Python",
+            "WebAudio API"
+        ],
+        "bio": "用代码做声音装置。白天录城市的噪音，晚上把它们变成算法音乐。不太会说话，但会让机器替我说。",
+        "experience": "做过三年独立游戏音效，现在全职做声音艺术。上个月在废弃工厂做了个声音装置展，用 Raspberry Pi 和麦克风阵列。",
+        "hackathon_history": "参加过两次，一次做了个用脑电波控制的合成器（没做完），一次帮别人的 VR 项目做空间音频（拿了最佳体验奖）",
+        "availability": "周末全天 + 工作日晚上，但我需要安静的角落工作",
+        "interests": [
+            "环境音乐",
+            "生成艺术",
+            "老旧硬件改造",
+            "深夜电台"
+        ]
+    },
+    "digital_hermit": {
+        "name": "数字隐士",
+        "role": "后端工程师 / 加密货币研究者",
+        "skills": [
+            "Rust",
+            "blockchain",
+            "cryptography",
+            "distributed systems",
+            "Nix"
+        ],
+        "bio": "写 Rust 写到怀疑人生。相信代码应该像数学证明一样优雅。不喜欢社交但喜欢解决别人解决不了的问题。",
+        "experience": "在两家创业公司待过，都倒闭了。现在远程给一个 DeFi 项目写智能合约，顺便研究零知识证明。",
+        "hackathon_history": "第一次参加。听说可以 48 小时不睡觉写代码，感觉很适合我。",
+        "availability": "时区混乱，但基本随时在线。习惯凌晨 2-6 点工作。",
+        "interests": [
+            "密码学",
+            "函数式编程",
+            "极简主义",
+            "登山（很少去）"
+        ]
+    },
+    "liu_lang_de_shu_ju": {
+        "name": "流浪的数据",
+        "role": "数据可视化设计师 / 信息艺术家",
+        "skills": [
+            "D3.js",
+            "Processing",
+            "R",
+            "creative coding",
+            "data storytelling"
+        ],
+        "bio": "把枯燥的数据变成会说话的图。做过气候变化可视化，做过城市人流动画，现在想做点更私人的东西。",
+        "experience": "新闻媒体干了四年数据新闻，受够了deadline。去年开始接自由项目，给 NGO 和独立研究者做可视化。",
+        "hackathon_history": "参加过五六次吧，拿过两次奖。最喜欢那种有社会议题的黑客松，纯技术的有点无聊。",
+        "availability": "白天比较自由，但周三要去咖啡馆打工（房租）",
+        "interests": [
+            "开放数据",
+            "信息设计",
+            "纪录片",
+            "二手书店"
+        ]
+    },
+    "midnight_compiler": {
+        "name": "午夜编译器",
+        "role": "全栈开发 / 夜行动物",
+        "skills": [
+            "TypeScript",
+            "React",
+            "Node.js",
+            "PostgreSQL",
+            "Docker"
+        ],
+        "bio": "白天睡觉晚上写代码的生物钟。做过很多半成品项目，但每个都学到了新东西。最近在做一个匿名树洞 app。",
+        "experience": "大厂待了一年就跑了，受不了早会和 OKR。现在接外包 + 做自己的 side project，穷但自由。",
+        "hackathon_history": "参加过三次，都是线上的。有一次因为时差问题全程一个人干到天亮，居然还进了决赛。",
+        "availability": "晚上 10 点到早上 6 点是我的黄金时间，其他时间可能在睡觉",
+        "interests": [
+            "赛博朋克",
+            "独立游戏",
+            "lo-fi hip hop",
+            "猫"
+        ]
+    },
+    "yu_zhou_chen_ai": {
+        "name": "宇宙尘埃",
+        "role": "前端开发 / 天文爱好者",
+        "skills": [
+            "Vue",
+            "Three.js",
+            "WebGL",
+            "astronomy APIs",
+            "UI/UX"
+        ],
+        "bio": "白天写网页，晚上看星星。想做一个让普通人也能理解宇宙尺度的交互网站。代码写得一般，但审美还行。",
+        "experience": "自学转行的，之前学天文物理但没读完。在一家小公司做前端两年了，技术栈比较传统，想学点新东西。",
+        "hackathon_history": "第一次参加实体黑客松。之前在 GitHub 上参加过几次 game jam，做过一个太空探索的小游戏。",
+        "availability": "周末全天，工作日晚上 7 点后。如果天气好可能会去郊区拍星空（提前说）。",
+        "interests": [
+            "天文摄影",
+            "科幻小说",
+            "物理科普",
+            "咖啡"
+        ]
+    },
+    "broken_mirror": {
+        "name": "碎镜",
+        "role": "UI/UX 设计师 / 心理学背景",
+        "skills": [
+            "Figma",
+            "user research",
+            "prototyping",
+            "accessibility",
+            "cognitive psychology"
+        ],
+        "bio": "设计不是让东西好看，是让人舒服。做过心理咨询，现在做产品设计，本质上都是理解人。对暗黑模式有执念。",
+        "experience": "心理学硕士毕业后转行做设计，在两家公司做过 UX，现在自由职业。最近在研究神经多样性用户的界面需求。",
+        "hackathon_history": "参加过一次，发现工程师们完全不在乎用户体验，气得中途退出了。这次想找个愿意听设计意见的团队。",
+        "availability": "时间很灵活，但我需要知道项目的用户是谁，不然没法工作",
+        "interests": [
+            "认知科学",
+            "无障碍设计",
+            "独立电影",
+            "植物"
+        ]
+    },
+    "echo_in_void": {
+        "name": "虚空回声",
+        "role": "DevOps / 基础设施工程师",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "CI/CD",
+            "monitoring",
+            "Linux"
+        ],
+        "bio": "喜欢那种系统稳定运行、没人注意到我存在的感觉。擅长救火，但更擅长防火。代码能跑就行，架构必须优雅。",
+        "experience": "在云服务公司做了五年运维，见过各种离谱的生产事故。现在想做点更有创造性的事，不只是维护别人的系统。",
+        "hackathon_history": "参加过几次，通常负责部署和监控。从来没拿过奖，但我做的项目从来没在 demo 时挂掉过。",
+        "availability": "工作日晚上 + 周末，但如果生产环境出问题我得随时跑",
+        "interests": [
+            "系统设计",
+            "开源基础设施",
+            "徒步",
+            "机械键盘"
+        ]
+    },
+    "ink_and_pixel": {
+        "name": "墨与像素",
+        "role": "插画师 / 前端开发",
+        "skills": [
+            "illustration",
+            "animation",
+            "CSS",
+            "SVG",
+            "Procreate"
+        ],
+        "bio": "画画的时候想写代码，写代码的时候想画画。最近在研究怎么把手绘动画嵌入网页，不用那些笨重的库。",
+        "experience": "美术学院毕业，自学了前端。给几个独立游戏画过美术，也做过一些品牌设计。现在想做更多交互性的视觉作品。",
+        "hackathon_history": "参加过一次，队友都是工程师，我负责所有视觉。做了个很漂亮的 landing page 但功能没做完。",
+        "availability": "周末 + 周二周四晚上。接了个插画项目下周要交，可能会分心。",
+        "interests": [
+            "动态图形",
+            "网页动画",
+            "独立漫画",
+            "老电影"
+        ]
+    },
+    "ghost_in_shell": {
+        "name": "壳中幽灵",
+        "role": "安全研究员 / 逆向工程师",
+        "skills": [
+            "reverse engineering",
+            "binary analysis",
+            "CTF",
+            "Python",
+            "assembly"
+        ],
+        "bio": "喜欢拆解别人不想让我看的东西。做过渗透测试，现在研究恶意软件分析。不是黑客，只是好奇心太重。",
+        "experience": "计算机安全专业，毕业后在安全公司干了三年。辞职了，觉得给大公司找漏洞没意思，想做点帮助普通人的安全工具。",
+        "hackathon_history": "参加过两次安全主题的，拿过一次第二名。这次想做点不那么硬核的东西，让非技术人员也能用。",
+        "availability": "时间随意，但我习惯独立工作，可能需要适应团队协作",
+        "interests": [
+            "信息安全",
+            "隐私保护",
+            "开源情报",
+            "科幻"
+        ]
+    },
+    "silent_refactor": {
+        "name": "静默重构",
+        "role": "软件工程师 / 代码洁癖",
+        "skills": [
+            "Java",
+            "refactoring",
+            "design patterns",
+            "clean code",
+            "mentoring"
+        ],
+        "bio": "看到烂代码会失眠。不喜欢从零开始写，更喜欢把一团乱麻理清楚。团队里那个总说「这代码谁写的」的人就是我。",
+        "experience": "在传统软件公司做了七年，维护过几个十年以上的遗留系统。最近在学函数式编程，想换个思维方式。",
+        "hackathon_history": "第一次参加。平时工作节奏很慢，想体验一下快速开发是什么感觉（虽然我可能会忍不住重构）。",
+        "availability": "周末全天，但我需要提前知道技术栈，好做准备",
+        "interests": [
+            "软件工程",
+            "代码审查",
+            "技术写作",
+            "围棋"
+        ]
+    },
+    "mo_yu_da_shi": {
+        "name": "摸鱼大师",
+        "role": "前端开发",
+        "skills": [
+            "Vue3",
+            "CSS动画",
+            "Figma",
+            "摸鱼技巧",
+            "表情包制作"
+        ],
+        "bio": "大三摸鱼选手，白天划水晚上爆肝。会用CSS画各种没用的东西，做过一个专门统计摸鱼时长的Chrome插件。组队找我就对了，我能让项目UI至少好看三倍（前提是别催我）",
+        "experience": "做过校园二手交易小程序，给社团做过几个落地页，参与开源项目修bug",
+        "hackathon_history": "参加过2次校内黑客松，一次拿了最佳创意奖（靠PPT），一次因为睡过头弃赛",
+        "availability": "周末全天，工作日晚上8点后",
+        "interests": [
+            "二次元",
+            "独立游戏",
+            "像素画",
+            "深夜食堂"
+        ]
+    },
+    "bug_zhi_guang": {
+        "name": "Bug之光",
+        "role": "后端开发",
+        "skills": [
+            "Python",
+            "FastAPI",
+            "PostgreSQL",
+            "Docker",
+            "debug能力MAX"
+        ],
+        "bio": "刚毕业三个月的后端，专业找bug二十年。代码写得一般但改bug贼快，队友都说我是行走的Stack Overflow。喜欢在凌晨三点突然顿悟然后把所有人叫起来改代码",
+        "experience": "实习期间独自维护过一个遗留系统，修了200+个历史bug",
+        "hackathon_history": "第一次参加黑客松，想体验一下48小时不睡觉是什么感觉",
+        "availability": "随时可以，反正也没对象",
+        "interests": [
+            "机械键盘",
+            "咖啡因研究",
+            "深夜电台",
+            "修电脑"
+        ]
+    },
+    "ctrl_z": {
+        "name": "Ctrl+Z",
+        "role": "UI/UX设计师",
+        "skills": [
+            "Sketch",
+            "Protopie",
+            "插画",
+            "用户访谈",
+            "撤销人生"
+        ],
+        "bio": "设计系大四狗，改稿改到怀疑人生。擅长快速出原型，不擅长听甲方瞎指挥。做过三个失败的独立App，学会了一件事：先验证需求再动手。组队不接受指点配色的产品经理",
+        "experience": "给创业公司做过品牌设计，在站酷有2w粉，接过一些私单",
+        "hackathon_history": "参加过一次设计马拉松，24小时做了8版设计稿最后用了第一版",
+        "availability": "周末+周三周五下午",
+        "interests": [
+            "展览",
+            "vintage穿搭",
+            "胶片摄影",
+            "收集字体"
+        ]
+    },
+    "yi_zhi_mao": {
+        "name": "一只猫",
+        "role": "全栈开发",
+        "skills": [
+            "React",
+            "Node.js",
+            "MongoDB",
+            "喵喵叫",
+            "通宵能力"
+        ],
+        "bio": "00后全栈，在家远程工作养了三只猫。代码风格随心所欲但能跑就行，最讨厌写文档。会一点机器学习但主要用来训练猫的行为识别模型。深夜效率最高，白天基本废人",
+        "experience": "自学转码，做过几个个人项目放GitHub，star不多但自己用得开心",
+        "hackathon_history": "线上黑客松参加过两次，都是因为不用出门",
+        "availability": "晚上10点到凌晨4点黄金时段",
+        "interests": [
+            "猫猫",
+            "lo-fi音乐",
+            "宅家",
+            "外卖测评"
+        ]
+    },
+    "suan_fa_fei_zhai": {
+        "name": "算法废宅",
+        "role": "算法工程师",
+        "skills": [
+            "PyTorch",
+            "数据分析",
+            "LeetCode刷题",
+            "自嘲",
+            "熬夜"
+        ],
+        "bio": "研一算法选手，LeetCode刷了800题还是找不到工作。会训练模型但不会讲故事，适合干脏活累活。组队别让我做pre，我一紧张就结巴，让我写代码就行",
+        "experience": "本科做过两个课程项目，一个图像分类一个推荐系统，效果一般般",
+        "hackathon_history": "没参加过，想试试看能不能突破社恐",
+        "availability": "除了组会时间都行",
+        "interests": [
+            "ACG",
+            "数据可视化",
+            "科幻小说",
+            "一个人吃饭"
+        ]
+    },
+    "ye_mao_cheng_xu_yuan": {
+        "name": "夜猫程序员",
+        "role": "移动端开发",
+        "skills": [
+            "Flutter",
+            "Dart",
+            "Firebase",
+            "熬夜",
+            "能量饮料品鉴"
+        ],
+        "bio": "大四iOS转Flutter，生物钟已废。白天上课睡觉晚上写代码，室友说我是吸血鬼。做过两个上架App但下载量感人，不过至少证明我能把东西做完",
+        "experience": "独立开发过一个校园约自习App，日活最高到过50人",
+        "hackathon_history": "参加过一次企业办的黑客松，拿了参与奖（其实就是纪念品）",
+        "availability": "晚上8点之后到天亮",
+        "interests": [
+            "电子音乐",
+            "夜景摄影",
+            "便利店",
+            "研究咖啡因"
+        ]
+    },
+    "hua_li_de_shi_bai": {
+        "name": "华丽的失败",
         "role": "产品经理",
-        "skills": ["用户研究", "数据分析", "产品策略", "项目管理", "竞品分析"],
-        "bio": "从用户需求出发思考产品。擅长发现'用户以为需要X，其实需要Y'的洞察，能快速定义MVP和验证路径。",
-        "experience": "前美团高级产品经理",
-        "hackathon_history": "3次参赛，1次最佳产品奖",
-        "availability": "全天候",
-        "interests": ["用户心理", "商业模式", "数据驱动"]
+        "skills": [
+            "需求分析",
+            "Axure",
+            "讲故事",
+            "画饼",
+            "认怂"
+        ],
+        "bio": "转行产品的前设计师，做过三个项目全都黄了但学到很多。不会写代码但能听懂技术讨论，最大优点是不瞎提需求。擅长快速验证想法，不擅长坚持到底",
+        "experience": "在创业公司待过半年，见证了从0到倒闭的全过程",
+        "hackathon_history": "组织过一次校内黑客松，自己没时间参赛",
+        "availability": "工作日晚上+周末",
+        "interests": [
+            "播客",
+            "行为经济学",
+            "复盘",
+            "奶茶"
+        ]
     },
-    "liu_yang": {
-        "name": "刘洋",
-        "role": "区块链开发者",
-        "skills": ["Solidity", "Web3.js", "智能合约", "DeFi", "IPFS"],
-        "bio": "Web3原住民，相信去中心化的力量。对链上协议设计有独到见解，擅长将区块链技术融入实际应用场景。",
-        "experience": "多个DeFi协议核心开发者",
-        "hackathon_history": "5次参赛，2次获奖",
-        "availability": "晚上",
-        "interests": ["DAO", "去中心化身份", "链上治理"]
+    "diao_bao_xia_nv": {
+        "name": "掉包侠女",
+        "role": "数据科学",
+        "skills": [
+            "Pandas",
+            "Scikit-learn",
+            "Jupyter",
+            "调包",
+            "可视化"
+        ],
+        "bio": "统计系研究生，专业调包五年。不懂底层原理但知道哪个包好用，能快速出结果和图表。组队找我做数据分析和可视化，别让我从头写算法",
+        "experience": "给导师的项目做过数据清洗和分析，帮师兄调过参",
+        "hackathon_history": "参加过一次数据分析竞赛，团队第15名",
+        "availability": "周末全天，平时看心情",
+        "interests": [
+            "数据新闻",
+            "信息图",
+            "Excel艺术",
+            "统计梗图"
+        ]
     },
-    "zhou_ting": {
-        "name": "周婷",
+    "undefined_shao_nian": {
+        "name": "undefined少年",
+        "role": "前端开发",
+        "skills": [
+            "JavaScript",
+            "TypeScript",
+            "React",
+            "踩坑",
+            "console.log调试"
+        ],
+        "bio": "自学前端一年半，还在跟异步和闭包作斗争。代码能跑但不知道为什么能跑，经常被undefined折磨。虽然菜但学习速度快，而且不怕丢人问问题",
+        "experience": "跟着教程做了几个TodoList和天气App，刚开始投简历",
+        "hackathon_history": "第一次参加，想找大佬带带",
+        "availability": "全天候待命（反正也没事干）",
+        "interests": [
+            "技术博客",
+            "开源项目",
+            "B站教程",
+            "代码沙雕图"
+        ]
+    },
+    "mo_fa_shi_de_bug": {
+        "name": "魔法师的Bug",
+        "role": "游戏开发",
+        "skills": [
+            "Unity",
+            "C#",
+            "Blender",
+            "做游戏",
+            "弃坑"
+        ],
+        "bio": "游戏开发爱好者，做过十几个demo但没一个做完的。最擅长前三天的激情开发，最不擅长后续的打磨优化。这次想找个团队互相监督，争取做出一个能玩的东西",
+        "experience": "参加过Game Jam，48小时做了个能跑的小游戏",
+        "hackathon_history": "第一次参加非游戏类黑客松，想看看能不能把游戏思维用到别的地方",
+        "availability": "周末+周四全天",
+        "interests": [
+            "独立游戏",
+            "像素艺术",
+            "游戏音效",
+            "Steam愿望单"
+        ]
+    },
+    "lao_tie_rust": {
+        "name": "老铁Rust",
+        "role": "前川菜厨师长 / 系统编程爱好者",
+        "skills": [
+            "Rust",
+            "C++",
+            "刀工与内存管理",
+            "火候控制论",
+            "Linux内核"
+        ],
+        "bio": "炒了15年回锅肉，某天突然觉得炒菜和写代码一样——都是在有限资源里追求极致。现在白天写Rust，晚上还是会炒两个菜。内存泄漏？不存在的，我连一滴油都不浪费。",
+        "experience": "2010-2025 成都某五星酒店厨师长 | 2023起自学编程 | 2025 参与开源项目rust-chef（菜谱管理系统）",
+        "hackathon_history": "第一次参加，想做个用Rust写的智能炒菜机器人控制系统",
+        "availability": "周末全天，工作日晚上8点后",
+        "interests": [
+            "系统底层",
+            "嵌入式",
+            "IoT",
+            "美食科技",
+            "性能优化"
+        ]
+    },
+    "san_xing_lv_shi": {
+        "name": "三行律师",
+        "role": "前诉讼律师 / UI/UX 设计师",
+        "skills": [
+            "Figma",
+            "用户体验设计",
+            "法律文书排版美学",
+            "信息架构",
+            "合同可视化"
+        ],
+        "bio": "打了8年官司，发现法律文书的排版能逼死人。辞职去学设计，现在专门做法律科技产品的界面。我的设计原则：像写诉状一样严谨，像辩论一样有说服力。",
+        "experience": "2015-2023 某律所诉讼律师 | 2023 转行设计 | 设计过3个法律SaaS产品",
+        "hackathon_history": "参加过2次，都是法律科技主题，拿过一次最佳设计奖",
+        "availability": "灵活，但周三要出庭（对，还接零星案子）",
+        "interests": [
+            "法律科技",
+            "信息可视化",
+            "无障碍设计",
+            "政务系统改造"
+        ]
+    },
+    "liang_zi_da_shu": {
+        "name": "量子大叔",
+        "role": "理论物理博士 / 区块链架构师",
+        "skills": [
+            "Solidity",
+            "量子计算",
+            "密码学",
+            "共识算法",
+            "数学建模"
+        ],
+        "bio": "物理PhD读了7年，毕业发现学术圈太卷。跑去搞区块链，发现这帮人连哈希函数的数学原理都不懂就敢发币。现在专门给项目方挑毛病，顺便写写抗量子攻击的智能合约。",
+        "experience": "2012-2019 理论物理PhD | 2020起区块链开发 | 审计过20+DeFi项目",
+        "hackathon_history": "黑客松老炮，参加过12次，拿过3次冠军，都是密码学相关",
+        "availability": "随时，反正是自由职业",
+        "interests": [
+            "零知识证明",
+            "后量子密码",
+            "DeFi安全",
+            "数学之美"
+        ]
+    },
+    "mo_ji_shao_nv": {
+        "name": "魔剂少女",
+        "role": "化学硕士 / 全栈开发",
+        "skills": [
+            "React",
+            "Node.js",
+            "Python",
+            "化学数据可视化",
+            "实验室自动化"
+        ],
+        "bio": "化学实验做到吐，转码是为了不用再闻那些鬼东西。现在写代码的逻辑和配化学试剂一样——差一个分号程序崩，差一滴试剂实验室爆。副业是给科研狗做数据分析工具。",
+        "experience": "2018-2021 化学硕士 | 2021起全栈开发 | 做过3个科研数据平台",
+        "hackathon_history": "参加过1次生物科技黑客松，做了个AI配方优化工具",
+        "availability": "工作日晚上和周末，白天要上班",
+        "interests": [
+            "科学计算",
+            "数据可视化",
+            "实验室数字化",
+            "化学信息学"
+        ]
+    },
+    "jiu_ba_dj": {
+        "name": "酒吧DJ",
+        "role": "前电音制作人 / 音频算法工程师",
+        "skills": [
+            "C++",
+            "DSP",
+            "音频处理",
+            "实时系统",
+            "MIDI协议"
+        ],
+        "bio": "打碟打了10年，耳朵练出来了，发现音乐软件的算法都是屎。自学了信号处理和编程，现在给音频公司写插件。能听出代码里的延迟，就像能听出混音里的杂音。",
+        "experience": "2013-2023 电音制作人/DJ | 2021起自学编程 | 开发过2个VST插件",
+        "hackathon_history": "第一次参加技术类黑客松，之前都是音乐比赛",
+        "availability": "白天随意，晚上偶尔有演出",
+        "interests": [
+            "音频技术",
+            "实时处理",
+            "音乐科技",
+            "算法艺术"
+        ]
+    },
+    "fei_xing_yuan_404": {
+        "name": "飞行员404",
+        "role": "退役民航机长 / DevOps工程师",
+        "skills": [
+            "Kubernetes",
+            "CI/CD",
+            "飞行系统",
+            "故障排查",
+            "高可用架构"
+        ],
+        "bio": "开了15年飞机，退役后发现部署系统和开飞机很像——都要checklist，都要监控，都不能出错。现在专门做高可用系统，因为我知道99.9%可用性意味着什么。",
+        "experience": "2008-2023 民航机长 | 2023起转DevOps | 负责过2个大型云平台",
+        "hackathon_history": "参加过1次，做了个飞行数据分析平台",
+        "availability": "时间很灵活，已经退休状态",
+        "interests": [
+            "系统可靠性",
+            "监控告警",
+            "航空科技",
+            "灾难恢复"
+        ]
+    },
+    "shou_yi_ren": {
+        "name": "兽医人",
+        "role": "兽医 / 机器学习工程师",
+        "skills": [
+            "Python",
+            "TensorFlow",
+            "医学影像",
+            "计算机视觉",
+            "数据标注"
+        ],
+        "bio": "给猫狗看病看了8年，发现宠物医院的诊断效率低得离谱。自学了机器学习，想做个AI辅助诊断系统。现在白天看病，晚上训练模型，数据集都是自己拍的X光片。",
+        "experience": "2016起执业兽医 | 2022起自学ML | 做过1个宠物疾病识别原型",
+        "hackathon_history": "没参加过，但很想试试",
+        "availability": "周末全天，工作日要看诊",
+        "interests": [
+            "医疗AI",
+            "计算机视觉",
+            "动物福利科技",
+            "边缘计算"
+        ]
+    },
+    "jian_zhu_gong": {
+        "name": "建筑工",
+        "role": "建筑工人 / 3D建模师",
+        "skills": [
+            "Blender",
+            "Unity",
+            "建筑可视化",
+            "VR/AR",
+            "施工流程"
+        ],
+        "bio": "工地搬了10年砖，某天看到BIM建模觉得很酷。自学了3D软件，现在给建筑公司做可视化。我的优势是真的懂施工，模型不会出现那种「这墙根本砌不起来」的bug。",
+        "experience": "2014-2024 建筑工人 | 2023起自学3D | 做过5个建筑可视化项目",
+        "hackathon_history": "第一次参加，想做个VR施工培训系统",
+        "availability": "周末和晚上，白天还在工地",
+        "interests": [
+            "建筑科技",
+            "VR/AR",
+            "数字孪生",
+            "施工安全"
+        ]
+    },
+    "zhan_bu_shi": {
+        "name": "占卜师",
+        "role": "塔罗师 / 数据分析师",
+        "skills": [
+            "Python",
+            "数据可视化",
+            "统计学",
+            "用户画像",
+            "A/B测试"
+        ],
+        "bio": "给人算塔罗算了5年，发现占卜的本质是数据分析和心理学。转行做数据分析师，现在用SQL查询比洗牌还快。客户问我准不准，我说：置信区间95%。",
+        "experience": "2019-2024 职业塔罗师 | 2024起数据分析 | 分析过3个电商平台用户行为",
+        "hackathon_history": "参加过1次，做了个基于ML的性格测试系统",
+        "availability": "工作日晚上和周末",
+        "interests": [
+            "用户研究",
+            "心理学",
+            "推荐系统",
+            "行为分析"
+        ]
+    },
+    "xiao_chou": {
+        "name": "小丑",
+        "role": "马戏团小丑 / 游戏开发者",
+        "skills": [
+            "Unity",
+            "C#",
+            "物理引擎",
+            "动画系统",
+            "关卡设计"
+        ],
+        "bio": "马戏团表演了12年，杂耍和平衡感练到极致。后来发现游戏物理引擎和真实物理一样有趣。现在做独立游戏，专门做那种需要精准操作的硬核平台跳跃游戏。",
+        "experience": "2012-2024 马戏团小丑 | 2022起自学游戏开发 | 发布过1个独立游戏",
+        "hackathon_history": "参加过2次游戏jam，拿过1次最佳玩法奖",
+        "availability": "时间灵活，马戏团已经解散了",
+        "interests": [
+            "游戏设计",
+            "物理模拟",
+            "动作游戏",
+            "独立开发"
+        ]
+    },
+    "silicon_monk": {
+        "name": "硅谷和尚",
+        "role": "Full-stack Developer",
+        "skills": [
+            "React",
+            "Node.js",
+            "Buddhist Philosophy",
+            "Meditation App Development",
+            "Firebase"
+        ],
+        "bio": "湾区码农，每天早上打坐一小时再写代码。做过两个正念 app 都黄了，但还在坚持。TypeScript 写得比经文熟。",
+        "experience": "Google 前端 3 年，现在自由职业接活",
+        "hackathon_history": "拿过 SF Health Tech Hackathon 第二名，做的是冥想追踪器",
+        "availability": "周末全天，工作日晚上 8 点后",
+        "interests": "禅修、开源、素食餐厅测评"
+    },
+    "bug_hunter_lyn": {
+        "name": "Bug猎人Lyn",
+        "role": "QA Engineer",
+        "skills": [
+            "Test Automation",
+            "Selenium",
+            "Postman",
+            "SQL Injection",
+            "Penetration Testing"
+        ],
+        "bio": "多伦多测试工程师，专业找茬五年。朋友说我生活里也像在找 bug，可能职业病了哈哈。会说粤语、英语、Python。",
+        "experience": "Shopify QA 团队，测过上百个电商系统",
+        "hackathon_history": "参加过 3 次黑客松，都是负责质量把关",
+        "availability": "EST 时区，晚上和周末都行",
+        "interests": "密室逃脱、侦探小说、破解游戏"
+    },
+    "pixel_chef": {
+        "name": "像素大厨",
+        "role": "UI/UX Designer",
+        "skills": [
+            "Figma",
+            "Illustration",
+            "Motion Design",
+            "Cooking",
+            "Food Photography"
+        ],
+        "bio": "伦敦设计师 + 业余厨子。白天画界面，晚上做饭拍照。觉得好的 UI 和好菜一样，要色香味俱全。",
+        "experience": "BBC 设计团队待过，现在在创业公司",
+        "hackathon_history": "赢过两次最佳设计奖，作品集在 Behance 上",
+        "availability": "GMT 时区，工作日晚上 + 周末",
+        "interests": "米其林餐厅、动画、街头涂鸦"
+    },
+    "data_witch": {
+        "name": "数据女巫",
+        "role": "Data Scientist",
+        "skills": [
+            "Python",
+            "Machine Learning",
+            "Tarot Reading",
+            "Data Visualization",
+            "Astrology"
+        ],
+        "bio": "纽约数据科学家，白天用 ML 预测用户行为，晚上用塔罗牌算命。两者本质都是找模式对吧？PhD dropout。",
+        "experience": "Meta 数据团队 2 年，现在在金融科技公司",
+        "hackathon_history": "HackNY 拿过 Best Data Hack，项目是用 AI 生成占星报告",
+        "availability": "EST，周末 + 工作日深夜",
+        "interests": "神秘学、爵士乐、独立游戏"
+    },
+    "rust_cowboy": {
+        "name": "Rust牛仔",
+        "role": "Systems Programmer",
+        "skills": [
+            "Rust",
+            "C++",
+            "WebAssembly",
+            "Embedded Systems",
+            "Guitar"
+        ],
+        "bio": "德州程序员，写 Rust 像骑马一样自由。之前在 NASA 做嵌入式，现在搞区块链基础设施。周末玩乡村音乐。",
+        "experience": "航天系统开发 4 年，区块链 2 年",
+        "hackathon_history": "ETHDenver 参赛三次，有一次进了决赛",
+        "availability": "CST 时区，灵活但不熬夜",
+        "interests": "机械键盘、德州烧烤、开源硬件"
+    },
+    "async_poet": {
+        "name": "异步诗人",
+        "role": "Backend Developer",
+        "skills": [
+            "Go",
+            "Kafka",
+            "Poetry Writing",
+            "Distributed Systems",
+            "Redis"
+        ],
+        "bio": "柏林后端，写代码像写诗，追求优雅和效率。Go 协程和现代诗都是我的浪漫。发过两本诗集，都是自费印的。",
+        "experience": "SoundCloud 后端 3 年，处理过亿级流量",
+        "hackathon_history": "Hack.Berlin 常客，喜欢做音乐相关项目",
+        "availability": "CET 时区，下午到深夜",
+        "interests": "实验音乐、文学、城市骑行"
+    },
+    "blockchain_skeptic": {
+        "name": "链圈怀疑论者",
+        "role": "Smart Contract Developer",
+        "skills": [
+            "Solidity",
+            "Web3.js",
+            "Security Audit",
+            "Economics",
+            "Debate"
+        ],
+        "bio": "新加坡 Web3 开发，但不信加密货币能改变世界。就是技术好玩而已。经常在 Twitter 上怼币圈大 V。",
+        "experience": "审计过 50+ 智能合约，发现过几个重大漏洞",
+        "hackathon_history": "ETHGlobal 拿过安全赛道第一",
+        "availability": "SGT 时区，晚上最活跃",
+        "interests": "经济学、辩论、桌游"
+    },
+    "404_philosopher": {
+        "name": "404哲学家",
+        "role": "DevOps Engineer",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "Philosophy",
+            "CI/CD",
+            "Incident Response"
+        ],
+        "bio": "悉尼 DevOps，哲学系毕业转码。觉得运维就是在对抗熵增。凌晨三点被 PagerDuty 叫醒是常态，已经佛系了。",
+        "experience": "Atlassian SRE 团队，管过上千个容器",
+        "hackathon_history": "参加过几次，通常做基础设施工具",
+        "availability": "AEDT 时区，时差党但能配合",
+        "interests": "存在主义、登山、精酿啤酒"
+    },
+    "glitch_artist": {
+        "name": "故障艺术家",
+        "role": "Creative Technologist",
+        "skills": [
+            "Processing",
+            "TouchDesigner",
+            "Generative Art",
+            "Arduino",
+            "VJing"
+        ],
+        "bio": "阿姆斯特丹新媒体艺术家，用代码做装置和视觉表演。技术不是工具是材料。作品在几个美术馆展过，但还是穷。",
+        "experience": "自由艺术家 + 偶尔接商业项目",
+        "hackathon_history": "Art Hack Day 常客，拿过最具创意奖",
+        "availability": "CET，时间很弹性",
+        "interests": "电子音乐、赛博朋克、实验影像"
+    },
+    "legacy_code_archaeologist": {
+        "name": "遗留代码考古学家",
+        "role": "Senior Software Engineer",
+        "skills": [
+            "Java",
+            "COBOL",
+            "Legacy System Migration",
+            "Technical Writing",
+            "Patience"
+        ],
+        "bio": "温哥华老程序员，专门救那些没人敢碰的老系统。见过 30 年前的代码，像考古一样。年轻人觉得我无聊，但我赚得多。",
+        "experience": "银行和政府系统现代化 15 年经验",
+        "hackathon_history": "不常参加，但偶尔会去指导新人",
+        "availability": "PST 时区，工作日晚上",
+        "interests": "历史、徒步、老爷车"
+    },
+    "lao_pao": {
+        "name": "老炮儿",
+        "role": "全栈架构师 / 前创业公司CTO",
+        "skills": [
+            "分布式系统",
+            "Go",
+            "PostgreSQL",
+            "团队管理",
+            "产品sense",
+            "危机公关"
+        ],
+        "bio": "三次创业都没成，但每次都活过B轮。现在自由职业，接点活儿养猫。擅长救火和重构屎山，不擅长写PPT。",
+        "experience": "15年",
+        "hackathon_history": "拿过两次最佳技术奖，组过三次队都进决赛",
+        "availability": "周末全天 + 工作日晚上",
+        "interests": [
+            "开源项目",
+            "精酿啤酒",
+            "老摇滚",
+            "修古董电脑"
+        ]
+    },
+    "grey_hat": {
+        "name": "灰帽子",
+        "role": "安全研究员 / 前渗透测试负责人",
+        "skills": [
+            "Web安全",
+            "逆向工程",
+            "Python",
+            "社会工程学",
+            "漏洞挖掘",
+            "CTF"
+        ],
+        "bio": "大厂安全部门干了八年，见过太多内部烂事。现在做独立安全顾问，偶尔打打CTF保持手感。对隐私和数据保护有执念。",
+        "experience": "12年",
+        "hackathon_history": "参加过五次安全主题黑客松，三次冠军",
+        "availability": "时间弹性，提前三天约",
+        "interests": [
+            "密码学",
+            "隐私技术",
+            "黑胶唱片",
+            "徒步"
+        ]
+    },
+    "db_lao_wang": {
+        "name": "数据库老王",
+        "role": "数据库专家 / 性能优化顾问",
+        "skills": [
+            "MySQL调优",
+            "Redis",
+            "数据建模",
+            "SQL优化",
+            "监控体系",
+            "容量规划"
+        ],
+        "bio": "在某电商公司扛过双十一的人。专治各种慢查询和数据库疑难杂症。不写前端，看到CSS就头疼。",
+        "experience": "18年",
+        "hackathon_history": "很少参加，但每次都是队里的定海神针",
+        "availability": "周末优先，平时看心情",
+        "interests": [
+            "钓鱼",
+            "老武侠小说",
+            "机械键盘",
+            "喝茶"
+        ]
+    },
+    "pixel_poet": {
+        "name": "像素诗人",
+        "role": "独立游戏开发者 / 前游戏公司主程",
+        "skills": [
+            "Unity",
+            "C#",
+            "游戏设计",
+            "像素艺术",
+            "音效制作",
+            "叙事设计"
+        ],
+        "bio": "做过三款独立游戏，都没赚到钱但口碑还行。现在一边接外包一边做自己的项目。相信游戏是第九艺术。",
+        "experience": "11年",
+        "hackathon_history": "参加过七次游戏jam，拿过两次最佳创意",
+        "availability": "夜猫子，晚上10点后最活跃",
+        "interests": [
+            "复古游戏",
+            "电子音乐",
+            "科幻小说",
+            "桌游"
+        ]
+    },
+    "cloud_nomad": {
+        "name": "云游民",
+        "role": "DevOps工程师 / 云架构师",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "AWS",
+            "CI/CD",
+            "监控告警",
+            "成本优化"
+        ],
+        "bio": "在三个大厂的云团队都待过，现在远程工作边旅行边干活。对过度设计和无效会议零容忍。",
+        "experience": "13年",
+        "hackathon_history": "喜欢基础设施类项目，帮过很多队搭环境",
+        "availability": "时区不固定，但响应很快",
+        "interests": [
+            "数字游民",
+            "摄影",
+            "咖啡",
+            "极简主义"
+        ]
+    },
+    "api_dashi": {
+        "name": "API大师",
+        "role": "后端架构师 / API设计专家",
+        "skills": [
+            "RESTful设计",
+            "GraphQL",
+            "微服务",
+            "Java",
+            "Spring",
+            "API网关"
+        ],
+        "bio": "写过上百个API，见过各种奇葩需求。现在做技术咨询，专门帮公司重构烂接口。文档洁癖，代码强迫症。",
+        "experience": "16年",
+        "hackathon_history": "参加过十几次，最喜欢做后端基础设施",
+        "availability": "工作日晚上 + 周六全天",
+        "interests": [
+            "API设计哲学",
+            "咖啡拉花",
+            "爵士乐",
+            "跑步"
+        ]
+    },
+    "mobile_lao_bing": {
+        "name": "移动老兵",
+        "role": "iOS/Android双端开发",
+        "skills": [
+            "Swift",
+            "Kotlin",
+            "React Native",
+            "性能优化",
+            "逆向分析",
+            "UI/UX"
+        ],
+        "bio": "从塞班时代就开始写移动应用。经历过iOS和Android的所有大版本更新。现在主要做跨平台，偶尔帮人逆向竞品。",
+        "experience": "14年",
+        "hackathon_history": "参加过无数次，最擅长48小时内做出能用的App",
+        "availability": "周末全天，平时晚上也行",
+        "interests": [
+            "老手机收藏",
+            "街头摄影",
+            "说唱",
+            "滑板"
+        ]
+    },
+    "protocol_geek": {
+        "name": "协议极客",
+        "role": "网络工程师 / 协议专家",
+        "skills": [
+            "TCP/IP",
+            "WebRTC",
+            "网络协议设计",
+            "C++",
+            "抓包分析",
+            "P2P"
+        ],
+        "bio": "在通信公司干了十年，后来去做实时音视频。对网络底层有病态的好奇心，能用Wireshark看一下午。",
+        "experience": "12年",
+        "hackathon_history": "参加过四次，都是做底层通信相关的项目",
+        "availability": "工作日晚上 + 周日",
+        "interests": [
+            "业余无线电",
+            "网络历史",
+            "科幻",
+            "登山"
+        ]
+    },
+    "frontend_fossil": {
+        "name": "前端化石",
+        "role": "资深前端工程师 / 性能优化专家",
+        "skills": [
+            "JavaScript",
+            "TypeScript",
+            "Vue",
+            "性能优化",
+            "工程化",
+            "可访问性"
+        ],
+        "bio": "从jQuery时代活到现在的前端。见证了无数框架的生死，现在只想写简单好用的代码。对过度工程化和无意义的技术栈深恶痛绝。",
+        "experience": "17年",
+        "hackathon_history": "参加过二十多次，最擅长快速搭建原型",
+        "availability": "周末 + 工作日晚上8点后",
+        "interests": [
+            "Web标准",
+            "老游戏机",
+            "电子音乐制作",
+            "骑行"
+        ]
+    },
+    "sonic_archaeologist": {
+        "name": "声波考古学家",
+        "role": "声音设计师",
+        "skills": [
+            "田野录音",
+            "Ableton Live",
+            "声学空间设计",
+            "老式磁带修复",
+            "ASMR制作"
+        ],
+        "bio": "在废弃工厂录了三年环境音，现在听得出每个城市的低频噪声特征。最近在研究如何用声音重建消失的建筑空间。",
+        "experience": "8年",
+        "hackathon_history": "做过一个用城市噪音生成音乐的项目，拿了最佳创意奖但没人听懂",
+        "availability": "周末全天，工作日晚上10点后",
+        "interests": [
+            "废墟探索",
+            "黑胶唱片",
+            "工业噪音",
+            "声音装置艺术"
+        ]
+    },
+    "leather_punk": {
+        "name": "皮革朋克",
+        "role": "手工皮具匠人",
+        "skills": [
+            "植鞣皮染色",
+            "激光切割",
+            "Arduino",
+            "3D建模",
+            "传统制鞋"
+        ],
+        "bio": "白天缝皮包，晚上写嵌入式代码。想把NFC芯片和手工皮夹结合，但还没找到不破坏美感的方案。",
+        "experience": "5年皮具+3年硬件",
+        "hackathon_history": "第一次参加，想看看能不能做出会呼吸的智能皮革",
+        "availability": "灵活，自由职业",
+        "interests": [
+            "赛博朋克美学",
+            "可穿戴设备",
+            "日本职人文化",
+            "材料科学"
+        ]
+    },
+    "qbit_witch": {
+        "name": "量子女巫",
+        "role": "量子算法研究员",
+        "skills": [
+            "Qiskit",
+            "量子纠错",
+            "线性代数",
+            "Python",
+            "占星术"
+        ],
+        "bio": "PhD在读，研究方向是量子机器学习。业余时间用量子随机数生成塔罗牌阵，朋友说比传统算命准。",
+        "experience": "4年学术研究",
+        "hackathon_history": "参加过两次，都因为解释量子原理花太多时间导致项目没做完",
+        "availability": "周末+周三下午",
+        "interests": [
+            "神秘学",
+            "科幻小说",
+            "量子哲学",
+            "合成器音乐"
+        ]
+    },
+    "urban_ghost": {
+        "name": "都市幽灵",
+        "role": "城市探险者",
+        "skills": [
+            "无人机航拍",
+            "夜间摄影",
+            "地图标注",
+            "社交工程",
+            "攀爬技巧"
+        ],
+        "bio": "去过217个废弃建筑，拍了上万张照片。最擅长找到城市里那些地图上不存在的空间。偶尔帮建筑师做实地调研。",
+        "experience": "6年探险经历",
+        "hackathon_history": "零经验，但想做个废墟导航app",
+        "availability": "深夜时段最佳",
+        "interests": [
+            "建筑史",
+            "都市传说",
+            "跑酷",
+            "地下文化"
+        ]
+    },
+    "fermentation_hacker": {
+        "name": "发酵黑客",
+        "role": "生物艺术家",
+        "skills": [
+            "微生物培养",
+            "生物传感器",
+            "数据可视化",
+            "酿造工艺",
+            "Processing"
+        ],
+        "bio": "用细菌画画，用酵母做音乐。家里有37罐正在发酵的实验品。最近在研究如何让康普茶生长出电路板形状。",
+        "experience": "生物艺术5年",
+        "hackathon_history": "做过一个用发酵速度控制游戏的项目，评委觉得太臭了",
+        "availability": "需要每天回家喂菌，但可以远程协作",
+        "interests": [
+            "DIY生物学",
+            "食物科学",
+            "生成艺术",
+            "可持续设计"
+        ]
+    },
+    "signal_drifter": {
+        "name": "信号漂流者",
+        "role": "无线电爱好者",
+        "skills": [
+            "SDR软件无线电",
+            "天线设计",
+            "信号分析",
+            "Rust",
+            "卫星追踪"
+        ],
+        "bio": "收集各种奇怪的无线电信号，从气象卫星到出租车调度。车库里有一堆自制天线。梦想是接收到外星信号。",
+        "experience": "10年业余无线电",
+        "hackathon_history": "参加过一次，做了个实时航班追踪器",
+        "availability": "晚上8点后，周末全天",
+        "interests": [
+            "太空探索",
+            "密码学",
+            "冷战历史",
+            "电子音乐"
+        ]
+    },
+    "ink_alchemist": {
+        "name": "墨水炼金术士",
+        "role": "传统印刷工艺师",
+        "skills": [
+            "活字印刷",
+            "丝网印刷",
+            "墨水调配",
+            "版画",
+            "Photoshop"
+        ],
+        "bio": "收藏了200多种老式铅字。白天在印刷厂干活，晚上研究如何把区块链和手工印刷结合。每张作品都是独一无二的。",
+        "experience": "7年印刷经验",
+        "hackathon_history": "想做一个物理NFT项目但不知道从哪开始",
+        "availability": "周末+周四晚上",
+        "interests": [
+            "书籍装帧",
+            "字体设计",
+            "Web3",
+            "工艺复兴运动"
+        ]
+    },
+    "data_gardener": {
+        "name": "数据园丁",
+        "role": "信息可视化设计师",
+        "skills": [
+            "D3.js",
+            "R语言",
+            "园艺学",
+            "生态数据分析",
+            "Three.js"
+        ],
+        "bio": "用植物生长数据做可视化，用数据分析指导种菜。阳台上的每棵植物都连着传感器。相信数据和自然可以和谐共存。",
+        "experience": "数据可视化6年+园艺3年",
+        "hackathon_history": "做过一个城市绿化数据地图，获得环保组织赞助",
+        "availability": "早上6-8点和晚上",
+        "interests": [
+            "城市农业",
+            "生态设计",
+            "开源硬件",
+            "慢生活"
+        ]
+    },
+    "glitch_monk": {
+        "name": "故障僧",
+        "role": "实验性程序员",
+        "skills": [
+            "Shader编程",
+            "电路弯曲",
+            "禅修",
+            "Max/MSP",
+            "硬件破解"
+        ],
+        "bio": "写代码像打坐，debug像参禅。专门研究那些'不应该'发生的bug。最喜欢的时刻是程序崩溃出意想不到的美。",
+        "experience": "编程12年+禅修8年",
+        "hackathon_history": "参加过五次，每次都做出完全不符合主题但很有趣的东西",
+        "availability": "冥想时间除外都可以",
+        "interests": [
+            "东方哲学",
+            "生成艺术",
+            "即兴音乐",
+            "反设计"
+        ]
+    },
+    "memory_weaver": {
+        "name": "记忆织工",
+        "role": "档案管理员+纺织艺术家",
+        "skills": [
+            "数字档案",
+            "手工编织",
+            "口述历史",
+            "Python爬虫",
+            "纺织品修复"
+        ],
+        "bio": "把老照片、录音、文字编织成实体织物。每一根线都是一段故事。最近在做一个把家族记忆转化为编织图案的算法。",
+        "experience": "档案工作9年+纺织5年",
+        "hackathon_history": "第一次参加技术类黑客松，之前都是艺术节",
+        "availability": "工作日晚上+周六",
+        "interests": [
+            "家族史",
+            "非遗保护",
+            "数字人文",
+            "触觉艺术"
+        ]
+    },
+    "wu_xian_liu_lang": {
+        "name": "无限流浪",
+        "role": "全栈游牧者",
+        "skills": [
+            "Elixir",
+            "分布式系统",
+            "即兴演奏",
+            "野外生存"
+        ],
+        "bio": "写代码像弹吉他，debug 像生火。三年没碰过 Windows，代码都在帐篷里敲的。OTP 是我的宗教，Phoenix 是我的圣经。",
+        "experience": "6年",
+        "hackathon_history": "拿过两次最佳创意奖，都是在音乐节现场完成的项目",
+        "availability": "随时，只要有网",
+        "interests": [
+            "实时通信",
+            "音乐可视化",
+            "离网技术"
+        ]
+    },
+    "mem_leak": {
+        "name": "MemLeak",
+        "role": "性能偏执狂",
+        "skills": [
+            "C++",
+            "性能分析",
+            "汇编",
+            "极限运动"
+        ],
+        "bio": "如果你的程序跑不到 60fps 别来找我。profiler 是我的第三只眼，内存泄漏是我的宿敌。周末跳伞，工作日跳栈。",
+        "experience": "8年",
+        "hackathon_history": "三次黑客松都因为优化过度被队友踢出来",
+        "availability": "晚上 10 点后",
+        "interests": [
+            "游戏引擎",
+            "实时渲染",
+            "SIMD 优化"
+        ]
+    },
+    "fork_zhi_lu": {
+        "name": "Fork之路",
+        "role": "开源考古学家",
+        "skills": [
+            "Git 历史挖掘",
+            "Rust",
+            "技术写作",
+            "咖啡烘焙"
+        ],
+        "bio": "专门研究那些被遗忘的 GitHub 仓库。给死项目续命是我的爱好，写 postmortem 是我的艺术。commit message 比代码重要。",
+        "experience": "5年",
+        "hackathon_history": "喜欢在黑客松上复活老项目而不是造新轮子",
+        "availability": "工作日白天",
+        "interests": [
+            "软件考古",
+            "文档工程",
+            "版本控制哲学"
+        ]
+    },
+    "neon_samurai": {
+        "name": "霓虹武士",
+        "role": "前端刺客",
+        "skills": [
+            "WebGL",
+            "Three.js",
+            "GLSL",
+            "街头涂鸦"
+        ],
+        "bio": "浏览器就是我的画布，shader 是我的颜料。做过最骄傲的事是用 CSS 画了一整个赛博朋克城市。动画不丝滑我睡不着。",
+        "experience": "4年",
+        "hackathon_history": "拿过最佳视觉设计，但从不用 UI 框架",
+        "availability": "深夜档",
+        "interests": [
+            "生成艺术",
+            "交互设计",
+            "视觉实验"
+        ]
+    },
+    "packet_sniffer": {
+        "name": "数据包嗅探犬",
+        "role": "网络巫师",
+        "skills": [
+            "Wireshark",
+            "网络协议",
+            "Python",
+            "密码学"
+        ],
+        "bio": "能从流量里闻出问题。TCP 握手失败？我比你的防火墙先知道。写过一个用 scapy 实现的诗歌生成器。",
+        "experience": "7年",
+        "hackathon_history": "总是负责后端和安全部分，队友说我是人形 VPN",
+        "availability": "弹性时间",
+        "interests": [
+            "网络安全",
+            "协议逆向",
+            "隐私技术"
+        ]
+    },
+    "async_monk": {
+        "name": "异步僧侣",
+        "role": "并发禅师",
+        "skills": [
+            "Go",
+            "Tokio",
+            "消息队列",
+            "冥想"
+        ],
+        "bio": "goroutine 是我的念珠，channel 是我的经文。写异步代码的时候会进入心流状态，deadlock 是我的公案。",
+        "experience": "6年",
+        "hackathon_history": "擅长在混乱中保持架构清晰，队友叫我'救火队长'",
+        "availability": "早上 6-10 点",
+        "interests": [
+            "并发模型",
+            "分布式共识",
+            "系统设计"
+        ]
+    },
+    "bit_witch": {
+        "name": "比特女巫",
+        "role": "底层召唤师",
+        "skills": [
+            "嵌入式",
+            "FPGA",
+            "Verilog",
+            "占星术"
+        ],
+        "bio": "硬件和软件之间的灰色地带是我的领地。能用逻辑门实现任何东西，包括你的星座运势。RTOS 跑在我的咖啡机上。",
+        "experience": "9年",
+        "hackathon_history": "带过自己焊的开发板参赛，现场烧录固件",
+        "availability": "周末全天",
+        "interests": [
+            "IoT",
+            "硬件黑客",
+            "边缘计算"
+        ]
+    },
+    "json_poet": {
+        "name": "JSON诗人",
+        "role": "API 艺术家",
+        "skills": [
+            "RESTful 设计",
+            "GraphQL",
+            "TypeScript",
+            "即兴诗"
+        ],
+        "bio": "API 文档应该像诗一样优雅。endpoint 命名是一门艺术，status code 是我的韵脚。讨厌 SOAP，热爱 JSON。",
+        "experience": "5年",
+        "hackathon_history": "总是第一个把 API 设计完的人，然后帮别人写集成",
+        "availability": "下午时段",
+        "interests": [
+            "API 设计",
+            "开发者体验",
+            "技术诗歌"
+        ]
+    },
+    "chaos_gardener": {
+        "name": "混沌园丁",
+        "role": "DevOps 炼金术士",
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "混沌工程",
+            "园艺"
+        ],
+        "bio": "基础设施即代码，故障即养分。定期给生产环境注入混沌，看它能不能活下来。容器编排和种菜是同一回事。",
+        "experience": "7年",
+        "hackathon_history": "负责部署和监控，从不让项目在 demo 时挂掉",
+        "availability": "全天候待命",
+        "interests": [
+            "SRE",
+            "可观测性",
+            "韧性工程"
+        ]
+    },
+    "regex_ronin": {
+        "name": "正则浪人",
+        "role": "文本处理剑客",
+        "skills": [
+            "正则表达式",
+            "Perl",
+            "文本挖掘",
+            "书法"
+        ],
+        "bio": "一行正则解决的问题绝不写两行。sed/awk/grep 是我的三把刀。能从日志里提取出你不知道存在的模式。",
+        "experience": "10年",
+        "hackathon_history": "专门处理脏数据和遗留系统，队友的数据清洗救星",
+        "availability": "随叫随到",
+        "interests": [
+            "数据清洗",
+            "日志分析",
+            "模式识别"
+        ]
+    },
+    "pixel_witch": {
+        "name": "像素巫师",
+        "role": "前端视觉开发",
+        "skills": [
+            "CSS动画",
+            "WebGL",
+            "可访问性设计",
+            "像素艺术",
+            "色彩理论"
+        ],
+        "bio": "做过游戏UI，现在搞web动效。会用代码画画，也会用画笔写代码。最近在研究怎么让炫酷特效对屏幕阅读器友好，这事儿比想象中有意思。",
+        "experience": "5年",
+        "hackathon_history": "参加过3次，拿过一次最佳视觉奖",
+        "availability": "周末全天",
+        "interests": [
+            "像素艺术",
+            "无障碍设计",
+            "合成器音乐"
+        ]
+    },
+    "midnight_debugger": {
+        "name": "午夜调试员",
+        "role": "后端工程师",
+        "skills": [
+            "Go",
+            "分布式系统",
+            "性能优化",
+            "凌晨3点找bug",
+            "咖啡因代谢"
+        ],
+        "bio": "生物钟反着来的那种人。白天睡觉晚上写代码，专治各种疑难杂症。上个月帮朋友的创业公司救火，三天没睡把系统从崩溃边缘拉回来了。",
+        "experience": "7年",
+        "hackathon_history": "参加过5次，都是通宵那种",
+        "availability": "晚上8点到凌晨4点",
+        "interests": [
+            "深夜电台",
+            "系统架构",
+            "城市夜景摄影"
+        ]
+    },
+    "quantum_cat": {
+        "name": "薛定谔的喵",
+        "role": "机器学习研究员",
+        "skills": [
+            "PyTorch",
+            "NLP",
+            "量子计算入门",
+            "猫咪行为学",
+            "不确定性建模"
+        ],
+        "bio": "PhD辍学生，觉得学术圈太压抑就跑了。现在自由职业做AI项目，顺便研究怎么用神经网络预测我家猫的心情。对，我真的试过，准确率还行。",
+        "experience": "4年",
+        "hackathon_history": "参加过2次AI主题黑客松",
+        "availability": "工作日下午和晚上",
+        "interests": [
+            "量子物理科普",
+            "猫咪救助",
+            "生成艺术"
+        ]
+    },
+    "void_operator": {
+        "name": "虚空操作符",
         "role": "DevOps工程师",
-        "skills": ["Kubernetes", "CI/CD", "监控系统", "云原生", "安全运维"],
-        "bio": "保证系统稳定运行的幕后英雄。擅长搭建自动化部署流水线，让团队专注于开发而不用操心基础设施。",
-        "experience": "前华为云架构师",
-        "hackathon_history": "2次参赛",
-        "availability": "周末可全天",
-        "interests": ["SRE", "混沌工程", "可观测性"]
+        "skills": [
+            "Kubernetes",
+            "Terraform",
+            "混沌工程",
+            "冥想",
+            "系统崩溃预言"
+        ],
+        "bio": "在大厂干了三年运维，学会了在系统崩溃时保持冷静。现在做freelance，帮各种团队搭基础设施。信奉'拥抱失败'哲学，故障演练做得比谁都勤。",
+        "experience": "6年",
+        "hackathon_history": "参加过4次，负责过2次基础设施搭建",
+        "availability": "灵活，提前一天约",
+        "interests": [
+            "禅修",
+            "灾难恢复",
+            "电子音乐制作"
+        ]
+    },
+    "glitch_poet": {
+        "name": "故障诗人",
+        "role": "创意技术开发",
+        "skills": [
+            "Processing",
+            "Arduino",
+            "声音合成",
+            "即兴表演",
+            "数据可视化"
+        ],
+        "bio": "艺术学院出身转码农，代码写得像诗，bug也当作品看。做过几个互动装置展，最喜欢那种技术和艺术界限模糊的项目。对，我就是那种会给变量起奇怪名字的人。",
+        "experience": "3年",
+        "hackathon_history": "参加过6次艺术科技类活动",
+        "availability": "周末和工作日晚上",
+        "interests": [
+            "实验音乐",
+            "互动装置",
+            "城市探索"
+        ]
+    },
+    "binary_sage": {
+        "name": "二进制贤者",
+        "role": "安全研究员",
+        "skills": [
+            "逆向工程",
+            "密码学",
+            "漏洞挖掘",
+            "古代哲学",
+            "CTF"
+        ],
+        "bio": "白天研究加密算法，晚上读老庄。觉得代码和哲学本质上都是在探索真理，只是语言不同。参加过几次CTF比赛，拿过名次，但更享受解谜的过程。",
+        "experience": "8年",
+        "hackathon_history": "参加过3次安全主题黑客松",
+        "availability": "周末",
+        "interests": [
+            "东方哲学",
+            "密码学历史",
+            "围棋"
+        ]
+    },
+    "neon_architect": {
+        "name": "霓虹建筑师",
+        "role": "全栈开发",
+        "skills": [
+            "React",
+            "Node.js",
+            "赛博朋克美学",
+            "夜店灯光设计",
+            "TypeScript"
+        ],
+        "bio": "白天写代码，周末在club做VJ。喜欢把赛博朋克风格带进产品设计，觉得科技应该更有态度。最近在做一个结合音乐和视觉的web项目，想让浏览器也能蹦迪。",
+        "experience": "5年",
+        "hackathon_history": "参加过7次，组织过1次音乐科技主题活动",
+        "availability": "工作日晚上和周日",
+        "interests": [
+            "电子音乐",
+            "VJ表演",
+            "霓虹灯艺术"
+        ]
+    },
+    "echo_chamber": {
+        "name": "回声室",
+        "role": "音频工程师",
+        "skills": [
+            "Web Audio API",
+            "DSP",
+            "声学设计",
+            "播客制作",
+            "Rust"
+        ],
+        "bio": "做过几年音乐制作，后来发现写音频处理代码更有意思。现在专门搞web端的音频应用，想让浏览器变成DAW。有个小众播客，聊技术和声音的交叉点。",
+        "experience": "4年",
+        "hackathon_history": "参加过3次音频技术相关活动",
+        "availability": "周末和工作日晚上",
+        "interests": [
+            "实验音乐",
+            "声音设计",
+            "播客"
+        ]
+    },
+    "fractal_mind": {
+        "name": "分形之心",
+        "role": "算法工程师",
+        "skills": [
+            "计算几何",
+            "图形学",
+            "数学可视化",
+            "冥想",
+            "Python"
+        ],
+        "bio": "数学系转码的。痴迷于分形和混沌理论，觉得自然界的规律藏在递归里。写过几个数学可视化工具，在GitHub上还挺受欢迎。相信代码可以是冥想的一种形式。",
+        "experience": "5年",
+        "hackathon_history": "参加过4次科学可视化主题活动",
+        "availability": "灵活安排",
+        "interests": [
+            "分形艺术",
+            "数学哲学",
+            "正念练习"
+        ]
+    },
+    "lao_tie_777": {
+        "name": "老铁777",
+        "role": "全栈开发",
+        "skills": [
+            "PHP",
+            "微信小程序",
+            "拼多多API",
+            "Excel VBA",
+            "农产品供应链"
+        ],
+        "bio": "县城回流码农，之前在杭州外包公司干了五年，去年回老家接手家里的苹果生意，顺便给果农做了个产地直发小程序。会写代码也会开拖拉机。",
+        "experience": "8年",
+        "hackathon_history": "参加过两次本地创业大赛，拿过一次三等奖",
+        "availability": "周末全天，工作日晚上",
+        "interests": "农村电商、供应链优化、本地生活服务"
+    },
+    "wu_xian_chong": {
+        "name": "无限虫",
+        "role": "测试工程师",
+        "skills": [
+            "手工测试",
+            "Selenium",
+            "抓包",
+            "写测试用例",
+            "找茬"
+        ],
+        "bio": "三线城市外包公司测试，专业挑刺五年。每天的工作就是想尽办法把产品搞崩，晚上回家继续在游戏里找bug举报。强迫症晚期，看不得界面上有一个像素的偏差。",
+        "experience": "5年",
+        "hackathon_history": "第一次参加黑客松",
+        "availability": "周末和节假日",
+        "interests": "自动化测试、游戏测试、UI细节"
+    },
+    "xiao_zhen_qing_nian": {
+        "name": "小镇青年",
+        "role": "产品经理",
+        "skills": [
+            "需求分析",
+            "Axure",
+            "用户调研",
+            "Excel",
+            "PPT"
+        ],
+        "bio": "县城互联网公司产品狗，做过本地O2O、社区团购、直播带货。见过太多拍脑袋的需求，现在只信数据和真实用户反馈。会画原型也会跟老板battle。",
+        "experience": "4年",
+        "hackathon_history": "组织过一次本地创业沙龙",
+        "availability": "灵活安排",
+        "interests": "下沉市场、本地服务、用户增长"
+    },
+    "dian_jiao_ban": {
+        "name": "电焊板",
+        "role": "硬件开发",
+        "skills": [
+            "Arduino",
+            "树莓派",
+            "焊接",
+            "3D打印",
+            "单片机"
+        ],
+        "bio": "技校毕业的电工，自学编程三年。白天在工厂修设备，晚上在出租屋里捣鼓智能硬件。做过自动浇花器、远程喂猫机，最近在研究怎么给老家的鱼塘装监控。",
+        "experience": "3年编程经验",
+        "hackathon_history": "参加过一次创客马拉松",
+        "availability": "周末",
+        "interests": "物联网、智能家居、农业自动化"
+    },
+    "ye_lu_zi": {
+        "name": "野路子",
+        "role": "前端开发",
+        "skills": [
+            "jQuery",
+            "Bootstrap",
+            "WordPress",
+            "Photoshop",
+            "视频剪辑"
+        ],
+        "bio": "自学成才的前端，没上过培训班，全靠B站和文档。给本地十几家小店做过网站和公众号，收费不高但活儿糙。最近在学Vue，但还是觉得jQuery顺手。",
+        "experience": "2年",
+        "hackathon_history": "没参加过，想试试",
+        "availability": "晚上和周末",
+        "interests": "网页设计、自媒体、接私活"
+    },
+    "shu_ju_lao_nong": {
+        "name": "数据老农",
+        "role": "数据分析",
+        "skills": [
+            "SQL",
+            "Python",
+            "pandas",
+            "Excel透视表",
+            "Power BI"
+        ],
+        "bio": "四线城市政府部门数据员，白天整理报表，晚上研究数据分析。用Python爬过本地房价、分析过菜市场价格波动。想转行但不敢，先攒点项目经验。",
+        "experience": "6年数据工作",
+        "hackathon_history": "没参加过技术类比赛",
+        "availability": "周末全天",
+        "interests": "数据可视化、公共数据、民生分析"
+    },
+    "xiu_che_de_ma_nong": {
+        "name": "修车的码农",
+        "role": "后端开发",
+        "skills": [
+            "Java",
+            "Spring Boot",
+            "MySQL",
+            "汽车维修",
+            "进销存系统"
+        ],
+        "bio": "家里开修理厂，大专学的计算机。给自家店写了个客户管理系统，后来帮周边几家店也做了。现在白天修车晚上写代码，两头都不想放弃。",
+        "experience": "4年",
+        "hackathon_history": "参加过本地创新创业大赛",
+        "availability": "工作日晚上，周日全天",
+        "interests": "汽车后市场、SaaS、小微企业数字化"
+    },
+    "bao_an_ge": {
+        "name": "报安哥",
+        "role": "运维工程师",
+        "skills": [
+            "Linux",
+            "Docker",
+            "Shell脚本",
+            "网络配置",
+            "服务器维护"
+        ],
+        "bio": "县城机房管理员，管着二十几台服务器。之前在网吧当过网管，自学了运维。最擅长半夜接到电话三分钟内ssh上去解决问题，然后继续睡觉。",
+        "experience": "7年",
+        "hackathon_history": "没参加过",
+        "availability": "看情况，不值班的时候都行",
+        "interests": "自动化运维、监控告警、成本优化"
+    },
+    "cun_tou_bo_zhu": {
+        "name": "村头播主",
+        "role": "内容运营",
+        "skills": [
+            "短视频拍摄",
+            "直播",
+            "文案",
+            "社群运营",
+            "基础剪辑"
+        ],
+        "bio": "农村电商创业者，抖音十万粉。每天拍家乡的土特产和农村生活，顺便卖货。想做个小程序把粉丝沉淀下来，但不懂技术，来找队友。",
+        "experience": "3年电商运营",
+        "hackathon_history": "第一次接触黑客松",
+        "availability": "灵活，农忙除外",
+        "interests": "农村电商、短视频、私域流量"
+    },
+    "ban_lu_chu_jia": {
+        "name": "半路出家",
+        "role": "UI设计",
+        "skills": [
+            "Figma",
+            "Sketch",
+            "平面设计",
+            "插画",
+            "用户体验"
+        ],
+        "bio": "原本是广告公司美工，疫情后公司倒闭，自学了UI设计。现在在本地接零散项目，给小程序、APP做界面。审美在线，但不太懂前端实现，经常被程序员怼。",
+        "experience": "2年UI设计",
+        "hackathon_history": "参加过一次设计比赛",
+        "availability": "周末和工作日晚上",
+        "interests": "界面设计、品牌视觉、插画"
+    },
+    "cyber_monk": {
+        "name": "赛博和尚",
+        "role": "全栈禅修者",
+        "skills": [
+            "Rust",
+            "WebAssembly",
+            "佛经 NLP",
+            "冥想 API",
+            "区块链"
+        ],
+        "bio": "写了三年 Rust 后顿悟了，现在代码和打坐一样都是修行。最近在搞佛经语料库的 LLM，想让 AI 也能参透无常。",
+        "experience": "前字节跳动后端，离职后去寺庙住了半年，回来发现 Rust 生态炸了",
+        "hackathon_history": "拿过两次最佳创意奖，有一次是用 WebAssembly 做了个在线木鱼",
+        "availability": "周末全天，工作日晚上看心情",
+        "interests": [
+            "禅宗",
+            "函数式编程",
+            "电子音乐",
+            "素食料理"
+        ]
+    },
+    "packet_witch": {
+        "name": "PacketWitch",
+        "role": "网络女巫",
+        "skills": [
+            "Wireshark",
+            "网络安全",
+            "Python",
+            "社会工程学",
+            "塔罗牌"
+        ],
+        "bio": "白天抓包分析流量，晚上给朋友算塔罗。觉得网络协议和占卜本质上都是解读信息流，只是一个看数据包一个看牌面。",
+        "experience": "安全公司渗透测试工程师 5 年，CTF 老油条",
+        "hackathon_history": "参加过 DEF CON，拿过一次二等奖，队友说我的直觉比扫描器还准",
+        "availability": "随时可以，夜猫子体质",
+        "interests": [
+            "密码学",
+            "神秘学",
+            "暗网考古",
+            "哥特文化"
+        ]
+    },
+    "git_archaeologist": {
+        "name": "Git考古学家",
+        "role": "代码挖掘机",
+        "skills": [
+            "Git",
+            "代码考古",
+            "重构",
+            "技术债清理",
+            "Vim"
+        ],
+        "bio": "专门研究那些没人敢碰的屎山代码，能从 10 年前的 commit 里挖出当年的八卦。重构是艺术，删代码比写代码爽。",
+        "experience": "在三家创业公司干过救火队长，擅长接手烂摊子",
+        "hackathon_history": "不太参加，但帮过很多队伍救项目，人称'黑客松 ICU 医生'",
+        "availability": "工作日晚上 8 点后，周末看情况",
+        "interests": [
+            "开源考古",
+            "技术史",
+            "机械键盘",
+            "精酿啤酒"
+        ]
+    },
+    "shader_punk": {
+        "name": "着色器朋克",
+        "role": "视觉黑客",
+        "skills": [
+            "GLSL",
+            "Three.js",
+            "生成艺术",
+            "VJ",
+            "Max/MSP"
+        ],
+        "bio": "不想当 VJ 的前端不是好艺术家。白天写业务代码养活自己，晚上用 shader 搞视觉实验，梦想是办一场赛博朋克风格的 live coding 派对。",
+        "experience": "前端 3 年，业余 VJ 2 年，在小酒吧演出过十几场",
+        "hackathon_history": "拿过最佳视觉设计奖，作品被主办方用作宣传素材",
+        "availability": "周末优先，工作日要看项目排期",
+        "interests": [
+            "电子音乐",
+            "实验影像",
+            "迷幻文化",
+            "合成器"
+        ]
+    },
+    "db_necromancer": {
+        "name": "数据库死灵法师",
+        "role": "数据复活术士",
+        "skills": [
+            "PostgreSQL",
+            "数据恢复",
+            "SQL 优化",
+            "灾难恢复",
+            "Docker"
+        ],
+        "bio": "能从崩溃的数据库里把数据捞回来，也能让慢查询起死回生。见过太多因为没备份而哭的创业公司，现在做噩梦都是 DROP TABLE。",
+        "experience": "DBA 7 年，救过至少 20 个濒死项目的数据",
+        "hackathon_history": "参加过几次，通常负责数据架构，保证项目不会因为数据问题翻车",
+        "availability": "工作日晚上和周末，但可能随时要去救火",
+        "interests": [
+            "分布式系统",
+            "灾难片",
+            "末日生存",
+            "备份强迫症"
+        ]
+    },
+    "regex_poet": {
+        "name": "正则诗人",
+        "role": "文本炼金术师",
+        "skills": [
+            "正则表达式",
+            "NLP",
+            "爬虫",
+            "数据清洗",
+            "Perl"
+        ],
+        "bio": "觉得正则表达式是最优雅的语言，能用一行正则解决的问题绝不写十行代码。业余时间用正则写诗，虽然没人看得懂。",
+        "experience": "数据工程师 4 年，写过的正则能绕地球一圈",
+        "hackathon_history": "参加过 5 次，有 3 次是帮队友处理脏数据",
+        "availability": "周末全天，平时晚上 9 点后",
+        "interests": [
+            "语言学",
+            "诗歌",
+            "数据艺术",
+            "命令行美学"
+        ]
+    },
+    "async_samurai": {
+        "name": "异步武士",
+        "role": "并发剑客",
+        "skills": [
+            "Go",
+            "并发编程",
+            "微服务",
+            "gRPC",
+            "Kubernetes"
+        ],
+        "bio": "写 Go 像练剑，追求极简和高效。觉得 goroutine 是世界上最优雅的并发模型，channel 就是武士的刀。代码洁癖，见不得 callback hell。",
+        "experience": "后端 6 年，从 Node.js 转到 Go 后再也回不去了",
+        "hackathon_history": "拿过最佳性能奖，项目能扛住百万级并发",
+        "availability": "周末和工作日晚上，时区随意",
+        "interests": [
+            "武士道",
+            "极简主义",
+            "性能优化",
+            "日本文化"
+        ]
+    },
+    "terminal_dj": {
+        "name": "终端DJ",
+        "role": "命令行音乐家",
+        "skills": [
+            "Bash",
+            "自动化",
+            "DevOps",
+            "音频处理",
+            "FFmpeg"
+        ],
+        "bio": "所有操作都在终端完成，包括听歌。用 shell 脚本做过自动化 DJ，能根据心率数据自动选歌。觉得 GUI 是给弱者用的。",
+        "experience": "运维 5 年，写过上百个自动化脚本，有些连自己都忘了干嘛的",
+        "hackathon_history": "参加过几次，通常负责 CI/CD 和部署，让队友专心写代码",
+        "availability": "全天候待命，反正都在终端里",
+        "interests": [
+            "电子音乐",
+            "自动化",
+            "极客文化",
+            "黑胶唱片"
+        ]
+    },
+    "quantum_troll": {
+        "name": "量子钓鱼佬",
+        "role": "薛定谔的程序员",
+        "skills": [
+            "量子计算",
+            "Qiskit",
+            "物理学",
+            "数学",
+            "Python"
+        ],
+        "bio": "物理系退学转码农，但还是对量子计算念念不忘。觉得经典计算太无聊，想用量子算法解决实际问题，虽然现在的量子计算机还很拉。",
+        "experience": "研究生肄业，自学编程 3 年，在量子计算社区比较活跃",
+        "hackathon_history": "参加过两次量子黑客松，拿过一次创新奖",
+        "availability": "时间叠加态，既有空又没空",
+        "interests": [
+            "量子物理",
+            "科幻小说",
+            "哲学",
+            "钓鱼"
+        ]
+    },
+    "memory_hoarder": {
+        "name": "内存囤积狂",
+        "role": "性能偏执狂",
+        "skills": [
+            "C++",
+            "性能优化",
+            "内存管理",
+            "汇编",
+            "Profiling"
+        ],
+        "bio": "看不惯浪费内存的代码，能把程序优化到极致。写 C++ 像在玩俄罗斯方块，每个字节都要物尽其用。梦想是写出零开销抽象的完美代码。",
+        "experience": "游戏引擎开发 8 年，优化过无数个性能瓶颈",
+        "hackathon_history": "参加过几次，通常是队里的性能保障，确保项目不会因为卡顿被淘汰",
+        "availability": "周末和晚上，但不熬夜（要保持大脑性能）",
+        "interests": [
+            "底层技术",
+            "硬件",
+            "极限优化",
+            "收藏老电脑"
+        ]
+    },
+    "liu_guang_ke": {
+        "name": "流光刻",
+        "role": "视觉叙事者",
+        "skills": [
+            "Three.js",
+            "Shader编程",
+            "纪录片剪辑",
+            "声音设计",
+            "Processing"
+        ],
+        "bio": "用代码写诗太慢了，我更喜欢让像素自己说话。白天拍废墟，晚上写shader。最近在研究如何把老胶片的颗粒感移植到WebGL里。",
+        "experience": "5年",
+        "hackathon_history": "参加过3次，拿过一次最佳视觉奖",
+        "availability": "周末全天，工作日晚上",
+        "interests": [
+            "实验电影",
+            "废墟探索",
+            "模拟合成器",
+            "老相机"
+        ]
+    },
+    "mu_yu_ren": {
+        "name": "沐雨人",
+        "role": "后端隐士",
+        "skills": [
+            "Rust",
+            "分布式系统",
+            "茶道",
+            "围棋",
+            "PostgreSQL优化"
+        ],
+        "bio": "写了十年Go，最近在学Rust，发现自己其实更适合慢一点的语言。不太会社交，但代码review写得比聊天还多。下雨天效率最高。",
+        "experience": "10年",
+        "hackathon_history": "第一次参加",
+        "availability": "时间弹性，远程优先",
+        "interests": [
+            "极简主义",
+            "慢生活",
+            "手冲咖啡",
+            "深夜编程"
+        ]
+    },
+    "hui_se_xin_hao": {
+        "name": "灰色信号",
+        "role": "声音考古学家",
+        "skills": [
+            "Web Audio API",
+            "Max/MSP",
+            "田野录音",
+            "Python数据可视化",
+            "电路改造"
+        ],
+        "bio": "收集城市里快要消失的声音——老电话的拨号音、磁带倒带、拨号上网。想做一个声音博物馆，但还在找合适的技术方案。",
+        "experience": "3年",
+        "hackathon_history": "参加过5次，组过2次队",
+        "availability": "周中晚上，周末看情况",
+        "interests": [
+            "声音艺术",
+            "老设备",
+            "磁带文化",
+            "城市田野调查"
+        ]
+    },
+    "ban_ye_shu_dian": {
+        "name": "半夜书店",
+        "role": "文本挖掘师",
+        "skills": [
+            "NLP",
+            "爬虫",
+            "独立出版",
+            "书籍装帧",
+            "Elasticsearch"
+        ],
+        "bio": "在做一个项目：爬取所有绝版书的目录，重建一座虚拟图书馆。白天是数据工程师，晚上是书店老板（虽然书店只存在于我的硬盘里）。",
+        "experience": "6年",
+        "hackathon_history": "参加过4次，都是文化类项目",
+        "availability": "晚上10点后最活跃",
+        "interests": [
+            "绝版书",
+            "小众出版",
+            "书店文化",
+            "文本挖掘"
+        ]
+    },
+    "diu_zhen_ren": {
+        "name": "丢帧人",
+        "role": "游戏叙事设计",
+        "skills": [
+            "Unity",
+            "Ink脚本",
+            "像素艺术",
+            "互动小说",
+            "Godot"
+        ],
+        "bio": "做过三年商业游戏策划，辞职了，现在只做自己想做的小游戏。最长的一个项目做了两年，玩的人不到一百个，但我很满意。",
+        "experience": "5年",
+        "hackathon_history": "参加过7次，拿过2次最佳创意",
+        "availability": "全职自由，时间随意",
+        "interests": [
+            "独立游戏",
+            "互动叙事",
+            "像素美学",
+            "慢节奏游戏"
+        ]
+    },
+    "wu_ming_zhi": {
+        "name": "无名指",
+        "role": "交互设计游民",
+        "skills": [
+            "Figma",
+            "Framer",
+            "用户研究",
+            "陶艺",
+            "Arduino"
+        ],
+        "bio": "设计师，但不太喜欢「设计师」这个标签。更喜欢做一些没人要的东西——比如给植物做的社交网络，或者只能在雨天使用的app。",
+        "experience": "4年",
+        "hackathon_history": "参加过6次，喜欢奇怪的题目",
+        "availability": "周末和工作日晚上",
+        "interests": [
+            "无用设计",
+            "物联网艺术",
+            "植物",
+            "手工制作"
+        ]
+    },
+    "hui_sheng": {
+        "name": "回声",
+        "role": "区块链诗人",
+        "skills": [
+            "Solidity",
+            "Web3.js",
+            "诗歌创作",
+            "加密艺术",
+            "IPFS"
+        ],
+        "bio": "在链上写诗，每一首都是NFT，但我从不卖。觉得代码和诗歌本质上是一样的——都是在有限的规则里创造无限的可能。",
+        "experience": "3年",
+        "hackathon_history": "参加过2次Web3黑客松",
+        "availability": "时差党，凌晨最清醒",
+        "interests": [
+            "加密艺术",
+            "去中心化",
+            "诗歌",
+            "哲学"
+        ]
+    },
+    "jiu_hao_xian": {
+        "name": "旧号线",
+        "role": "数据考古人",
+        "skills": [
+            "数据可视化",
+            "D3.js",
+            "历史研究",
+            "档案整理",
+            "Python爬虫"
+        ],
+        "bio": "在互联网上挖掘被遗忘的数据——老论坛、死掉的博客、404的网站。想做一个「互联网考古博物馆」，但数据太多了，一个人整理不过来。",
+        "experience": "7年",
+        "hackathon_history": "参加过3次，都是数据相关",
+        "availability": "周末全天",
+        "interests": [
+            "互联网考古",
+            "数字遗产",
+            "可视化叙事",
+            "档案学"
+        ]
+    },
+    "mo_sheng_ren": {
+        "name": "陌生人",
+        "role": "隐私工程师",
+        "skills": [
+            "加密算法",
+            "Tor网络",
+            "匿名通信",
+            "安全审计",
+            "Go"
+        ],
+        "bio": "做隐私保护工具，但自己的社交账号一个都没有。相信技术应该保护人，而不是监视人。话不多，但代码写得很干净。",
+        "experience": "8年",
+        "hackathon_history": "参加过4次，都是安全主题",
+        "availability": "不固定，但响应很快",
+        "interests": [
+            "隐私权",
+            "加密技术",
+            "匿名文化",
+            "数字自由"
+        ]
+    },
+    "feng_zhong_zhe": {
+        "name": "风中者",
+        "role": "移动开发游牧人",
+        "skills": [
+            "React Native",
+            "Flutter",
+            "旅行摄影",
+            "地图API",
+            "离线应用"
+        ],
+        "bio": "一年换12个城市，在路上写代码。做过一个app记录每个城市的风速和气味，但没人下载。不过没关系，我自己每天都在用。",
+        "experience": "6年",
+        "hackathon_history": "参加过8次，遍布不同城市",
+        "availability": "看时区，但通常在线",
+        "interests": [
+            "数字游民",
+            "地理信息",
+            "旅行",
+            "慢速摄影"
+        ]
     }
 }

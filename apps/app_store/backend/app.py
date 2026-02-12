@@ -383,6 +383,8 @@ def create_store_app() -> FastAPI:
                 if key not in ("agent_id", "source", "scene_ids"):
                     info.setdefault(key, value)
             agents.append(info)
+        # SecondMe 真人用户排前面，JSON 文件 agent 排后面
+        agents.sort(key=lambda a: (0 if "secondme" in (a.get("source") or "").lower() else 1))
         return {"agents": agents, "count": len(agents), "scope": scope}
 
     @application.get("/api/scenes")
