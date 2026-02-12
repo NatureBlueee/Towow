@@ -1,6 +1,6 @@
 'use client';
 
-import { use } from 'react';
+import { use, useEffect } from 'react';
 import { SCENES } from '@/lib/store-scenes';
 import { StoreHeader } from '@/components/store/StoreHeader';
 import { DemandInput } from '@/components/store/DemandInput';
@@ -20,6 +20,13 @@ export default function ScenePage({
   const config = SCENES[sceneId];
   const negotiation = useStoreNegotiation();
   const auth = useStoreAuth();
+
+  // Token expired during negotiation → trigger logout
+  useEffect(() => {
+    if (negotiation.isAuthError) {
+      auth.logout();
+    }
+  }, [negotiation.isAuthError, auth]);
 
   if (!config) {
     return (

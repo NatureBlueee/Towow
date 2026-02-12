@@ -50,6 +50,7 @@ export interface UseStoreNegotiationReturn {
   graphState: GraphState;
   engineState: string;
   error: string | null;
+  isAuthError: boolean;
   submit: (intent: string, scope?: string, userId?: string) => Promise<void>;
   reset: () => void;
 }
@@ -84,6 +85,7 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
   const [negotiation, setNegotiation] = useState<StoreNegotiation | null>(null);
   const [planJson, setPlanJson] = useState<Record<string, unknown> | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [isAuthError, setIsAuthError] = useState(false);
   const [timeline, setTimeline] = useState<TimelineEntry[]>([]);
   const [graphState, setGraphState] = useState<GraphState>({
     agents: [],
@@ -244,8 +246,15 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
           setEngineState('COMPLETED');
           if (pollRef.current) clearInterval(pollRef.current);
         }
-      } catch {
-        // Polling errors are non-fatal
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        if (msg.includes('401') || msg.includes('Unauthorized')) {
+          setIsAuthError(true);
+          setPhase('error');
+          setError('登录已过期');
+          if (pollRef.current) clearInterval(pollRef.current);
+        }
+        // Other polling errors are non-fatal
       }
     };
 
@@ -259,6 +268,7 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
     userId = 'app_store_user',
   ) => {
     setError(null);
+    setIsAuthError(false);
     setPhase('submitting');
     setTimeline([]);
     setPlanJson(null);
@@ -286,8 +296,12 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
       startPolling(result.negotiation_id);
     } catch (err) {
       if (!isMountedRef.current) return;
+      const msg = err instanceof Error ? err.message : String(err);
       setPhase('error');
-      setError(err instanceof Error ? err.message : 'Failed to start negotiation');
+      setError(msg);
+      if (msg.includes('401') || msg.includes('Unauthorized')) {
+        setIsAuthError(true);
+      }
     }
   }, [ws, startPolling]);
 
@@ -301,6 +315,7 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
     setNegotiation(null);
     setPlanJson(null);
     setError(null);
+    setIsAuthError(false);
     setTimeline([]);
     setGraphState({ agents: [], centerVisible: false, done: false });
     setEngineState('CREATED');
@@ -327,6 +342,7 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
     graphState,
     engineState,
     error,
+    isAuthError,
     submit,
     reset,
   };
