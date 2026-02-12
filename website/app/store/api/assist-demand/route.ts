@@ -7,6 +7,7 @@
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+export const maxDuration = 60;
 
 const BACKEND_URL = process.env.BACKEND_URL || 'http://localhost:8080';
 

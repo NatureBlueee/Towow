@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { StoreHeader } from '@/components/store/StoreHeader';
 import { SceneTabs } from '@/components/store/SceneTabs';
 import { DemandInput } from '@/components/store/DemandInput';
@@ -16,6 +16,13 @@ export default function StorePage() {
   const [activeScene, setActiveScene] = useState<string | null>(null);
   const negotiation = useStoreNegotiation();
   const auth = useStoreAuth();
+
+  // Token expired during negotiation → trigger logout
+  useEffect(() => {
+    if (negotiation.isAuthError) {
+      auth.logout();
+    }
+  }, [negotiation.isAuthError, auth]);
 
   const scope = activeScene ? `scene:${activeScene}` : 'all';
   const scene = getSceneConfig(activeScene || 'hackathon');
