@@ -56,14 +56,15 @@ export interface UseStoreNegotiationReturn {
 }
 
 const STATE_TO_PHASE: Record<string, NegotiationPhase> = {
-  CREATED: 'formulating',
-  FORMULATING: 'formulating',
-  FORMULATED: 'resonating',
-  ENCODING: 'resonating',
-  OFFERING: 'offering',
-  BARRIER_WAITING: 'offering',
-  SYNTHESIZING: 'synthesizing',
-  COMPLETED: 'completed',
+  // Backend NegotiationState enum values are lowercase
+  created: 'formulating',
+  formulating: 'formulating',
+  formulated: 'resonating',
+  encoding: 'resonating',
+  offering: 'offering',
+  barrier_waiting: 'offering',
+  synthesizing: 'synthesizing',
+  completed: 'completed',
 };
 
 const POLL_INTERVAL = 2000;
@@ -255,10 +256,10 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
             const newIdx = PHASE_ORDER.indexOf(polledPhase);
             return newIdx > prevIdx ? polledPhase : prev;
           });
-          setEngineState(data.state);
+          setEngineState(data.state.toUpperCase());
         }
 
-        if (data.state === 'COMPLETED') {
+        if (data.state === 'completed') {
           if (pollRef.current) clearInterval(pollRef.current);
         }
       } catch (err) {
