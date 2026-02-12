@@ -99,9 +99,7 @@ export default function StorePage() {
           <NegotiationProgress
             phase={negotiation.phase}
             participants={negotiation.participants}
-            events={negotiation.events}
             timeline={negotiation.timeline}
-            graphState={negotiation.graphState}
             error={negotiation.error}
             onReset={negotiation.reset}
           />

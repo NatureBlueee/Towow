@@ -1,23 +1,38 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
-import NegotiationGraph from '@/components/negotiation/graph/NegotiationGraph';
 import { DetailPanel } from '@/components/negotiation/DetailPanel';
-import { buildNegotiationState } from '@/lib/store-negotiation-adapter';
 import type { DetailPanelContentType } from '@/components/negotiation/graph/types';
 import type { StoreParticipant } from '@/lib/store-api';
-import type { StoreEvent } from '@/hooks/useStoreWebSocket';
-import type { TimelineEntry, GraphState, NegotiationPhase } from '@/hooks/useStoreNegotiation';
+import type { TimelineEntry, NegotiationPhase } from '@/hooks/useStoreNegotiation';
+import styles from './NegotiationProgress.module.css';
 
 interface NegotiationProgressProps {
   phase: NegotiationPhase;
   participants: StoreParticipant[];
-  events: StoreEvent[];
   timeline: TimelineEntry[];
-  graphState: GraphState;
   error: string | null;
   onReset: () => void;
 }
+
+// ============ Phase Steps Config ============
+
+const STEPS = [
+  { key: 'formulating', label: '需求理解' },
+  { key: 'resonating', label: '共振' },
+  { key: 'offering', label: '响应收集' },
+  { key: 'synthesizing', label: '协调' },
+  { key: 'completed', label: '完成' },
+] as const;
+
+const PHASE_ORDER = [
+  'submitting',
+  'formulating',
+  'resonating',
+  'offering',
+  'synthesizing',
+  'completed',
+] as const;
 
 const PHASE_LABELS: Record<string, string> = {
   submitting: '提交中',
@@ -38,136 +53,72 @@ const DOT_COLORS: Record<string, string> = {
   plan: '#8FD5A3',
 };
 
-type ProgressView = 'timeline' | 'graph';
+const SOURCE_COLORS: Record<string, string> = {
+  secondme: '#F9A87C',
+  json_file: '#C4A0CA',
+  default: '#8FD5A3',
+};
+
+// ============ Step Status Logic ============
+
+function getStepStatus(
+  stepKey: string,
+  currentPhase: string,
+): 'done' | 'active' | 'pending' {
+  const stepIndex = PHASE_ORDER.indexOf(stepKey as (typeof PHASE_ORDER)[number]);
+  const currentIndex = PHASE_ORDER.indexOf(
+    currentPhase as (typeof PHASE_ORDER)[number],
+  );
+  if (currentIndex < 0 || stepIndex < 0) return 'pending';
+  if (currentPhase === 'error') {
+    // error: steps already passed stay done, current step becomes active (CSS marks it red)
+    return stepIndex < currentIndex
+      ? 'done'
+      : stepIndex === currentIndex
+        ? 'active'
+        : 'pending';
+  }
+  if (stepIndex < currentIndex) return 'done';
+  if (stepIndex === currentIndex) return 'active';
+  return 'pending';
+}
+
+// ============ Name Truncation ============
+
+function truncateName(name: string, maxLen: number = 6): string {
+  if (name.length <= maxLen) return name;
+  return name.slice(0, maxLen) + '..';
+}
+
+// ============ Main Component ============
 
 export function NegotiationProgress({
   phase,
   participants,
-  events,
   timeline,
-  graphState,
   error,
   onReset,
 }: NegotiationProgressProps) {
-  const [view, setView] = useState<ProgressView>('graph');
-
-  // ============ NegotiationGraph State ============
-
-  const negotiationState = useMemo(
-    () => buildNegotiationState(events, phase),
-    [events, phase],
-  );
-
-  // ============ Detail Panel State ============
-
+  // ---- Detail Panel State ----
   const [detailPanel, setDetailPanel] = useState<{
     type: DetailPanelContentType;
     data: Record<string, unknown> | null;
   }>({ type: null, data: null });
 
-  // ============ Graph Interaction Handlers ============
-
-  const handleNodeClick = useCallback(
-    (nodeType: 'demand' | 'agent' | 'center', id: string) => {
-      const ns = negotiationState;
-      if (nodeType === 'demand') {
-        setDetailPanel({
-          type: 'demand',
-          data: ns.formulation
-            ? {
-                raw_intent: ns.formulation.raw_intent,
-                formulated_text: ns.formulation.formulated_text,
-                enrichments: ns.formulation.enrichments,
-              }
-            : null,
-        });
-      } else if (nodeType === 'agent') {
-        const agent =
-          ns.resonanceAgents.find((a) => a.agent_id === id) ||
-          ns.filteredAgents.find((a) => a.agent_id === id);
-        const offer = ns.offers.find((o) => o.agent_id === id);
-        const planParticipant = ns.plan?.plan_json?.participants?.find(
-          (p) => p.agent_id === id,
-        );
-        const isFiltered = ns.filteredAgents.some((a) => a.agent_id === id);
-        setDetailPanel({
-          type: 'agent',
-          data: {
-            agent_id: id,
-            display_name: agent?.display_name || id,
-            resonance_score: agent?.resonance_score || 0,
-            isFiltered,
-            offerContent: offer?.content,
-            capabilities: offer?.capabilities || [],
-            roleInPlan: planParticipant?.role_in_plan,
-          },
-        });
-      } else if (nodeType === 'center') {
-        const currentRound =
-          ns.centerActivities.length > 0
-            ? ns.centerActivities[ns.centerActivities.length - 1].round_number
-            : 0;
-        setDetailPanel({
-          type: 'center',
-          data: {
-            activities: ns.centerActivities,
-            roundNumber: currentRound,
-          },
-        });
-      }
-    },
-    [negotiationState],
-  );
-
-  const handleEdgeClick = useCallback(
-    (edgeId: string) => {
-      const ns = negotiationState;
-      if (edgeId.startsWith('res_')) {
-        const agentId = edgeId.replace('res_', '');
-        const agent =
-          ns.resonanceAgents.find((a) => a.agent_id === agentId) ||
-          ns.filteredAgents.find((a) => a.agent_id === agentId);
-        setDetailPanel({
-          type: 'resonance_edge',
-          data: {
-            agent_id: agentId,
-            display_name: agent?.display_name || agentId,
-            resonance_score: agent?.resonance_score || 0,
-          },
-        });
-      } else if (edgeId.startsWith('int_')) {
-        const match = edgeId.match(/^int_(\d+)/);
-        if (!match) return;
-        const activityIdx = parseInt(match[1], 10);
-        const activity = ns.centerActivities[activityIdx];
-        setDetailPanel({
-          type: 'interaction_edge',
-          data: {
-            edgeId,
-            interactionType: activity?.tool_name || 'ask_agent',
-            toolArgs: activity?.tool_args || {},
-            roundNumber: activity?.round_number || 0,
-          },
-        });
-      }
-    },
-    [negotiationState],
-  );
-
-  const handleTaskClick = useCallback(
-    (taskId: string) => {
-      const task = negotiationState.plan?.plan_json?.tasks?.find(
-        (t) => t.id === taskId,
-      );
-      if (task) {
-        setDetailPanel({
-          type: 'task',
-          data: task as unknown as Record<string, unknown>,
-        });
-      }
-    },
-    [negotiationState],
-  );
+  const handleAgentClick = useCallback((participant: StoreParticipant) => {
+    setDetailPanel({
+      type: 'agent',
+      data: {
+        agent_id: participant.agent_id,
+        display_name: participant.display_name,
+        resonance_score: participant.resonance_score,
+        isFiltered: false,
+        offerContent: participant.offer_content,
+        capabilities: [],
+        roleInPlan: undefined,
+      },
+    });
+  }, []);
 
   const handleCloseDetail = useCallback(() => {
     setDetailPanel({ type: null, data: null });
@@ -176,129 +127,19 @@ export function NegotiationProgress({
   if (phase === 'idle') return null;
 
   return (
-    <div
-      style={{
-        padding: '20px',
-        borderRadius: 12,
-        border: '1px solid rgba(0,0,0,0.06)',
-        backgroundColor: '#fff',
-      }}
-    >
-      {/* Header with view toggle */}
-      <div
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          marginBottom: 16,
-        }}
-      >
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <span style={{ fontSize: 14, fontWeight: 600 }}>协商进度</span>
-          <span
-            style={{
-              fontSize: 12,
-              padding: '2px 8px',
-              borderRadius: 4,
-              backgroundColor:
-                phase === 'completed' ? '#D4F4DD'
-                : phase === 'error' ? '#FFE4E4'
-                : '#FFF4E0',
-              color:
-                phase === 'completed' ? '#2D7A3F'
-                : phase === 'error' ? '#CC3333'
-                : '#B8860B',
-            }}
-          >
-            {PHASE_LABELS[phase] || phase}
-          </span>
-        </div>
-        <div style={{ display: 'flex', gap: 4 }}>
-          <ViewTab label="图谱" isActive={view === 'graph'} onClick={() => setView('graph')} />
-          <ViewTab label="时间线" isActive={view === 'timeline'} onClick={() => setView('timeline')} />
-        </div>
-      </div>
-
-      {/* Error */}
-      {error && (
-        <div
-          style={{
-            padding: '8px 12px',
-            borderRadius: 6,
-            backgroundColor: '#FFF0F0',
-            color: '#CC3333',
-            fontSize: 13,
-            marginBottom: 12,
-          }}
-        >
-          {error}
-        </div>
-      )}
-
-      {/* Content */}
-      {view === 'timeline' ? (
-        <TimelineView timeline={timeline} />
-      ) : (
-        <div style={{ width: '100%', maxWidth: 800, margin: '0 auto' }}>
-          <NegotiationGraph
-            state={negotiationState}
-            onNodeClick={handleNodeClick}
-            onEdgeClick={handleEdgeClick}
-            onTaskClick={handleTaskClick}
-          />
-        </div>
-      )}
-
-      {/* Participants */}
-      {participants.length > 0 && (
-        <div style={{ marginTop: 12 }}>
-          <div style={{ fontSize: 12, color: '#999', marginBottom: 6 }}>
-            参与者 ({participants.length})
-          </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            {participants.map((p) => (
-              <span
-                key={p.agent_id}
-                style={{
-                  fontSize: 12,
-                  padding: '3px 8px',
-                  borderRadius: 4,
-                  backgroundColor: 'rgba(0,0,0,0.04)',
-                  color: '#555',
-                }}
-              >
-                {p.display_name}
-                {p.resonance_score > 0 && (
-                  <span style={{ color: '#999', marginLeft: 4 }}>
-                    {(p.resonance_score * 100).toFixed(0)}%
-                  </span>
-                )}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Reset */}
+    <div className={styles.container}>
+      <Header phase={phase} />
+      {error && <ErrorBanner error={error} />}
+      <PhaseSteps phase={phase} />
+      <AgentGrid
+        participants={participants}
+        phase={phase}
+        onAgentClick={handleAgentClick}
+      />
+      <ActivityFeed timeline={timeline} phase={phase} />
       {(phase === 'completed' || phase === 'error') && (
-        <button
-          onClick={onReset}
-          style={{
-            marginTop: 12,
-            padding: '8px 16px',
-            borderRadius: 6,
-            border: '1px solid rgba(0,0,0,0.1)',
-            backgroundColor: '#fff',
-            color: '#333',
-            fontSize: 13,
-            cursor: 'pointer',
-          }}
-        >
-          重新开始
-        </button>
+        <ResetButton onReset={onReset} />
       )}
-
-      {/* Detail Panel (fixed position, slides from right on node click) */}
       <DetailPanel
         type={detailPanel.type}
         data={detailPanel.data}
@@ -308,31 +149,198 @@ export function NegotiationProgress({
   );
 }
 
-function ViewTab({ label, isActive, onClick }: { label: string; isActive: boolean; onClick: () => void }) {
+// ============ Header ============
+
+function Header({ phase }: { phase: NegotiationPhase }) {
+  const badgeClass =
+    phase === 'completed'
+      ? styles.statusBadgeCompleted
+      : phase === 'error'
+        ? styles.statusBadgeError
+        : styles.statusBadgeActive;
+
   return (
-    <button
-      onClick={onClick}
-      style={{
-        fontSize: 12,
-        padding: '4px 10px',
-        borderRadius: 4,
-        border: isActive ? '1px solid #D4B8D9' : '1px solid rgba(0,0,0,0.08)',
-        backgroundColor: isActive ? '#D4B8D918' : 'transparent',
-        color: isActive ? '#D4B8D9' : '#999',
-        cursor: 'pointer',
-        fontWeight: isActive ? 600 : 400,
-      }}
-    >
-      {label}
-    </button>
+    <div className={styles.header}>
+      <div className={styles.headerLeft}>
+        <span className={styles.headerTitle}>协商进度</span>
+        <span className={`${styles.statusBadge} ${badgeClass}`}>
+          {PHASE_LABELS[phase] || phase}
+        </span>
+      </div>
+    </div>
   );
 }
 
-// ============ Timeline View ============
+// ============ Error Banner ============
 
-function TimelineView({ timeline }: { timeline: TimelineEntry[] }) {
+function ErrorBanner({ error }: { error: string }) {
+  return <div className={styles.errorBanner}>{error}</div>;
+}
+
+// ============ Phase Steps ============
+
+function PhaseSteps({ phase }: { phase: NegotiationPhase }) {
+  return (
+    <div className={styles.phaseSteps}>
+      {STEPS.map((step, i) => {
+        const status = getStepStatus(step.key, phase);
+        const isError = phase === 'error' && status === 'active';
+
+        const dotClass =
+          status === 'done'
+            ? styles.stepDotDone
+            : status === 'active'
+              ? isError
+                ? styles.stepDotError
+                : styles.stepDotActive
+              : styles.stepDot;
+
+        const lineClass =
+          status === 'done' ? styles.stepLineDone : styles.stepLine;
+
+        const labelClass =
+          status === 'done'
+            ? styles.stepLabelDone
+            : status === 'active'
+              ? isError
+                ? styles.stepLabelError
+                : styles.stepLabelActive
+              : styles.stepLabel;
+
+        return (
+          <div key={step.key} className={styles.stepWrapper}>
+            <div className={styles.step}>
+              <div className={dotClass}>
+                {status === 'done' && (
+                  <svg
+                    width="10"
+                    height="10"
+                    viewBox="0 0 10 10"
+                    fill="none"
+                  >
+                    <path
+                      d="M2.5 5L4.5 7L7.5 3"
+                      stroke="white"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  </svg>
+                )}
+              </div>
+              <span className={labelClass}>{step.label}</span>
+            </div>
+            {i < STEPS.length - 1 && (
+              <div className={lineClass} />
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+// ============ Agent Grid ============
+
+function AgentGrid({
+  participants,
+  phase,
+  onAgentClick,
+}: {
+  participants: StoreParticipant[];
+  phase: NegotiationPhase;
+  onAgentClick: (p: StoreParticipant) => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const DEFAULT_VISIBLE_COUNT = 12;
+
+  const sorted = useMemo(
+    () =>
+      [...participants].sort((a, b) => b.resonance_score - a.resonance_score),
+    [participants],
+  );
+  const visible = expanded ? sorted : sorted.slice(0, DEFAULT_VISIBLE_COUNT);
+
+  if (participants.length === 0) return null;
+
+  return (
+    <div className={styles.agentSection}>
+      <div className={styles.agentSectionHeader}>
+        <span className={styles.agentSectionTitle}>
+          参与者 ({participants.length})
+        </span>
+      </div>
+      <div className={styles.agentGrid}>
+        {visible.map((p, index) => {
+          const hasOffer = !!p.offer_content;
+          const sourceColor =
+            SOURCE_COLORS[p.source || ''] || SOURCE_COLORS.default;
+          const percent = Math.round(p.resonance_score * 100);
+
+          return (
+            <button
+              key={p.agent_id}
+              className={styles.agentCard}
+              style={
+                {
+                  '--delay': `${index * 0.05}s`,
+                  '--source-color': sourceColor,
+                } as React.CSSProperties
+              }
+              onClick={() => onAgentClick(p)}
+              type="button"
+            >
+              <div className={styles.agentName} title={p.display_name}>
+                {truncateName(p.display_name)}
+              </div>
+              <div className={styles.agentScore}>{percent}%</div>
+              <div
+                className={
+                  hasOffer ? styles.agentStatusDone : styles.agentStatus
+                }
+              >
+                {hasOffer ? '已回应' : '等待中'}
+              </div>
+            </button>
+          );
+        })}
+      </div>
+      {sorted.length > DEFAULT_VISIBLE_COUNT && (
+        <button
+          className={styles.expandButton}
+          onClick={() => setExpanded((prev) => !prev)}
+          type="button"
+        >
+          {expanded
+            ? '收起'
+            : `展开全部 (${sorted.length - DEFAULT_VISIBLE_COUNT} more)`}
+        </button>
+      )}
+    </div>
+  );
+}
+
+// ============ Activity Feed ============
+
+function ActivityFeed({
+  timeline,
+  phase,
+}: {
+  timeline: TimelineEntry[];
+  phase: NegotiationPhase;
+}) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [showTools, setShowTools] = useState(false);
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+
+  const mainEvents = useMemo(
+    () => timeline.filter((e) => e.dotType !== 'tool'),
+    [timeline],
+  );
+  const toolEvents = useMemo(
+    () => timeline.filter((e) => e.dotType === 'tool'),
+    [timeline],
+  );
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -342,100 +350,136 @@ function TimelineView({ timeline }: { timeline: TimelineEntry[] }) {
 
   if (timeline.length === 0) {
     return (
-      <div style={{ fontSize: 13, color: '#999', padding: '16px 0' }}>
-        等待事件...
+      <div className={styles.activitySection}>
+        <div className={styles.activityEmpty}>等待事件...</div>
       </div>
     );
   }
 
+  // Compute expandedItems indices relative to the original timeline
+  // for mainEvents: we need the original index for fullDetail toggling
+  const mainWithIndex = timeline
+    .map((entry, i) => ({ entry, originalIndex: i }))
+    .filter(({ entry }) => entry.dotType !== 'tool');
+  const toolWithIndex = timeline
+    .map((entry, i) => ({ entry, originalIndex: i }))
+    .filter(({ entry }) => entry.dotType === 'tool');
+
   return (
-    <div
-      ref={scrollRef}
-      style={{
-        maxHeight: 300,
-        overflowY: 'auto',
-        paddingLeft: 16,
-      }}
-    >
-      {timeline.map((entry, i) => (
-        <div
-          key={i}
-          style={{
-            display: 'flex',
-            gap: 12,
-            paddingBottom: 12,
-            position: 'relative',
-          }}
-        >
-          {/* Vertical line */}
-          {i < timeline.length - 1 && (
-            <div
-              style={{
-                position: 'absolute',
-                left: 5,
-                top: 16,
-                bottom: 0,
-                width: 1,
-                backgroundColor: 'rgba(0,0,0,0.08)',
-              }}
-            />
-          )}
-          {/* Dot */}
-          <div
-            style={{
-              width: 10,
-              height: 10,
-              borderRadius: '50%',
-              backgroundColor: DOT_COLORS[entry.dotType] || '#ccc',
-              marginTop: 4,
-              flexShrink: 0,
-              position: 'relative',
-              zIndex: 1,
-            }}
+    <div className={styles.activitySection}>
+      <div className={styles.activitySectionHeader}>
+        <span className={styles.activitySectionTitle}>活动记录</span>
+      </div>
+      <div ref={scrollRef} className={styles.activityScroll}>
+        {mainWithIndex.map(({ entry, originalIndex }, i) => (
+          <ActivityItem
+            key={originalIndex}
+            entry={entry}
+            isLast={
+              i === mainWithIndex.length - 1 && toolWithIndex.length === 0
+            }
+            isExpanded={expandedItems.has(originalIndex)}
+            onToggleExpand={() =>
+              setExpandedItems((prev) => {
+                const next = new Set(prev);
+                if (next.has(originalIndex)) next.delete(originalIndex);
+                else next.add(originalIndex);
+                return next;
+              })
+            }
           />
-          {/* Content */}
-          <div style={{ minWidth: 0, flex: 1 }}>
-            <div style={{ fontSize: 13, fontWeight: 600, color: '#333' }}>
-              {entry.title}
-            </div>
-            {entry.detail && (
-              <div
-                style={{
-                  fontSize: 12,
-                  color: '#666',
-                  marginTop: 2,
-                  lineHeight: 1.5,
-                  wordBreak: 'break-word',
-                }}
-              >
-                {expandedItems.has(i) && entry.fullDetail ? entry.fullDetail : entry.detail}
-                {entry.fullDetail && (
-                  <button
-                    onClick={() => setExpandedItems(prev => {
+        ))}
+
+        {/* Tool calls — collapsible section */}
+        {toolWithIndex.length > 0 && (
+          <>
+            <button
+              className={styles.expandToggle}
+              onClick={() => setShowTools((prev) => !prev)}
+              type="button"
+            >
+              {showTools
+                ? '收起工具调用'
+                : `展开工具调用 (${toolWithIndex.length})`}
+            </button>
+            {showTools &&
+              toolWithIndex.map(({ entry, originalIndex }, i) => (
+                <ActivityItem
+                  key={originalIndex}
+                  entry={entry}
+                  isLast={i === toolWithIndex.length - 1}
+                  isExpanded={expandedItems.has(originalIndex)}
+                  onToggleExpand={() =>
+                    setExpandedItems((prev) => {
                       const next = new Set(prev);
-                      if (next.has(i)) next.delete(i); else next.add(i);
+                      if (next.has(originalIndex))
+                        next.delete(originalIndex);
+                      else next.add(originalIndex);
                       return next;
-                    })}
-                    style={{
-                      display: 'inline',
-                      marginLeft: 4,
-                      padding: 0,
-                      border: 'none',
-                      background: 'none',
-                      color: '#D4B8D9',
-                      fontSize: 12,
-                      cursor: 'pointer',
-                      textDecoration: 'underline',
-                    }}
-                  >
-                    {expandedItems.has(i) ? '收起' : '展开全部'}
-                  </button>
-                )}
-              </div>
+                    })
+                  }
+                />
+              ))}
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============ Activity Item ============
+
+function ActivityItem({
+  entry,
+  isLast,
+  isExpanded,
+  onToggleExpand,
+}: {
+  entry: TimelineEntry;
+  isLast: boolean;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+}) {
+  return (
+    <div className={styles.activityItem}>
+      {!isLast && <div className={styles.activityLine} />}
+      <div
+        className={styles.activityDot}
+        style={
+          {
+            '--dot-color': DOT_COLORS[entry.dotType] || '#ccc',
+          } as React.CSSProperties
+        }
+      />
+      <div className={styles.activityContent}>
+        <div className={styles.activityTitle}>{entry.title}</div>
+        {entry.detail && (
+          <div className={styles.activityDetail}>
+            {isExpanded && entry.fullDetail ? entry.fullDetail : entry.detail}
+            {entry.fullDetail && (
+              <button
+                className={styles.activityExpandBtn}
+                onClick={onToggleExpand}
+                type="button"
+              >
+                {isExpanded ? '收起' : '展开全部'}
+              </button>
             )}
           </div>
-        </div>
-      ))}
+        )}
+      </div>
+    </div>
+  );
+}
+
+// ============ Reset Button ============
+
+function ResetButton({ onReset }: { onReset: () => void }) {
+  return (
+    <div className={styles.resetRow}>
+      <button className={styles.resetButton} onClick={onReset} type="button">
+        重新开始
+      </button>
     </div>
   );
 }

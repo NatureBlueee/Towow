@@ -1,0 +1,541 @@
+/* ============================================================
+   NegotiationProgress — CSS Module
+   Pure HTML/CSS flow layout replacing fixed-coordinate SVG graph.
+   Light theme only. Brand: purple #D4B8D9, green #8FD5A3, orange #F9A87C
+   ============================================================ */
+
+/* ============ Container ============ */
+
+.container {
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  background-color: #fff;
+}
+
+/* ============ Header ============ */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16px;
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.headerTitle {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* ============ Status Badge ============ */
+
+.statusBadge {
+  display: inline-block;
+  font-size: 12px;
+  font-weight: 500;
+  padding: 2px 8px;
+  border-radius: 4px;
+  line-height: 1.5;
+  white-space: nowrap;
+}
+
+.statusBadgeCompleted {
+  background-color: #D4F4DD;
+  color: #2D7A3F;
+}
+
+.statusBadgeError {
+  background-color: #FFE4E4;
+  color: #CC3333;
+}
+
+.statusBadgeActive {
+  background-color: #FFF4E0;
+  color: #B8860B;
+}
+
+/* ============ Error Banner ============ */
+
+.errorBanner {
+  padding: 8px 12px;
+  border-radius: 6px;
+  background-color: #FFF0F0;
+  border: 1px solid rgba(204, 51, 51, 0.1);
+  color: #CC3333;
+  font-size: 13px;
+  line-height: 1.5;
+  margin-bottom: 12px;
+}
+
+/* ============ Phase Steps ============ */
+
+.phaseSteps {
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  margin-bottom: 20px;
+  padding: 0 8px;
+}
+
+.stepWrapper {
+  display: flex;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.stepWrapper:last-child {
+  flex: 0 0 auto;
+}
+
+.step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  min-width: 48px;
+}
+
+/* Step dots — shared base */
+
+.stepDot,
+.stepDotDone,
+.stepDotActive,
+.stepDotError {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stepDot {
+  background-color: #e8e8e8;
+}
+
+.stepDotDone {
+  background-color: #8FD5A3;
+}
+
+.stepDotActive {
+  background-color: #D4B8D9;
+  box-shadow: 0 0 0 4px rgba(212, 184, 217, 0.25);
+  animation: stepPulse 2s ease-in-out infinite;
+}
+
+.stepDotError {
+  background-color: #CC3333;
+  box-shadow: 0 0 0 4px rgba(204, 51, 51, 0.15);
+}
+
+@keyframes stepPulse {
+  0%, 100% { box-shadow: 0 0 0 4px rgba(212, 184, 217, 0.25); }
+  50% { box-shadow: 0 0 0 8px rgba(212, 184, 217, 0.1); }
+}
+
+/* Step connector lines */
+
+.stepLine,
+.stepLineDone {
+  height: 2px;
+  flex: 1;
+  margin-top: 9px; /* vertically center with 20px dot */
+  min-width: 16px;
+  border-radius: 1px;
+  transition: background-color 0.3s ease;
+}
+
+.stepLine {
+  background-color: #e8e8e8;
+}
+
+.stepLineDone {
+  background-color: #8FD5A3;
+}
+
+/* Step labels */
+
+.stepLabel,
+.stepLabelDone,
+.stepLabelActive,
+.stepLabelError {
+  font-size: 11px;
+  white-space: nowrap;
+  text-align: center;
+  transition: color 0.3s ease;
+}
+
+.stepLabel {
+  color: #bbb;
+}
+
+.stepLabelDone {
+  color: #2D7A3F;
+  font-weight: 500;
+}
+
+.stepLabelActive {
+  color: #8B6A92;
+  font-weight: 600;
+}
+
+.stepLabelError {
+  color: #CC3333;
+  font-weight: 600;
+}
+
+/* ============ Agent Section ============ */
+
+.agentSection {
+  margin-bottom: 16px;
+}
+
+.agentSectionHeader {
+  margin-bottom: 8px;
+}
+
+.agentSectionTitle {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+.agentGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* Agent Card */
+
+.agentCard {
+  width: 110px;
+  padding: 10px 8px;
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-left: 3px solid var(--source-color, #8FD5A3);
+  background-color: #fff;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  /* Entry animation with stagger via --delay */
+  opacity: 0;
+  transform: translateY(8px);
+  animation: cardEnter 0.35s ease-out forwards;
+  animation-delay: var(--delay, 0s);
+}
+
+.agentCard:hover {
+  border-color: rgba(0, 0, 0, 0.12);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+@keyframes cardEnter {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.agentName {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.agentScore {
+  font-size: 12px;
+  color: #888;
+  font-weight: 500;
+}
+
+.agentStatus {
+  font-size: 11px;
+  color: #bbb;
+}
+
+.agentStatusDone {
+  font-size: 11px;
+  color: #2D7A3F;
+  font-weight: 500;
+}
+
+/* Expand button (agents) */
+
+.expandButton {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 6px 12px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 6px;
+  background: none;
+  color: #888;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.expandButton:hover {
+  color: #555;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* ============ Activity Feed ============ */
+
+.activitySection {
+  margin-bottom: 12px;
+}
+
+.activitySectionHeader {
+  margin-bottom: 8px;
+}
+
+.activitySectionTitle {
+  font-size: 12px;
+  color: #999;
+  font-weight: 500;
+}
+
+.activityScroll {
+  max-height: 300px;
+  overflow-y: auto;
+  padding-left: 16px;
+}
+
+.activityEmpty {
+  font-size: 13px;
+  color: #999;
+  padding: 16px 0;
+}
+
+/* Activity Item */
+
+.activityItem {
+  display: flex;
+  gap: 12px;
+  padding-bottom: 12px;
+  position: relative;
+  animation: activityAppear 0.3s ease-out both;
+}
+
+.activityLine {
+  position: absolute;
+  left: 5px;
+  top: 16px;
+  bottom: 0;
+  width: 1px;
+  background-color: rgba(0, 0, 0, 0.08);
+}
+
+.activityDot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background-color: var(--dot-color, #ccc);
+  margin-top: 4px;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.activityContent {
+  min-width: 0;
+  flex: 1;
+}
+
+.activityTitle {
+  font-size: 13px;
+  font-weight: 600;
+  color: #333;
+}
+
+.activityDetail {
+  font-size: 12px;
+  color: #666;
+  margin-top: 2px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+/* Inline expand button inside activity detail */
+
+.activityExpandBtn {
+  display: inline;
+  margin-left: 4px;
+  padding: 0;
+  border: none;
+  background: none;
+  color: #D4B8D9;
+  font-size: 12px;
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+.activityExpandBtn:hover {
+  color: #8B6A92;
+}
+
+/* Tool calls expand/collapse toggle */
+
+.expandToggle {
+  display: block;
+  padding: 4px 10px;
+  margin: 4px 0 8px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 4px;
+  background: none;
+  color: #999;
+  font-size: 12px;
+  cursor: pointer;
+  transition: color 0.2s ease, border-color 0.2s ease;
+}
+
+.expandToggle:hover {
+  color: #666;
+  border-color: rgba(0, 0, 0, 0.15);
+}
+
+/* ============ Reset Button ============ */
+
+.resetRow {
+  padding-top: 4px;
+}
+
+.resetButton {
+  padding: 8px 16px;
+  border-radius: 6px;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  background-color: #fff;
+  color: #333;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.15s ease, border-color 0.15s ease;
+}
+
+.resetButton:hover {
+  background-color: #fafafa;
+  border-color: rgba(0, 0, 0, 0.18);
+}
+
+.resetButton:active {
+  background-color: rgba(0, 0, 0, 0.04);
+}
+
+/* ============ Keyframe Animations ============ */
+
+@keyframes activityAppear {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ============ Responsive ============ */
+
+@media (max-width: 640px) {
+  .container {
+    padding: 16px;
+  }
+
+  .stepLabel,
+  .stepLabelDone,
+  .stepLabelActive,
+  .stepLabelError {
+    font-size: 10px;
+  }
+
+  .agentCard {
+    width: 96px;
+    padding: 8px;
+  }
+
+  .agentName {
+    font-size: 11px;
+  }
+
+  .agentScore {
+    font-size: 10px;
+  }
+
+  .activityScroll {
+    max-height: 240px;
+  }
+}
+
+@media (max-width: 420px) {
+  .container {
+    padding: 12px;
+    border-radius: 8px;
+  }
+
+  .stepLabel,
+  .stepLabelDone,
+  .stepLabelActive,
+  .stepLabelError {
+    font-size: 9px;
+  }
+
+  .stepDot,
+  .stepDotDone,
+  .stepDotActive,
+  .stepDotError {
+    width: 16px;
+    height: 16px;
+  }
+
+  .stepLine,
+  .stepLineDone {
+    margin-top: 7px;
+  }
+
+  .agentGrid {
+    gap: 6px;
+  }
+
+  .agentCard {
+    width: 88px;
+    padding: 6px;
+    gap: 2px;
+  }
+
+  .agentName {
+    font-size: 10px;
+  }
+
+  .agentScore {
+    font-size: 9px;
+  }
+
+  .agentStatus,
+  .agentStatusDone {
+    font-size: 9px;
+  }
+}
