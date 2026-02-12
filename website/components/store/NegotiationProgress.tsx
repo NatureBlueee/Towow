@@ -214,17 +214,23 @@ function ResonanceBanner({
   const isScanning = phase === 'formulating' || phase === 'resonating';
   const hasResonated = resonatedCount > 0;
 
+  // Scale resonated dot count proportionally when capped (preserve visual density accuracy)
+  const scaledResonatedCount =
+    totalAgentCount > DOT_CAP
+      ? Math.max(1, Math.round((resonatedCount / totalAgentCount) * displayCount))
+      : resonatedCount;
+
   // Evenly distribute resonated highlights across the dot cloud
   const resonatedSet = useMemo(() => {
     if (!hasResonated || displayCount === 0) return new Set<number>();
     const set = new Set<number>();
-    const count = Math.min(resonatedCount, displayCount);
+    const count = Math.min(scaledResonatedCount, displayCount);
     const step = displayCount / count;
     for (let i = 0; i < count; i++) {
       set.add(Math.round(i * step));
     }
     return set;
-  }, [hasResonated, resonatedCount, displayCount]);
+  }, [hasResonated, scaledResonatedCount, displayCount]);
 
   return (
     <div className={styles.resonanceBanner}>

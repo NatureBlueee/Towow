@@ -1031,11 +1031,15 @@ class NegotiationEngine:
         if plan_json and isinstance(plan_json.get("tasks"), list):
             edges = (plan_json.get("topology") or {}).get("edges", [])
             if not edges:
+                # Build valid task ID set to filter hallucinated prerequisites
+                valid_ids = {t.get("id", "") for t in plan_json["tasks"] if t.get("id")}
                 generated_edges = []
                 for task in plan_json["tasks"]:
                     task_id = task.get("id", "")
+                    if not task_id or task_id not in valid_ids:
+                        continue
                     for prereq in task.get("prerequisites", []):
-                        if prereq:
+                        if prereq and prereq in valid_ids:
                             generated_edges.append({"from": prereq, "to": task_id})
                 if generated_edges:
                     if "topology" not in plan_json:
