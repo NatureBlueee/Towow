@@ -248,12 +248,21 @@ def _init_app_store(app: FastAPI, config, registry) -> None:
 
     # LLM client (multi-key round-robin, reuse V1 config)
     store_keys = config.get_api_keys()
+    base_url = config.get_base_url()
+    # WARNING-level so it always appears in Railway logs
+    key_previews = [f"...{k[-4:]}" for k in store_keys] if store_keys else ["NONE"]
+    logger.warning(
+        "Store LLM config: keys=%s, base_url=%s, source=%s",
+        key_previews, base_url or "api.anthropic.com (default)",
+        "TOWOW_ANTHROPIC_API_KEYS" if config.anthropic_api_keys else
+        "TOWOW_ANTHROPIC_API_KEY" if config.anthropic_api_key else "NONE",
+    )
     llm_client = None
     if store_keys:
         from towow.infra.llm_client import ClaudePlatformClient
-        llm_client = ClaudePlatformClient(api_key=store_keys, base_url=config.get_base_url())
+        llm_client = ClaudePlatformClient(api_key=store_keys, base_url=base_url)
         logger.info("Store: ClaudePlatformClient initialized (%d key(s), base_url=%s)",
-                     len(store_keys), config.get_base_url() or "default")
+                     len(store_keys), base_url or "default")
     else:
         try:
             from apps.shared.mock_llm import MockLLMClient

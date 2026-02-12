@@ -620,15 +620,17 @@ class NegotiationEngine:
 
             except asyncio.TimeoutError:
                 logger.warning(
-                    "Agent %s timed out during offer generation",
-                    participant.agent_id,
+                    "Agent %s timed out during offer generation (%.0fs). "
+                    "adapter=%s, offer_skill=%s",
+                    participant.agent_id, self._offer_timeout_s,
+                    type(adapter).__name__, type(offer_skill).__name__ if offer_skill else "None",
                 )
                 participant.state = AgentState.EXITED
             except Exception as exc:
                 logger.warning(
-                    "Agent %s failed during offer generation: %s",
+                    "Agent %s failed during offer generation: %s (type=%s)",
                     participant.agent_id,
-                    exc,
+                    exc, type(exc).__name__,
                 )
                 participant.state = AgentState.EXITED
 
@@ -687,8 +689,14 @@ class NegotiationEngine:
         """
         t0 = time.monotonic()
         history: list[dict[str, Any]] = []
-        logger.info("🔵 [%s] synthesis START: %d participants with offers", session.negotiation_id,
-                     sum(1 for p in session.participants if p.offer))
+        offers_count = sum(1 for p in session.participants if p.offer)
+        exited_count = sum(1 for p in session.participants if p.state == AgentState.EXITED)
+        # WARNING level to ensure visibility in Railway logs
+        logger.warning(
+            "🔵 [%s] synthesis START: %d participants, %d offers, %d exited, llm=%s",
+            session.negotiation_id, len(session.participants), offers_count, exited_count,
+            type(llm_client).__name__ if llm_client else "None",
+        )
 
         while True:
             round_t0 = time.monotonic()
