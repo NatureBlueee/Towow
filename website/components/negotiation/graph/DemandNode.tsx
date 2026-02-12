@@ -39,7 +39,7 @@ export function DemandNode({ x, y, text, phase, onClick }: DemandNodeProps) {
   return (
     <g
       className={className}
-      style={{ transform: `translate(${x}px, ${y}px)` }}
+      transform={`translate(${x}, ${y})`}
       onClick={onClick}
       onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       role="button"

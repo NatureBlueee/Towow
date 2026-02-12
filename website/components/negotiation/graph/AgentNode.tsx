@@ -73,7 +73,7 @@ export function AgentNode({
   return (
     <g
       className={className}
-      style={{ transform: `translate(${x}px, ${y}px)` }}
+      transform={`translate(${x}, ${y})`}
       onClick={isFiltered ? undefined : onClick}
       onKeyDown={isFiltered ? undefined : (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } }}
       role={isFiltered ? undefined : 'button'}

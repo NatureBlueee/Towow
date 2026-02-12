@@ -3,7 +3,7 @@
 
 .centerGroup {
   cursor: pointer;
-  transition: transform 0.3s ease-out;
+  transition: scale 0.3s ease-out;
 }
 
 .hidden {

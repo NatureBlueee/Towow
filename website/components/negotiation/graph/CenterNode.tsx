@@ -53,7 +53,7 @@ export function CenterNode({
   return (
     <g
       className={className}
-      style={{ transform: `translate(${x}px, ${y}px)` }}
+      transform={`translate(${x}, ${y})`}
       onClick={visible ? onClick : undefined}
       onKeyDown={visible ? (e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onClick(); } } : undefined}
       role={visible ? 'button' : undefined}
