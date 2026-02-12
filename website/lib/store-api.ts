@@ -52,6 +52,10 @@ export interface StoreAgent {
   scene_ids: string[];
   skills?: string[];
   bio?: string;
+  avatar?: string;
+  role?: string;
+  self_introduction?: string;
+  shades?: Array<{ name?: string; description?: string }>;
   [key: string]: unknown;
 }
 
