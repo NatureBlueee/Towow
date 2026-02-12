@@ -72,7 +72,7 @@ export function PlanOutput({
   participants,
   planTemplate = 'default',
 }: PlanOutputProps) {
-  if (!planText && !planJson) return null;
+  if (!planText && !planJson && participants.length === 0) return null;
 
   const validPlanJson = ensurePlanJson(planJson, participants);
 

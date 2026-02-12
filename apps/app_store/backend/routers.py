@@ -87,6 +87,7 @@ class NegotiationResponse(BaseModel):
     center_rounds: int = 0
     scope: str = "all"
     agent_count: int = 0
+    error: Optional[str] = None
 
 
 class RegisterSceneRequest(BaseModel):
@@ -673,6 +674,7 @@ async def get_negotiation(neg_id: str, request: Request):
         plan_json=session.plan_json,
         center_rounds=session.center_rounds,
         scope=session.demand.scene_id or "all",
+        error=session.metadata.get("error"),
     )
 
 

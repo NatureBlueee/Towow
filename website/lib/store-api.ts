@@ -70,6 +70,7 @@ export interface StoreNegotiation {
   center_rounds: number;
   scope: string;
   agent_count: number;
+  error: string | null;
 }
 
 export interface StoreParticipant {

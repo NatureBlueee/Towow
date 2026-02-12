@@ -119,13 +119,18 @@ class ClaudePlatformClient:
                          key_label, elapsed_ms, parsed.get("stop_reason"), tc, text_len)
             return parsed
 
-        except anthropic.RateLimitError as e:
+        except (anthropic.RateLimitError, anthropic.AuthenticationError) as e:
             elapsed_ms = (time.monotonic() - t0) * 1000
-            logger.warning("LLM call RATE_LIMITED | %s | %.0fms | %s — switching key",
-                           key_label, elapsed_ms, e)
-            await asyncio.sleep(2)
+            reason = "RATE_LIMITED" if isinstance(e, anthropic.RateLimitError) else "AUTH_FAIL"
+            logger.warning("LLM call %s | %s | %.0fms | %s — switching key",
+                           reason, key_label, elapsed_ms, e)
+            if isinstance(e, anthropic.RateLimitError):
+                await asyncio.sleep(2)
             idx2, client2 = self._next_client()
             key_label2 = self._key_label(idx2)
+            if idx2 == idx:
+                # Only one key configured — no point retrying with same key
+                raise LLMError(f"Platform LLM call failed: {e}") from e
             logger.info("LLM call RETRY | %s", key_label2)
             t1 = time.monotonic()
             try:

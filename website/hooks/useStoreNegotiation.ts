@@ -261,6 +261,11 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
 
         if (data.state === 'completed') {
           if (pollRef.current) clearInterval(pollRef.current);
+          // Surface backend error (e.g. LLM key invalid, synthesis failed)
+          if (data.error) {
+            setError(data.error);
+            setPhase('error');
+          }
         }
       } catch (err) {
         const msg = err instanceof Error ? err.message : String(err);
