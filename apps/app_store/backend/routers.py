@@ -12,6 +12,7 @@ them to the unprefixed names used by internal functions.
 from __future__ import annotations
 
 import asyncio
+import json
 import logging
 from pathlib import Path
 from typing import Any, Optional
@@ -387,7 +388,7 @@ async def assist_demand(req: AssistDemandRequest, request: Request):
                     chunk_count += 1
                     if chunk:
                         has_content = True
-                        yield f"data: {chunk}\n\n"
+                        yield f"data: {json.dumps(chunk)}\n\n"
             if not has_content:
                 logger.warning("assist-demand: SecondMe 返回空内容 agent=%s (chunks=%d)", agent_id, chunk_count)
                 yield "event: error\ndata: 分身思考后没有产出内容，请重试\n\n"

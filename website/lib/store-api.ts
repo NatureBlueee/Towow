@@ -189,7 +189,11 @@ export async function assistDemandStream(
           throw new Error(data);
         }
         pendingEvent = '';
-        accumulated += data;
+        try {
+          accumulated += JSON.parse(data);
+        } catch {
+          accumulated += data;  // fallback: raw text
+        }
         onChunk(accumulated);
       }
     }
