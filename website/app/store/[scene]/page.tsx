@@ -113,6 +113,7 @@ export default function ScenePage({
             timeline={negotiation.timeline}
             error={negotiation.error}
             onReset={negotiation.reset}
+            totalAgentCount={negotiation.negotiation?.agent_count}
           />
         </div>
       )}

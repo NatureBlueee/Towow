@@ -207,8 +207,9 @@ SYSTEM_PROMPT_ZH = """\
 
 ## 行动
 使用提供的工具采取行动。你可以同时调用多个工具。
-- 当你有足够信息提出方案时，使用 output_plan。
-- 当你需要向某个参与者追问时，使用 ask_agent。
+- **优先使用 output_plan**——当参与者已提交 Offer 且信息基本充分时，直接生成方案。
+- 仅在关键信息明显缺失（无法判断可行性）时才 ask_agent。
+- 参与者 ≤5 人时，通常信息已足够直接 output_plan，不需要追问。
 - 当两个参与者可能有隐藏的互补性时，使用 start_discovery。
 - 当当前参与者无法填补某个缺口时，使用 create_sub_demand。
 
@@ -218,11 +219,28 @@ SYSTEM_PROMPT_ZH = """\
 - plan_json: 结构化方案（**必须提供，不可省略**），包含：
   - summary: 一句话总结
   - participants: 每个参与者的 {agent_id, display_name, role_in_plan}
-  - tasks: 每个任务的 {id, title, description, assignee_id, prerequisites, status}
+  - tasks: 任务列表，**必须体现工作流的先后依赖关系**：
     - id 用 "task_1", "task_2" ... 格式
-    - prerequisites 列出前置任务的 id 数组（无前置则为空数组）
+    - **先思考任务之间的自然顺序**：哪些必须先完成，后续才能开始？哪些可以并行？
+    - prerequisites 填入**必须先完成**的任务 id 数组
+    - **禁止所有任务都设为并行（全部 prerequisites: []）**——真实协作一定有先后依赖
+    - 典型模式：调研→设计→实现→交付；或有分叉：设计→[前端开发, 后端开发]→集成
     - status 统一为 "pending"
   - topology.edges: 从 prerequisites 展平得到的 {from, to} 边列表
+
+## 依赖示例（仅供参考格式，实际内容根据需求生成）
+```json
+{
+  "tasks": [
+    {"id": "task_1", "title": "需求调研", "assignee_id": "a1", "prerequisites": [], "status": "pending"},
+    {"id": "task_2", "title": "方案设计", "assignee_id": "a2", "prerequisites": ["task_1"], "status": "pending"},
+    {"id": "task_3", "title": "核心开发", "assignee_id": "a3", "prerequisites": ["task_2"], "status": "pending"},
+    {"id": "task_4", "title": "内容制作", "assignee_id": "a4", "prerequisites": ["task_2"], "status": "pending"},
+    {"id": "task_5", "title": "整合交付", "assignee_id": "a1", "prerequisites": ["task_3", "task_4"], "status": "pending"}
+  ],
+  "topology": {"edges": [{"from":"task_1","to":"task_2"},{"from":"task_2","to":"task_3"},{"from":"task_2","to":"task_4"},{"from":"task_3","to":"task_5"},{"from":"task_4","to":"task_5"}]}
+}
+```
 
 agent_id 和 display_name 必须与上面 Participant Responses 中给出的完全一致。
 
@@ -251,8 +269,9 @@ Your task is to find the optimal resource combination plan.
 
 ## Actions
 Use the provided tools to take action. You may call multiple tools at once.
-- Use output_plan when you have enough information to propose a plan.
-- Use ask_agent when you need more information from a specific participant.
+- **Prefer output_plan** — when participants have submitted offers and information is mostly sufficient, generate a plan directly.
+- Only use ask_agent when critical information is clearly missing (cannot judge feasibility).
+- When there are ≤5 participants, information is usually sufficient for output_plan without follow-up questions.
 - Use start_discovery when two participants might have hidden complementarities.
 - Use create_sub_demand when there's a gap that current participants cannot fill.
 
@@ -262,11 +281,28 @@ When using output_plan, **you MUST provide both plan_text and plan_json. Both ar
 - plan_json: A structured plan (**required, do not omit**) containing:
   - summary: One-sentence summary
   - participants: Each participant's {agent_id, display_name, role_in_plan}
-  - tasks: Each task's {id, title, description, assignee_id, prerequisites, status}
+  - tasks: Task list that **MUST reflect workflow dependencies**:
     - id uses "task_1", "task_2" ... format
-    - prerequisites lists prerequisite task id array (empty array if none)
+    - **Think about task ordering first**: which tasks must finish before others can start? Which can run in parallel?
+    - prerequisites lists prerequisite task id array
+    - **DO NOT make all tasks parallel (all prerequisites: [])**—real collaboration always has sequential dependencies
+    - Common patterns: research→design→implement→deliver; or branching: design→[frontend, backend]→integration
     - status should be "pending"
   - topology.edges: Flattened {from, to} edge list derived from prerequisites
+
+## Dependency Example (format reference only, generate actual content based on demand)
+```json
+{
+  "tasks": [
+    {"id": "task_1", "title": "Research", "assignee_id": "a1", "prerequisites": [], "status": "pending"},
+    {"id": "task_2", "title": "Design", "assignee_id": "a2", "prerequisites": ["task_1"], "status": "pending"},
+    {"id": "task_3", "title": "Backend Dev", "assignee_id": "a3", "prerequisites": ["task_2"], "status": "pending"},
+    {"id": "task_4", "title": "Frontend Dev", "assignee_id": "a4", "prerequisites": ["task_2"], "status": "pending"},
+    {"id": "task_5", "title": "Integration", "assignee_id": "a1", "prerequisites": ["task_3", "task_4"], "status": "pending"}
+  ],
+  "topology": {"edges": [{"from":"task_1","to":"task_2"},{"from":"task_2","to":"task_3"},{"from":"task_2","to":"task_4"},{"from":"task_3","to":"task_5"},{"from":"task_4","to":"task_5"}]}
+}
+```
 
 agent_id and display_name must exactly match those in the Participant Responses above.
 """
@@ -341,6 +377,16 @@ class CenterCoordinatorSkill(BaseSkill):
         if history:
             history_section = self._build_history(history, round_number)
             user_content += f"\n\n{history_section}"
+
+        # Forced instruction: when tools_restricted, LLM MUST call output_plan
+        if context.get("tools_restricted"):
+            user_content += (
+                "\n\n## 重要：最后一轮 / IMPORTANT: Final Round\n"
+                "这是最后一轮。你**必须立即**调用 output_plan 输出方案。"
+                "基于已有信息给出最佳方案，不要再使用其他工具。\n"
+                "This is the final round. You **MUST** call output_plan now. "
+                "Produce the best plan based on available information. Do not use any other tools."
+            )
 
         system = SYSTEM_PROMPT_ZH if _detect_cjk(demand_text) else SYSTEM_PROMPT_EN
 

@@ -44,8 +44,9 @@ function ensurePlanJson(
     title: `${p.display_name} 的贡献`,
     description: p.offer_content || '',
     assignee_id: p.agent_id,
-    // Fan-out: all subsequent tasks depend on the first (creates visible edges)
-    prerequisites: i > 0 ? [`task_1`] : [],
+    // Honest fallback: parallel tasks (no fake dependencies)
+    // Real dependencies come from LLM via plan_json
+    prerequisites: [],
     status: 'pending',
   }));
 

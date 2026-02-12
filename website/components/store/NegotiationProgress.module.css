@@ -193,6 +193,90 @@
   font-weight: 600;
 }
 
+/* ============ Resonance Banner (群像 Crowd Visualization) ============ */
+
+.resonanceBanner {
+  margin-bottom: 20px;
+  padding: 20px 16px;
+  border-radius: 10px;
+  background: linear-gradient(
+    135deg,
+    rgba(212, 184, 217, 0.08),
+    rgba(143, 213, 163, 0.06)
+  );
+  text-align: center;
+}
+
+/* Dot cloud: dense grid of tiny circles representing all agents */
+
+.dotCloud {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 3px;
+  max-width: 400px;
+  margin: 0 auto 16px;
+}
+
+.crowdDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background-color: #D4B8D9;
+  opacity: 0.3;
+  transition: opacity 0.8s ease, transform 0.6s ease, background-color 0.6s ease, box-shadow 0.6s ease;
+}
+
+/* Scanning phase: shimmer wave across the dots */
+
+.dotCloudScanning .crowdDot {
+  animation: dotShimmer 2.5s ease-in-out infinite;
+}
+
+@keyframes dotShimmer {
+  0%, 100% { opacity: 0.12; }
+  50% { opacity: 0.5; }
+}
+
+/* Post-resonance: most dots fade, resonated glow */
+
+.crowdDotFaded {
+  opacity: 0.07;
+  animation: none;
+}
+
+.crowdDotLit {
+  opacity: 1;
+  animation: none;
+  background-color: #8FD5A3;
+  transform: scale(2);
+  box-shadow: 0 0 6px rgba(143, 213, 163, 0.5);
+}
+
+/* Caption text with inline big numbers */
+
+.resonanceCaption {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.8;
+}
+
+.captionNumber {
+  font-size: 28px;
+  font-weight: 700;
+  color: #333;
+  vertical-align: baseline;
+  letter-spacing: -0.5px;
+}
+
+.captionNumberHighlight {
+  font-size: 28px;
+  font-weight: 700;
+  color: #2D7A3F;
+  vertical-align: baseline;
+  letter-spacing: -0.5px;
+}
+
 /* ============ Agent Section ============ */
 
 .agentSection {
@@ -200,41 +284,41 @@
 }
 
 .agentSectionHeader {
-  margin-bottom: 8px;
+  margin-bottom: 10px;
 }
 
 .agentSectionTitle {
-  font-size: 12px;
-  color: #999;
-  font-weight: 500;
+  font-size: 13px;
+  color: #666;
+  font-weight: 600;
 }
 
 .agentGrid {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
 }
 
-/* Agent Card */
+/* Agent Card — prominent, interactive */
 
 .agentCard {
-  width: 110px;
-  padding: 10px 8px;
-  border-radius: 8px;
+  width: 140px;
+  padding: 12px 10px;
+  border-radius: 10px;
   border: 1px solid rgba(0, 0, 0, 0.06);
-  border-left: 3px solid var(--source-color, #8FD5A3);
+  border-left: 3px solid var(--score-color, #8FD5A3);
   background-color: #fff;
   cursor: pointer;
   text-align: left;
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  gap: 4px;
+  transition: border-color 0.2s ease, box-shadow 0.3s ease;
 
   /* Entry animation with stagger via --delay */
   opacity: 0;
-  transform: translateY(8px);
-  animation: cardEnter 0.35s ease-out forwards;
+  transform: scale(0.85) translateY(12px);
+  animation: cardEnter 0.4s ease-out forwards;
   animation-delay: var(--delay, 0s);
 }
 
@@ -243,19 +327,24 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
 }
 
+/* Offer arrival pulse — box-shadow avoids conflicting with cardEnter forwards fill */
+.agentCardPulse {
+  box-shadow: 0 0 0 4px rgba(143, 213, 163, 0.35), 0 2px 8px rgba(143, 213, 163, 0.15);
+}
+
 @keyframes cardEnter {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: scale(0.85) translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateY(0);
+    transform: scale(1) translateY(0);
   }
 }
 
 .agentName {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 600;
   color: #333;
   overflow: hidden;
@@ -264,9 +353,9 @@
 }
 
 .agentScore {
-  font-size: 12px;
-  color: #888;
-  font-weight: 500;
+  font-size: 16px;
+  font-weight: 700;
+  font-family: 'SF Mono', 'Menlo', monospace;
 }
 
 .agentStatus {
@@ -286,8 +375,8 @@
   display: inline-flex;
   align-items: center;
   gap: 4px;
-  margin-top: 8px;
-  padding: 6px 12px;
+  margin-top: 10px;
+  padding: 6px 14px;
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 6px;
   background: none;
@@ -319,7 +408,7 @@
 }
 
 .activityScroll {
-  max-height: 300px;
+  max-height: 200px;
   overflow-y: auto;
   padding-left: 16px;
 }
@@ -472,21 +561,34 @@
     font-size: 10px;
   }
 
+  .resonanceBanner {
+    padding: 16px 12px;
+  }
+
+  .dotCloud {
+    max-width: 300px;
+  }
+
+  .captionNumber,
+  .captionNumberHighlight {
+    font-size: 22px;
+  }
+
   .agentCard {
-    width: 96px;
-    padding: 8px;
+    width: 110px;
+    padding: 10px 8px;
   }
 
   .agentName {
-    font-size: 11px;
+    font-size: 12px;
   }
 
   .agentScore {
-    font-size: 10px;
+    font-size: 13px;
   }
 
   .activityScroll {
-    max-height: 240px;
+    max-height: 160px;
   }
 }
 
@@ -516,22 +618,45 @@
     margin-top: 7px;
   }
 
+  .resonanceBanner {
+    padding: 12px 8px;
+  }
+
+  .dotCloud {
+    max-width: 240px;
+    gap: 2px;
+  }
+
+  .crowdDot {
+    width: 5px;
+    height: 5px;
+  }
+
+  .captionNumber,
+  .captionNumberHighlight {
+    font-size: 20px;
+  }
+
+  .resonanceCaption {
+    font-size: 13px;
+  }
+
   .agentGrid {
     gap: 6px;
   }
 
   .agentCard {
-    width: 88px;
-    padding: 6px;
+    width: 96px;
+    padding: 8px;
     gap: 2px;
   }
 
   .agentName {
-    font-size: 10px;
+    font-size: 11px;
   }
 
   .agentScore {
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .agentStatus,

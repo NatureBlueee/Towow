@@ -771,16 +771,36 @@ class NegotiationEngine:
                 result = await center_skill.execute(forced_context)
 
                 plan_calls = result.get("tool_calls", [])
-                plan_text = "Plan could not be generated (round limit reached)."
                 forced_plan_json = None
+                plan_text = None
                 for pc in plan_calls:
                     if pc["name"] == TOOL_OUTPUT_PLAN:
-                        plan_text = pc.get("arguments", {}).get("plan_text", plan_text)
+                        plan_text = pc.get("arguments", {}).get("plan_text")
                         forced_plan_json = pc.get("arguments", {}).get("plan_json")
                         break
-                else:
-                    # LLM returned text content instead of tool call
-                    plan_text = result.get("content", plan_text)
+
+                # Fallback: if LLM didn't call output_plan, synthesize from session data
+                if not plan_text:
+                    content = result.get("content", "")
+                    if content and len(content) > 20:
+                        # LLM returned text content instead of tool call — use it
+                        plan_text = content
+                    else:
+                        # Code guarantee: construct meaningful plan from session data
+                        demand_text = session.demand.formulated_text or session.demand.raw_intent
+                        offer_summaries = []
+                        for p in session.participants:
+                            if p.offer:
+                                name = p.display_name or p.agent_id
+                                offer_summaries.append(f"- {name}: {p.offer.content[:150]}")
+                        offers_text = "\n".join(offer_summaries) if offer_summaries else "(无响应)"
+                        plan_text = (
+                            f"## 协商方案\n\n"
+                            f"**需求**: {demand_text}\n\n"
+                            f"**参与者响应**:\n{offers_text}\n\n"
+                            f"基于以上 {len(session.participants)} 位参与者的响应，"
+                            f"建议按各自专长分工协作，共同推进需求的实现。"
+                        )
 
                 await self._finish_with_plan(session, plan_text, t0, plan_json=forced_plan_json)
                 return
@@ -1005,6 +1025,26 @@ class NegotiationEngine:
         if not self._is_valid_plan_json(plan_json):
             plan_json = self._build_minimal_plan_json(session)
             logger.info("plan_json: constructed from session data (%d tasks)", len(plan_json.get("tasks", [])))
+
+        # Code guarantee: auto-generate topology.edges from prerequisites
+        # LLM may fill prerequisites but forget edges (代码保障 > Prompt 保障)
+        if plan_json and isinstance(plan_json.get("tasks"), list):
+            edges = (plan_json.get("topology") or {}).get("edges", [])
+            if not edges:
+                generated_edges = []
+                for task in plan_json["tasks"]:
+                    task_id = task.get("id", "")
+                    for prereq in task.get("prerequisites", []):
+                        if prereq:
+                            generated_edges.append({"from": prereq, "to": task_id})
+                if generated_edges:
+                    if "topology" not in plan_json:
+                        plan_json["topology"] = {}
+                    plan_json["topology"]["edges"] = generated_edges
+                    logger.info(
+                        "plan_json: auto-generated %d topology edges from prerequisites",
+                        len(generated_edges),
+                    )
 
         session.plan_output = plan_text
         session.plan_json = plan_json

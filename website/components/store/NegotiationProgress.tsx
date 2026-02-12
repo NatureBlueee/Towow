@@ -13,6 +13,7 @@ interface NegotiationProgressProps {
   timeline: TimelineEntry[];
   error: string | null;
   onReset: () => void;
+  totalAgentCount?: number;
 }
 
 // ============ Phase Steps Config ============
@@ -83,9 +84,19 @@ function getStepStatus(
   return 'pending';
 }
 
+// ============ Score → Color Mapping ============
+
+function scoreToColor(score: number): string {
+  // HSL interpolation: score 0→1 maps hue 280→160 (gray-purple → brand green)
+  const hue = 280 - score * 120;
+  const saturation = 25 + score * 30; // 25% → 55%
+  const lightness = 70 - score * 20; // 70% → 50%
+  return `hsl(${hue}, ${saturation}%, ${lightness}%)`;
+}
+
 // ============ Name Truncation ============
 
-function truncateName(name: string, maxLen: number = 6): string {
+function truncateName(name: string, maxLen: number = 8): string {
   if (name.length <= maxLen) return name;
   return name.slice(0, maxLen) + '..';
 }
@@ -98,6 +109,7 @@ export function NegotiationProgress({
   timeline,
   error,
   onReset,
+  totalAgentCount,
 }: NegotiationProgressProps) {
   // ---- Detail Panel State ----
   const [detailPanel, setDetailPanel] = useState<{
@@ -131,10 +143,18 @@ export function NegotiationProgress({
       <Header phase={phase} />
       {error && <ErrorBanner error={error} />}
       <PhaseSteps phase={phase} />
+      {totalAgentCount && totalAgentCount > 0 && (
+        <ResonanceBanner
+          totalAgentCount={totalAgentCount}
+          resonatedCount={participants.length}
+          phase={phase}
+        />
+      )}
       <AgentGrid
         participants={participants}
         phase={phase}
         onAgentClick={handleAgentClick}
+        totalAgentCount={totalAgentCount}
       />
       <ActivityFeed timeline={timeline} phase={phase} />
       {(phase === 'completed' || phase === 'error') && (
@@ -175,6 +195,81 @@ function Header({ phase }: { phase: NegotiationPhase }) {
 
 function ErrorBanner({ error }: { error: string }) {
   return <div className={styles.errorBanner}>{error}</div>;
+}
+
+// ============ Resonance Banner (群像 Crowd Visualization) ============
+
+const DOT_CAP = 200;
+
+function ResonanceBanner({
+  totalAgentCount,
+  resonatedCount,
+  phase,
+}: {
+  totalAgentCount: number;
+  resonatedCount: number;
+  phase: NegotiationPhase;
+}) {
+  const displayCount = Math.min(totalAgentCount, DOT_CAP);
+  const isScanning = phase === 'formulating' || phase === 'resonating';
+  const hasResonated = resonatedCount > 0;
+
+  // Evenly distribute resonated highlights across the dot cloud
+  const resonatedSet = useMemo(() => {
+    if (!hasResonated || displayCount === 0) return new Set<number>();
+    const set = new Set<number>();
+    const count = Math.min(resonatedCount, displayCount);
+    const step = displayCount / count;
+    for (let i = 0; i < count; i++) {
+      set.add(Math.round(i * step));
+    }
+    return set;
+  }, [hasResonated, resonatedCount, displayCount]);
+
+  return (
+    <div className={styles.resonanceBanner}>
+      <div
+        className={`${styles.dotCloud} ${isScanning ? styles.dotCloudScanning : ''} ${hasResonated ? styles.dotCloudResonated : ''}`}
+      >
+        {Array.from({ length: displayCount }, (_, i) => {
+          const isLit = hasResonated && resonatedSet.has(i);
+          return (
+            <div
+              key={i}
+              className={`${styles.crowdDot} ${isLit ? styles.crowdDotLit : ''} ${hasResonated && !isLit ? styles.crowdDotFaded : ''}`}
+              style={
+                { animationDelay: `${(i * 0.06) % 2.5}s` } as React.CSSProperties
+              }
+            />
+          );
+        })}
+      </div>
+      <div className={styles.resonanceCaption}>
+        {isScanning ? (
+          <>
+            扫描{' '}
+            <span className={styles.captionNumber}>{totalAgentCount}</span> 个
+            Agent 中...
+          </>
+        ) : hasResonated ? (
+          <>
+            从{' '}
+            <span className={styles.captionNumber}>{totalAgentCount}</span> 个
+            Agent 中共振出{' '}
+            <span className={styles.captionNumberHighlight}>
+              {resonatedCount}
+            </span>{' '}
+            个
+          </>
+        ) : (
+          <>
+            <span className={styles.captionNumber}>{totalAgentCount}</span> 个
+            Agent 待扫描
+          </>
+        )}
+      </div>
+    </div>
+  );
 }
 
 // ============ Phase Steps ============
@@ -246,13 +341,34 @@ function AgentGrid({
   participants,
   phase,
   onAgentClick,
+  totalAgentCount,
 }: {
   participants: StoreParticipant[];
   phase: NegotiationPhase;
   onAgentClick: (p: StoreParticipant) => void;
+  totalAgentCount?: number;
 }) {
   const [expanded, setExpanded] = useState(false);
   const DEFAULT_VISIBLE_COUNT = 12;
+
+  // Track newly arrived offers for pulse animation
+  const seenOffersRef = useRef<Set<string>>(new Set());
+  const [pulsingIds, setPulsingIds] = useState<Set<string>>(new Set());
+
+  useEffect(() => {
+    const freshIds: string[] = [];
+    for (const p of participants) {
+      if (p.offer_content && !seenOffersRef.current.has(p.agent_id)) {
+        freshIds.push(p.agent_id);
+        seenOffersRef.current.add(p.agent_id);
+      }
+    }
+    if (freshIds.length > 0) {
+      setPulsingIds(new Set(freshIds));
+      const timer = setTimeout(() => setPulsingIds(new Set()), 800);
+      return () => clearTimeout(timer);
+    }
+  }, [participants]);
 
   const sorted = useMemo(
     () =>
@@ -267,24 +383,24 @@ function AgentGrid({
     <div className={styles.agentSection}>
       <div className={styles.agentSectionHeader}>
         <span className={styles.agentSectionTitle}>
-          参与者 ({participants.length})
+          共振 Agent ({participants.length})
         </span>
       </div>
       <div className={styles.agentGrid}>
         {visible.map((p, index) => {
           const hasOffer = !!p.offer_content;
-          const sourceColor =
-            SOURCE_COLORS[p.source || ''] || SOURCE_COLORS.default;
+          const color = scoreToColor(p.resonance_score);
           const percent = Math.round(p.resonance_score * 100);
+          const isPulsing = pulsingIds.has(p.agent_id);
 
           return (
             <button
               key={p.agent_id}
-              className={styles.agentCard}
+              className={`${styles.agentCard}${isPulsing ? ` ${styles.agentCardPulse}` : ''}`}
               style={
                 {
-                  '--delay': `${index * 0.05}s`,
-                  '--source-color': sourceColor,
+                  '--delay': `${index * 0.08}s`,
+                  '--score-color': color,
                 } as React.CSSProperties
               }
               onClick={() => onAgentClick(p)}
@@ -293,7 +409,9 @@ function AgentGrid({
               <div className={styles.agentName} title={p.display_name}>
                 {truncateName(p.display_name)}
               </div>
-              <div className={styles.agentScore}>{percent}%</div>
+              <div className={styles.agentScore} style={{ color }}>
+                {percent}%
+              </div>
               <div
                 className={
                   hasOffer ? styles.agentStatusDone : styles.agentStatus
