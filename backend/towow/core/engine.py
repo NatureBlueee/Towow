@@ -450,8 +450,27 @@ class NegotiationEngine:
             return
 
         # Encode demand AFTER confirming we have candidate vectors to compare against
-        demand_vector = await self._encoder.encode(demand_text)
-        logger.info("🔵 [%s] encoding: demand_vector dim=%d", session.negotiation_id, len(demand_vector))
+        try:
+            demand_vector = await self._encoder.encode(demand_text)
+            logger.info("🔵 [%s] encoding: demand_vector dim=%d", session.negotiation_id, len(demand_vector))
+        except Exception as enc_err:
+            # Encoding failed (API auth, network, etc.) — degrade to all candidates
+            logger.warning(
+                "🟡 [%s] encoding: demand encode failed (%s), degrading to all %d candidates",
+                session.negotiation_id, enc_err, len(candidate_vectors),
+            )
+            for agent_id in list(candidate_vectors.keys())[:k_star]:
+                session.participants.append(
+                    AgentParticipant(
+                        agent_id=agent_id,
+                        display_name=self._display_names(session).get(agent_id, agent_id),
+                        resonance_score=0.0,
+                        state=AgentState.ACTIVE,
+                    )
+                )
+            self._transition(session, NegotiationState.OFFERING)
+            self._trace(session, "encoding", t0, output_summary=f"degraded: {len(session.participants)} agents (encode failed)")
+            return
 
         # detect() returns (activated, filtered) tuple per PLAN-003
         activated, filtered = await self._resonance_detector.detect(
