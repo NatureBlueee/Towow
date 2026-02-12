@@ -7,6 +7,7 @@ get_profile/chat/chat_stream that match the ProfileDataSource Protocol.
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any, AsyncGenerator, Optional
 
@@ -17,6 +18,9 @@ from towow.core.errors import AdapterError
 from .base import BaseAdapter
 
 logger = logging.getLogger(__name__)
+
+# Proxy-side transient errors that warrant retry
+_RETRYABLE_STATUS_CODES = {424, 429, 500, 502, 503, 529}
 
 
 class ClaudeAdapter(BaseAdapter):
@@ -56,27 +60,41 @@ class ClaudeAdapter(BaseAdapter):
         system_prompt: Optional[str] = None,
     ) -> str:
         """Send messages to Claude API, return response text."""
-        try:
-            kwargs: dict[str, Any] = {
-                "model": self._model,
-                "max_tokens": self._max_tokens,
-                "messages": messages,
-            }
-            if system_prompt:
-                kwargs["system"] = system_prompt
+        kwargs: dict[str, Any] = {
+            "model": self._model,
+            "max_tokens": self._max_tokens,
+            "messages": messages,
+        }
+        if system_prompt:
+            kwargs["system"] = system_prompt
 
-            response = await self._client.messages.create(**kwargs)
+        last_error: Exception | None = None
+        for attempt in range(2):  # 1 try + 1 retry
+            try:
+                response = await self._client.messages.create(**kwargs)
+                text_parts = []
+                for block in response.content:
+                    if block.type == "text":
+                        text_parts.append(block.text)
+                return "".join(text_parts)
 
-            # Extract text from response content blocks
-            text_parts = []
-            for block in response.content:
-                if block.type == "text":
-                    text_parts.append(block.text)
-            return "".join(text_parts)
+            except anthropic.APIStatusError as e:
+                last_error = e
+                if e.status_code in _RETRYABLE_STATUS_CODES and attempt == 0:
+                    logger.warning(
+                        "Claude adapter HTTP_%d for agent %s, retrying in 3s: %s",
+                        e.status_code, agent_id, e,
+                    )
+                    await asyncio.sleep(3)
+                    continue
+                logger.error("Claude API error for agent %s: %s", agent_id, e)
+                raise AdapterError(f"Claude API call failed: {e}") from e
 
-        except anthropic.APIError as e:
-            logger.error(f"Claude API error for agent {agent_id}: {e}")
-            raise AdapterError(f"Claude API call failed: {e}") from e
+            except anthropic.APIError as e:
+                logger.error("Claude API error for agent %s: %s", agent_id, e)
+                raise AdapterError(f"Claude API call failed: {e}") from e
+
+        raise AdapterError(f"Claude API call failed after retry: {last_error}") from last_error
 
     async def chat_stream(
         self,

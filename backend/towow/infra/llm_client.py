@@ -119,33 +119,43 @@ class ClaudePlatformClient:
                          key_label, elapsed_ms, parsed.get("stop_reason"), tc, text_len)
             return parsed
 
-        except (anthropic.RateLimitError, anthropic.AuthenticationError) as e:
+        except anthropic.APIStatusError as e:
             elapsed_ms = (time.monotonic() - t0) * 1000
-            reason = "RATE_LIMITED" if isinstance(e, anthropic.RateLimitError) else "AUTH_FAIL"
-            logger.warning("LLM call %s | %s | %.0fms | %s — switching key",
-                           reason, key_label, elapsed_ms, e)
-            if isinstance(e, anthropic.RateLimitError):
-                await asyncio.sleep(2)
-            idx2, client2 = self._next_client()
-            key_label2 = self._key_label(idx2)
-            if idx2 == idx:
-                # Only one key configured — no point retrying with same key
+            retryable = e.status_code in (424, 429, 500, 502, 503, 529)
+            is_auth = isinstance(e, anthropic.AuthenticationError)
+            reason = (
+                "RATE_LIMITED" if isinstance(e, anthropic.RateLimitError)
+                else "AUTH_FAIL" if is_auth
+                else f"HTTP_{e.status_code}"
+            )
+            if retryable or is_auth:
+                logger.warning("LLM call %s | %s | %.0fms | %s — will retry",
+                               reason, key_label, elapsed_ms, e)
+                delay = 3 if e.status_code == 424 else 2
+                await asyncio.sleep(delay)
+                # Try next key (round-robin) or same key if only one
+                idx2, client2 = self._next_client()
+                key_label2 = self._key_label(idx2)
+                if idx2 == idx and is_auth:
+                    raise LLMError(f"Platform LLM call failed: {e}") from e
+                logger.info("LLM call RETRY | %s (after %s)", key_label2, reason)
+                t1 = time.monotonic()
+                try:
+                    response = await client2.messages.create(**kwargs)
+                    elapsed_ms2 = (time.monotonic() - t1) * 1000
+                    parsed = self._parse_response(response)
+                    tc = len(parsed["tool_calls"]) if parsed.get("tool_calls") else 0
+                    text_len = len(parsed["content"]) if parsed.get("content") else 0
+                    logger.info("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
+                                 key_label2, elapsed_ms2, parsed.get("stop_reason"), tc, text_len)
+                    return parsed
+                except anthropic.APIError as retry_e:
+                    elapsed_ms2 = (time.monotonic() - t1) * 1000
+                    logger.error("LLM call FAIL  | %s | %.0fms | %s", key_label2, elapsed_ms2, retry_e)
+                    raise LLMError(f"LLM call failed after retry: {retry_e}") from retry_e
+            else:
+                logger.error("LLM call FAIL  | %s | %.0fms | %s (non-retryable)", key_label, elapsed_ms, e)
                 raise LLMError(f"Platform LLM call failed: {e}") from e
-            logger.info("LLM call RETRY | %s", key_label2)
-            t1 = time.monotonic()
-            try:
-                response = await client2.messages.create(**kwargs)
-                elapsed_ms2 = (time.monotonic() - t1) * 1000
-                parsed = self._parse_response(response)
-                tc = len(parsed["tool_calls"]) if parsed.get("tool_calls") else 0
-                text_len = len(parsed["content"]) if parsed.get("content") else 0
-                logger.info("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
-                             key_label2, elapsed_ms2, parsed.get("stop_reason"), tc, text_len)
-                return parsed
-            except anthropic.APIError as retry_e:
-                elapsed_ms2 = (time.monotonic() - t1) * 1000
-                logger.error("LLM call FAIL  | %s | %.0fms | %s", key_label2, elapsed_ms2, retry_e)
-                raise LLMError(f"LLM call failed after retry: {retry_e}") from retry_e
 
         except anthropic.APIError as e:
             elapsed_ms = (time.monotonic() - t0) * 1000
