@@ -228,7 +228,13 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
     }
   }, [ws.events]);
 
-  // Poll negotiation status
+  // Phase ordering for monotonic advancement (never regress phase)
+  const PHASE_ORDER: NegotiationPhase[] = [
+    'idle', 'submitting', 'formulating', 'resonating',
+    'offering', 'synthesizing', 'completed', 'error',
+  ];
+
+  // Poll negotiation status — also drives phase as WS fallback (降级路径保障)
   const startPolling = useCallback((negId: string) => {
     if (pollRef.current) clearInterval(pollRef.current);
 
@@ -240,10 +246,19 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
 
         setNegotiation(data);
 
-        // Only update phase from polling if no WS events have set it
+        // Drive phase from polling — fallback when WS events don't arrive
+        const polledPhase = STATE_TO_PHASE[data.state];
+        if (polledPhase) {
+          setPhase((prev) => {
+            // Monotonic: never regress (WS events may have advanced ahead of polling)
+            const prevIdx = PHASE_ORDER.indexOf(prev);
+            const newIdx = PHASE_ORDER.indexOf(polledPhase);
+            return newIdx > prevIdx ? polledPhase : prev;
+          });
+          setEngineState(data.state);
+        }
+
         if (data.state === 'COMPLETED') {
-          setPhase('completed');
-          setEngineState('COMPLETED');
           if (pollRef.current) clearInterval(pollRef.current);
         }
       } catch (err) {

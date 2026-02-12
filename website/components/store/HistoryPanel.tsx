@@ -218,70 +218,70 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
                   </div>
                 ) : detail ? (
                   <div style={{ fontSize: 13, color: '#555', lineHeight: 1.6 }}>
-                    {/* Assist output */}
+                    {/* Assist output — full content */}
                     {detail.assist_output && (
-                      <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 2 }}>
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 4 }}>
                           分身输出
                         </div>
-                        <div style={{ whiteSpace: 'pre-wrap' }}>
-                          {truncate(detail.assist_output, 300)}
+                        <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
+                          {detail.assist_output}
                         </div>
                       </div>
                     )}
 
-                    {/* Formulated text */}
+                    {/* Formulated text — full content */}
                     {detail.formulated_text && (
-                      <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 2 }}>
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 4 }}>
                           丰富化需求
                         </div>
-                        <div style={{ whiteSpace: 'pre-wrap' }}>
-                          {truncate(detail.formulated_text, 300)}
+                        <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
+                          {detail.formulated_text}
                         </div>
                       </div>
                     )}
 
-                    {/* Plan output */}
+                    {/* Plan output — full content */}
                     {detail.plan_output && (
-                      <div style={{ marginBottom: 8 }}>
-                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 2 }}>
+                      <div style={{ marginBottom: 10 }}>
+                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 4 }}>
                           方案
                         </div>
-                        <div style={{ whiteSpace: 'pre-wrap' }}>
-                          {truncate(detail.plan_output, 500)}
+                        <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
+                          {detail.plan_output}
                         </div>
                       </div>
                     )}
 
-                    {/* Offers */}
+                    {/* Offers — full content */}
                     {detail.offers.length > 0 && (
                       <div>
-                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 4 }}>
-                          Offers ({detail.offers.length})
+                        <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 6 }}>
+                          参与者响应 ({detail.offers.length})
                         </div>
                         {detail.offers.map((offer, oi) => (
                           <div
                             key={oi}
                             style={{
-                              padding: '6px 10px',
-                              marginBottom: 4,
+                              padding: '8px 12px',
+                              marginBottom: 6,
                               background: '#F8F6F3',
-                              borderRadius: 6,
-                              fontSize: 12,
+                              borderRadius: 8,
+                              fontSize: 13,
                             }}
                           >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 2 }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
                               <span style={{ fontWeight: 600, color: '#1A1A1A' }}>
                                 {offer.agent_name || offer.agent_id}
                               </span>
-                              <span style={{ color: '#8FD5A3', fontWeight: 500 }}>
+                              <span style={{ color: '#8FD5A3', fontWeight: 600 }}>
                                 {(offer.resonance_score * 100).toFixed(0)}%
                               </span>
                             </div>
                             {offer.offer_text && (
-                              <div style={{ color: '#666', whiteSpace: 'pre-wrap' }}>
-                                {truncate(offer.offer_text, 200)}
+                              <div style={{ color: '#555', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
+                                {offer.offer_text}
                               </div>
                             )}
                           </div>

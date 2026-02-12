@@ -258,12 +258,23 @@ export async function getHistoryDetail(negId: string): Promise<HistoryDetail> {
 // ============ WebSocket URL ============
 
 export function getStoreWebSocketUrl(negId: string): string {
-  // Vercel rewrites only proxy HTTP, not WebSocket.
-  // In production, connect directly to the backend.
+  // Vercel rewrites DON'T proxy WebSocket — must connect directly to backend.
+
+  // 1. Explicit WS URL (highest priority)
   const wsBackend = process.env.NEXT_PUBLIC_WS_BACKEND_URL;
   if (wsBackend) {
     return `${wsBackend}/store/ws/${negId}`;
   }
-  // Local dev: connect directly to backend on port 8080
+
+  // 2. Derive from backend HTTP URL (auto HTTP→WS protocol swap)
+  const httpBackend = process.env.NEXT_PUBLIC_BACKEND_URL;
+  if (httpBackend) {
+    const wsUrl = httpBackend
+      .replace(/^https:/, 'wss:')
+      .replace(/^http:/, 'ws:');
+    return `${wsUrl}/store/ws/${negId}`;
+  }
+
+  // 3. Local dev fallback
   return `ws://localhost:8080/store/ws/${negId}`;
 }

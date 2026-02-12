@@ -521,11 +521,16 @@ async def negotiate(req: NegotiateRequest, request: Request):
     if not candidate_ids:
         raise HTTPException(400, f"scope '{req.scope}' 下没有可用的 Agent")
 
-    scene_context = ""
+    scene_context = None
     scene_id = ""
     if req.scope.startswith("scene:"):
         scene_id = req.scope[len("scene:"):]
-        scene_context = state.store_scene_registry.get_center_context(scene_id)
+        scene_obj = state.store_scene_registry.get(scene_id)
+        if scene_obj:
+            scene_context = {
+                "priority_strategy": scene_obj.priority_strategy,
+                "domain_context": scene_obj.domain_context,
+            }
 
     neg_id = generate_id("neg")
     session = NegotiationSession(
@@ -795,7 +800,7 @@ def _persist_to_db(session, agent_registry=None) -> None:
         logger.warning("History: 协商 %s DB 持久化失败: %s", neg_id, exc)
 
 
-async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
+async def _run_negotiation(engine, session, defaults, scene_context: dict | None = None):
     from towow import NegotiationState
 
     try:
@@ -807,7 +812,9 @@ async def _run_negotiation(engine, session, defaults, scene_context: str = ""):
                     return
 
         confirm_task = asyncio.create_task(auto_confirm())
-        await engine.start_negotiation(session=session, **defaults)
+        await engine.start_negotiation(
+            session=session, scene_context=scene_context, **defaults
+        )
         confirm_task.cancel()
     except Exception as e:
         logger.error("协商 %s 失败: %s", session.negotiation_id, e, exc_info=True)
