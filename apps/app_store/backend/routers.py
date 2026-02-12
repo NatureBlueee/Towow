@@ -586,7 +586,8 @@ async def negotiate(req: NegotiateRequest, request: Request):
         "sub_negotiation_skill": state.store_skills["sub_negotiation"],
         "gap_recursion_skill": state.store_skills["gap_recursion"],
         "agent_vectors": candidate_vectors or None,
-        "k_star": len(candidate_ids),
+        "k_star": min(20, len(candidate_ids)),
+        "min_score": 0.15,
         "agent_display_names": composite.get_display_names(),
         "register_session": _register,
     }
