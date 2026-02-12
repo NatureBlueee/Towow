@@ -14,6 +14,7 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import random
 from pathlib import Path
 from typing import Any, Optional
 
@@ -173,14 +174,17 @@ ASSIST_PROMPTS = {
 }
 
 
-def _build_agent_summaries(composite, scope: str, max_agents: int = 10) -> str:
+def _build_agent_summaries(composite, scope: str, max_agents: int = 5) -> str:
     """构建 Agent 列表摘要供 SecondMe 参考。
+
+    每次随机抽取 max_agents 个，确保 SecondMe 每次看到不同的人。
 
     两类数据源：
     - JSON 样板间 Agent：有 skills, bio, role, experience
     - SecondMe 用户：有 shades (兴趣标签), bio, self_introduction
     """
-    agent_ids = composite.get_agents_by_scope(scope)[:max_agents]
+    all_ids = composite.get_agents_by_scope(scope)
+    agent_ids = random.sample(all_ids, min(max_agents, len(all_ids)))
     lines = []
     for aid in agent_ids:
         info = composite.get_agent_info(aid)

@@ -31,7 +31,7 @@ class AgentEntry:
     def __init__(
         self,
         agent_id: str,
-        adapter: BaseAdapter,
+        adapter: BaseAdapter | None = None,
         source: str = "",
         scene_ids: list[str] | None = None,
         display_name: str = "",
@@ -133,7 +133,7 @@ class AgentRegistry(BaseAdapter):
     def register_agent(
         self,
         agent_id: str,
-        adapter: BaseAdapter,
+        adapter: BaseAdapter | None = None,
         source: str = "",
         scene_ids: list[str] | None = None,
         display_name: str = "",
@@ -272,6 +272,13 @@ class AgentRegistry(BaseAdapter):
             logger.warning("Agent %s 未注册", agent_id)
             return {"agent_id": agent_id}
 
+        # adapter=None（如：从文件恢复的 SecondMe 用户）→ 直接用 profile_data
+        if entry.adapter is None:
+            profile = {**(entry.profile_data or {}), "agent_id": agent_id}
+            profile.setdefault("source", entry.source)
+            profile.setdefault("scene_ids", entry.scene_ids)
+            return profile
+
         profile = await entry.adapter.get_profile(agent_id)
 
         # ClaudeAdapter 只返回 {"agent_id": id}，用 profile_data 补充
@@ -294,6 +301,9 @@ class AgentRegistry(BaseAdapter):
         if not entry:
             from towow.core.errors import AdapterError
             raise AdapterError(f"Agent {agent_id} 未注册到网络中")
+        if entry.adapter is None:
+            from towow.core.errors import AdapterError
+            raise AdapterError(f"Agent {agent_id} 的会话已过期，需要重新登录")
         return await entry.adapter.chat(agent_id, messages, system_prompt)
 
     async def chat_stream(
@@ -307,6 +317,9 @@ class AgentRegistry(BaseAdapter):
         if not entry:
             from towow.core.errors import AdapterError
             raise AdapterError(f"Agent {agent_id} 未注册到网络中")
+        if entry.adapter is None:
+            from towow.core.errors import AdapterError
+            raise AdapterError(f"Agent {agent_id} 的会话已过期，需要重新登录")
 
         async for chunk in entry.adapter.chat_stream(agent_id, messages, system_prompt):
             yield chunk

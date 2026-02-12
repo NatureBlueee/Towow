@@ -26,6 +26,7 @@ import logging
 import os
 import secrets
 from datetime import datetime, timezone
+from pathlib import Path
 from typing import Optional
 
 from fastapi import APIRouter, Cookie, HTTPException, Query, Request, Response
@@ -111,6 +112,32 @@ def _get_redirect_uri(host: str) -> str:
     )
 
 
+# ============ SecondMe 用户持久化 ============
+
+# 每个 SecondMe 用户一个 JSON 文件，重启后自动恢复
+_SECONDME_USERS_DIR = Path(__file__).resolve().parent.parent.parent / "data" / "secondme_users"
+
+
+def _persist_secondme_user(agent_id: str, profile: dict, scene_ids: list[str]) -> None:
+    """将 SecondMe 用户画像写入 JSON 文件。重复登录覆盖更新。
+
+    写入失败不阻断登录流程——持久化是最佳努力，不是硬性依赖。
+    """
+    try:
+        _SECONDME_USERS_DIR.mkdir(parents=True, exist_ok=True)
+        filepath = _SECONDME_USERS_DIR / f"{agent_id}.json"
+        data = {
+            "agent_id": agent_id,
+            "profile": profile,
+            "scene_ids": scene_ids,
+            "updated_at": datetime.now(timezone.utc).isoformat(),
+        }
+        filepath.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+        logger.info("SecondMe 用户已持久化: %s → %s", agent_id, filepath.name)
+    except Exception as e:
+        logger.error("SecondMe 用户持久化失败 %s: %s", agent_id, e)
+
+
 # ============ Agent 注册管线 ============
 
 async def _register_agent_from_secondme(
@@ -142,6 +169,9 @@ async def _register_agent_from_secondme(
         display_name=profile.get("name", agent_id),
         profile_data=profile,
     )
+
+    # 持久化到 JSON 文件（重启后可恢复）
+    _persist_secondme_user(agent_id, profile, list(scene_ids or []))
 
     # 向量编码
     text = profile_to_text(profile)

@@ -35,10 +35,10 @@ const SCENE_DISPLAY: Record<string, SceneDisplayConfig> = {
     color: '#8FD5A3',
     highlight: (a) => {
       const parts: string[] = [];
-      if (a.experience_years) parts.push(`${a.experience_years}年经验`);
-      if (a.expected_salary) parts.push(String(a.expected_salary));
-      if (a.location) parts.push(String(a.location));
-      return parts.join(' \u00B7 ');
+      if (a.experience) parts.push(String(a.experience));
+      if (a.salary_range) parts.push(String(a.salary_range));
+      if (a.work_style) parts.push(String(a.work_style));
+      return parts.join(' · ');
     },
     tagSource: (a) => {
       const tags = (a.skills || []).slice(0, 2);
@@ -51,10 +51,9 @@ const SCENE_DISPLAY: Record<string, SceneDisplayConfig> = {
     color: '#FFE4B5',
     highlight: (a) => {
       const parts: string[] = [];
-      if (a.price_range) parts.push(String(a.price_range));
       if (a.availability) parts.push(String(a.availability));
-      if (a.teaching_style) parts.push(String(a.teaching_style));
-      return parts.join(' \u00B7 ');
+      if (a.style) parts.push(String(a.style));
+      return parts.join(' · ');
     },
     tagSource: (a) => (a.skills || []).slice(0, 3),
   },
@@ -63,11 +62,14 @@ const SCENE_DISPLAY: Record<string, SceneDisplayConfig> = {
     highlight: (a) => {
       const parts: string[] = [];
       if (a.age) parts.push(`${a.age}岁`);
-      if (a.personality) parts.push(String(a.personality));
-      if (a.location) parts.push(String(a.location));
-      return parts.join(' \u00B7 ');
+      if (a.occupation) parts.push(String(a.occupation));
+      return parts.join(' · ');
     },
-    tagSource: (a) => ((a.values as string[]) || []).slice(0, 3),
+    tagSource: (a) => {
+      const interests = a.interests;
+      if (Array.isArray(interests)) return interests.slice(0, 3);
+      return [];
+    },
   },
 };
 

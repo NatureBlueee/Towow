@@ -193,6 +193,41 @@ async def lifespan(app: FastAPI):
     logger.info("Towow unified backend shutdown")
 
 
+def _restore_secondme_users(registry) -> None:
+    """启动时从 data/secondme_users/ 恢复已注册的 SecondMe 用户。
+
+    每个用户一个 JSON 文件（{agent_id}.json），包含 profile + scene_ids。
+    token 不持久化——用户需要重新登录才能使用 chat 等功能，但画像信息会保留在网络中。
+    """
+    import json as _json
+    users_dir = _project_dir / "data" / "secondme_users"
+    if not users_dir.exists():
+        return
+
+    restored = 0
+    for fp in sorted(users_dir.glob("*.json")):
+        try:
+            data = _json.loads(fp.read_text(encoding="utf-8"))
+            agent_id = data["agent_id"]
+            profile = data["profile"]
+            scene_ids = data.get("scene_ids", [])
+
+            registry.register_agent(
+                agent_id=agent_id,
+                adapter=None,  # 无 token，chat 不可用，但画像可见
+                source="SecondMe",
+                scene_ids=scene_ids,
+                display_name=profile.get("name", agent_id),
+                profile_data=profile,
+            )
+            restored += 1
+        except Exception as e:
+            logger.warning("恢复 SecondMe 用户失败 %s: %s", fp.name, e)
+
+    if restored:
+        logger.info("恢复 %d 个 SecondMe 用户 (from %s)", restored, users_dir)
+
+
 def _init_app_store(app: FastAPI, config, registry) -> None:
     """Synchronous App Store initialization (called from lifespan)."""
     from apps.app_store.backend.scene_registry import SceneContext, SceneRegistry
@@ -292,6 +327,9 @@ def _init_app_store(app: FastAPI, config, registry) -> None:
             logger.info("Store: SecondMe OAuth2 enabled")
     except Exception as e:
         logger.warning(f"Store: SecondMe OAuth2 not configured: {e}")
+
+    # 恢复已持久化的 SecondMe 用户
+    _restore_secondme_users(registry)
 
     logger.info(
         "Store: %d agents, %d scenes",
