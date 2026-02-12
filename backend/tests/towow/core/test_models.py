@@ -73,7 +73,7 @@ class TestNegotiationSession:
         session = NegotiationSession(
             negotiation_id="neg_test",
             demand=DemandSnapshot(raw_intent="test"),
-            center_rounds=2,
+            center_rounds=5,  # max_center_rounds default is 5
         )
         assert session.tools_restricted is True
 

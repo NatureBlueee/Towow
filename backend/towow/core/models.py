@@ -157,7 +157,7 @@ class NegotiationSession:
     state: NegotiationState = NegotiationState.CREATED
     participants: list[AgentParticipant] = field(default_factory=list)
     center_rounds: int = 0
-    max_center_rounds: int = 2
+    max_center_rounds: int = 5
     plan_output: Optional[str] = None
     plan_json: Optional[dict] = None
     parent_negotiation_id: Optional[str] = None  # For sub-negotiations (recursion)

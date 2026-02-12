@@ -708,7 +708,31 @@ class NegotiationEngine:
                 "scene_context": neg_ctx.get("scene_context"),
             }
 
-            result = await center_skill.execute(context)
+            try:
+                result = await asyncio.wait_for(
+                    center_skill.execute(context),
+                    timeout=90.0,
+                )
+            except asyncio.TimeoutError:
+                logger.warning(
+                    "🟡 [%s] Center synthesis round %d timed out (90s), forcing plan from session data",
+                    session.negotiation_id, session.center_rounds,
+                )
+                # Construct plan from existing session data rather than hanging
+                demand_text = session.demand.formulated_text or session.demand.raw_intent
+                offer_summaries = []
+                for p in session.participants:
+                    if p.offer:
+                        name = p.display_name or p.agent_id
+                        offer_summaries.append(f"- {name}: {p.offer.content[:200]}")
+                offers_text = "\n".join(offer_summaries) if offer_summaries else "(无响应)"
+                fallback_plan = (
+                    f"## 协商方案（Center 超时，基于已收集信息生成）\n\n"
+                    f"**需求**: {demand_text}\n\n"
+                    f"**参与者响应**:\n{offers_text}\n"
+                )
+                await self._finish_with_plan(session, fallback_plan, t0)
+                return
 
             tool_calls = result.get("tool_calls")
 
@@ -824,7 +848,17 @@ class NegotiationEngine:
                     "tools_restricted": True,
                     "llm_client": llm_client,
                 }
-                result = await center_skill.execute(forced_context)
+                try:
+                    result = await asyncio.wait_for(
+                        center_skill.execute(forced_context),
+                        timeout=90.0,
+                    )
+                except asyncio.TimeoutError:
+                    logger.warning(
+                        "🟡 [%s] Center forced round timed out (90s)",
+                        session.negotiation_id,
+                    )
+                    result = {"tool_calls": [], "content": ""}
 
                 plan_calls = result.get("tool_calls", [])
                 forced_plan_json = None

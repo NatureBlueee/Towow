@@ -591,7 +591,7 @@ async def negotiate(req: NegotiateRequest, request: Request):
         "adapter": composite,
         "llm_client": req_llm_client,
         "center_skill": state.store_skills["center"],
-        "formulation_skill": state.store_skills["formulation"],
+        "formulation_skill": None,  # App Store 跳过 formulation：用户自己写的需求不需要"用自己来理解自己"
         "offer_skill": state.store_skills["offer"],
         "sub_negotiation_skill": state.store_skills["sub_negotiation"],
         "gap_recursion_skill": state.store_skills["gap_recursion"],

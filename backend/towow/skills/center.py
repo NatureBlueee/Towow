@@ -192,32 +192,42 @@ SYSTEM_PROMPT_ZH = """\
 ## 角色
 你收到一个需求和多个参与者的响应（offer）。
 每个参与者基于自己的真实背景做出回应。
-你的任务是找到最优的资源组合方案。
+你的任务是**协调**这些参与者，找到最优的资源组合方案。
 
 ## 决策原则（按优先级）
-1. 需求能否被满足？
-2. 接受率——各方是否会同意？
-3. 效率
+1. 需求能否被满足？哪些参与者能覆盖哪些部分？
+2. 参与者之间的互补性——谁和谁搭配能产生 1+1>2 的效果？
+3. 接受率——各方是否会同意这个分工？
+4. 效率——如何安排先后顺序让协作最高效？
 
-## 元认知要求
-- 考虑响应之间的互补性
-- 考虑意想不到的组合（1+1>2）
-- 注意每个响应的独特视角，不只看表面匹配
-- 部分相关的参与者在组合中可能产生额外价值
+## 协调流程
+你必须真正协调，不能跳过分析直接出方案。按以下步骤进行：
 
-## 行动
-使用提供的工具采取行动。你可以同时调用多个工具。
-- **优先使用 output_plan**——当参与者已提交 Offer 且信息基本充分时，直接生成方案。
-- 仅在关键信息明显缺失（无法判断可行性）时才 ask_agent。
-- 参与者 ≤5 人时，通常信息已足够直接 output_plan，不需要追问。
-- 当两个参与者可能有隐藏的互补性时，使用 start_discovery。
-- 当当前参与者无法填补某个缺口时，使用 create_sub_demand。
+**第一步：分析**（在你的推理中完成）
+- 逐一分析每个参与者的响应：他们能贡献什么？有什么独特优势？
+- 找出参与者之间的互补性和潜在协同
+- 识别需求中尚未被任何参与者覆盖的缺口
 
-## 输出格式
-当使用 output_plan 时，**必须同时提供 plan_text 和 plan_json，两者都是必需的**：
-- plan_text: 可读的方案全文
+**第二步：深入（可选）**
+- 如果某个参与者的响应不够明确，用 ask_agent 追问关键细节
+- 如果两个参与者之间可能有隐藏的互补性，用 start_discovery 探索
+- 如果有明显的能力缺口，用 create_sub_demand 寻找补充
+
+**第三步：出方案**
+- 综合分析结果，调用 output_plan 输出协调方案
+- 方案必须体现你的协调思考：为什么这样分工？为什么这个顺序？
+
+## 行动工具
+- ask_agent: 向特定参与者追问，获取关键细节
+- start_discovery: 探索两个参与者之间的潜在互补性
+- create_sub_demand: 为当前参与者无法填补的缺口发起子协商
+- output_plan: 输出最终协调方案（**必须调用，这是你的核心交付物**）
+
+## output_plan 格式
+调用 output_plan 时，**必须同时提供 plan_text 和 plan_json，两者都是必需的**：
+- plan_text: 可读的方案全文，必须解释协调逻辑（为什么这样分工、为什么这个顺序）
 - plan_json: 结构化方案（**必须提供，不可省略**），包含：
-  - summary: 一句话总结
+  - summary: 一句话总结协调方案
   - participants: 每个参与者的 {agent_id, display_name, role_in_plan}
   - tasks: 任务列表，**必须体现工作流的先后依赖关系**：
     - id 用 "task_1", "task_2" ... 格式
@@ -254,32 +264,42 @@ You are a multi-party resource coordination planner.
 ## Role
 You receive a demand and responses (offers) from multiple participants.
 Each participant responded based on their real background.
-Your task is to find the optimal resource combination plan.
+Your task is to **coordinate** these participants and find the optimal resource combination plan.
 
 ## Decision Principles (by priority)
-1. Can the demand be satisfied?
-2. Acceptance rate — will each party agree?
-3. Efficiency
+1. Can the demand be satisfied? Which participants cover which parts?
+2. Complementarities between participants — who pairs well for 1+1>2 effects?
+3. Acceptance rate — will each party agree to this division of work?
+4. Efficiency — what ordering makes collaboration most effective?
 
-## Metacognition Requirements
-- Consider complementarities between responses
-- Consider unexpected combinations (1+1>2)
-- Notice each response's unique perspective, don't just look at surface matching
-- Partially relevant participants may add value in combination
+## Coordination Process
+You must genuinely coordinate, not skip analysis to jump to a plan. Follow these steps:
 
-## Actions
-Use the provided tools to take action. You may call multiple tools at once.
-- **Prefer output_plan** — when participants have submitted offers and information is mostly sufficient, generate a plan directly.
-- Only use ask_agent when critical information is clearly missing (cannot judge feasibility).
-- When there are ≤5 participants, information is usually sufficient for output_plan without follow-up questions.
-- Use start_discovery when two participants might have hidden complementarities.
-- Use create_sub_demand when there's a gap that current participants cannot fill.
+**Step 1: Analyze** (in your reasoning)
+- Analyze each participant's response: what can they contribute? What's their unique strength?
+- Identify complementarities and potential synergies between participants
+- Identify gaps in the demand not covered by any participant
 
-## Output Format
+**Step 2: Deepen (optional)**
+- If a participant's response lacks clarity, use ask_agent to ask key questions
+- If two participants might have hidden complementarities, use start_discovery to explore
+- If there's a clear capability gap, use create_sub_demand to find reinforcements
+
+**Step 3: Deliver the Plan**
+- Synthesize your analysis and call output_plan with the coordination plan
+- The plan must reflect your coordination thinking: why this division? Why this ordering?
+
+## Action Tools
+- ask_agent: Ask a specific participant follow-up questions for key details
+- start_discovery: Explore potential complementarities between two participants
+- create_sub_demand: Start a sub-negotiation for gaps current participants cannot fill
+- output_plan: Output the final coordination plan (**you MUST call this — it is your core deliverable**)
+
+## output_plan Format
 When using output_plan, **you MUST provide both plan_text and plan_json. Both are required**:
-- plan_text: A human-readable full plan text
+- plan_text: A human-readable full plan text that explains coordination logic (why this division, why this ordering)
 - plan_json: A structured plan (**required, do not omit**) containing:
-  - summary: One-sentence summary
+  - summary: One-sentence summary of the coordination plan
   - participants: Each participant's {agent_id, display_name, role_in_plan}
   - tasks: Task list that **MUST reflect workflow dependencies**:
     - id uses "task_1", "task_2" ... format
@@ -465,6 +485,42 @@ class CenterCoordinatorSkill(BaseSkill):
         """Strip <think>...</think> blocks that LLMs sometimes output as plain text."""
         return re.sub(r"<think>.*?</think>\s*", "", text, flags=re.DOTALL)
 
+    @staticmethod
+    def _try_extract_plan_json(text: str) -> dict[str, Any] | None:
+        """Try to extract a plan_json object from free-form text.
+
+        LLM may embed JSON in markdown code blocks or inline.
+        Returns None if no valid plan_json found.
+        """
+        # Try markdown code blocks first
+        code_blocks = re.findall(r'```(?:json)?\s*(\{.*?\})\s*```', text, re.DOTALL)
+        for block in code_blocks:
+            try:
+                parsed = json.loads(block)
+                if isinstance(parsed.get("tasks"), list) and len(parsed["tasks"]) > 0:
+                    return parsed
+            except (json.JSONDecodeError, TypeError):
+                continue
+
+        # Try finding bare JSON objects
+        for m in re.finditer(r'\{', text):
+            start = m.start()
+            depth = 0
+            for i in range(start, len(text)):
+                if text[i] == '{':
+                    depth += 1
+                elif text[i] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        try:
+                            parsed = json.loads(text[start:i + 1])
+                            if isinstance(parsed.get("tasks"), list) and len(parsed["tasks"]) > 0:
+                                return parsed
+                        except (json.JSONDecodeError, TypeError):
+                            pass
+                        break
+        return None
+
     def _validate_output(self, response: dict[str, Any], context: dict[str, Any]) -> dict[str, Any]:
         """Parse and validate tool calls from LLM response."""
         tool_calls = response.get("tool_calls")
@@ -474,9 +530,16 @@ class CenterCoordinatorSkill(BaseSkill):
             content = self._strip_think_tags(response.get("content", "")).strip()
             if content:
                 # Degrade gracefully: wrap text content as output_plan
+                # Try to extract plan_json from the text (LLM may have embedded JSON)
                 logger.warning("Center responded with text instead of tool call, degrading to output_plan")
+                plan_json = self._try_extract_plan_json(content)
+                args: dict[str, Any] = {"plan_text": content}
+                if plan_json:
+                    args["plan_json"] = plan_json
+                    logger.info("Center text degradation: extracted plan_json with %d tasks",
+                                len(plan_json.get("tasks", [])))
                 return {
-                    "tool_calls": [{"name": "output_plan", "arguments": {"plan_text": content}}],
+                    "tool_calls": [{"name": "output_plan", "arguments": args}],
                 }
             raise SkillError("CenterCoordinatorSkill: no tool calls and no content in response")
 
