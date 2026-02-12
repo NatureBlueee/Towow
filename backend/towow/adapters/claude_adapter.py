@@ -33,7 +33,6 @@ class ClaudeAdapter(BaseAdapter):
         api_key: str,
         model: str = "claude-sonnet-4-5-20250929",
         max_tokens: int = 4096,
-        profiles: dict[str, dict[str, Any]] | None = None,
         base_url: str | None = None,
     ):
         client_kwargs: dict[str, Any] = {"api_key": api_key}
@@ -42,12 +41,13 @@ class ClaudeAdapter(BaseAdapter):
         self._client = anthropic.AsyncAnthropic(**client_kwargs)
         self._model = model
         self._max_tokens = max_tokens
-        # V1: profile data is stored in-memory, passed at construction
-        self._profiles = profiles if profiles is not None else {}
 
     async def get_profile(self, agent_id: str) -> dict[str, Any]:
-        """Return stored profile data. V1 returns from in-memory store."""
-        return self._profiles.get(agent_id, {"agent_id": agent_id})
+        """ClaudeAdapter 不持有 profile 数据，返回最小标识。
+
+        Profile 路由由 AgentRegistry 负责 (ED-1)。
+        """
+        return {"agent_id": agent_id}
 
     async def chat(
         self,

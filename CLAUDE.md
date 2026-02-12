@@ -33,7 +33,7 @@ Towow/
 │   ├── DEV_LOG_V1.md
 │   ├── DESIGN_LOG_001-005.md
 │   └── prompts/               # V1 skill prompts
-├── .claude/skills/            # 6 engineering skills
+├── .claude/skills/            # Engineering skills (lead, arch, towow-eng, towow-dev, etc.)
 ├── Dockerfile                 # Production deployment
 ├── railway.toml               # Railway config
 └── CLAUDE.md                  # This file
@@ -97,6 +97,23 @@ CREATED → FORMULATING → FORMULATED → ENCODING → OFFERING → BARRIER_WAI
 ### 7 Event Types
 `formulation.ready` → `resonance.activated` → `offer.received` ×N → `barrier.complete` → `center.tool_call` ×N → `plan.ready` | `sub_negotiation.started`
 
+## Development Governance
+
+所有功能开发和改动遵循 5 阶段流程（详见 `.claude/skills/lead/SKILL.md`）：
+
+```
+① 讨论沉淀 → ② 决策书(ADR) → ③ 接口设计 → ④ 实现方案 → ⑤ 代码实现
+```
+
+**硬性原则**：
+- **生产级标准，一步到位**：不写"为了测试而通过"的临时代码
+- **改契约必须追踪消费方**：URL、API schema、Protocol 接口、事件格式是契约，改了必须同步所有消费方
+- **类型对齐 ≠ 数据流通**：编译通过不代表数据真的流过每一环，必须逐段验证
+- **模块化改动**：新功能通过 Protocol 接入，不修改已有模块内部逻辑
+- **改动必须反映到文档**：契约变更 → ENGINEERING_REFERENCE.md，架构决策 → docs/decisions/
+
+**快速通道**：小修改（≤3 文件，无契约变更）可直接进入阶段 ⑤。
+
 ## Agent-Parallel Development Guidelines
 
 When implementing features that touch multiple independent modules, use **TeamCreate + parallel Task agents** to maximize throughput. Each agent should load the relevant engineering skill.
@@ -112,7 +129,8 @@ Each agent MUST load the relevant `.claude/skills/` for its domain:
 | Frontend WS / UI | `towow-eng-frontend` | general-purpose |
 | Test design / verification | `towow-eng-test` | general-purpose |
 | Architecture alignment | `arch` | Explore or Plan |
-| Overall coordination | `towow-eng` (Leader) | Plan |
+| Engineering coordination | `towow-eng` (Leader) | Plan |
+| **Full lifecycle (default)** | **`lead`** | **general-purpose** |
 
 ### Key Principles
 - 代码保障 > Prompt 保障 (Section 0.5): State machine, barrier, round limits are all code-enforced

@@ -1,8 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { getSceneConfig } from '@/lib/store-scenes';
-import { assistDemand } from '@/lib/store-api';
+import { assistDemandStream } from '@/lib/store-api';
 
 interface DemandInputProps {
   sceneId: string | null;
@@ -42,10 +42,83 @@ const DEMAND_EXAMPLES: DemandExample[] = [
   },
 ];
 
+/**
+ * 轻量级 Markdown 渲染：处理 **加粗**、段落、列表、换行。
+ * 不引入外部依赖，够用就好。
+ */
+function renderMarkdown(text: string): React.ReactNode[] {
+  const paragraphs = text.split(/\n{2,}/);
+  const nodes: React.ReactNode[] = [];
+
+  for (let i = 0; i < paragraphs.length; i++) {
+    const para = paragraphs[i].trim();
+    if (!para) continue;
+
+    // 检查是否是列表段落（所有行以 - 或数字) 开头）
+    const lines = para.split('\n');
+    const isList = lines.every(
+      (l) => /^\s*[-*]\s/.test(l) || /^\s*\d+[.)]\s/.test(l) || !l.trim(),
+    );
+
+    if (isList) {
+      const items = lines.filter((l) => l.trim());
+      nodes.push(
+        <ul key={i} style={{ margin: '8px 0', paddingLeft: 20 }}>
+          {items.map((item, j) => (
+            <li key={j} style={{ marginBottom: 4 }}>
+              {renderInline(item.replace(/^\s*[-*]\s*/, '').replace(/^\s*\d+[.)]\s*/, ''))}
+            </li>
+          ))}
+        </ul>,
+      );
+    } else {
+      // 普通段落，处理单个换行为 <br>
+      const lineNodes: React.ReactNode[] = [];
+      lines.forEach((line, j) => {
+        if (j > 0) lineNodes.push(<br key={`br-${j}`} />);
+        lineNodes.push(<span key={`l-${j}`}>{renderInline(line)}</span>);
+      });
+      nodes.push(
+        <p key={i} style={{ margin: '8px 0' }}>
+          {lineNodes}
+        </p>,
+      );
+    }
+  }
+
+  return nodes;
+}
+
+/** 处理行内 **加粗** */
+function renderInline(text: string): React.ReactNode[] {
+  const parts: React.ReactNode[] = [];
+  const regex = /\*\*(.+?)\*\*/g;
+  let lastIndex = 0;
+  let match: RegExpExecArray | null;
+
+  while ((match = regex.exec(text)) !== null) {
+    if (match.index > lastIndex) {
+      parts.push(text.slice(lastIndex, match.index));
+    }
+    parts.push(
+      <strong key={match.index}>{match[1]}</strong>,
+    );
+    lastIndex = regex.lastIndex;
+  }
+
+  if (lastIndex < text.length) {
+    parts.push(text.slice(lastIndex));
+  }
+
+  return parts.length ? parts : [text];
+}
+
 export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, onLoginRequest, onAuthExpired }: DemandInputProps) {
   const [text, setText] = useState('');
+  const [isEditing, setIsEditing] = useState(false);
   const [assistLoading, setAssistLoading] = useState<'polish' | 'surprise' | null>(null);
   const [assistError, setAssistError] = useState<string | null>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const scene = getSceneConfig(sceneId || 'hackathon');
 
   const handleSubmit = () => {
@@ -59,11 +132,19 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
       if (prev.includes(chip)) return prev;
       return prev ? `${prev}，${chip}` : chip;
     });
+    setIsEditing(true);
   };
 
   const handleExampleClick = (example: DemandExample) => {
     setText(example.text);
+    setIsEditing(false);
   };
+
+  const handlePreviewClick = useCallback(() => {
+    if (assistLoading) return;
+    setIsEditing(true);
+    requestAnimationFrame(() => textareaRef.current?.focus());
+  }, [assistLoading]);
 
   const handleAssist = async (mode: 'polish' | 'surprise') => {
     if (!isAuthenticated) {
@@ -73,17 +154,17 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
     if (mode === 'polish' && !text.trim()) return;
     setAssistLoading(mode);
     setAssistError(null);
+    setIsEditing(false);
     try {
-      const result = await assistDemand({
-        mode,
-        scene_id: sceneId || '',
-        raw_text: text.trim(),
-      });
-      if (result.demand_text && result.demand_text.trim()) {
-        setText(result.demand_text);
-      } else {
-        setAssistError('分身思考后没有产出内容，请重试');
-      }
+      const result = await assistDemandStream(
+        {
+          mode,
+          scene_id: sceneId || '',
+          raw_text: text.trim(),
+        },
+        (accumulated) => setText(accumulated),
+      );
+      setText(result);
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes('401') || msg.includes('登录')) {
@@ -97,8 +178,19 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
     }
   };
 
+  // 显示 Markdown 预览：有内容 + 不在编辑模式（包括流式输出中）
+  const showPreview = text.trim() && !isEditing;
+
   return (
     <div style={{ padding: '24px' }}>
+      {assistLoading === 'surprise' && (
+        <style>{`
+          @keyframes surprise-pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.04); }
+          }
+        `}</style>
+      )}
       <div
         style={{
           position: 'relative',
@@ -108,28 +200,51 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
           overflow: 'hidden',
         }}
       >
-        <textarea
-          value={text}
-          onChange={(e) => setText(e.target.value)}
-          placeholder={scene.placeholder}
-          rows={3}
-          style={{
-            width: '100%',
-            padding: '16px',
-            border: 'none',
-            outline: 'none',
-            resize: 'none',
-            fontSize: 15,
-            lineHeight: 1.6,
-            fontFamily: 'inherit',
-            backgroundColor: 'transparent',
-          }}
-          onKeyDown={(e) => {
-            if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
-              handleSubmit();
-            }
-          }}
-        />
+        {showPreview ? (
+          <div
+            onClick={handlePreviewClick}
+            style={{
+              width: '100%',
+              minHeight: 72,
+              maxHeight: 400,
+              overflowY: 'auto',
+              padding: '12px 16px',
+              fontSize: 15,
+              lineHeight: 1.6,
+              fontFamily: 'inherit',
+              color: '#333',
+              cursor: assistLoading ? 'default' : 'text',
+            }}
+          >
+            {renderMarkdown(text)}
+          </div>
+        ) : (
+          <textarea
+            ref={textareaRef}
+            value={text}
+            onChange={(e) => setText(e.target.value)}
+            onFocus={() => setIsEditing(true)}
+            onBlur={() => setIsEditing(false)}
+            placeholder={scene.placeholder}
+            rows={3}
+            style={{
+              width: '100%',
+              padding: '16px',
+              border: 'none',
+              outline: 'none',
+              resize: 'none',
+              fontSize: 15,
+              lineHeight: 1.6,
+              fontFamily: 'inherit',
+              backgroundColor: 'transparent',
+            }}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+                handleSubmit();
+              }
+            }}
+          />
+        )}
         <div
           style={{
             display: 'flex',
@@ -184,15 +299,16 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
                     padding: '6px 14px',
                     borderRadius: 16,
                     border: '1.5px solid #F9A87C',
-                    backgroundColor: 'transparent',
-                    color: assistLoading ? '#dbb' : '#F9A87C',
+                    backgroundColor: assistLoading === 'surprise' ? 'rgba(249,168,124,0.08)' : 'transparent',
+                    color: assistLoading === 'surprise' ? '#F9A87C' : assistLoading ? '#dbb' : '#F9A87C',
                     fontSize: 13,
                     cursor: assistLoading ? 'default' : 'pointer',
                     transition: 'all 0.2s',
                     whiteSpace: 'nowrap',
+                    ...(assistLoading === 'surprise' ? { animation: 'surprise-pulse 1.5s ease-in-out infinite' } : {}),
                   }}
                 >
-                  {assistLoading === 'surprise' ? '通向中...' : '通向惊喜'}
+                  {assistLoading === 'surprise' ? '捣乱中...' : '通向惊喜'}
                 </button>
               </>
             )}

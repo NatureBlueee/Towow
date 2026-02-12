@@ -4,8 +4,9 @@ App Store routes — extracted from app.py for the unified server.
 All routes are relative (no prefix) — the caller adds /store prefix.
 
 In the unified server, App Store state attributes are prefixed with ``store_``
-(e.g. ``app.state.store_composite``).  The ``_store_state_proxy`` helper adapts
-them to the unprefixed names that ``_register_secondme_user`` expects.
+(e.g. ``app.state.store_engine``).  The ``_store_state_proxy`` helper adapts
+them to the unprefixed names used by internal functions.
+``agent_registry`` is a shared instance (no store_ prefix).
 """
 
 from __future__ import annotations
@@ -16,7 +17,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -27,7 +28,6 @@ class _StoreStateProxy:
     """Maps store_xxx attributes on unified app.state to unprefixed names."""
 
     _ATTR_MAP = {
-        "composite": "store_composite",
         "scene_registry": "store_scene_registry",
         "engine": "store_engine",
         "llm_client": "store_llm_client",
@@ -72,6 +72,7 @@ class NegotiationResponse(BaseModel):
     demand_formulated: Optional[str] = None
     participants: list[dict[str, Any]] = Field(default_factory=list)
     plan_output: Optional[str] = None
+    plan_json: Optional[dict[str, Any]] = None
     center_rounds: int = 0
     scope: str = "all"
     agent_count: int = 0
@@ -102,38 +103,82 @@ class AssistDemandRequest(BaseModel):
 SESSION_COOKIE_NAME = "towow_session"
 
 ASSIST_PROMPTS = {
-    "polish": """你是用户的 AI 分身，正在帮用户完善一个协作需求。
+    "polish": """你是这个人的分身。你比他自己更了解他——你读过他所有的文字、知道他的思维习惯和盲区。
 
-用户在「{scene_name}」场景中写了一个初步的想法。请基于你对用户的理解，帮助优化和丰富这个需求表达。
+现在他写了一个协作需求，但可能没说清楚，或者他说的"要求"不是他真正的"需求"。
+你的工作：用你对他的了解，帮他把需求说得更准确。
 
-规则：
-- 保留用户的核心意图，不要偏离
-- 补充具体细节：时间、规模、期望的协作方式
-- 表达用户可能没说出来的真实偏好
-- 直接输出优化后的需求文本，不加任何解释或前缀
+## 你要做的（按顺序思考）
 
-当前场景：{scene_description}
+第一步：理解他真正想要什么
+他说的具体要求（"要一个会 React 的人"）背后，真正的需求是什么？（"需要一个能把想法快速变成可交互原型的人"）
+
+第二步：补充他没说出来的背景
+他有哪些经历或能力跟这个需求相关，但他自己没提？想想：他的什么经历在这里有意想不到的价值？
+
+第三步：区分硬性和柔性
+他说的条件里，哪些是底线（不满足就必定失败），哪些是偏好（可以灵活）？
+
+第四步：用他的方式重新表达
+保留他的核心意图，但让响应者真正理解：这个人是谁、他要做什么、为什么值得响应。
+
+## 规则
+- 直接输出需求文本，不加"以下是优化后的需求"之类的前缀
+- 保留他的语气和表达习惯，不要变成另一个人
+- 不编造他没有的能力或经历
+
+当前场景：{scene_name} — {scene_description}
 网络中已有的参与者：
 {agent_summaries}""",
 
-    "surprise": """你是用户的 AI 分身。用户选了「{scene_name}」场景，想看看你能帮他发现什么有价值的协作需求。
+    "surprise": """你是这个人的分身。你了解他所有的文字、思维方式、经历和盲区。
 
-基于你对用户的深层理解——他的兴趣、经历、能力、未被满足的好奇心——结合这个场景和已有的参与者，创造一个他可能真正需要但还没想到的需求。
+现在你要替他做一件他自己做不到的事——你比他多看到两样东西：
+1. 这个场景里有什么机会（他不知道）
+2. 网络里有什么样的人（他不知道）
 
-规则：
-- 需求要具体，不要泛泛而谈
-- 要有意外感——用户看到会觉得"对啊，我确实需要这个"
-- 让需求自然地连接用户的特质和场景中的可能性
-- 直接输出需求文本，不加任何解释或前缀
+用你对他的了解 × 他不知道的场景和人，找到一个碰撞点——让他看到会说"对啊，我确实需要这个，但我自己没想到"。
 
-当前场景：{scene_description}
+## 你要做的（按顺序思考，但只输出最后一步的结果）
+
+第一步：分析他
+从你掌握的所有信息里，找到他最独特的能力/经历/视角。不是泛泛的"他喜欢XX"，而是具体的：他做过什么、擅长什么、关心什么。
+
+第二步：扫描网络
+看看下面列出的参与者——谁的能力和他形成互补？谁的经验能填补他的盲区？不要只看表面匹配（都喜欢AI），要找深层互补（一个有理论，一个有数据）。
+
+第三步：发现碰撞点
+把他的某个具体能力/经历 × 场景中的某个机会 × 网络中某个人的存在，交叉在一起。这个交叉点就是需求的种子。
+
+第四步：构造一个具体的协作需求
+围绕这个碰撞点，回答：
+- 要一起做什么具体的事？产出什么？
+- 他在里面出什么？对方出什么？
+- 什么条件下会失败？（1-2 条底线）
+- 大概的时间和方式
+
+第五步：用他的声音说出来
+像他自己写需求一样表达。注意他的说话方式——有的人结构化，有的人口语化，有的人简洁，有的人细致。用他的方式，不是你的方式。
+
+## 绝对不要做的
+- 不要描述"他是一个什么样的人"——那是 Profile，不是需求
+- 不要编造他没有的能力或经历
+- 不要贪多——只围绕一个碰撞点，一个需求
+- 不要加任何前缀（"以下是..."）或后缀（"祝你顺利..."）——直接输出需求本身
+
+当前场景：{scene_name} — {scene_description}
 网络中已有的参与者：
 {agent_summaries}""",
 }
 
 
 def _build_agent_summaries(composite, scope: str, max_agents: int = 10) -> str:
-    """构建 Agent 列表摘要供 SecondMe 参考。"""
+    """构建 Agent 列表摘要供 SecondMe 参考。
+
+    两类数据源：
+    - JSON 样板间 Agent：有 skills, bio, role, experience
+    - SecondMe 用户：有 shades (兴趣标签), bio, self_introduction
+    """
     agent_ids = composite.get_agents_by_scope(scope)[:max_agents]
     lines = []
     for aid in agent_ids:
@@ -141,14 +186,33 @@ def _build_agent_summaries(composite, scope: str, max_agents: int = 10) -> str:
         if not info:
             continue
         name = info.get("display_name", aid)
+        parts = [f"- {name}"]
+
+        # 角色/职业
+        role = info.get("role", "")
+        if role:
+            parts.append(f"（{role}）")
+
+        # 技能（JSON 样板间格式）
         skills = info.get("skills", [])
-        bio = info.get("bio", "")
-        line = f"- {name}"
         if skills:
-            line += f"（擅长：{', '.join(skills[:3])}）"
+            parts.append(f"，擅长 {', '.join(skills[:4])}")
+
+        # 兴趣标签（SecondMe shades 格式）
+        if not skills:
+            shades = info.get("shades", [])
+            if shades:
+                shade_names = [s.get("name", "") or s.get("description", "") for s in shades[:4]]
+                shade_names = [s for s in shade_names if s]
+                if shade_names:
+                    parts.append(f"，关注 {', '.join(shade_names)}")
+
+        # 简介
+        bio = info.get("bio", "") or info.get("self_introduction", "")
         if bio:
-            line += f"：{bio[:80]}"
-        lines.append(line)
+            parts.append(f"。{bio[:100]}")
+
+        lines.append("".join(parts))
     return "\n".join(lines) if lines else "（暂无参与者信息）"
 
 
@@ -180,7 +244,7 @@ async def network_info(request: Request):
     return {
         "name": "通爻网络 App Store",
         "version": "2.0.0",
-        "total_agents": state.store_composite.agent_count,
+        "total_agents": state.agent_registry.agent_count,
         "total_scenes": len(state.store_scene_registry.all_scenes),
         "scenes": state.store_scene_registry.list_scenes(),
         "secondme_enabled": state.store_oauth2_client is not None,
@@ -190,13 +254,13 @@ async def network_info(request: Request):
 @router.get("/api/agents")
 async def list_agents(request: Request, scope: str = "all"):
     state = request.app.state
-    agent_ids = state.store_composite.get_agents_by_scope(scope)
+    agent_ids = state.agent_registry.get_agents_by_scope(scope)
     agents = []
     for aid in agent_ids:
-        info = state.store_composite.get_agent_info(aid)
+        info = state.agent_registry.get_agent_info(aid)
         if not info:
             continue
-        profile = await state.store_composite.get_profile(aid)
+        profile = await state.agent_registry.get_profile(aid)
         for key, value in profile.items():
             if key not in ("agent_id", "source", "scene_ids"):
                 info.setdefault(key, value)
@@ -246,13 +310,23 @@ async def connect_user_to_scene(
     except Exception as e:
         raise HTTPException(400, f"授权码无效: {e}")
 
-    from .app import _register_secondme_user
+    from backend.routers.auth import _register_agent_from_secondme
 
-    result = await _register_secondme_user(
-        _StoreStateProxy(state),
+    result = await _register_agent_from_secondme(
         access_token=token_set.access_token,
+        oauth2_client=state.store_oauth2_client,
+        registry=state.agent_registry,
+        encoder=state.encoder,
+        agent_vectors=state.store_agent_vectors,
         scene_ids=[scene_id],
     )
+
+    # 存储 token 供后续对话使用（assist-demand 等）
+    state.store_user_tokens[result["agent_id"]] = token_set.access_token
+
+    # 更新场景计数
+    state.store_scene_registry.increment_agent_count(scene_id)
+
     return {"status": "ok", **result}
 
 
@@ -266,7 +340,7 @@ async def assist_demand(req: AssistDemandRequest, request: Request):
         raise HTTPException(401, "需要登录 SecondMe 才能使用分身辅助")
 
     state = request.app.state
-    composite = state.store_composite
+    composite = state.agent_registry
 
     # 验证 agent 在网络中
     info = composite.get_agent_info(agent_id)
@@ -302,34 +376,105 @@ async def assist_demand(req: AssistDemandRequest, request: Request):
 
     messages = [{"role": "user", "content": user_message}]
 
-    try:
-        logger.info("assist-demand: agent=%s, mode=%s, scene=%s", agent_id, req.mode, scene_name)
-        # 用 chat_stream 逐 chunk 收集，便于调试
-        chunks: list[str] = []
+    logger.info("assist-demand: agent=%s, mode=%s, scene=%s", agent_id, req.mode, scene_name)
+
+    async def _sse_generator():
         chunk_count = 0
+        has_content = False
         try:
-            async for chunk in composite.chat_stream(agent_id, messages, system_prompt):
-                chunk_count += 1
-                chunks.append(chunk)
-                logger.info("assist-demand chunk #%d: %r", chunk_count, chunk[:100])
-        except Exception as stream_err:
+            async with asyncio.timeout(60):
+                async for chunk in composite.chat_stream(agent_id, messages, system_prompt):
+                    chunk_count += 1
+                    if chunk:
+                        has_content = True
+                        yield f"data: {chunk}\n\n"
+            if not has_content:
+                logger.warning("assist-demand: SecondMe 返回空内容 agent=%s (chunks=%d)", agent_id, chunk_count)
+                yield "event: error\ndata: 分身思考后没有产出内容，请重试\n\n"
+            else:
+                logger.info("assist-demand: 成功, %d chunks", chunk_count)
+            yield "data: [DONE]\n\n"
+        except TimeoutError:
+            logger.error("assist-demand: 超时 60s agent=%s (已收到 %d chunks)", agent_id, chunk_count)
+            yield "event: error\ndata: 分身响应超时，请重试\n\n"
+            yield "data: [DONE]\n\n"
+        except Exception as e:
             logger.error("assist-demand stream 错误 (已收到 %d chunks): %s",
-                         chunk_count, stream_err, exc_info=True)
-            raise
+                         chunk_count, e, exc_info=True)
+            yield "event: error\ndata: 分身暂时无法响应\n\n"
+            yield "data: [DONE]\n\n"
 
-        result = "".join(chunks)
-        logger.info("assist-demand: 收到 %d chunks, 总长 %d 字符", chunk_count, len(result))
+    return StreamingResponse(
+        _sse_generator(),
+        media_type="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache, no-store",
+            "X-Accel-Buffering": "no",
+        },
+    )
 
-        if not result or not result.strip():
-            logger.warning("assist-demand: SecondMe 返回空内容 agent=%s (chunks=%d)", agent_id, chunk_count)
-            raise HTTPException(502, "分身思考后没有产出内容，请重试")
-        logger.info("assist-demand: 成功, 返回 %d 字符", len(result))
-        return {"demand_text": result, "mode": req.mode}
-    except HTTPException:
-        raise
+
+@router.get("/api/debug/chat-test")
+async def debug_chat_test(request: Request):
+    """诊断端点：测试当前用户的 SecondMe chat 连通性。"""
+    agent_id = await _get_agent_id_from_session(request)
+    if not agent_id:
+        return {"error": "未登录", "step": "session"}
+
+    registry = request.app.state.agent_registry
+    info = registry.get_agent_info(agent_id)
+    if not info:
+        return {"error": "Agent 不在网络中", "step": "registry", "agent_id": agent_id}
+
+    if info.get("source") != "SecondMe":
+        return {"error": "非 SecondMe 用户", "step": "source", "source": info.get("source")}
+
+    # 获取 adapter 内部信息
+    entry = registry._agents.get(agent_id)
+    adapter = entry.adapter if entry else None
+    if not adapter:
+        return {"error": "无 adapter", "step": "adapter"}
+
+    token_preview = getattr(adapter, "_access_token", "")[:20] + "..." if getattr(adapter, "_access_token", None) else "NONE"
+    client = getattr(adapter, "_client", None)
+
+    result = {
+        "agent_id": agent_id,
+        "adapter_type": type(adapter).__name__,
+        "has_client": client is not None,
+        "token_preview": token_preview,
+        "steps": [],
+    }
+
+    # 尝试简单的 chat 调用
+    try:
+        import httpx
+        base_url = client.config.api_base_url if client else "unknown"
+        url = f"{base_url}/gate/lab/api/secondme/chat/stream"
+        result["chat_url"] = url
+
+        access_token = getattr(adapter, "_access_token", "")
+        async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=10.0), follow_redirects=True) as c:
+            resp = await c.post(
+                url,
+                json={"messages": [{"role": "user", "content": "hello"}]},
+                headers={
+                    "Authorization": f"Bearer {access_token}",
+                    "Content-Type": "application/json",
+                    "Accept": "text/event-stream",
+                },
+            )
+            result["status_code"] = resp.status_code
+            result["response_headers"] = dict(resp.headers)
+            result["response_body"] = resp.text[:2000]
+            result["steps"].append(f"HTTP POST → {resp.status_code}")
+
     except Exception as e:
-        logger.error("SecondMe 辅助需求失败 agent=%s: %s", agent_id, e, exc_info=True)
-        raise HTTPException(502, f"分身暂时无法响应：{e}")
+        result["error"] = str(e)
+        result["error_type"] = type(e).__name__
+        result["steps"].append(f"Exception: {type(e).__name__}: {e}")
+
+    return result
 
 
 # ── 协商 API ──
@@ -340,7 +485,7 @@ async def negotiate(req: NegotiateRequest, request: Request):
     from towow.core.models import TraceChain, generate_id
 
     state = request.app.state
-    composite = state.store_composite
+    composite = state.agent_registry
 
     candidate_ids = composite.get_agents_by_scope(req.scope)
     if not candidate_ids:
@@ -389,7 +534,7 @@ async def negotiate(req: NegotiateRequest, request: Request):
         "sub_negotiation_skill": state.store_skills["sub_negotiation"],
         "gap_recursion_skill": state.store_skills["gap_recursion"],
         "agent_vectors": candidate_vectors or None,
-        "k_star": min(len(candidate_ids), 8),
+        "k_star": len(candidate_ids),
         "agent_display_names": composite.get_display_names(),
         "register_session": _register,
     }
@@ -424,7 +569,7 @@ async def get_negotiation(neg_id: str, request: Request):
         }
         if p.offer:
             entry["offer_content"] = p.offer.content
-        agent_info = request.app.state.store_composite.get_agent_info(p.agent_id)
+        agent_info = request.app.state.agent_registry.get_agent_info(p.agent_id)
         if agent_info:
             entry["source"] = agent_info.get("source", "")
             entry["scene_ids"] = agent_info.get("scene_ids", [])
@@ -437,6 +582,7 @@ async def get_negotiation(neg_id: str, request: Request):
         demand_formulated=session.demand.formulated_text,
         participants=participants,
         plan_output=session.plan_output,
+        plan_json=session.plan_json,
         center_rounds=session.center_rounds,
         scope=session.demand.scene_id or "all",
     )

@@ -1,5 +1,214 @@
 # V1 开发日志
 
+## 2026-02-12: ADR-001 — 统一 Adapter 注册中心 (Unified Adapter Registry)
+
+### 里程碑
+
+**诊断并修复了 Formulation 管道断裂问题（Issue 001）**。从架构诊断到完整实现，共 3 个 Phase，最终测试从 190 → 221 个全部通过。
+
+### 问题起源
+
+**Issue 001: Formulation Pipeline Broken — SecondMe 用户的 Agent Profile 从未参与 Formulation**
+
+现象：V1 Engine 使用 `ClaudeAdapter` 单例作为所有协商的 adapter，无论用户是否已绑定 SecondMe。SecondMe 用户的 profile（通过 OAuth 获取的真实数据）在 Formulation 阶段被完全忽略。
+
+### 架构诊断（5 个根因）
+
+| # | 根因 | 层级 | 严重度 |
+|---|------|------|--------|
+| 1 | Engine 只接受一个 adapter 实例，缺乏按 agent 路由能力 | 基础设施层 | Critical |
+| 2 | ClaudeAdapter.get_profile() 依赖外部 profiles dict 引用，注册时未传入 | 应用层 | High |
+| 3 | Auth 回调注册 agent 到 state.agents，但 Engine 不知道 state.agents 的存在 | 应用层 ↔ 基础设施层 | High |
+| 4 | CompositeAdapter（App Store）和 AgentRegistry 概念重叠但实现分裂 | 应用层 | Medium |
+| 5 | Engine formulation 无超时、无错误分类、无降级标记 | 协议层 | Medium |
+
+### 6 项工程决策（ED-1 ~ ED-6）
+
+| ED | 决策 | 理由 |
+|----|------|------|
+| ED-1 | ClaudeAdapter 退化为纯 LLM 通道，`get_profile()` 只返回 `{"agent_id": id}` | 四层架构：Adapter 是基础设施层 LLM 通道，不是数据存储。Profile 路由由 AgentRegistry 负责 |
+| ED-2 | 新建 `AgentRegistry`（基础设施层），统一 adapter 路由 | 取代 CompositeAdapter + 散落的 state.agents 管理 |
+| ED-3 | AgentRegistry 实现 `BaseAdapter` 协议 | 对 Engine 透明——Engine 不知道背后有多个 adapter |
+| ED-4 | Profile fallback：AgentRegistry 先问 adapter，若只返回 agent_id 则补充注册时的 profile_data | 兼容 ClaudeAdapter（无 profile）和 SecondMeAdapter（有 profile） |
+| ED-5 | 保留两个 Engine 实例（V1 + Store），共享同一个 AgentRegistry | 不改变现有 V1/Store 隔离架构，只统一数据层 |
+| ED-6 | Engine formulation 增加 timeout + 错误分类 + degraded 标记 | 端到端韧性：token 过期、adapter 超时、LLM 异常都有明确分类 |
+
+### Phase 1: AgentRegistry + 服务统一
+
+#### 新建文件
+
+**`backend/towow/infra/agent_registry.py`**（~301 行）
+- `AgentEntry`：`__slots__` 数据类，含 `agent_id`, `display_name`, `source`, `adapter`, `profile_data`, `scene_ids`
+- `AgentRegistry(BaseAdapter)`：
+  - `register_agent(agent_id, display_name, source, adapter?, profile_data?, scene_ids?)` — 注册 agent
+  - `register_source(source_name, adapter, agent_ids?, display_names?)` — 批量注册数据源
+  - `get_profile(agent_id)` — **核心 fallback 逻辑**：先调 adapter.get_profile()，若只返回 agent_id 则补充 profile_data
+  - `chat(agent_id, messages)` — 路由到对应 adapter
+  - `get_identity(agent_id)` — 返回 AgentIdentity
+  - `get_display_names(agent_ids)` — 批量查 display_name
+  - `agents_in_scene(scene_id)` / `agents_by_source(source)` — 作用域查询
+
+#### 修改文件
+
+| 文件 | 变更 |
+|------|------|
+| `backend/towow/infra/__init__.py` | 导出 AgentRegistry |
+| `backend/towow/adapters/claude_adapter.py` | 删除 `profiles` 参数和 `self._profiles`，`get_profile()` 简化为返回 `{"agent_id": id}`（ED-1）|
+| `backend/server.py` | 创建共享 `AgentRegistry()`，传入 V1 Engine 和 Store；`_seed_demo_scene()` 使用 `registry.register_agent()` |
+| `backend/routers/auth.py` | `_register_agent_from_secondme()` 使用 registry 参数，支持 `scene_ids` |
+| `apps/app_store/backend/app.py` | `CompositeAdapter` → `AgentRegistry` 导入和类型替换 |
+| `apps/app_store/backend/routers.py` | `_StoreStateProxy` 删除 `"composite"` 映射，全局 `store_composite` → `agent_registry` |
+| `backend/towow/api/routes.py` | `register_agent` 使用 `registry.register_agent()`；`_run_negotiation` 使用 `state.agent_registry` |
+| `backend/towow/api/__init__.py` | 清除已删除 `app.py` 的 re-export |
+
+#### 删除文件
+
+| 文件 | 原因 |
+|------|------|
+| `backend/towow/api/app.py` | 旧 V1 独立入口点，已被 `server.py` 统一取代 |
+| `apps/app_store/backend/composite_adapter.py` | 被 AgentRegistry 完全取代 |
+
+#### 新增测试
+
+**`backend/tests/towow/infra/test_agent_registry.py`** — 23 个测试：
+- 注册与路由：单 agent 注册、带 profile_data 注册、批量 register_source
+- Profile fallback：adapter 有 profile → 用 adapter 的；adapter 只返回 agent_id → 补充 profile_data
+- Chat 路由：正确转发到对应 adapter
+- 作用域查询：`agents_in_scene()`、`agents_by_source()`
+- 默认 adapter：未注册 agent 使用默认 adapter
+- 边界情况：空 registry、重复注册、显式 agent_ids
+
+#### 修改测试
+
+| 文件 | 变更 |
+|------|------|
+| `tests/towow/adapters/test_claude_adapter.py` | 适配简化后的 ClaudeAdapter |
+| `tests/towow/api/test_routes.py` | 使用 AgentRegistry 替代旧的 state.agents/profiles |
+
+#### 遇到的问题与修复
+
+| 问题 | 原因 | 修复 |
+|------|------|------|
+| `ModuleNotFoundError: towow.api.app` | `__init__.py` 仍然 re-export 已删除的 `app.py` | 清空 `__init__.py` |
+| `test_explicit_agent_ids` 失败 | `AsyncMock` 自动创建 `get_display_names` 方法 | 使用 `AsyncMock(spec=[])` 阻止自动生成 |
+
+#### Phase 1 验证
+
+**190 → 213 测试全部通过**（190 原有 + 23 新增）
+
+---
+
+### Phase 2: Engine Formulation 管道修复
+
+#### 修改文件
+
+**`backend/towow/core/engine.py`**（关键变更）：
+- 新增 `DEFAULT_FORMULATION_TIMEOUT_S = 30.0`
+- 新增 `formulation_timeout_s` 构造参数
+- **重写 `_run_formulation()`**：
+  1. 先通过 `adapter.get_profile(user_id)` 获取 profile 数据
+  2. 将 `profile_data` 注入 formulation skill context
+  3. `asyncio.wait_for()` 包裹 skill 调用，30s 超时
+  4. 错误分类：`AdapterError` 含 401/403/token → `token_expired`；其他 → `adapter_error`；`TimeoutError` → `formulation_timeout`；通用异常 → `formulation_error`
+  5. 所有降级路径 fallback 到 `raw_intent`，标记 `degraded=True` + 对应 `degraded_reason`
+
+**`backend/towow/core/events.py`**：
+- `formulation_ready()` 新增 `degraded: bool = False` 和 `degraded_reason: str = ""` 参数
+- 事件 data dict 包含两个新字段
+
+**`backend/towow/skills/formulation.py`**：
+- `_validate_output()` 增加 LLM 错误模式检测：
+  - 检测 pattern：`"rate limit"`, `"too many requests"`, `"overloaded"`, `"internal server error"`, `"service unavailable"`, `"i cannot"`, `"i'm unable"`, `"as an ai"`
+  - 命中则抛出 `SkillError`，而非静默接受错误文本作为 formulation 结果
+
+#### 前端变更
+
+| 文件 | 变更 |
+|------|------|
+| `website/types/negotiation.ts` | `FormulationReadyData` 新增 `degraded?: boolean` 和 `degraded_reason?: string` |
+| `website/components/negotiation/FormulationConfirm.tsx` | 新增降级警告：token_expired / formulation_timeout / 通用三种文案 |
+| `website/components/negotiation/FormulationConfirm.module.css` | 新增 `.degradedWarning` 样式（琥珀色警告条） |
+| `website/components/negotiation/__mocks__/events.ts` | Mock 事件增加 `degraded: false, degraded_reason: ''` |
+
+#### 新增测试
+
+| 文件 | 新增测试 |
+|------|---------|
+| `tests/towow/core/test_events.py` | `test_formulation_ready_degraded` — 验证降级字段传播 |
+| `tests/towow/skills/test_formulation.py` | `test_error_response_detected` — LLM 返回错误模式检测 |
+| 同上 | `test_ai_refusal_detected` — AI 拒绝回复检测 |
+| 同上 | `test_profile_data_in_prompt` — profile 数据注入 prompt 验证 |
+| `tests/towow/core/test_engine.py` | `TestFormulationPipeline` 类：4 个测试 |
+| 同上 | `test_formulation_with_profile_data` — profile 数据端到端流通 |
+| 同上 | `test_formulation_timeout_degrades` — 超时降级 |
+| 同上 | `test_formulation_adapter_error_classifies_token` — token 过期分类 |
+| 同上 | `test_formulation_generic_error_degrades` — 通用错误降级 |
+
+#### 遇到的问题与修复
+
+| 问题 | 原因 | 修复 |
+|------|------|------|
+| `test_formulation_with_profile_data` 失败 | 测试设置 profile 给 `"user_test"` 但 session fixture 用 `user_id="user_1"` | 改为正确的 user_id |
+
+#### Phase 2 验证
+
+**213 → 221 测试全部通过**（+8 新增）
+
+---
+
+### Phase 3: 全面验证
+
+```
+221 passed in 19.36s
+```
+
+| 检查项 | 结果 |
+|--------|------|
+| 后端全量测试 | 221 passed ✅ |
+| AgentRegistry 新测试 | 23 passed ✅ |
+| Engine Pipeline 新测试 | 8 passed ✅ |
+| 前端 TypeScript 类型 | 无新增错误 ✅ |
+| 已删文件无残留引用 | 确认 ✅ |
+
+### 产出文档
+
+| 文档 | 路径 | 内容 |
+|------|------|------|
+| Issue 001 | `docs/issues/001-formulation-pipeline-broken.md` | 问题诊断：5 个根因、影响分析 |
+| ADR-001 | `docs/adr/001-unified-adapter-registry.md` | 架构决策记录：6 个 ED、数据流图 |
+| PLAN-001 | `docs/plans/001-adr001-implementation.md` | 实施计划：3 Phase、验收标准 |
+
+### 变更统计
+
+| 维度 | 数量 |
+|------|------|
+| 新建文件 | 2（agent_registry.py + test_agent_registry.py） |
+| 删除文件 | 2（旧 api/app.py + composite_adapter.py） |
+| 修改文件 | ~15（engine, events, formulation, server, routes, auth, 前端 4 文件, 测试 4 文件） |
+| 新增测试 | 31（23 AgentRegistry + 8 Pipeline） |
+| 总测试数 | 190 → 221 |
+
+### 架构合规性
+
+| 检查项 | 状态 |
+|--------|------|
+| AgentRegistry 在基础设施层，不越界 | ✅ |
+| Engine 不直接处理 adapter 路由细节 | ✅ |
+| ClaudeAdapter 职责纯粹（纯 LLM 通道） | ✅ |
+| Profile fallback 逻辑在 Registry 层 | ✅ |
+| 错误分类在 Engine 协议层（代码保障 > Prompt 保障） | ✅ |
+| 前端降级提示在应用层 | ✅ |
+| 不存在 silent degradation（缺少必须组件直接报错） | ✅ |
+
+### 关键教训
+
+1. **数据源统一必须在基础设施层**：散落在 `state.agents`、`state.profiles`、`CompositeAdapter` 的 agent 管理，统一到 AgentRegistry 后所有路径自然打通
+2. **Profile 路由的 fallback 模式**：`adapter.get_profile()` 优先 → 数据不足时补充注册数据 → 保证 ClaudeAdapter 和 SecondMeAdapter 都能工作
+3. **错误分类是协议层职责**：token 过期 vs adapter 超时 vs LLM 拒绝，分类逻辑在 Engine 代码中，不依赖 prompt
+4. **前后端契约同步**：`degraded` 和 `degraded_reason` 两个新字段，后端 Python 和前端 TypeScript 同步添加
+
+---
+
 ## 2026-02-09: Phase 3.7 — 真实 LLM 端到端联调通过
 
 ### 里程碑

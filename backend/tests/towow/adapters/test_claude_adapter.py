@@ -13,26 +13,22 @@ from towow.core.errors import AdapterError
 
 @pytest.fixture
 def adapter():
-    """Create a ClaudeAdapter with test profiles."""
-    profiles = {
-        "agent_alice": {"agent_id": "agent_alice", "name": "Alice", "skills": ["python"]},
-    }
+    """Create a ClaudeAdapter (pure LLM channel, no profile storage)."""
     return ClaudeAdapter(
         api_key="test-key",
         model="claude-test",
-        profiles=profiles,
     )
 
 
 class TestGetProfile:
     @pytest.mark.asyncio
-    async def test_returns_stored_profile(self, adapter):
+    async def test_returns_minimal_identity(self, adapter):
+        """ClaudeAdapter always returns minimal identity (ED-1)."""
         result = await adapter.get_profile("agent_alice")
-        assert result["name"] == "Alice"
-        assert result["skills"] == ["python"]
+        assert result == {"agent_id": "agent_alice"}
 
     @pytest.mark.asyncio
-    async def test_returns_fallback_for_unknown_agent(self, adapter):
+    async def test_returns_minimal_for_any_agent(self, adapter):
         result = await adapter.get_profile("agent_unknown")
         assert result == {"agent_id": "agent_unknown"}
 

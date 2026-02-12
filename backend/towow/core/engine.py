@@ -11,11 +11,12 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+import re
 import time
 from datetime import datetime, timezone
 from typing import Any, Callable, Optional
 
-from .errors import EngineError
+from .errors import AdapterError, EngineError
 from .events import (
     barrier_complete,
     center_tool_call,
@@ -69,6 +70,7 @@ TOOL_CREATE_SUB_DEMAND = "create_sub_demand"
 
 # Default timeouts
 DEFAULT_OFFER_TIMEOUT_S = 30.0
+DEFAULT_FORMULATION_TIMEOUT_S = 30.0
 
 
 class NegotiationEngine:
@@ -93,12 +95,14 @@ class NegotiationEngine:
         event_pusher: EventPusher,
         offer_timeout_s: float = DEFAULT_OFFER_TIMEOUT_S,
         confirmation_timeout_s: float = DEFAULT_CONFIRMATION_TIMEOUT_S,
+        formulation_timeout_s: float = DEFAULT_FORMULATION_TIMEOUT_S,
     ):
         self._encoder = encoder
         self._resonance_detector = resonance_detector
         self._event_pusher = event_pusher
         self._offer_timeout_s = offer_timeout_s
         self._confirmation_timeout_s = confirmation_timeout_s
+        self._formulation_timeout_s = formulation_timeout_s
         self._confirmation_events: dict[str, asyncio.Event] = {}
         self._confirmed_texts: dict[str, str | None] = {}
         self._neg_contexts: dict[str, dict[str, Any]] = {}
@@ -296,21 +300,53 @@ class NegotiationEngine:
         t0 = time.monotonic()
         self._transition(session, NegotiationState.FORMULATING)
 
+        degraded = False
+        degraded_reason = ""
+
         if formulation_skill:
+            user_id = session.demand.user_id or "user"
+
+            # Step 1: Fetch profile (aligns with offer stage pattern)
             try:
-                result = await formulation_skill.execute({
-                    "raw_intent": session.demand.raw_intent,
-                    "agent_id": session.demand.user_id or "user",
-                    "adapter": adapter,
-                })
-                formulated_text = result.get("formulated_text", session.demand.raw_intent)
+                profile_data = await adapter.get_profile(user_id)
             except Exception as e:
-                # 用户无 profile（匿名等）时 adapter 不可用，降级为 raw_intent
+                logger.warning("Profile fetch failed for %s: %s", user_id, e)
+                profile_data = {}
+
+            # Step 2: Execute formulation with timeout
+            try:
+                result = await asyncio.wait_for(
+                    formulation_skill.execute({
+                        "raw_intent": session.demand.raw_intent,
+                        "agent_id": user_id,
+                        "adapter": adapter,
+                        "profile_data": profile_data,
+                    }),
+                    timeout=self._formulation_timeout_s,
+                )
+                formulated_text = result.get("formulated_text", session.demand.raw_intent)
+            except asyncio.TimeoutError:
+                logger.warning("Formulation timed out for %s", session.negotiation_id)
+                formulated_text = session.demand.raw_intent
+                degraded = True
+                degraded_reason = "formulation_timeout"
+            except AdapterError as e:
+                err_str = str(e).lower()
+                if "401" in err_str or "403" in err_str or "token" in err_str:
+                    degraded_reason = "token_expired"
+                else:
+                    degraded_reason = "adapter_error"
+                degraded = True
+                formulated_text = session.demand.raw_intent
+                logger.warning("Formulation adapter error for %s: %s", session.negotiation_id, e)
+            except Exception as e:
                 logger.warning(
                     "Formulation failed for %s, using raw intent: %s",
                     session.negotiation_id, e,
                 )
                 formulated_text = session.demand.raw_intent
+                degraded = True
+                degraded_reason = "formulation_error"
         else:
             # No formulation skill — use raw intent directly
             formulated_text = session.demand.raw_intent
@@ -324,6 +360,8 @@ class NegotiationEngine:
                 negotiation_id=session.negotiation_id,
                 raw_intent=session.demand.raw_intent,
                 formulated_text=formulated_text,
+                degraded=degraded,
+                degraded_reason=degraded_reason,
             ),
         )
 
@@ -380,9 +418,19 @@ class NegotiationEngine:
             self._trace(session, "encoding", t0, output_summary="no agent vectors")
             return
 
+        # Exclude demand submitter from resonance candidates (self-resonance is meaningless)
+        submitter_id = session.demand.user_id
+        candidate_vectors = {
+            aid: vec for aid, vec in agent_vectors.items() if aid != submitter_id
+        }
+        if not candidate_vectors:
+            self._transition(session, NegotiationState.OFFERING)
+            self._trace(session, "encoding", t0, output_summary="no candidates after excluding submitter")
+            return
+
         results = await self._resonance_detector.detect(
             demand_vector=demand_vector,
-            agent_vectors=agent_vectors,
+            agent_vectors=candidate_vectors,
             k_star=k_star,
         )
 
@@ -916,7 +964,24 @@ class NegotiationEngine:
         start_time: float,
         plan_json: Optional[dict] = None,
     ) -> None:
-        """Finalize the negotiation with a plan output."""
+        """Finalize the negotiation with a plan output.
+
+        Three-layer defense ensures plan_json is never None:
+        1. Use plan_json from LLM if valid (has tasks[])
+        2. Extract JSON from plan_text if plan_json missing
+        3. Construct minimal plan_json from session data
+        """
+        # --- Three-layer defense: guarantee plan_json ---
+        if not self._is_valid_plan_json(plan_json):
+            extracted = self._extract_plan_json(plan_text)
+            if self._is_valid_plan_json(extracted):
+                plan_json = extracted
+                logger.info("plan_json: extracted from plan_text")
+
+        if not self._is_valid_plan_json(plan_json):
+            plan_json = self._build_minimal_plan_json(session)
+            logger.info("plan_json: constructed from session data (%d tasks)", len(plan_json.get("tasks", [])))
+
         session.plan_output = plan_text
         session.plan_json = plan_json
         self._transition(session, NegotiationState.COMPLETED)
@@ -945,3 +1010,89 @@ class NegotiationEngine:
             start_time,
             output_summary=plan_text[:200],
         )
+
+    @staticmethod
+    def _is_valid_plan_json(plan_json: Optional[dict]) -> bool:
+        """Check if plan_json has the minimum structure for TopologyView."""
+        if not plan_json or not isinstance(plan_json, dict):
+            return False
+        tasks = plan_json.get("tasks")
+        return isinstance(tasks, list) and len(tasks) > 0
+
+    @staticmethod
+    def _extract_plan_json(plan_text: str) -> Optional[dict]:
+        """Try to extract a plan_json object from plan_text.
+
+        LLM may embed JSON in its text output. We find the largest valid
+        JSON object that looks like a plan (has tasks[] and participants[]).
+        """
+        if not plan_text:
+            return None
+        # Find all JSON-like blocks: outermost { ... }
+        candidates = []
+        for m in re.finditer(r'\{', plan_text):
+            start = m.start()
+            depth = 0
+            for i in range(start, len(plan_text)):
+                if plan_text[i] == '{':
+                    depth += 1
+                elif plan_text[i] == '}':
+                    depth -= 1
+                    if depth == 0:
+                        candidates.append(plan_text[start:i + 1])
+                        break
+        # Try candidates from longest to shortest
+        candidates.sort(key=len, reverse=True)
+        for candidate in candidates:
+            try:
+                obj = json.loads(candidate)
+                if (
+                    isinstance(obj, dict)
+                    and isinstance(obj.get("tasks"), list)
+                    and len(obj["tasks"]) > 0
+                ):
+                    return obj
+            except (json.JSONDecodeError, ValueError):
+                continue
+        return None
+
+    @staticmethod
+    def _build_minimal_plan_json(session: "NegotiationSession") -> dict:
+        """Construct a minimal but valid plan_json from session data.
+
+        Every participant who replied gets one task. All tasks are parallel
+        (no dependencies). This is the last-resort fallback so TopologyView
+        always has something to render.
+        """
+        participants = []
+        tasks = []
+        for i, p in enumerate(session.participants):
+            if p.state == AgentState.REPLIED:
+                participants.append({
+                    "agent_id": p.agent_id,
+                    "display_name": p.display_name,
+                    "role_in_plan": "参与者",
+                })
+                offer_desc = ""
+                if p.offer and p.offer.content:
+                    offer_desc = p.offer.content[:100]
+                    if len(p.offer.content) > 100:
+                        offer_desc += "..."
+                tasks.append({
+                    "id": f"task_{i + 1}",
+                    "title": f"{p.display_name} 的贡献",
+                    "description": offer_desc,
+                    "assignee_id": p.agent_id,
+                    "prerequisites": [],
+                    "status": "pending",
+                })
+        return {
+            "summary": (
+                session.demand.formulated_text
+                or session.demand.raw_intent
+                or "协商方案"
+            ),
+            "participants": participants,
+            "tasks": tasks or [{"id": "task_1", "title": "待分配", "assignee_id": "unknown", "prerequisites": [], "status": "pending"}],
+            "topology": {"edges": []},
+        }

@@ -132,6 +132,18 @@ class DemandFormulationSkill(BaseSkill):
             formulated = parsed.get("formulated_text", "")
             enrichments = parsed.get("enrichments", {})
         except (json.JSONDecodeError, TypeError):
+            # Detect common LLM error patterns before treating as formulated text
+            cleaned_lower = cleaned.strip().lower()
+            error_patterns = [
+                "rate limit", "too many requests", "overloaded",
+                "internal server error", "service unavailable",
+                "i cannot", "i'm unable", "as an ai",
+            ]
+            if any(pat in cleaned_lower for pat in error_patterns):
+                raise SkillError(
+                    f"DemandFormulationSkill: LLM returned error instead of formulation: "
+                    f"{cleaned[:100]}"
+                )
             # Lenient: treat entire output as the formulated text
             formulated = cleaned.strip()
             enrichments = {}

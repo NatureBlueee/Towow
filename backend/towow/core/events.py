@@ -59,6 +59,8 @@ def formulation_ready(
     raw_intent: str,
     formulated_text: str,
     enrichments: dict[str, Any] | None = None,
+    degraded: bool = False,
+    degraded_reason: str = "",
 ) -> NegotiationEvent:
     return NegotiationEvent(
         event_type=EventType.FORMULATION_READY,
@@ -67,6 +69,8 @@ def formulation_ready(
             "raw_intent": raw_intent,
             "formulated_text": formulated_text,
             "enrichments": enrichments or {},
+            "degraded": degraded,
+            "degraded_reason": degraded_reason,
         },
     )
 

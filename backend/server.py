@@ -72,10 +72,13 @@ async def lifespan(app: FastAPI):
     # V1 in-memory stores
     app.state.scenes = {}
     app.state.sessions = {}
-    app.state.agents = {}
-    app.state.profiles = {}
     app.state.tasks = {}
     app.state.skills = {}
+
+    # 基础设施层：AgentRegistry（唯一实例，全网络共享）
+    from towow.infra import AgentRegistry
+    registry = AgentRegistry()
+    app.state.agent_registry = registry
 
     # V1 WebSocket
     ws_manager = WebSocketManager()
@@ -124,18 +127,17 @@ async def lifespan(app: FastAPI):
         app.state.llm_client = None
         logger.warning("V1: No TOWOW_ANTHROPIC_API_KEY(S) — LLM calls will fail")
 
-    # V1 Adapter (uses first available key)
+    # Default adapter（给 demo/匿名用户的 LLM 通道）
     if v1_keys:
         from towow.adapters.claude_adapter import ClaudeAdapter
-        adapter = ClaudeAdapter(
+        default_adapter = ClaudeAdapter(
             api_key=v1_keys[0],
             model=config.default_model,
-            profiles=app.state.profiles,
             base_url=config.get_base_url(),
         )
-        app.state.adapter = adapter
+        registry.set_default_adapter(default_adapter)
     else:
-        app.state.adapter = None
+        default_adapter = None
 
     # V1 Skills
     try:
@@ -160,10 +162,13 @@ async def lifespan(app: FastAPI):
     app.state.config = config
 
     # V1 Demo scene
-    _seed_demo_scene(app)
+    _seed_demo_scene(app, registry, default_adapter)
 
     # ── 3. App Store subsystem ─────────────────────────────
-    _init_app_store(app, config)
+    _init_app_store(app, config, registry)
+
+    # Pre-encode Store agent vectors (async, needs to run in lifespan)
+    await _encode_store_agent_vectors(app, registry)
 
     logger.info("Towow unified backend ready")
     yield
@@ -188,14 +193,11 @@ async def lifespan(app: FastAPI):
     logger.info("Towow unified backend shutdown")
 
 
-def _init_app_store(app: FastAPI, config) -> None:
+def _init_app_store(app: FastAPI, config, registry) -> None:
     """Synchronous App Store initialization (called from lifespan)."""
-    from apps.app_store.backend.composite_adapter import CompositeAdapter
     from apps.app_store.backend.scene_registry import SceneContext, SceneRegistry
 
-    composite = CompositeAdapter()
     scene_registry = SceneRegistry()
-    app.state.store_composite = composite
     app.state.store_scene_registry = scene_registry
 
     # LLM client (multi-key round-robin, reuse V1 config)
@@ -204,18 +206,22 @@ def _init_app_store(app: FastAPI, config) -> None:
     if store_keys:
         from towow.infra.llm_client import ClaudePlatformClient
         llm_client = ClaudePlatformClient(api_key=store_keys, base_url=config.get_base_url())
+        logger.info("Store: ClaudePlatformClient initialized (%d key(s), base_url=%s)",
+                     len(store_keys), config.get_base_url() or "default")
     else:
         try:
             from apps.shared.mock_llm import MockLLMClient
             llm_client = MockLLMClient()
+            logger.warning("Store: ⚠️  Using MockLLMClient — TOWOW_ANTHROPIC_API_KEY(S) not set! "
+                           "All Center outputs will be hardcoded templates.")
         except ImportError:
             logger.warning("Store: No LLM client available")
     app.state.store_llm_client = llm_client
 
-    # Load sample agents
+    # Load sample agents (into shared registry)
     from apps.app_store.backend.app import SAMPLE_APPS, _load_sample_agents
     apps_dir = Path(__file__).resolve().parent.parent / "apps"
-    _load_sample_agents(composite, apps_dir, llm_client)
+    _load_sample_agents(registry, apps_dir, llm_client)
 
     # Register sample scenes
     for app_id, sample_config in SAMPLE_APPS.items():
@@ -248,8 +254,7 @@ def _init_app_store(app: FastAPI, config) -> None:
     )
     app.state.store_engine = store_engine
 
-    # Pre-encode agent vectors (done synchronously via event loop for now)
-    # The vectors will be populated lazily or skip on startup for speed
+    # Agent vectors — populated by _encode_store_agent_vectors() in lifespan
     app.state.store_agent_vectors = {}
 
     app.state.store_sessions = {}
@@ -290,14 +295,60 @@ def _init_app_store(app: FastAPI, config) -> None:
 
     logger.info(
         "Store: %d agents, %d scenes",
-        composite.agent_count,
+        registry.agent_count,
         len(scene_registry.all_scenes),
     )
 
 
-def _seed_demo_scene(app: FastAPI) -> None:
+async def _encode_store_agent_vectors(app: FastAPI, registry) -> None:
+    """Pre-encode vectors for all Store agents so resonance works."""
+    encoder = app.state.encoder
+    if encoder is None:
+        logger.warning("Store vectors: no encoder available, skipping")
+        return
+
+    vectors = app.state.store_agent_vectors
+    encoded = 0
+    skipped = 0
+
+    for aid in registry.all_agent_ids:
+        if aid in vectors:
+            continue
+        try:
+            profile = await registry.get_profile(aid)
+        except Exception:
+            skipped += 1
+            continue
+
+        text_parts = []
+        for field in ("self_introduction", "bio", "role"):
+            if profile.get(field):
+                text_parts.append(str(profile[field]))
+        if profile.get("skills"):
+            skills = profile["skills"]
+            if isinstance(skills, list):
+                text_parts.append(", ".join(str(s) for s in skills))
+        for shade in profile.get("shades", []):
+            desc = shade.get("description", "") or shade.get("name", "")
+            if desc:
+                text_parts.append(desc)
+
+        text = " ".join(text_parts) if text_parts else aid
+        try:
+            vec = await encoder.encode(text)
+            vectors[aid] = vec
+            encoded += 1
+        except Exception as e:
+            logger.warning("Store vectors: failed to encode %s: %s", aid, e)
+            skipped += 1
+
+    logger.info("Store vectors: encoded %d agents, skipped %d (total %d)",
+                encoded, skipped, len(vectors))
+
+
+def _seed_demo_scene(app: FastAPI, registry, default_adapter) -> None:
     """Pre-seed V1 demo scene with 5 agents."""
-    from towow.core.models import AgentIdentity, SceneDefinition, SourceType
+    from towow.core.models import SceneDefinition, SourceType
 
     scene_id = "scene_default"
     if scene_id in app.state.scenes:
@@ -330,15 +381,17 @@ def _seed_demo_scene(app: FastAPI) -> None:
     ]
 
     for agent_id, display_name, source_type, profile_data in demo_agents:
-        identity = AgentIdentity(
-            agent_id=agent_id,
-            display_name=display_name,
-            source_type=source_type,
-            scene_id=scene_id,
-            metadata=profile_data,
-        )
-        app.state.agents[agent_id] = identity
-        app.state.profiles[agent_id] = profile_data
+        # 注册到 AgentRegistry（唯一数据源）
+        adapter = default_adapter if default_adapter else None
+        if adapter:
+            registry.register_agent(
+                agent_id=agent_id,
+                adapter=adapter,
+                source=source_type.value,
+                scene_ids=[scene_id],
+                display_name=display_name,
+                profile_data=profile_data,
+            )
         scene.agent_ids.append(agent_id)
 
     app.state.scenes[scene_id] = scene

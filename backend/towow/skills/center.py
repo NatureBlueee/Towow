@@ -99,7 +99,7 @@ TOOL_OUTPUT_PLAN = {
                 },
             },
         },
-        "required": ["plan_text"],
+        "required": ["plan_text", "plan_json"],
     },
 }
 
@@ -213,9 +213,9 @@ SYSTEM_PROMPT_ZH = """\
 - 当当前参与者无法填补某个缺口时，使用 create_sub_demand。
 
 ## 输出格式
-当使用 output_plan 时，同时提供：
+当使用 output_plan 时，**必须同时提供 plan_text 和 plan_json，两者都是必需的**：
 - plan_text: 可读的方案全文
-- plan_json: 结构化方案，包含：
+- plan_json: 结构化方案（**必须提供，不可省略**），包含：
   - summary: 一句话总结
   - participants: 每个参与者的 {agent_id, display_name, role_in_plan}
   - tasks: 每个任务的 {id, title, description, assignee_id, prerequisites, status}
@@ -257,9 +257,9 @@ Use the provided tools to take action. You may call multiple tools at once.
 - Use create_sub_demand when there's a gap that current participants cannot fill.
 
 ## Output Format
-When using output_plan, provide both:
+When using output_plan, **you MUST provide both plan_text and plan_json. Both are required**:
 - plan_text: A human-readable full plan text
-- plan_json: A structured plan containing:
+- plan_json: A structured plan (**required, do not omit**) containing:
   - summary: One-sentence summary
   - participants: Each participant's {agent_id, display_name, role_in_plan}
   - tasks: Each task's {id, title, description, assignee_id, prerequisites, status}

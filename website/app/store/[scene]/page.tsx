@@ -9,6 +9,7 @@ import { NegotiationProgress } from '@/components/store/NegotiationProgress';
 import { PlanOutput } from '@/components/store/PlanOutput';
 import { DeveloperPanel } from '@/components/store/DeveloperPanel';
 import { useStoreNegotiation } from '@/hooks/useStoreNegotiation';
+import { useStoreAuth } from '@/hooks/useStoreAuth';
 
 export default function ScenePage({
   params,
@@ -18,6 +19,7 @@ export default function ScenePage({
   const { scene: sceneId } = use(params);
   const config = SCENES[sceneId];
   const negotiation = useStoreNegotiation();
+  const auth = useStoreAuth();
 
   if (!config) {
     return (
@@ -71,6 +73,9 @@ export default function ScenePage({
         sceneId={sceneId}
         onSubmit={handleSubmit}
         isSubmitting={negotiation.phase === 'submitting'}
+        isAuthenticated={auth.isAuthenticated}
+        onLoginRequest={auth.login}
+        onAuthExpired={auth.logout}
       />
 
       <div style={{ marginBottom: 8 }}>

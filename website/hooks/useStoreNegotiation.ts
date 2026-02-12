@@ -22,6 +22,7 @@ export type NegotiationPhase =
 export interface TimelineEntry {
   title: string;
   detail: string;
+  fullDetail?: string;
   dotType: 'formulation' | 'resonance' | 'offer' | 'barrier' | 'tool' | 'plan';
 }
 
@@ -152,10 +153,12 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
 
         case 'offer.received': {
           const name = (data.display_name as string) || (data.agent_id as string) || '';
-          const content = ((data.content as string) || '').substring(0, 200);
+          const fullContent = (data.content as string) || '';
+          const preview = fullContent.substring(0, 200);
           newTimeline.push({
             title: `${name} 响应`,
-            detail: content + (content.length >= 200 ? '...' : ''),
+            detail: preview + (fullContent.length > 200 ? '...' : ''),
+            fullDetail: fullContent.length > 200 ? fullContent : undefined,
             dotType: 'offer',
           });
 

@@ -131,19 +131,75 @@ export async function confirmNegotiation(negId: string): Promise<void> {
 
 // ============ SecondMe 辅助需求 ============
 
-export async function assistDemand(params: {
-  mode: 'polish' | 'surprise';
-  scene_id?: string;
-  raw_text?: string;
-}): Promise<{ demand_text: string; mode: string }> {
-  return request('/api/assist-demand', {
+/**
+ * Stream assist-demand via SSE — calls onChunk for each text fragment,
+ * returns the full accumulated text when done.
+ */
+export async function assistDemandStream(
+  params: {
+    mode: 'polish' | 'surprise';
+    scene_id?: string;
+    raw_text?: string;
+  },
+  onChunk: (accumulated: string) => void,
+): Promise<string> {
+  const url = `${API_BASE}/api/assist-demand`;
+  const res = await fetch(url, {
     method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    credentials: 'include',
     body: JSON.stringify({
       mode: params.mode,
       scene_id: params.scene_id || '',
       raw_text: params.raw_text || '',
     }),
   });
+
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(text || `Request failed: ${res.status}`);
+  }
+
+  const reader = res.body?.getReader();
+  if (!reader) throw new Error('No response body');
+
+  const decoder = new TextDecoder();
+  let accumulated = '';
+  let pendingEvent = '';
+  let buffer = '';  // Handle partial lines across chunks
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    buffer += decoder.decode(value, { stream: true });
+    // Split on \n but keep incomplete lines in buffer for next read
+    const lines = buffer.split('\n');
+    buffer = lines.pop() || '';  // Last element is incomplete if no trailing \n
+
+    for (const line of lines) {
+      if (line.startsWith('event: ')) {
+        pendingEvent = line.slice(7);
+        continue;
+      }
+      if (line.startsWith('data: ')) {
+        const data = line.slice(6);
+        if (data === '[DONE]') break;
+        if (pendingEvent === 'error') {
+          throw new Error(data);
+        }
+        pendingEvent = '';
+        accumulated += data;
+        onChunk(accumulated);
+      }
+    }
+  }
+
+  if (!accumulated.trim()) {
+    throw new Error('分身思考后没有产出内容，请重试');
+  }
+
+  return accumulated;
 }
 
 // ============ WebSocket URL ============

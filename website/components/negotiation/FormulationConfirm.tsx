@@ -18,12 +18,26 @@ export function FormulationConfirm({ formulation, onConfirm, disabled }: Formula
     onConfirm(editing ? editText : formulation.formulated_text);
   };
 
+  const degradedMessage = formulation.degraded
+    ? formulation.degraded_reason === 'token_expired'
+      ? 'Your agent connection has expired. Please log in again for a richer response.'
+      : formulation.degraded_reason === 'formulation_timeout'
+        ? 'Your agent took too long to respond. Using your original request.'
+        : 'Demand enrichment was not available. Using your original request.'
+    : null;
+
   return (
     <div className={styles.container}>
       <div className={styles.header}>
         <h3 className={styles.title}>Enriched Demand</h3>
         <span className={styles.badge}>Review</span>
       </div>
+
+      {degradedMessage && (
+        <div className={styles.degradedWarning}>
+          {degradedMessage}
+        </div>
+      )}
 
       <div className={styles.original}>
         <span className={styles.label}>You said:</span>

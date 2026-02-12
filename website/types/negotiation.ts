@@ -23,6 +23,8 @@ export interface FormulationReadyData {
   raw_intent: string;
   formulated_text: string;
   enrichments: Record<string, unknown>;
+  degraded?: boolean;
+  degraded_reason?: string;
 }
 
 export interface ResonanceAgent {

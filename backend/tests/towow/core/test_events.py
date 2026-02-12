@@ -51,6 +51,17 @@ class TestEventFactories:
         assert event.event_type == EventType.FORMULATION_READY
         assert event.data["raw_intent"] == "raw"
         assert event.data["formulated_text"] == "formulated"
+        assert event.data["degraded"] is False
+        assert event.data["degraded_reason"] == ""
+
+    def test_formulation_ready_degraded(self):
+        event = formulation_ready(
+            "neg_1", "raw", "raw",
+            degraded=True, degraded_reason="formulation_timeout",
+        )
+        assert event.data["degraded"] is True
+        assert event.data["degraded_reason"] == "formulation_timeout"
+        assert event.data["formulated_text"] == "raw"
 
     def test_resonance_activated(self):
         agents = [{"agent_id": "a1", "score": 0.9}]

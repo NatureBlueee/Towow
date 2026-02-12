@@ -36,8 +36,6 @@ def _create_test_app() -> FastAPI:
     # In-memory stores
     app.state.scenes = {}
     app.state.sessions = {}
-    app.state.agents = {}
-    app.state.profiles = {}
     app.state.tasks = {}
     app.state.skills = {}
 
@@ -75,11 +73,14 @@ def _create_test_app() -> FastAPI:
     )
     app.state.engine = engine
 
-    # Mock adapter
-    adapter = AsyncMock()
-    adapter.get_profile = AsyncMock(return_value={"agent_id": "test"})
-    adapter.chat = AsyncMock(return_value="Mock response")
-    app.state.adapter = adapter
+    # AgentRegistry with mock adapter
+    from towow.infra import AgentRegistry
+    registry = AgentRegistry()
+    mock_adapter = AsyncMock()
+    mock_adapter.get_profile = AsyncMock(return_value={"agent_id": "test"})
+    mock_adapter.chat = AsyncMock(return_value="Mock response")
+    registry.set_default_adapter(mock_adapter)
+    app.state.agent_registry = registry
 
     # Mock LLM client — returns output_plan by default
     llm_client = AsyncMock()

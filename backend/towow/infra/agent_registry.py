@@ -1,10 +1,16 @@
 """
-CompositeAdapter — 多数据源合并的 ProfileDataSource 适配器。
+AgentRegistry — 统一的 Agent 注册表和 Adapter 路由。
 
-将多个子 adapter（SecondMe 用户、JSON 样板间等）合并为一个统一的
-ProfileDataSource，让引擎看到所有 Agent 在同一个网络里。
+基础设施层组件。所有 Agent（SecondMe 用户、Demo agent、JSON 样板间等）在此注册，
+全网络共享一个 Registry 实例。Engine 和 App Store 都通过它访问 agent 信息。
 
-每个 Agent 带有来源标签(source)和场景标签(scene_ids)，支持 scope 过滤。
+实现 BaseAdapter（ProfileDataSource 协议），Engine 直接当 adapter 使用。
+按 agent_id 路由到正确的子 adapter。
+
+设计决策:
+  - ADR-001: 从应用层下沉到基础设施层
+  - ED-1: adapter 提供 LLM 通道，Registry 提供 profile 路由
+  - ED-3: JSONFileAdapter agent 的 profile 由 adapter 自己提供
 """
 
 from __future__ import annotations
@@ -12,7 +18,7 @@ from __future__ import annotations
 import logging
 from typing import Any, AsyncGenerator, Optional
 
-from towow import BaseAdapter
+from towow.adapters.base import BaseAdapter
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +26,7 @@ logger = logging.getLogger(__name__)
 class AgentEntry:
     """网络中一个 Agent 的注册信息。"""
 
-    __slots__ = ("agent_id", "adapter", "source", "scene_ids", "display_name")
+    __slots__ = ("agent_id", "adapter", "source", "scene_ids", "display_name", "profile_data")
 
     def __init__(
         self,
@@ -29,35 +35,48 @@ class AgentEntry:
         source: str = "",
         scene_ids: list[str] | None = None,
         display_name: str = "",
+        profile_data: dict | None = None,
     ):
         self.agent_id = agent_id
         self.adapter = adapter
         self.source = source
         self.scene_ids = scene_ids or []
         self.display_name = display_name
+        self.profile_data = profile_data or {}
 
 
-class CompositeAdapter(BaseAdapter):
+class AgentRegistry(BaseAdapter):
     """
-    多数据源合并适配器。
+    统一的 Agent 注册表，实现 ProfileDataSource 协议。
 
     用法：
-        composite = CompositeAdapter()
-        composite.register_source("hackathon", json_adapter, scene_ids=["hackathon"])
-        composite.register_agent("user_abc", secondme_adapter, source="secondme")
+        registry = AgentRegistry()
+        registry.set_default_adapter(claude_adapter)
+        registry.register_agent("user_abc", secondme_adapter, source="SecondMe")
+        registry.register_source("hackathon", json_adapter, scene_ids=["hackathon"])
+
+        # ProfileDataSource 接口 — 按 agent_id 路由到正确的子 adapter
+        profile = await registry.get_profile("user_abc")
+        response = await registry.chat("user_abc", messages)
 
         # 查询
-        all_ids = composite.all_agent_ids
-        hackathon_ids = composite.get_agents_by_scope("scene:hackathon")
-        network_ids = composite.get_agents_by_scope("all")
-
-        # ProfileDataSource 接口 — 自动路由到正确的子 adapter
-        profile = await composite.get_profile("user_abc")
-        response = await composite.chat("user_abc", messages)
+        all_ids = registry.all_agent_ids
+        hackathon_ids = registry.get_agents_by_scope("scene:hackathon")
     """
 
     def __init__(self):
         self._agents: dict[str, AgentEntry] = {}
+        self._default_adapter: BaseAdapter | None = None
+
+    # ── 默认 adapter ──
+
+    def set_default_adapter(self, adapter: BaseAdapter) -> None:
+        """设置默认 adapter（给 demo/匿名用户）。"""
+        self._default_adapter = adapter
+
+    @property
+    def default_adapter(self) -> BaseAdapter | None:
+        return self._default_adapter
 
     # ── 注册方法 ──
 
@@ -89,6 +108,9 @@ class CompositeAdapter(BaseAdapter):
         if not names and hasattr(adapter, "get_display_names"):
             names = adapter.get_display_names()
 
+        # 从 adapter 获取 profile 数据（如果有同步接口）
+        profiles = getattr(adapter, "profiles", {})
+
         registered = []
         for aid in agent_ids:
             entry = AgentEntry(
@@ -97,6 +119,7 @@ class CompositeAdapter(BaseAdapter):
                 source=source_name,
                 scene_ids=list(scene_ids or []),
                 display_name=names.get(aid, aid),
+                profile_data=profiles.get(aid, {}),
             )
             self._agents[aid] = entry
             registered.append(aid)
@@ -114,6 +137,7 @@ class CompositeAdapter(BaseAdapter):
         source: str = "",
         scene_ids: list[str] | None = None,
         display_name: str = "",
+        profile_data: dict | None = None,
     ) -> None:
         """注册单个 Agent。"""
         self._agents[agent_id] = AgentEntry(
@@ -122,6 +146,7 @@ class CompositeAdapter(BaseAdapter):
             source=source,
             scene_ids=list(scene_ids or []),
             display_name=display_name,
+            profile_data=profile_data,
         )
         logger.info("注册 Agent %s (来源=%s, 场景=%s)", agent_id, source, scene_ids or [])
 
@@ -182,15 +207,40 @@ class CompositeAdapter(BaseAdapter):
         return result
 
     def get_agent_info(self, agent_id: str) -> dict[str, Any] | None:
-        """获取 Agent 的注册信息（来源、场景等）。"""
+        """获取 Agent 的注册信息（来源、场景、画像摘要）。"""
+        entry = self._agents.get(agent_id)
+        if not entry:
+            return None
+        info: dict[str, Any] = {
+            "agent_id": entry.agent_id,
+            "source": entry.source,
+            "scene_ids": entry.scene_ids,
+            "display_name": entry.display_name,
+        }
+        # 从 profile_data 提取摘要字段（供 agent listings / summaries 使用）
+        pd = entry.profile_data
+        if pd:
+            for key in ("skills", "bio", "role", "self_introduction", "interests",
+                         "experience", "shades", "memories"):
+                if pd.get(key):
+                    info[key] = pd[key]
+        return info
+
+    def get_identity(self, agent_id: str) -> dict[str, Any] | None:
+        """
+        获取 Agent 的身份信息（替代旧的 state.agents 查询）。
+
+        Returns:
+            {agent_id, display_name, source, scene_ids} 或 None
+        """
         entry = self._agents.get(agent_id)
         if not entry:
             return None
         return {
             "agent_id": entry.agent_id,
+            "display_name": entry.display_name,
             "source": entry.source,
             "scene_ids": entry.scene_ids,
-            "display_name": entry.display_name,
         }
 
     def get_all_agents_info(self) -> list[dict[str, Any]]:
@@ -208,13 +258,26 @@ class CompositeAdapter(BaseAdapter):
     # ── ProfileDataSource 接口实现 ──
 
     async def get_profile(self, agent_id: str) -> dict[str, Any]:
-        """从正确的子 adapter 获取画像。"""
+        """
+        从正确的子 adapter 获取画像。
+
+        路由逻辑:
+        1. agent 已注册 → 问 adapter.get_profile()
+           - adapter 返回丰富数据（SecondMe）→ 直接用
+           - adapter 返回最小数据（ClaudeAdapter）→ fallback 到 entry.profile_data
+        2. agent 未注册 → 返回最小标识
+        """
         entry = self._agents.get(agent_id)
         if not entry:
             logger.warning("Agent %s 未注册", agent_id)
             return {"agent_id": agent_id}
 
         profile = await entry.adapter.get_profile(agent_id)
+
+        # ClaudeAdapter 只返回 {"agent_id": id}，用 profile_data 补充
+        if len(profile) <= 1 and entry.profile_data:
+            profile = {**entry.profile_data, **profile}
+
         # 注入来源和场景信息
         profile.setdefault("source", entry.source)
         profile.setdefault("scene_ids", entry.scene_ids)

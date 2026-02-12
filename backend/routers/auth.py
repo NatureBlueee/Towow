@@ -12,7 +12,7 @@ Platform-level Auth — 统一身份认证。
 依赖（通过 request.app.state 访问）：
   session_store         — SessionStore（session 持久化）
   store_oauth2_client   — SecondMeOAuth2Client
-  store_composite       — CompositeAdapter（Agent 注册）
+  agent_registry        — AgentRegistry（Agent 注册，基础设施层唯一实例）
   encoder               — EmbeddingEncoder（向量编码）
   store_agent_vectors   — dict（向量存储）
 
@@ -43,6 +43,7 @@ AUTH_STATE_TTL = 10 * 60  # 10 minutes
 
 COOKIE_SECURE = os.getenv("COOKIE_SECURE", "false").lower() == "true"
 COOKIE_DOMAIN = os.getenv("COOKIE_DOMAIN", "")  # e.g. "towow.net" for prod
+FRONTEND_ORIGIN = os.getenv("FRONTEND_ORIGIN", "")  # dev: "http://localhost:3000"; prod: "" (same origin)
 
 REDIRECT_URI_MAP = {
     "localhost:8080": "http://localhost:8080/api/auth/secondme/callback",
@@ -115,9 +116,10 @@ def _get_redirect_uri(host: str) -> str:
 async def _register_agent_from_secondme(
     access_token: str,
     oauth2_client,
-    composite,
+    registry,
     encoder,
     agent_vectors: dict,
+    scene_ids: list[str] | None = None,
 ) -> dict:
     """
     access_token → SecondMe 画像 → Agent 注册 → 向量编码。
@@ -132,12 +134,13 @@ async def _register_agent_from_secondme(
     agent_id = profile["agent_id"]
 
     # 注册或更新 adapter（每次登录都要更新 token）
-    composite.register_agent(
+    registry.register_agent(
         agent_id=agent_id,
         adapter=adapter,
         source="SecondMe",
-        scene_ids=[],
+        scene_ids=list(scene_ids or []),
         display_name=profile.get("name", agent_id),
+        profile_data=profile,
     )
 
     # 向量编码
@@ -210,12 +213,14 @@ async def auth_callback(
     """SecondMe 回调 → 注册 Agent → 设 cookie → 302 回 return_to。"""
     session_store = request.app.state.session_store
 
-    # 取 return_to
+    # 取 return_to（开发环境补全前端 origin）
     return_to = await session_store.get(f"auth_state:{state}")
     if return_to:
         await session_store.delete(f"auth_state:{state}")
     else:
         return_to = "/"
+    if FRONTEND_ORIGIN and return_to.startswith("/"):
+        return_to = FRONTEND_ORIGIN + return_to
 
     if not code:
         logger.warning("Auth callback: 缺少授权码")
@@ -249,7 +254,7 @@ async def auth_callback(
         result = await _register_agent_from_secondme(
             access_token=token_set.access_token,
             oauth2_client=oauth2_client,
-            composite=request.app.state.store_composite,
+            registry=request.app.state.agent_registry,
             encoder=request.app.state.encoder,
             agent_vectors=request.app.state.store_agent_vectors,
         )
@@ -304,8 +309,8 @@ async def auth_me(
     if not agent_id:
         raise HTTPException(401, "Session 已过期")
 
-    composite = request.app.state.store_composite
-    info = composite.get_agent_info(agent_id)
+    registry = request.app.state.agent_registry
+    info = registry.get_agent_info(agent_id)
     if not info:
         # Session 存在但 Agent 不在网络中（可能重启后丢失）
         await session_store.delete(f"session:{towow_session}")

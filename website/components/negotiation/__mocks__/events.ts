@@ -23,6 +23,8 @@ export const mockFormulationReady: NegotiationEvent = {
       detected_skills: ['full-stack', 'React', 'Python', 'AI', 'MVP'],
       intent_category: 'technical_collaboration',
     },
+    degraded: false,
+    degraded_reason: '',
   },
 };
 

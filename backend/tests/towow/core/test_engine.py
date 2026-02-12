@@ -1964,3 +1964,227 @@ class TestSubNegotiation:
         assert len(registered) == 1
         # Sub-session demand should be the raw gap_description
         assert registered[0].demand.raw_intent == "Need a legal advisor"
+
+
+# ============ Formulation Pipeline Tests (ADR-001 Phase 2) ============
+
+
+class TestFormulationPipeline:
+    """Tests for the improved formulation data pipeline."""
+
+    @pytest.mark.asyncio
+    async def test_formulation_timeout_degrades_gracefully(
+        self,
+        encoder: MockEncoder,
+        resonance: MockResonanceDetector,
+        pusher: MockEventPusher,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """Formulation timeout → degraded=True, uses raw_intent."""
+        # Engine with very short formulation timeout
+        engine = NegotiationEngine(
+            encoder=encoder,
+            resonance_detector=resonance,
+            event_pusher=pusher,
+            offer_timeout_s=5.0,
+            formulation_timeout_s=0.001,  # 1ms — will timeout
+        )
+
+        # Slow formulation skill that exceeds the timeout
+        class SlowFormulationSkill:
+            name = "demand_formulation"
+            async def execute(self, context):
+                await asyncio.sleep(1.0)  # Way longer than 1ms timeout
+                return {"formulated_text": "should not reach here"}
+
+        session = NegotiationSession(
+            negotiation_id=generate_id("neg"),
+            demand=DemandSnapshot(raw_intent="I need help", user_id="user_1"),
+        )
+
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            formulation_skill=SlowFormulationSkill(),
+            agent_vectors=agent_vectors,
+            k_star=3,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        # Should have degraded to raw_intent
+        assert result.demand.formulated_text == "I need help"
+
+        # Verify formulation.ready event has degraded fields
+        form_events = [
+            e for e in pusher.events
+            if e.event_type == EventType.FORMULATION_READY
+        ]
+        assert len(form_events) == 1
+        assert form_events[0].data["degraded"] is True
+        assert form_events[0].data["degraded_reason"] == "formulation_timeout"
+
+    @pytest.mark.asyncio
+    async def test_formulation_with_profile_data(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """Profile data should be fetched and passed to formulation skill."""
+        # Set up adapter with a profile for the user (session uses user_id="user_1")
+        adapter._profiles["user_1"] = {
+            "agent_id": "user_1",
+            "name": "TestUser",
+            "skills": ["python"],
+        }
+
+        # Track what context the formulation skill receives
+        received_contexts = []
+
+        class TrackingFormulationSkill:
+            name = "demand_formulation"
+            async def execute(self, context):
+                received_contexts.append(context)
+                return {"formulated_text": "enriched demand"}
+
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            formulation_skill=TrackingFormulationSkill(),
+            agent_vectors=agent_vectors,
+            k_star=3,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.demand.formulated_text == "enriched demand"
+
+        # Verify profile_data was passed to formulation skill
+        assert len(received_contexts) == 1
+        ctx = received_contexts[0]
+        assert "profile_data" in ctx
+        assert ctx["profile_data"]["name"] == "TestUser"
+        assert ctx["profile_data"]["skills"] == ["python"]
+
+    @pytest.mark.asyncio
+    async def test_formulation_adapter_error_degrades(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """AdapterError during formulation → degraded with appropriate reason."""
+        from towow.core.errors import AdapterError
+
+        class FailingFormulationSkill:
+            name = "demand_formulation"
+            async def execute(self, context):
+                raise AdapterError("HTTP 401 Unauthorized")
+
+        # Adapter that works for get_profile but skill raises AdapterError
+        adapter = MockProfileDataSource()
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            formulation_skill=FailingFormulationSkill(),
+            agent_vectors=agent_vectors,
+            k_star=3,
+        )
+
+        assert result.state == NegotiationState.COMPLETED
+        assert result.demand.formulated_text == session.demand.raw_intent
+
+        form_events = [
+            e for e in pusher.events
+            if e.event_type == EventType.FORMULATION_READY
+        ]
+        assert len(form_events) == 1
+        assert form_events[0].data["degraded"] is True
+        assert form_events[0].data["degraded_reason"] == "token_expired"
+
+    @pytest.mark.asyncio
+    async def test_formulation_normal_not_degraded(
+        self,
+        engine: NegotiationEngine,
+        session: NegotiationSession,
+        adapter: MockProfileDataSource,
+        llm: MockPlatformLLMClient,
+        encoder: MockEncoder,
+        pusher: MockEventPusher,
+        center_skill: CenterCoordinatorSkill,
+    ):
+        """Successful formulation should not be marked as degraded."""
+        class GoodFormulationSkill:
+            name = "demand_formulation"
+            async def execute(self, context):
+                return {"formulated_text": "enriched demand text"}
+
+        agent_vectors = await _build_agent_vectors(encoder)
+
+        llm.add_response({
+            "content": None,
+            "tool_calls": [
+                {"name": TOOL_OUTPUT_PLAN, "arguments": {"plan_text": "Plan."}, "id": "call_1"}
+            ],
+            "stop_reason": "tool_use",
+        })
+
+        result = await run_with_auto_confirm(engine, session,
+            adapter=adapter,
+            llm_client=llm,
+            center_skill=center_skill,
+            formulation_skill=GoodFormulationSkill(),
+            agent_vectors=agent_vectors,
+            k_star=3,
+        )
+
+        assert result.demand.formulated_text == "enriched demand text"
+
+        form_events = [
+            e for e in pusher.events
+            if e.event_type == EventType.FORMULATION_READY
+        ]
+        assert len(form_events) == 1
+        assert form_events[0].data["degraded"] is False
+        assert form_events[0].data["degraded_reason"] == ""

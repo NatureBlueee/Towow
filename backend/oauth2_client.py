@@ -660,8 +660,18 @@ class SecondMeOAuth2Client:
         """
         url = f"{self.config.api_base_url}/gate/lab/api/secondme/chat/stream"
 
+        # SecondMe Chat API 使用 "message"(单条字符串)，不是 "messages"(数组)
+        # 取最后一条 user 消息作为 message；用 sessionId 维护上下文
+        last_content = ""
+        for m in reversed(messages):
+            if m.get("role") == "user" and m.get("content"):
+                last_content = m["content"]
+                break
+        if not last_content and messages:
+            last_content = messages[-1].get("content", "")
+
         payload: Dict[str, Any] = {
-            "messages": messages,
+            "message": last_content,
             "enableWebSearch": enable_web_search,
         }
         if system_prompt is not None:
@@ -669,11 +679,9 @@ class SecondMeOAuth2Client:
         if session_id is not None:
             payload["sessionId"] = session_id
 
-        # 脱敏日志：只记录消息数量和首条消息摘要
-        first_msg = messages[0]["content"][:50] if messages else ""
+        # 脱敏日志
         logger.info(
-            f"Starting chat stream: {len(messages)} messages, "
-            f"first_msg={first_msg!r}..."
+            f"Starting chat stream: message={last_content[:50]!r}..."
         )
 
         try:

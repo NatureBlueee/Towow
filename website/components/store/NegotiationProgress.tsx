@@ -192,6 +192,7 @@ function ViewTab({ label, isActive, onClick }: { label: string; isActive: boolea
 
 function TimelineView({ timeline }: { timeline: TimelineEntry[] }) {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -267,7 +268,29 @@ function TimelineView({ timeline }: { timeline: TimelineEntry[] }) {
                   wordBreak: 'break-word',
                 }}
               >
-                {entry.detail}
+                {expandedItems.has(i) && entry.fullDetail ? entry.fullDetail : entry.detail}
+                {entry.fullDetail && (
+                  <button
+                    onClick={() => setExpandedItems(prev => {
+                      const next = new Set(prev);
+                      if (next.has(i)) next.delete(i); else next.add(i);
+                      return next;
+                    })}
+                    style={{
+                      display: 'inline',
+                      marginLeft: 4,
+                      padding: 0,
+                      border: 'none',
+                      background: 'none',
+                      color: '#D4B8D9',
+                      fontSize: 12,
+                      cursor: 'pointer',
+                      textDecoration: 'underline',
+                    }}
+                  >
+                    {expandedItems.has(i) ? '收起' : '展开全部'}
+                  </button>
+                )}
               </div>
             )}
           </div>
@@ -295,6 +318,20 @@ function RadialGraphView({ graphState }: { graphState: GraphState }) {
         margin: '0 auto',
       }}
     >
+      <style>{`
+        @keyframes nodeAppear {
+          from { transform: scale(0); opacity: 0; }
+          to { transform: scale(1); opacity: 1; }
+        }
+        @keyframes lineGrow {
+          from { stroke-dashoffset: 200; }
+          to { stroke-dashoffset: 0; }
+        }
+        @keyframes centerPulse {
+          0%, 100% { box-shadow: 0 0 0 0 rgba(212,184,217,0.4); }
+          50% { box-shadow: 0 0 0 8px rgba(212,184,217,0); }
+        }
+      `}</style>
       {/* SVG lines */}
       <svg
         width={size}
@@ -314,6 +351,12 @@ function RadialGraphView({ graphState }: { graphState: GraphState }) {
               y2={ay}
               stroke={agent.active ? '#8FD5A3' : 'rgba(0,0,0,0.08)'}
               strokeWidth={agent.active ? 2 : 1}
+              style={{
+                strokeDasharray: 200,
+                strokeDashoffset: 0,
+                animation: `lineGrow 0.5s ease-out ${i * 0.05}s both`,
+                transition: 'stroke 0.3s, stroke-width 0.3s',
+              }}
             />
           );
         })}
@@ -335,6 +378,9 @@ function RadialGraphView({ graphState }: { graphState: GraphState }) {
               stroke="#D4B8D9"
               strokeWidth={1.5}
               strokeDasharray="4 2"
+              style={{
+                animation: `lineGrow 0.4s ease-out ${i * 0.08}s both`,
+              }}
             />
           );
         })}
@@ -367,7 +413,7 @@ function RadialGraphView({ graphState }: { graphState: GraphState }) {
         const angle = (2 * Math.PI * i) / agents.length - Math.PI / 2;
         const ax = cx + radius * Math.cos(angle);
         const ay = cy + radius * Math.sin(angle);
-        const label = agent.name.length > 4 ? agent.name.substring(0, 3) + '..' : agent.name;
+        const label = agent.name.length > 8 ? agent.name.substring(0, 7) + '..' : agent.name;
         return (
           <div
             key={agent.id}
@@ -387,7 +433,8 @@ function RadialGraphView({ graphState }: { graphState: GraphState }) {
               fontSize: 11,
               fontWeight: 500,
               zIndex: 2,
-              transition: 'all 0.3s',
+              transition: 'background-color 0.3s, color 0.3s',
+              animation: `nodeAppear 0.3s ease-out ${i * 0.05}s both`,
             }}
           >
             {label}
@@ -414,6 +461,7 @@ function RadialGraphView({ graphState }: { graphState: GraphState }) {
             fontWeight: 600,
             zIndex: 2,
             border: '2px solid #fff',
+            animation: 'nodeAppear 0.3s ease-out, centerPulse 2s ease-in-out infinite 0.3s',
           }}
         >
           Center

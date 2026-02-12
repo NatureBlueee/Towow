@@ -31,6 +31,16 @@
   border-radius: 20px;
 }
 
+.degradedWarning {
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.5;
+  color: #92400E;
+  background: #FFFBEB;
+  border: 1px solid #FDE68A;
+  border-radius: var(--radius-sm, 8px);
+}
+
 .original {
   padding: 12px;
   background: rgba(0, 0, 0, 0.03);

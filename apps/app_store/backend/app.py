@@ -27,7 +27,7 @@ from fastapi.responses import FileResponse, HTMLResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from .composite_adapter import CompositeAdapter
+from towow.infra import AgentRegistry
 from .scene_registry import SceneContext, SceneRegistry
 
 logger = logging.getLogger(__name__)
@@ -161,8 +161,8 @@ SAMPLE_APPS = {
 }
 
 
-def _load_sample_agents(composite: CompositeAdapter, apps_dir: Path, llm_client):
-    """加载所有样板间的 Agent 到 CompositeAdapter。"""
+def _load_sample_agents(composite: AgentRegistry, apps_dir: Path, llm_client):
+    """加载所有样板间的 Agent 到 AgentRegistry。"""
     import sys
     sys.path.insert(0, str(apps_dir.parent))
     from apps.shared.json_adapter import JSONFileAdapter
@@ -186,71 +186,6 @@ def _load_sample_agents(composite: CompositeAdapter, apps_dir: Path, llm_client)
     return total
 
 
-# ============ SecondMe 用户注册 ============
-
-async def _register_secondme_user(
-    app_state,
-    access_token: str,
-    scene_ids: list[str] | None = None,
-) -> dict[str, Any]:
-    """
-    用 SecondMe token 注册一个用户的 AI 分身到网络。
-
-    Returns:
-        注册结果 dict，含 agent_id 和 profile 摘要
-    """
-    from towow.adapters.secondme_adapter import SecondMeAdapter
-
-    oauth2_client = app_state.oauth2_client
-    adapter = SecondMeAdapter(oauth2_client=oauth2_client, access_token=access_token)
-
-    # 拉取完整画像
-    profile = await adapter.fetch_and_build_profile()
-    agent_id = profile["agent_id"]
-
-    # 注册到 CompositeAdapter
-    composite: CompositeAdapter = app_state.composite
-    composite.register_agent(
-        agent_id=agent_id,
-        adapter=adapter,
-        source="SecondMe",
-        scene_ids=list(scene_ids or []),
-        display_name=profile.get("name", agent_id),
-    )
-
-    # 编码向量
-    try:
-        from oauth2_client import profile_to_text
-        text = profile_to_text(profile)
-    except ImportError:
-        text = f"{profile.get('name', '')} {profile.get('self_introduction', '')} {profile.get('bio', '')}"
-    try:
-        vec = await app_state.engine._encoder.encode(text)
-        app_state.agent_vectors[agent_id] = vec
-    except Exception as e:
-        logger.warning("向量编码失败 %s: %s", agent_id, e)
-
-    # 更新场景计数
-    for sid in (scene_ids or []):
-        app_state.scene_registry.increment_agent_count(sid)
-
-    # 存储 token 供后续对话使用
-    app_state.user_tokens[agent_id] = access_token
-
-    logger.info(
-        "SecondMe 用户注册: %s (name=%s, shades=%d, scenes=%s)",
-        agent_id, profile.get("name"), len(profile.get("shades", [])), scene_ids or [],
-    )
-
-    return {
-        "agent_id": agent_id,
-        "name": profile.get("name"),
-        "shades_count": len(profile.get("shades", [])),
-        "memories_count": len(profile.get("memories", [])),
-        "scene_ids": list(scene_ids or []),
-    }
-
-
 # ============ 应用工厂 ============
 
 @asynccontextmanager
@@ -265,8 +200,8 @@ async def lifespan(app: FastAPI):
         GapRecursionSkill,
     )
 
-    # CompositeAdapter + SceneRegistry
-    composite = CompositeAdapter()
+    # AgentRegistry + SceneRegistry
+    composite = AgentRegistry()
     scene_registry = SceneRegistry()
     app.state.composite = composite
     app.state.scene_registry = scene_registry
@@ -480,30 +415,33 @@ def create_store_app() -> FastAPI:
         """
         其他应用把用户的 SecondMe 授权码发过来。
         App Store 换 token → 构建画像 → 注册 Agent（带场景标签）。
-
-        方案 A：用户显式授权。授权码由用户在其他应用里点击"连接到通爻网络"后产生。
         """
+        from backend.routers.auth import _register_agent_from_secondme
+
         state = request.app.state
         if not state.oauth2_client:
             raise HTTPException(503, "SecondMe OAuth2 未配置")
 
-        # 验证场景存在
         scene = state.scene_registry.get(scene_id)
         if not scene:
             raise HTTPException(404, f"场景 {scene_id} 不存在")
 
-        # 用授权码换 token
         try:
             token_set = await state.oauth2_client.exchange_token(req.authorization_code)
         except Exception as e:
             raise HTTPException(400, f"授权码无效: {e}")
 
-        # 注册用户
-        result = await _register_secondme_user(
-            state,
+        result = await _register_agent_from_secondme(
             access_token=token_set.access_token,
+            oauth2_client=state.oauth2_client,
+            registry=state.composite,
+            encoder=state.engine._encoder,
+            agent_vectors=state.agent_vectors,
             scene_ids=[scene_id],
         )
+
+        state.user_tokens[result["agent_id"]] = token_set.access_token
+        state.scene_registry.increment_agent_count(scene_id)
 
         return {"status": "ok", **result}
 
@@ -522,7 +460,7 @@ def create_store_app() -> FastAPI:
         from towow.core.models import TraceChain, generate_id
 
         state = request.app.state
-        composite: CompositeAdapter = state.composite
+        composite: AgentRegistry = state.composite
 
         # 根据 scope 过滤候选 Agent
         candidate_ids = composite.get_agents_by_scope(req.scope)
@@ -581,7 +519,7 @@ def create_store_app() -> FastAPI:
             "sub_negotiation_skill": state.skills["sub_negotiation"],
             "gap_recursion_skill": state.skills["gap_recursion"],
             "agent_vectors": candidate_vectors or None,
-            "k_star": min(len(candidate_ids), 8),
+            "k_star": len(candidate_ids),
             "agent_display_names": composite.get_display_names(),
             "register_session": _register,
         }

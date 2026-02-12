@@ -14,6 +14,7 @@ import asyncio
 import itertools
 import logging
 import os
+import time
 from typing import Any, Optional
 
 import anthropic
@@ -63,9 +64,14 @@ class ClaudePlatformClient:
             len(keys), concurrency, base_url or "default",
         )
 
-    def _next_client(self) -> anthropic.AsyncAnthropic:
+    def _next_client(self) -> tuple[int, anthropic.AsyncAnthropic]:
         idx = next(self._cycle)
-        return self._clients[idx]
+        return idx, self._clients[idx]
+
+    def _key_label(self, idx: int) -> str:
+        """Return safe label for logging (key index + last 4 chars)."""
+        key = self._clients[idx].api_key
+        return f"key[{idx}]...{key[-4:]}"
 
     async def chat(
         self,
@@ -92,24 +98,53 @@ class ClaudePlatformClient:
         if tools:
             kwargs["tools"] = tools
 
-        client = self._next_client()
+        msg_count = len(messages)
+        tool_count = len(tools) if tools else 0
+        idx, client = self._next_client()
+        key_label = self._key_label(idx)
+
+        logger.info("LLM call START | %s | model=%s | messages=%d | tools=%d | system=%s",
+                     key_label, self._model, msg_count, tool_count,
+                     "yes" if system_prompt else "no")
+        t0 = time.monotonic()
+
         try:
             response = await client.messages.create(**kwargs)
-            return self._parse_response(response)
+            elapsed_ms = (time.monotonic() - t0) * 1000
+            parsed = self._parse_response(response)
+
+            tc = len(parsed["tool_calls"]) if parsed.get("tool_calls") else 0
+            text_len = len(parsed["content"]) if parsed.get("content") else 0
+            logger.info("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
+                         key_label, elapsed_ms, parsed.get("stop_reason"), tc, text_len)
+            return parsed
 
         except anthropic.RateLimitError as e:
-            logger.warning("Rate limit hit, switching key and retrying: %s", e)
+            elapsed_ms = (time.monotonic() - t0) * 1000
+            logger.warning("LLM call RATE_LIMITED | %s | %.0fms | %s — switching key",
+                           key_label, elapsed_ms, e)
             await asyncio.sleep(2)
-            # Retry with next key
-            client = self._next_client()
+            idx2, client2 = self._next_client()
+            key_label2 = self._key_label(idx2)
+            logger.info("LLM call RETRY | %s", key_label2)
+            t1 = time.monotonic()
             try:
-                response = await client.messages.create(**kwargs)
-                return self._parse_response(response)
+                response = await client2.messages.create(**kwargs)
+                elapsed_ms2 = (time.monotonic() - t1) * 1000
+                parsed = self._parse_response(response)
+                tc = len(parsed["tool_calls"]) if parsed.get("tool_calls") else 0
+                text_len = len(parsed["content"]) if parsed.get("content") else 0
+                logger.info("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
+                             key_label2, elapsed_ms2, parsed.get("stop_reason"), tc, text_len)
+                return parsed
             except anthropic.APIError as retry_e:
+                elapsed_ms2 = (time.monotonic() - t1) * 1000
+                logger.error("LLM call FAIL  | %s | %.0fms | %s", key_label2, elapsed_ms2, retry_e)
                 raise LLMError(f"LLM call failed after retry: {retry_e}") from retry_e
 
         except anthropic.APIError as e:
-            logger.error("Platform LLM API error: %s", e)
+            elapsed_ms = (time.monotonic() - t0) * 1000
+            logger.error("LLM call FAIL  | %s | %.0fms | %s", key_label, elapsed_ms, e)
             raise LLMError(f"Platform LLM call failed: {e}") from e
 
     def _parse_response(self, response: Any) -> dict[str, Any]:

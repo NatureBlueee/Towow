@@ -84,15 +84,18 @@ async def register_agent(scene_id: str, req: RegisterAgentRequest, request: Requ
     except ValueError:
         source = SourceType.CUSTOM
 
-    identity = AgentIdentity(
-        agent_id=req.agent_id,
-        display_name=req.display_name,
-        source_type=source,
-        scene_id=scene_id,
-        metadata=req.profile_data,
-    )
-    state.agents[req.agent_id] = identity
-    state.profiles[req.agent_id] = req.profile_data
+    # 注册到 AgentRegistry（唯一数据源）
+    registry = state.agent_registry
+    adapter = registry.default_adapter
+    if adapter:
+        registry.register_agent(
+            agent_id=req.agent_id,
+            adapter=adapter,
+            source=source.value,
+            scene_ids=[scene_id],
+            display_name=req.display_name,
+            profile_data=req.profile_data,
+        )
     scene.agent_ids.append(req.agent_id)
 
     return AgentResponse(
@@ -270,33 +273,34 @@ async def _run_negotiation(
     """Run the full negotiation pipeline as a background task."""
     try:
         engine = state.engine
-        adapter = state.adapter
+        registry = state.agent_registry
         llm_client = state.llm_client
 
+        # 向量编码（从 registry 获取 profile）
         agent_vectors = {}
         if state.encoder and scene.agent_ids:
             for agent_id in scene.agent_ids:
-                profile = state.profiles.get(agent_id, {})
-                text_parts = []
-                if profile.get("skills"):
-                    text_parts.append(", ".join(profile["skills"]))
-                if profile.get("bio"):
-                    text_parts.append(profile["bio"])
-                if profile.get("description"):
-                    text_parts.append(profile["description"])
-                text = " ".join(text_parts) if text_parts else agent_id
                 try:
+                    profile = await registry.get_profile(agent_id)
+                    text_parts = []
+                    if profile.get("skills"):
+                        text_parts.append(", ".join(profile["skills"]))
+                    if profile.get("bio"):
+                        text_parts.append(profile["bio"])
+                    if profile.get("description"):
+                        text_parts.append(profile["description"])
+                    text = " ".join(text_parts) if text_parts else agent_id
                     vec = await state.encoder.encode(text)
                     agent_vectors[agent_id] = vec
                 except Exception as e:
                     logger.warning(f"Failed to encode agent {agent_id}: {e}")
 
-        # Build display name mapping from registered agents
+        # Build display name mapping from registry
         agent_display_names = {}
         for agent_id in scene.agent_ids:
-            identity = state.agents.get(agent_id)
+            identity = registry.get_identity(agent_id)
             if identity:
-                agent_display_names[agent_id] = identity.display_name
+                agent_display_names[agent_id] = identity["display_name"]
 
         center_skill = state.skills.get("center")
         if center_skill is None:
@@ -310,7 +314,7 @@ async def _run_negotiation(
 
         await engine.start_negotiation(
             session=session,
-            adapter=adapter,
+            adapter=registry,
             llm_client=llm_client,
             center_skill=center_skill,
             formulation_skill=state.skills.get("formulation"),

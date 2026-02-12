@@ -1,3 +1,1 @@
-from .app import app, create_app
-
-__all__ = ["app", "create_app"]
+"""Towow V1 API — routes and schemas."""
