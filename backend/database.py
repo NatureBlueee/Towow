@@ -163,6 +163,40 @@ _engine = None
 _SessionLocal = None
 
 
+def _migrate_schema(engine):
+    """检测旧表缺失列并 ALTER TABLE ADD COLUMN。
+
+    SQLAlchemy create_all() 只建新表不改旧表，
+    所以新增列必须手动迁移。
+    """
+    import sqlite3
+
+    with engine.connect() as conn:
+        raw = conn.connection  # 底层 sqlite3 connection
+
+        # 获取 users 表现有列名
+        cursor = raw.execute("PRAGMA table_info(users)")
+        existing_cols = {row[1] for row in cursor.fetchall()}
+
+        # 需要存在的列 → (列名, SQL 类型, 默认值)
+        required_cols = [
+            ("email", "VARCHAR(256)", None),
+            ("phone", "VARCHAR(32)", None),
+            ("subscribe", "BOOLEAN", "0"),
+            ("raw_profile_text", "TEXT", None),
+            ("source", "VARCHAR(32)", "'secondme'"),
+        ]
+
+        for col_name, col_type, default in required_cols:
+            if col_name not in existing_cols:
+                default_clause = f" DEFAULT {default}" if default is not None else ""
+                sql = f"ALTER TABLE users ADD COLUMN {col_name} {col_type}{default_clause}"
+                raw.execute(sql)
+                logger.warning("MIGRATION: added column users.%s (%s)", col_name, col_type)
+
+        raw.commit()
+
+
 def get_engine():
     """获取数据库引擎"""
     global _engine
@@ -174,6 +208,7 @@ def get_engine():
             poolclass=StaticPool,
         )
         Base.metadata.create_all(_engine)
+        _migrate_schema(_engine)
         logger.info(f"Database initialized at {DB_PATH}")
     return _engine
 
