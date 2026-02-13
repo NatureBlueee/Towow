@@ -3,9 +3,11 @@ Platform-level Auth — 统一身份认证。
 
 路由前缀 /api/auth，由 server.py 直接 include（router 自带 prefix）。
 
-4 个路由：
+6 个路由：
   GET  /api/auth/secondme/start     发起 SecondMe OAuth2 登录
   GET  /api/auth/secondme/callback  OAuth2 回调（注册 Agent + 设 cookie）
+  GET  /api/auth/google/start       发起 Google OAuth2 登录
+  GET  /api/auth/google/callback    Google OAuth2 回调（注册 Agent + 设 cookie）
   GET  /api/auth/me                 查询当前用户
   POST /api/auth/logout             登出
 
@@ -29,6 +31,9 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
 
+import urllib.parse
+
+import httpx
 from fastapi import APIRouter, Cookie, HTTPException, Query, Request, Response
 from fastapi.responses import RedirectResponse
 
@@ -54,6 +59,32 @@ REDIRECT_URI_MAP = {
     "www.towow.net": "https://towow.net/api/auth/secondme/callback",
     "towow-api-production-69e3.up.railway.app": "https://towow.net/api/auth/secondme/callback",
 }
+
+# ============ Google OAuth2 ============
+
+GOOGLE_CLIENT_ID = os.getenv("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.getenv("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_AUTH_URL = "https://accounts.google.com/o/oauth2/v2/auth"
+GOOGLE_TOKEN_URL = "https://oauth2.googleapis.com/token"
+GOOGLE_USERINFO_URL = "https://www.googleapis.com/oauth2/v2/userinfo"
+GOOGLE_SCOPES = "openid email profile"
+
+GOOGLE_REDIRECT_URI_MAP = {
+    "localhost:8080": "http://localhost:8080/api/auth/google/callback",
+    "localhost:3000": "http://localhost:8080/api/auth/google/callback",
+    "127.0.0.1:8080": "http://localhost:8080/api/auth/google/callback",
+    "towow.net": "https://towow.net/api/auth/google/callback",
+    "www.towow.net": "https://towow.net/api/auth/google/callback",
+    "towow-api-production-69e3.up.railway.app": "https://towow.net/api/auth/google/callback",
+}
+
+
+def _get_google_redirect_uri(host: str) -> str:
+    host_key = host.split("/")[0]
+    return GOOGLE_REDIRECT_URI_MAP.get(
+        host_key,
+        os.getenv("GOOGLE_REDIRECT_URI", "http://localhost:8080/api/auth/google/callback"),
+    )
 
 
 # ============ 统计追踪 ============
@@ -322,6 +353,164 @@ async def auth_callback(
     await _track_event(session_store, "auth_complete", agent_id=agent_id)
 
     logger.info("Auth callback: 登录成功 agent_id=%s, return_to=%s", agent_id, return_to)
+    return response
+
+
+@router.get("/google/start")
+async def google_auth_start(
+    request: Request,
+    return_to: str = Query("/", description="登录成功后跳回的 URL"),
+):
+    """发起 Google OAuth2 登录 → 302 重定向到 Google 授权页。"""
+    if not GOOGLE_CLIENT_ID:
+        raise HTTPException(503, "Google OAuth2 未配置")
+
+    host = request.headers.get("host", "localhost:8080")
+    redirect_uri = _get_google_redirect_uri(host)
+    state = secrets.token_urlsafe(24)
+
+    # 存 state → return_to 映射
+    session_store = request.app.state.session_store
+    await session_store.set(f"google_state:{state}", return_to, ttl_seconds=AUTH_STATE_TTL)
+
+    # 统计
+    await _track_event(session_store, "google_auth_start", extra=host)
+
+    params = urllib.parse.urlencode({
+        "client_id": GOOGLE_CLIENT_ID,
+        "redirect_uri": redirect_uri,
+        "response_type": "code",
+        "scope": GOOGLE_SCOPES,
+        "state": state,
+        "access_type": "offline",
+        "prompt": "select_account",
+    })
+    auth_url = f"{GOOGLE_AUTH_URL}?{params}"
+
+    logger.info("Google auth start: host=%s, redirect_uri=%s", host, redirect_uri)
+    return RedirectResponse(url=auth_url, status_code=302)
+
+
+@router.get("/google/callback")
+async def google_auth_callback(
+    request: Request,
+    code: str = Query("", description="Google 授权码"),
+    state: str = Query("", description="OAuth2 state"),
+):
+    """Google 回调 → 注册 Agent → 设 cookie → 302 回 return_to。"""
+    session_store = request.app.state.session_store
+
+    # 取 return_to
+    return_to = await session_store.get(f"google_state:{state}")
+    if return_to:
+        await session_store.delete(f"google_state:{state}")
+    else:
+        return_to = "/"
+    if FRONTEND_ORIGIN and return_to.startswith("/"):
+        return_to = FRONTEND_ORIGIN + return_to
+
+    if not code:
+        logger.warning("Google callback: 缺少授权码")
+        return RedirectResponse(url=f"{return_to}?error=missing_code", status_code=302)
+
+    host = request.headers.get("host", "localhost:8080")
+    redirect_uri = _get_google_redirect_uri(host)
+
+    # 1. 交换 token
+    try:
+        async with httpx.AsyncClient(timeout=15) as client:
+            token_resp = await client.post(GOOGLE_TOKEN_URL, data={
+                "code": code,
+                "client_id": GOOGLE_CLIENT_ID,
+                "client_secret": GOOGLE_CLIENT_SECRET,
+                "redirect_uri": redirect_uri,
+                "grant_type": "authorization_code",
+            })
+            token_resp.raise_for_status()
+            tokens = token_resp.json()
+    except Exception as e:
+        logger.error("Google callback: token 交换失败: %s", e)
+        return RedirectResponse(url=f"{return_to}?error=token_exchange_failed", status_code=302)
+
+    access_token = tokens.get("access_token")
+    if not access_token:
+        logger.error("Google callback: 无 access_token")
+        return RedirectResponse(url=f"{return_to}?error=no_access_token", status_code=302)
+
+    # 2. 获取用户信息
+    try:
+        async with httpx.AsyncClient(timeout=10) as client:
+            userinfo_resp = await client.get(
+                GOOGLE_USERINFO_URL,
+                headers={"Authorization": f"Bearer {access_token}"},
+            )
+            userinfo_resp.raise_for_status()
+            userinfo = userinfo_resp.json()
+    except Exception as e:
+        logger.error("Google callback: 获取用户信息失败: %s", e)
+        return RedirectResponse(url=f"{return_to}?error=userinfo_failed", status_code=302)
+
+    google_id = userinfo.get("id", "")
+    email = userinfo.get("email", "")
+    name = userinfo.get("name", email)
+    picture = userinfo.get("picture", "")
+
+    if not google_id:
+        return RedirectResponse(url=f"{return_to}?error=no_google_id", status_code=302)
+
+    agent_id = f"google_{google_id}"
+
+    # 3. 注册 Agent（无 SecondMe adapter）
+    registry = request.app.state.agent_registry
+    profile_data = {
+        "agent_id": agent_id,
+        "name": name,
+        "email": email,
+        "picture": picture,
+        "raw_text": f"{name} ({email})",
+    }
+    registry.register_agent(
+        agent_id=agent_id,
+        adapter=None,
+        source="google",
+        scene_ids=[],
+        display_name=name,
+        profile_data=profile_data,
+    )
+
+    # 向量编码
+    encoder = request.app.state.encoder
+    agent_vectors = request.app.state.store_agent_vectors
+    try:
+        vec = await encoder.encode(f"{name} {email}")
+        agent_vectors[agent_id] = vec
+    except Exception as e:
+        logger.warning("Google 用户向量编码失败 %s: %s", agent_id, e)
+
+    # 持久化
+    _persist_secondme_user(agent_id, profile_data, [])
+
+    # 4. 创建 session + cookie
+    session_id = secrets.token_urlsafe(32)
+    await session_store.set(f"session:{session_id}", agent_id, ttl_seconds=SESSION_MAX_AGE)
+
+    response = RedirectResponse(url=return_to, status_code=302)
+    cookie_kwargs = dict(
+        key=SESSION_COOKIE_NAME,
+        value=session_id,
+        max_age=SESSION_MAX_AGE,
+        httponly=True,
+        samesite="lax",
+        secure=COOKIE_SECURE,
+    )
+    if COOKIE_DOMAIN:
+        cookie_kwargs["domain"] = COOKIE_DOMAIN
+    response.set_cookie(**cookie_kwargs)
+
+    # 统计
+    await _track_event(session_store, "google_auth_complete", agent_id=agent_id)
+
+    logger.info("Google callback: 登录成功 agent_id=%s (%s), return_to=%s", agent_id, email, return_to)
     return response
 
 

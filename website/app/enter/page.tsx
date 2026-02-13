@@ -42,7 +42,7 @@ export default function EnterPage() {
   };
 
   const handleGoogle = () => {
-    showToast('Google 登录即将开放，请先使用其他方式');
+    window.location.href = '/api/auth/google/start?return_to=/store/';
   };
 
   const handleRegister = useCallback(async () => {
@@ -250,24 +250,23 @@ export default function EnterPage() {
             <button
               className="enter-oauth-btn"
               onClick={handleGoogle}
-              aria-label="Google 登录（即将开放）"
+              aria-label="通过 Google 登录"
               style={{
                 flex: 1,
                 padding: '16px',
                 borderRadius: 10,
                 border: '1.5px solid #E8E4DF',
-                backgroundColor: '#FAFAF8',
+                backgroundColor: '#fff',
                 cursor: 'pointer',
                 textAlign: 'left',
                 transition: 'all 0.2s ease',
-                opacity: 0.6,
               }}
             >
-              <div style={{ fontSize: 15, fontWeight: 600, color: '#999', marginBottom: 4 }}>
+              <div style={{ fontSize: 15, fontWeight: 600, color: '#1A1A1A', marginBottom: 4 }}>
                 Google
               </div>
-              <div style={{ fontSize: 12, color: '#BBB' }}>
-                即将开放
+              <div style={{ fontSize: 12, color: '#888' }}>
+                Google 账号，快速加入
               </div>
             </button>
           </div>
