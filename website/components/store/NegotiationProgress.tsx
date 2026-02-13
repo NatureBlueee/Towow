@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useRef, useEffect, useMemo, useCallback } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { DetailPanel } from '@/components/negotiation/DetailPanel';
 import type { DetailPanelContentType } from '@/components/negotiation/graph/types';
 import type { StoreParticipant } from '@/lib/store-api';
@@ -579,7 +580,17 @@ function ActivityItem({
         <div className={styles.activityTitle}>{entry.title}</div>
         {entry.detail && (
           <div className={styles.activityDetail}>
-            {isExpanded && entry.fullDetail ? entry.fullDetail : entry.detail}
+            {isExpanded && entry.fullDetail ? (
+              entry.dotType === 'offer' ? (
+                <div className="markdown-content">
+                  <ReactMarkdown>{entry.fullDetail}</ReactMarkdown>
+                </div>
+              ) : (
+                entry.fullDetail
+              )
+            ) : (
+              entry.detail
+            )}
             {entry.fullDetail && (
               <button
                 className={styles.activityExpandBtn}

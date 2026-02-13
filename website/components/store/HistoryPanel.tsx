@@ -1,8 +1,10 @@
 'use client';
 
 import { useState, useEffect, useCallback, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { getHistory, getHistoryDetail } from '@/lib/store-api';
 import type { HistoryItem, HistoryDetail } from '@/lib/store-api';
+import { parseOfferContent } from '@/lib/parse-offer-content';
 import { SCENES } from '@/lib/store-scenes';
 
 interface HistoryPanelProps {
@@ -70,6 +72,58 @@ function planJsonSummary(planJson: Record<string, unknown> | null): string | nul
     return `${participants.length} 位参与者协作方案`;
   }
   return '方案已生成';
+}
+
+/** Single offer card with parsed content, Markdown rendering, and expand/collapse. */
+function OfferCard({ offer }: { offer: { agent_name?: string; agent_id: string; resonance_score: number; offer_text?: string } }) {
+  const [expanded, setExpanded] = useState(false);
+  const parsed = parseOfferContent(offer.offer_text);
+  const isLong = parsed.length > 200;
+  const preview = isLong ? parsed.substring(0, 200) + '...' : parsed;
+
+  return (
+    <div
+      style={{
+        padding: '8px 12px',
+        marginBottom: 6,
+        background: '#F8F6F3',
+        borderRadius: 8,
+        fontSize: 13,
+      }}
+    >
+      <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
+        <span style={{ fontWeight: 600, color: '#1A1A1A' }}>
+          {offer.agent_name || offer.agent_id}
+        </span>
+        <span style={{ color: '#8FD5A3', fontWeight: 600 }}>
+          {(offer.resonance_score * 100).toFixed(0)}%
+        </span>
+      </div>
+      {parsed && (
+        <div style={{ color: '#555', lineHeight: 1.6 }}>
+          <div className="markdown-content">
+            <ReactMarkdown>{expanded || !isLong ? parsed : preview}</ReactMarkdown>
+          </div>
+          {isLong && (
+            <button
+              onClick={() => setExpanded((prev) => !prev)}
+              style={{
+                background: 'none',
+                border: 'none',
+                color: '#D4B8D9',
+                cursor: 'pointer',
+                fontSize: 12,
+                padding: '4px 0 0',
+                fontWeight: 500,
+              }}
+            >
+              {expanded ? '收起' : '展开全部'}
+            </button>
+          )}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export function HistoryPanel({ isAuthenticated, negotiationPhase }: HistoryPanelProps) {
@@ -349,30 +403,7 @@ export function HistoryPanel({ isAuthenticated, negotiationPhase }: HistoryPanel
                           参与者响应 ({detail.offers.length})
                         </div>
                         {detail.offers.map((offer, oi) => (
-                          <div
-                            key={oi}
-                            style={{
-                              padding: '8px 12px',
-                              marginBottom: 6,
-                              background: '#F8F6F3',
-                              borderRadius: 8,
-                              fontSize: 13,
-                            }}
-                          >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: 4 }}>
-                              <span style={{ fontWeight: 600, color: '#1A1A1A' }}>
-                                {offer.agent_name || offer.agent_id}
-                              </span>
-                              <span style={{ color: '#8FD5A3', fontWeight: 600 }}>
-                                {(offer.resonance_score * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                            {offer.offer_text && (
-                              <div style={{ color: '#555', whiteSpace: 'pre-wrap', lineHeight: 1.6 }}>
-                                {offer.offer_text}
-                              </div>
-                            )}
-                          </div>
+                          <OfferCard key={oi} offer={offer} />
                         ))}
                       </div>
                     )}

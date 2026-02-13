@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useCallback, useRef } from 'react';
+import ReactMarkdown from 'react-markdown';
 import type { DetailPanelProps, DetailPanelContentType } from './graph/types';
 import type { CenterToolCallData, PlanJsonTask } from '@/types/negotiation';
+import { parseOfferContent } from '@/lib/parse-offer-content';
 import styles from './DetailPanel.module.css';
 
 /**
@@ -113,7 +115,7 @@ function statusClass(status: string): string {
 function AgentContent({ data }: { data: Record<string, unknown> }) {
   const displayName = (data.display_name as string) || 'Unknown Agent';
   const resonanceScore = (data.resonance_score as number) || 0;
-  const offerContent = data.offerContent as string | undefined;
+  const offerContent = parseOfferContent(data.offerContent as string | undefined);
   const capabilities = (data.capabilities as string[]) || [];
   const roleInPlan = data.roleInPlan as string | undefined;
   const percent = Math.round(resonanceScore * 100);
@@ -141,7 +143,9 @@ function AgentContent({ data }: { data: Record<string, unknown> }) {
       {offerContent && (
         <div className={styles.sectionBlock}>
           <p className={styles.sectionLabel}>Offer</p>
-          <p className={styles.textBlock}>{offerContent}</p>
+          <div className={`${styles.textBlock} markdown-content`}>
+            <ReactMarkdown>{offerContent}</ReactMarkdown>
+          </div>
         </div>
       )}
 

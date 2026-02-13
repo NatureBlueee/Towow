@@ -4,6 +4,7 @@ import { useState, useCallback } from 'react';
 import type { StoreParticipant } from '@/lib/store-api';
 import type { PlanJson, PlanJsonTask } from '@/types/negotiation';
 import type { DetailPanelContentType } from '@/components/negotiation/graph/types';
+import { parseOfferContent } from '@/lib/parse-offer-content';
 import { PlanView } from '@/components/negotiation/PlanView';
 import { DetailPanel } from '@/components/negotiation/DetailPanel';
 
@@ -42,7 +43,7 @@ function ensurePlanJson(
   const tasks: PlanJsonTask[] = allParticipants.map((p, i) => ({
     id: `task_${i + 1}`,
     title: `${p.display_name} 的贡献`,
-    description: p.offer_content || '',
+    description: parseOfferContent(p.offer_content) || '',
     assignee_id: p.agent_id,
     // Honest fallback: parallel tasks (no fake dependencies)
     // Real dependencies come from LLM via plan_json
@@ -288,7 +289,7 @@ function TeamLineup({ participants }: { participants: StoreParticipant[] }) {
                     WebkitBoxOrient: 'vertical',
                   }}
                 >
-                  {p.offer_content}
+                  {parseOfferContent(p.offer_content)}
                 </div>
               )}
             </div>

@@ -7,6 +7,7 @@ import {
   type StoreNegotiation,
   type StoreParticipant,
 } from '@/lib/store-api';
+import { parseOfferContent } from '@/lib/parse-offer-content';
 import { useStoreWebSocket, type StoreEvent } from './useStoreWebSocket';
 
 export type NegotiationPhase =
@@ -156,7 +157,7 @@ export function useStoreNegotiation(): UseStoreNegotiationReturn {
 
         case 'offer.received': {
           const name = (data.display_name as string) || (data.agent_id as string) || '';
-          const fullContent = (data.content as string) || '';
+          const fullContent = parseOfferContent((data.content as string) || '');
           const preview = fullContent.substring(0, 200);
           newTimeline.push({
             title: `${name} 响应`,

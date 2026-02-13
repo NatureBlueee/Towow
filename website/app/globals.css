@@ -90,3 +90,36 @@ img {
     --page-width: 1400px;
   }
 }
+
+/* === History Panel Markdown (OfferCard) === */
+.markdown-content p {
+  margin: 0 0 6px;
+}
+.markdown-content p:last-child {
+  margin-bottom: 0;
+}
+.markdown-content strong {
+  font-weight: 600;
+  color: #333;
+}
+.markdown-content ul,
+.markdown-content ol {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+.markdown-content li {
+  margin-bottom: 2px;
+}
+.markdown-content code {
+  background: rgba(0, 0, 0, 0.05);
+  padding: 1px 4px;
+  border-radius: 3px;
+  font-size: 11px;
+}
+.markdown-content h1,
+.markdown-content h2,
+.markdown-content h3 {
+  font-size: 13px;
+  font-weight: 600;
+  margin: 8px 0 4px;
+}
