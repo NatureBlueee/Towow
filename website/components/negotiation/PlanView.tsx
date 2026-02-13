@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo } from 'react';
+import ReactMarkdown from 'react-markdown';
 import { computeTopologyLayout as computeLayeredLayout, type TaskNode } from '@/lib/topology-layout';
 import type { PlanViewProps } from './graph/types';
 import type { PlanJsonTask } from '@/types/negotiation';
@@ -159,25 +160,17 @@ function taskStatusClass(status: string): string {
   }
 }
 
-// ============ Helper: Render plan text with basic formatting ============
-
-function renderPlanText(text: string) {
-  const lines = text.split('\n');
-  return lines.map((line, i) => {
-    const trimmed = line.trim();
-    if (trimmed === '') {
-      return <p key={i} className={styles.planTextSpacer} />;
-    }
-    if (/^[-*]\s/.test(trimmed) || /^\d+\.\s/.test(trimmed)) {
-      const content = trimmed.replace(/^[-*]\s/, '').replace(/^\d+\.\s/, '');
-      return (
-        <p key={i} className={styles.planTextListItem}>{content}</p>
-      );
-    }
-    return (
-      <p key={i} className={styles.planTextParagraph}>{line}</p>
-    );
-  });
+function statusLabel(status: string): string {
+  switch (status) {
+    case 'pending':
+      return '待开始';
+    case 'in_progress':
+      return '进行中';
+    case 'completed':
+      return '已完成';
+    default:
+      return status;
+  }
 }
 
 // ============ Main Component ============
@@ -206,7 +199,7 @@ export function PlanView({
 
       {/* Task Topology */}
       <div className={styles.topologySection}>
-        <p className={styles.topologySectionTitle}>Task Topology</p>
+        <p className={styles.topologySectionTitle}>任务拓扑</p>
         {hasTasks ? (
           <div className={styles.topologyWrapper}>
             <svg
@@ -259,10 +252,10 @@ export function PlanView({
                     <p className={styles.taskTitle}>{pos.task.title}</p>
                     <div className={styles.taskMeta}>
                       <span className={styles.taskAssignee}>
-                        {pos.task.assignee_id || 'Unassigned'}
+                        {pos.task.assignee_id || '未分配'}
                       </span>
                       <span className={`${styles.taskStatus} ${taskStatusClass(pos.task.status)}`}>
-                        {pos.task.status}
+                        {statusLabel(pos.task.status)}
                       </span>
                     </div>
                   </div>
@@ -271,14 +264,14 @@ export function PlanView({
             </svg>
           </div>
         ) : (
-          <div className={styles.emptyTasks}>No tasks defined</div>
+          <div className={styles.emptyTasks}>暂无任务</div>
         )}
       </div>
 
       {/* Participants */}
       {hasParticipants && (
         <div className={styles.participantsSection}>
-          <p className={styles.participantsSectionTitle}>Participants</p>
+          <p className={styles.participantsSectionTitle}>参与成员</p>
           <div className={styles.participantList}>
             {planJson.participants.map((p) => (
               <div key={p.agent_id} className={styles.participantChip}>
@@ -293,9 +286,9 @@ export function PlanView({
       {/* Plan Text */}
       {planText && (
         <div className={styles.planTextSection}>
-          <p className={styles.planTextSectionTitle}>Plan Summary</p>
+          <p className={styles.planTextSectionTitle}>方案说明</p>
           <div className={styles.planTextBody}>
-            {renderPlanText(planText)}
+            <ReactMarkdown>{planText}</ReactMarkdown>
           </div>
         </div>
       )}

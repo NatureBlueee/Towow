@@ -266,34 +266,57 @@
   background: rgba(0, 0, 0, 0.02);
   border-radius: 8px;
   border-left: 3px solid #d4f4dd;
-}
-
-.planTextParagraph {
   font-size: 14px;
   color: #333333;
   line-height: 1.7;
-  margin: 0;
 }
 
-.planTextSpacer {
-  height: 12px;
-  margin: 0;
+.planTextBody h1,
+.planTextBody h2,
+.planTextBody h3 {
+  font-size: 15px;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin: 16px 0 8px;
 }
 
-.planTextListItem {
-  font-size: 14px;
-  color: #333333;
-  line-height: 1.7;
-  margin: 0;
-  padding-left: 16px;
-  position: relative;
+.planTextBody h1:first-child,
+.planTextBody h2:first-child,
+.planTextBody h3:first-child {
+  margin-top: 0;
 }
 
-.planTextListItem::before {
-  content: '\2022';
-  position: absolute;
-  left: 0;
-  color: #3b82f6;
+.planTextBody p {
+  margin: 0 0 8px;
+}
+
+.planTextBody ul,
+.planTextBody ol {
+  margin: 0 0 8px;
+  padding-left: 20px;
+}
+
+.planTextBody li {
+  margin-bottom: 4px;
+}
+
+.planTextBody strong {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.planTextBody code {
+  font-size: 13px;
+  background: rgba(0, 0, 0, 0.04);
+  padding: 1px 4px;
+  border-radius: 3px;
+}
+
+.planTextBody blockquote {
+  margin: 8px 0;
+  padding: 8px 12px;
+  border-left: 3px solid #d0d0d0;
+  color: #666;
 }
 
 /* ---- Actions — delayed entry ---- */

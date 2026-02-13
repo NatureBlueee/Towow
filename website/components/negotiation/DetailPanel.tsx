@@ -27,12 +27,12 @@ const TYPE_ICONS: Record<Exclude<DetailPanelContentType, null>, string> = {
 };
 
 const TYPE_TITLES: Record<Exclude<DetailPanelContentType, null>, string> = {
-  agent: 'Agent Details',
-  center: 'Center Activity',
-  demand: 'Demand Details',
-  task: 'Task Details',
-  resonance_edge: 'Resonance Connection',
-  interaction_edge: 'Interaction',
+  agent: '参与者详情',
+  center: '协调活动',
+  demand: '需求详情',
+  task: '任务详情',
+  resonance_edge: '共振连接',
+  interaction_edge: '交互',
 };
 
 // ============ Helper: Format tool args ============
@@ -239,38 +239,51 @@ function DemandContent({ data }: { data: Record<string, unknown> }) {
   );
 }
 
+function statusLabel(status: string): string {
+  switch (status) {
+    case 'pending':
+      return '待开始';
+    case 'in_progress':
+      return '进行中';
+    case 'completed':
+      return '已完成';
+    default:
+      return status;
+  }
+}
+
 function TaskContent({ data }: { data: Record<string, unknown> }) {
   const task = data as unknown as PlanJsonTask;
 
   return (
     <>
       <div className={styles.sectionBlock}>
-        <p className={styles.sectionLabel}>Task Title</p>
-        <p className={styles.sectionValue}>{task.title || 'Untitled'}</p>
+        <p className={styles.sectionLabel}>任务名称</p>
+        <p className={styles.sectionValue}>{task.title || '未命名'}</p>
       </div>
 
       {task.description && (
         <div className={styles.sectionBlock}>
-          <p className={styles.sectionLabel}>Description</p>
+          <p className={styles.sectionLabel}>任务描述</p>
           <p className={styles.textBlock}>{task.description}</p>
         </div>
       )}
 
       <div className={styles.sectionBlock}>
-        <p className={styles.sectionLabel}>Assignee</p>
-        <p className={styles.sectionValue}>{task.assignee_id || 'Unassigned'}</p>
+        <p className={styles.sectionLabel}>负责人</p>
+        <p className={styles.sectionValue}>{task.assignee_id || '未分配'}</p>
       </div>
 
       <div className={styles.sectionBlock}>
-        <p className={styles.sectionLabel}>Status</p>
+        <p className={styles.sectionLabel}>状态</p>
         <span className={`${styles.statusTag} ${statusClass(task.status || 'pending')}`}>
-          {task.status || 'pending'}
+          {statusLabel(task.status || 'pending')}
         </span>
       </div>
 
       {task.prerequisites && task.prerequisites.length > 0 && (
         <div className={styles.sectionBlock}>
-          <p className={styles.sectionLabel}>Prerequisites</p>
+          <p className={styles.sectionLabel}>前置依赖</p>
           <ul className={styles.prereqList}>
             {task.prerequisites.map((prereq) => (
               <li key={prereq} className={styles.prereqItem}>{prereq}</li>

@@ -172,8 +172,8 @@ async def lifespan(app: FastAPI):
 
     app.state.config = config
 
-    # V1 Demo scene
-    _seed_demo_scene(app, registry, default_adapter)
+    # V1 Demo scene — disabled, App Store uses real agents from JSON files
+    # _seed_demo_scene(app, registry, default_adapter)
 
     # ── 3. App Store subsystem ─────────────────────────────
     _init_app_store(app, config, registry)
