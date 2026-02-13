@@ -162,6 +162,24 @@ LLM 有结构性偏见（第一提案偏见 10-30x），prompt 无法可靠消�
 
 **教训来源**：2026-02-11 三轨并行——Track B 加了 plan_json 到 engine，Track A 在前端消费 plan_json，但 Store 后端 app.py（中间层）不在任何 Track scope 里，导致 REST 轮询路径数据管道断裂。类型全部对齐，编译通过，但运行时 REST 永远返回 null。详见 memory/planning-lessons.md。
 
+### 新实体的公民权验证（ADR-009 教训）
+
+当方案涉及"注册/创建新实体到系统中"时，除了验证注册本身成功，还必须验证实体的**公民权**——它能在系统中正常参与所有活动。
+
+**三维验证清单**：
+```
+□ 数据消费：系统能读到新实体的数据吗？
+□ 行为消费：系统能调用新实体的能力吗？
+  → "接口接受" ≠ "语义完整"——register_agent() 接受 adapter=None 不代表产物是完整公民
+□ 可见性消费：在所有 scope/query 下都能找到新实体吗？
+  → Optional 字段为空 → 可能导致查询不可见
+```
+
+**复用模式时的语义验证**：
+同一行代码在不同上下文中可能意味完全不同的事。复用已有代码模式时，必须问"原模式为什么这样？新场景的原因一样吗？"
+
+**教训来源**：2026-02-13 ADR-009 开放注册——复用 `_restore_secondme_users()` 的 `adapter=None` 模式，没验证语义：SecondMe None = "token 过期，阻止 chat"，Playground None 应该 = "用默认 adapter"。结果 Playground Agent 永远无法生成 Offer。详见 PLAN-009 附录 A。
+
 ### 架构文档 ≠ 实现文档
 
 架构设计和实现设计是不同层次的工作：

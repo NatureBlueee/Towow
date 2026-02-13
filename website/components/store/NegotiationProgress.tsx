@@ -112,6 +112,37 @@ export function NegotiationProgress({
   onReset,
   totalAgentCount,
 }: NegotiationProgressProps) {
+  // ---- Minimum scan display duration (3s) ----
+  // Ensures users can see the scanning animation and resonance results
+  const SCAN_MIN_DURATION = 3000;
+  const scanStartRef = useRef<number>(0);
+  const [revealResonance, setRevealResonance] = useState(false);
+
+  // Record when scanning starts
+  useEffect(() => {
+    if ((phase === 'formulating' || phase === 'resonating') && scanStartRef.current === 0) {
+      scanStartRef.current = Date.now();
+    }
+  }, [phase]);
+
+  // Delay revealing resonance results until minimum scan duration has passed
+  useEffect(() => {
+    if (participants.length > 0 && !revealResonance && scanStartRef.current > 0) {
+      const elapsed = Date.now() - scanStartRef.current;
+      const remaining = Math.max(0, SCAN_MIN_DURATION - elapsed);
+      const timer = setTimeout(() => setRevealResonance(true), remaining);
+      return () => clearTimeout(timer);
+    }
+  }, [participants.length, revealResonance]);
+
+  // Reset on new negotiation
+  useEffect(() => {
+    if (phase === 'idle' || phase === 'submitting') {
+      setRevealResonance(false);
+      scanStartRef.current = 0;
+    }
+  }, [phase]);
+
   // ---- Detail Panel State ----
   const [detailPanel, setDetailPanel] = useState<{
     type: DetailPanelContentType;
@@ -149,14 +180,17 @@ export function NegotiationProgress({
           totalAgentCount={totalAgentCount}
           resonatedCount={participants.length}
           phase={phase}
+          revealResult={revealResonance}
         />
       )}
-      <AgentGrid
-        participants={participants}
-        phase={phase}
-        onAgentClick={handleAgentClick}
-        totalAgentCount={totalAgentCount}
-      />
+      {revealResonance && (
+        <AgentGrid
+          participants={participants}
+          phase={phase}
+          onAgentClick={handleAgentClick}
+          totalAgentCount={totalAgentCount}
+        />
+      )}
       <ActivityFeed timeline={timeline} phase={phase} />
       {(phase === 'completed' || phase === 'error') && (
         <ResetButton onReset={onReset} />
@@ -206,14 +240,17 @@ function ResonanceBanner({
   totalAgentCount,
   resonatedCount,
   phase,
+  revealResult,
 }: {
   totalAgentCount: number;
   resonatedCount: number;
   phase: NegotiationPhase;
+  revealResult: boolean;
 }) {
   const displayCount = Math.min(totalAgentCount, DOT_CAP);
-  const isScanning = phase === 'formulating' || phase === 'resonating';
-  const hasResonated = resonatedCount > 0;
+  // Visual state controlled by revealResult — keep scanning animation until reveal
+  const hasResonated = revealResult && resonatedCount > 0;
+  const isScanning = !hasResonated && (phase !== 'idle' && phase !== 'completed' && phase !== 'error');
 
   // Scale resonated dot count proportionally when capped (preserve visual density accuracy)
   const scaledResonatedCount =

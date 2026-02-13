@@ -20,11 +20,12 @@ Towow/
 │   │   ├── adapters/          # Claude, SecondMe adapters
 │   │   └── infra/             # LLM client, event pusher, config
 │   ├── routers/               # Auth routes
-│   └── tests/towow/           # 190 tests
+│   └── tests/towow/           # 256 tests
 ├── apps/
 │   └── app_store/             # App Store (frontend + backend)
 ├── website/                   # Next.js 16 frontend (Vercel)
-│   ├── app/                   # App Router pages
+│   ├── app/                   # App Router pages (store/, playground/, negotiation/, articles/)
+│   │   └── playground/        # Open registration + negotiation (ADR-009)
 │   ├── components/            # React components (negotiation/, home/, ui/)
 │   └── hooks/                 # useNegotiationStream, useNegotiationApi
 ├── docs/                      # Architecture + design logs
@@ -49,7 +50,7 @@ TOWOW_ANTHROPIC_API_KEY=sk-ant-... uvicorn server:app --reload --port 8080
 # Frontend (port 3000)
 cd website && npm run dev
 
-# Tests (190 total)
+# Tests (256 total)
 cd backend && source venv/bin/activate && python -m pytest tests/towow/ -v
 
 # Frontend build
@@ -65,6 +66,7 @@ cd website && npm run build
 | `/v1/ws/*` | V1 WebSocket |
 | `/store/api/*` | App Store Network |
 | `/store/*` | App Store Frontend |
+| `/playground` | Open registration + negotiation (ADR-009) |
 | `/health` | Health check |
 
 ## Important Configuration

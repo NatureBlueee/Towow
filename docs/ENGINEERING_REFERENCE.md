@@ -236,7 +236,7 @@ backend/tests/
 | Infra | test_config + test_event_pusher + test_llm_client | 10 |
 | API | test_routes | 17 |
 | E2E | test_e2e | 6 |
-| **Total** | | **172** |
+| **Total** | | **256** |
 
 ### 前端组件
 
@@ -260,6 +260,50 @@ backend/tests/
 | GET | `/store/api/scenes` | 场景列表 |
 | GET | `/store/api/info` | 网络基本信息 |
 | WS | `/store/ws/{neg_id}` | 协商事件推送 |
+
+### 开放注册 API（ADR-009，2026-02-13 新增）
+
+| 方法 | 路径 | 说明 | 认证 |
+|------|------|------|------|
+| POST | `/store/api/quick-register` | 开放注册（无需 SecondMe 登录） | 无 |
+
+**请求 schema**:
+```json
+{
+  "email": "user@example.com",
+  "phone": "",
+  "display_name": "显示名",
+  "raw_text": "简历/自我介绍/任何能代表你的文字",
+  "subscribe": false,
+  "scene_id": ""
+}
+```
+
+**成功响应 (201)**:
+```json
+{
+  "agent_id": "pg_xxxxxxxx",
+  "display_name": "显示名",
+  "message": "注册成功"
+}
+```
+
+**重复注册响应 (409)**:
+```json
+{
+  "agent_id": "pg_xxxxxxxx",
+  "display_name": "已有显示名",
+  "message": "该邮箱已注册"
+}
+```
+
+**注册逻辑**:
+- email 唯一约束（DB unique + IntegrityError catch）
+- 409 返回已有 agent 信息（允许前端恢复会话）
+- agent_id 前缀 `pg_`（区别于 SecondMe 的 `secondme_`）
+- 注册后立即 register_agent（adapter=default_adapter，可参与协商）
+- 实时编码向量（调 encoder + detector.add_vector）
+- scene_id 为空时注册到所有场景
 
 ### 历史 API（ADR-007，2026-02-12 新增）
 
@@ -319,3 +363,4 @@ backend/tests/
 - 2026-02-09：初始版本，基于架构讨论确认的工程决策创建
 - 2026-02-09：V1 Phase 2 完成后更新——实际代码结构、实现决策、测试覆盖
 - 2026-02-12：新增 Section 12 — App Store API 契约 + 历史 API (ADR-007)
+- 2026-02-13：新增开放注册 API (ADR-009) + 测试数更新至 256

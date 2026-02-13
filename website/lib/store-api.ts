@@ -134,6 +134,54 @@ export async function confirmNegotiation(negId: string): Promise<void> {
   await request(`/api/negotiate/${negId}/confirm`, { method: 'POST' });
 }
 
+// ============ Quick Register (ADR-009) ============
+
+export interface QuickRegisterParams {
+  email: string;
+  phone?: string;
+  display_name: string;
+  raw_text: string;
+  subscribe?: boolean;
+  scene_id?: string;
+}
+
+export interface QuickRegisterResult {
+  agent_id: string;
+  display_name: string;
+  message: string;
+}
+
+export async function quickRegister(
+  params: QuickRegisterParams,
+): Promise<QuickRegisterResult> {
+  const url = `${API_BASE}/api/quick-register`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      email: params.email,
+      phone: params.phone || '',
+      display_name: params.display_name,
+      raw_text: params.raw_text,
+      subscribe: params.subscribe || false,
+      scene_id: params.scene_id || '',
+    }),
+  });
+
+  const data = await res.json();
+
+  if (res.status === 409) {
+    // Already registered — return the existing agent info
+    return data as QuickRegisterResult;
+  }
+
+  if (!res.ok) {
+    throw new Error(data.detail || data.error || `注册失败: ${res.status}`);
+  }
+
+  return data as QuickRegisterResult;
+}
+
 // ============ SecondMe 辅助需求 ============
 
 /**

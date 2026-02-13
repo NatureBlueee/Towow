@@ -221,7 +221,7 @@ class AgentRegistry(BaseAdapter):
         pd = entry.profile_data
         if pd:
             for key in ("skills", "bio", "role", "self_introduction", "interests",
-                         "experience", "shades", "memories"):
+                         "experience", "shades", "memories", "raw_text"):
                 if pd.get(key):
                     info[key] = pd[key]
         return info

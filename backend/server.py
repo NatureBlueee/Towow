@@ -255,6 +255,42 @@ def _restore_secondme_users(registry) -> None:
         logger.info("恢复 %d 个 SecondMe 用户 (from %s)", restored, users_dir)
 
 
+def _restore_playground_users(registry, scene_ids: list[str]) -> None:
+    """启动时从 DB 恢复 Playground 用户到 AgentRegistry。
+
+    与 _restore_secondme_users() 的关键区别：
+    - SecondMe 恢复: adapter=None（token 过期，chat 不可用）
+    - Playground 恢复: adapter=default_adapter（用平台 Claude，Offer 可用）
+    """
+    from database import get_playground_users
+
+    users = get_playground_users()
+    default_adapter = registry.default_adapter
+    restored = 0
+
+    for user in users:
+        if user.agent_id in registry.all_agent_ids:
+            continue
+        profile_data = {
+            "raw_text": user.raw_profile_text or "",
+            "display_name": user.display_name,
+            "source": "playground",
+        }
+        registry.register_agent(
+            agent_id=user.agent_id,
+            adapter=default_adapter,
+            source="playground",
+            scene_ids=list(scene_ids),
+            display_name=user.display_name,
+            profile_data=profile_data,
+        )
+        restored += 1
+
+    if restored:
+        logger.info("恢复 %d 个 Playground 用户 (adapter=%s)",
+                     restored, type(default_adapter).__name__ if default_adapter else "None")
+
+
 def _init_app_store(app: FastAPI, config, registry) -> None:
     """Synchronous App Store initialization (called from lifespan)."""
     from apps.app_store.backend.scene_registry import SceneContext, SceneRegistry
@@ -367,6 +403,10 @@ def _init_app_store(app: FastAPI, config, registry) -> None:
     # 恢复已持久化的 SecondMe 用户
     _restore_secondme_users(registry)
 
+    # 恢复 Playground 用户 (ADR-009)
+    all_scene_ids = [s["scene_id"] for s in scene_registry.list_scenes()]
+    _restore_playground_users(registry, all_scene_ids)
+
     logger.info(
         "Store: %d agents, %d scenes",
         registry.agent_count,
@@ -440,6 +480,11 @@ async def _encode_store_agent_vectors(app: FastAPI, registry) -> None:
             desc = shade.get("description", "") or shade.get("name", "")
             if desc:
                 text_parts.append(desc)
+        # Playground 用户 fallback 到 raw_text (ADR-009)
+        if not text_parts:
+            raw_text = profile.get("raw_text", "")
+            if raw_text:
+                text_parts.append(raw_text[:500])
         text = " ".join(text_parts) if text_parts else aid
         to_encode.append((aid, text))
 
