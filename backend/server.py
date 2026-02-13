@@ -49,7 +49,23 @@ logger = logging.getLogger(__name__)
 async def lifespan(app: FastAPI):
     logger.info("Towow unified backend starting...")
 
-    # ── 0. Database ──────────────────────────────────────
+    # ── 0. Persistent data directory ─────────────────────
+    # In production (Railway), /app/data/ is a mounted persistent volume.
+    # Ensure required sub-directories exist and sync immutable assets.
+    _data_dir = _project_dir / "data"
+    _data_dir.mkdir(parents=True, exist_ok=True)
+    (_data_dir / "secondme_users").mkdir(exist_ok=True)
+
+    # Sync pre-computed vectors from Docker image assets to persistent data dir.
+    # This runs on every deploy so new agents get their vectors updated.
+    _assets_vectors = Path("/app/assets/agent_vectors.npz")
+    _data_vectors = _data_dir / "agent_vectors.npz"
+    if _assets_vectors.exists():
+        import shutil
+        shutil.copy2(_assets_vectors, _data_vectors)
+        logger.info("Synced agent vectors from assets to data dir")
+
+    # ── 0b. Database ─────────────────────────────────────
     from database import get_engine
     get_engine()  # 自动建表 (NegotiationHistory, NegotiationOffer, User)
 

@@ -5,3 +5,8 @@ dockerfilePath = "Dockerfile"
 [deploy]
 healthcheckPath = "/health"
 healthcheckTimeout = 100
+
+# IMPORTANT: A persistent volume must be mounted at /app/data via Railway Dashboard.
+# This volume stores: SQLite database, SecondMe user profiles, agent vectors.
+# Without it, all user data is lost on every deployment.
+# Dashboard: Service → Volumes → Add Volume → mountPath=/app/data, name=towow-data

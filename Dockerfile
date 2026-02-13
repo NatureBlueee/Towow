@@ -14,8 +14,11 @@ COPY backend/ /app/backend/
 # Copy apps (App Store + shared)
 COPY apps/ /app/apps/
 
-# Copy pre-computed agent vectors
-COPY data/agent_vectors.npz /app/data/agent_vectors.npz
+# Copy pre-computed agent vectors to immutable assets path.
+# In production, /app/data/ is mounted as a persistent volume (Railway Volume),
+# so Docker COPY to /app/data/ would be overridden. Vectors are staged in /app/assets/
+# and synced to /app/data/ on startup by server.py lifespan.
+COPY data/agent_vectors.npz /app/assets/agent_vectors.npz
 
 ENV PYTHONPATH=/app/backend:/app
 

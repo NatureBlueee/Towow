@@ -1,12 +1,14 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { getHistory, getHistoryDetail } from '@/lib/store-api';
 import type { HistoryItem, HistoryDetail } from '@/lib/store-api';
+import { SCENES } from '@/lib/store-scenes';
 
 interface HistoryPanelProps {
-  sceneId?: string;
   isAuthenticated: boolean;
+  /** When this transitions to 'completed', history auto-refreshes. */
+  negotiationPhase?: string;
 }
 
 const STATUS_LABELS: Record<string, string> = {
@@ -51,29 +53,61 @@ function truncate(text: string, maxLen: number): string {
   return text.slice(0, maxLen) + '…';
 }
 
-export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
+function getSceneLabel(sceneId: string | null): { name: string; color: string } | null {
+  if (!sceneId) return null;
+  const scene = SCENES[sceneId];
+  if (!scene) return { name: sceneId, color: '#B8B8B8' };
+  return { name: scene.name, color: scene.primary };
+}
+
+/** Extract a one-line summary from plan_json when plan_output is missing. */
+function planJsonSummary(planJson: Record<string, unknown> | null): string | null {
+  if (!planJson) return null;
+  const summary = planJson.summary as string | undefined;
+  if (summary) return summary;
+  const participants = planJson.participants as Array<{ display_name?: string }> | undefined;
+  if (participants?.length) {
+    return `${participants.length} 位参与者协作方案`;
+  }
+  return '方案已生成';
+}
+
+export function HistoryPanel({ isAuthenticated, negotiationPhase }: HistoryPanelProps) {
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [detail, setDetail] = useState<HistoryDetail | null>(null);
   const [detailLoading, setDetailLoading] = useState(false);
+  const prevPhaseRef = useRef(negotiationPhase);
 
+  // Fetch ALL history (no scene filter)
   const fetchHistory = useCallback(async () => {
     if (!isAuthenticated) return;
     setLoading(true);
     try {
-      const data = await getHistory(sceneId);
+      const data = await getHistory();
       setItems(data);
     } catch {
       // 401 or network error — silently ignore
     } finally {
       setLoading(false);
     }
-  }, [sceneId, isAuthenticated]);
+  }, [isAuthenticated]);
 
+  // Initial load
   useEffect(() => {
     fetchHistory();
   }, [fetchHistory]);
+
+  // Auto-refresh when negotiation completes
+  useEffect(() => {
+    if (prevPhaseRef.current !== 'completed' && negotiationPhase === 'completed') {
+      // Small delay to let DB write finish
+      const timer = setTimeout(fetchHistory, 1500);
+      return () => clearTimeout(timer);
+    }
+    prevPhaseRef.current = negotiationPhase;
+  }, [negotiationPhase, fetchHistory]);
 
   const handleExpand = async (negId: string) => {
     if (expandedId === negId) {
@@ -93,22 +127,37 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
     }
   };
 
-  if (!isAuthenticated || items.length === 0) {
+  // Not authenticated — don't show
+  if (!isAuthenticated) {
     return null;
   }
 
   return (
-    <div style={{ padding: '0 24px 16px' }}>
+    <div style={{ padding: '8px 24px 16px' }}>
+      {/* Header row */}
       <div
         style={{
-          fontSize: 13,
-          fontWeight: 600,
-          color: '#999',
-          letterSpacing: 1,
-          marginBottom: 8,
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          marginBottom: 10,
         }}
       >
-        历史记录
+        <div
+          style={{
+            fontSize: 13,
+            fontWeight: 600,
+            color: '#999',
+            letterSpacing: 1,
+          }}
+        >
+          MY HISTORY
+        </div>
+        {items.length > 0 && (
+          <span style={{ fontSize: 12, color: '#CCC' }}>
+            {items.length} 条记录
+          </span>
+        )}
       </div>
 
       <div
@@ -119,6 +168,26 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
           overflow: 'hidden',
         }}
       >
+        {/* Loading state */}
+        {loading && items.length === 0 && (
+          <div style={{ padding: '20px 16px', textAlign: 'center', color: '#B8B8B8', fontSize: 13 }}>
+            加载历史记录...
+          </div>
+        )}
+
+        {/* Empty state */}
+        {!loading && items.length === 0 && (
+          <div style={{ padding: '24px 16px', textAlign: 'center' }}>
+            <div style={{ fontSize: 14, color: '#999', marginBottom: 4 }}>
+              还没有历史记录
+            </div>
+            <div style={{ fontSize: 12, color: '#CCC' }}>
+              提交需求后，你的协商记录会保存在这里
+            </div>
+          </div>
+        )}
+
+        {/* History list */}
         {items.map((item, idx) => (
           <div key={item.negotiation_id}>
             {idx > 0 && (
@@ -162,7 +231,7 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
                     marginBottom: 4,
                   }}
                 >
-                  {truncate(item.demand_text, 80)}
+                  {truncate(item.demand_text || item.assist_output || '(无内容)', 80)}
                 </div>
                 <div
                   style={{
@@ -172,6 +241,25 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
                     flexWrap: 'wrap',
                   }}
                 >
+                  {/* Scene badge */}
+                  {(() => {
+                    const scene = getSceneLabel(item.scene_id);
+                    if (!scene) return null;
+                    return (
+                      <span
+                        style={{
+                          fontSize: 11,
+                          color: scene.color,
+                          fontWeight: 600,
+                          background: `${scene.color}18`,
+                          padding: '1px 6px',
+                          borderRadius: 4,
+                        }}
+                      >
+                        {scene.name}
+                      </span>
+                    );
+                  })()}
                   <span
                     style={{
                       fontSize: 11,
@@ -218,7 +306,7 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
                   </div>
                 ) : detail ? (
                   <div style={{ fontSize: 13, color: '#555', lineHeight: 1.6 }}>
-                    {/* Assist output — full content */}
+                    {/* Assist output */}
                     {detail.assist_output && (
                       <div style={{ marginBottom: 10 }}>
                         <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 4 }}>
@@ -230,7 +318,7 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
                       </div>
                     )}
 
-                    {/* Formulated text — full content */}
+                    {/* Formulated text */}
                     {detail.formulated_text && (
                       <div style={{ marginBottom: 10 }}>
                         <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 4 }}>
@@ -242,19 +330,19 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
                       </div>
                     )}
 
-                    {/* Plan output — full content */}
-                    {detail.plan_output && (
+                    {/* Plan output — with plan_json fallback */}
+                    {(detail.plan_output || detail.plan_json) && (
                       <div style={{ marginBottom: 10 }}>
                         <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 4 }}>
                           方案
                         </div>
                         <div style={{ whiteSpace: 'pre-wrap', lineHeight: 1.7 }}>
-                          {detail.plan_output}
+                          {detail.plan_output || planJsonSummary(detail.plan_json)}
                         </div>
                       </div>
                     )}
 
-                    {/* Offers — full content */}
+                    {/* Offers */}
                     {detail.offers.length > 0 && (
                       <div>
                         <div style={{ fontWeight: 600, color: '#999', fontSize: 11, marginBottom: 6 }}>
@@ -290,7 +378,7 @@ export function HistoryPanel({ sceneId, isAuthenticated }: HistoryPanelProps) {
                     )}
 
                     {/* Empty state for pending/draft */}
-                    {!detail.plan_output && !detail.assist_output && detail.offers.length === 0 && (
+                    {!detail.plan_output && !detail.plan_json && !detail.assist_output && detail.offers.length === 0 && (
                       <div style={{ color: '#B8B8B8', fontSize: 12 }}>
                         协商尚未完成，暂无详情
                       </div>

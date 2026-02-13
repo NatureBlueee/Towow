@@ -90,8 +90,8 @@ export default function StorePage() {
         <AgentScroll scope={scope} cardTemplate={activeScene ? scene.cardTemplate : 'default'} />
       </div>
 
-      {/* History panel (ADR-007) */}
-      <HistoryPanel sceneId={activeScene || undefined} isAuthenticated={auth.isAuthenticated} />
+      {/* History panel (ADR-007) — all scenes, auto-refresh on completion */}
+      <HistoryPanel isAuthenticated={auth.isAuthenticated} negotiationPhase={negotiation.phase} />
 
       {/* Negotiation progress */}
       {negotiation.phase !== 'idle' && (

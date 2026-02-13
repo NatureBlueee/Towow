@@ -101,8 +101,8 @@ export default function ScenePage({
         <AgentScroll scope={scope} cardTemplate={config.cardTemplate} />
       </div>
 
-      {/* History panel (ADR-007) */}
-      <HistoryPanel sceneId={sceneId} isAuthenticated={auth.isAuthenticated} />
+      {/* History panel (ADR-007) — all scenes, auto-refresh on completion */}
+      <HistoryPanel isAuthenticated={auth.isAuthenticated} negotiationPhase={negotiation.phase} />
 
       {/* Negotiation progress */}
       {negotiation.phase !== 'idle' && (
