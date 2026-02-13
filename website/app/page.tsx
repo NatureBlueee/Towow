@@ -28,7 +28,7 @@ export default async function Home() {
         outlineButtonText={t('outlineButton')}
         outlineButtonHref="/articles"
         primaryButtonText={t('secondaryButton')}
-        primaryButtonHref="/api/auth/secondme/start?return_to=/store/"
+        primaryButtonHref="/enter"
       />
 
       {/* Content Sections */}
