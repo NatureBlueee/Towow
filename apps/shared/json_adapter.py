@@ -121,6 +121,8 @@ class JSONFileAdapter(BaseAdapter):
         messages: list[dict[str, str]],
         system_prompt: Optional[str] = None,
     ) -> str:
+        logger.warning("JSONFileAdapter.chat: agent=%s, llm_client=%s",
+                       agent_id, type(self._llm_client).__name__ if self._llm_client else "None")
         if self._llm_client is None:
             # 无 LLM 客户端时，返回基于画像的模拟回复
             profile = self._profiles.get(agent_id, {})

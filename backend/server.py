@@ -36,7 +36,7 @@ for p in (str(_backend_dir), str(_project_dir)):
 
 # Load .env
 from dotenv import load_dotenv
-load_dotenv(_backend_dir / ".env")
+load_dotenv(_backend_dir / ".env", override=False)  # Railway env vars take precedence
 
 logger = logging.getLogger(__name__)
 

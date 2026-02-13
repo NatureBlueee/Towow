@@ -103,9 +103,9 @@ class ClaudePlatformClient:
         idx, client = self._next_client()
         key_label = self._key_label(idx)
 
-        logger.info("LLM call START | %s | model=%s | messages=%d | tools=%d | system=%s",
-                     key_label, self._model, msg_count, tool_count,
-                     "yes" if system_prompt else "no")
+        logger.warning("LLM call START | %s | model=%s | messages=%d | tools=%d | system=%s",
+                       key_label, self._model, msg_count, tool_count,
+                       "yes" if system_prompt else "no")
         t0 = time.monotonic()
 
         try:
@@ -115,8 +115,8 @@ class ClaudePlatformClient:
 
             tc = len(parsed["tool_calls"]) if parsed.get("tool_calls") else 0
             text_len = len(parsed["content"]) if parsed.get("content") else 0
-            logger.info("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
-                         key_label, elapsed_ms, parsed.get("stop_reason"), tc, text_len)
+            logger.warning("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
+                           key_label, elapsed_ms, parsed.get("stop_reason"), tc, text_len)
             return parsed
 
         except anthropic.APIStatusError as e:
@@ -146,8 +146,8 @@ class ClaudePlatformClient:
                     parsed = self._parse_response(response)
                     tc = len(parsed["tool_calls"]) if parsed.get("tool_calls") else 0
                     text_len = len(parsed["content"]) if parsed.get("content") else 0
-                    logger.info("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
-                                 key_label2, elapsed_ms2, parsed.get("stop_reason"), tc, text_len)
+                    logger.warning("LLM call OK    | %s | %.0fms | stop=%s | tool_calls=%d | text_len=%d",
+                                   key_label2, elapsed_ms2, parsed.get("stop_reason"), tc, text_len)
                     return parsed
                 except anthropic.APIError as retry_e:
                     elapsed_ms2 = (time.monotonic() - t1) * 1000
