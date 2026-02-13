@@ -81,7 +81,7 @@ class TestNegotiationSession:
         session = NegotiationSession(
             negotiation_id="neg_test",
             demand=DemandSnapshot(raw_intent="test"),
-            center_rounds=1,
+            center_rounds=0,
         )
         assert session.tools_restricted is False
 

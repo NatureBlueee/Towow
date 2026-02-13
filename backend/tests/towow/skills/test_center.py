@@ -73,7 +73,7 @@ class TestToolSchemaGeneration:
             assert tool["input_schema"]["type"] == "object"
 
     def test_tool_names(self):
-        expected = {"output_plan", "ask_agent", "start_discovery", "create_sub_demand", "create_machine"}
+        expected = {"output_plan", "create_sub_demand", "create_machine"}
         assert VALID_TOOL_NAMES == expected
 
     def test_restricted_tools(self):
@@ -113,45 +113,19 @@ class TestCenterCoordinatorSkill:
         assert "Alice leads AI" in result["tool_calls"][0]["arguments"]["plan_text"]
 
     @pytest.mark.asyncio
-    async def test_execute_ask_agent(self, skill, mock_llm, sample_demand, sample_offers, sample_participants):
-        """Test ask_agent tool call."""
-        mock_llm.add_response({
-            "content": None,
-            "tool_calls": [
-                {
-                    "name": "ask_agent",
-                    "arguments": {"agent_id": "agent_alice", "question": "What's your startup experience?"},
-                    "id": "call_2",
-                }
-            ],
-            "stop_reason": "tool_use",
-        })
-
-        result = await skill.execute({
-            "demand": sample_demand,
-            "offers": sample_offers,
-            "participants": sample_participants,
-            "llm_client": mock_llm,
-            "round_number": 1,
-        })
-
-        assert result["tool_calls"][0]["name"] == "ask_agent"
-        assert result["tool_calls"][0]["arguments"]["agent_id"] == "agent_alice"
-
-    @pytest.mark.asyncio
     async def test_execute_multiple_tool_calls(self, skill, mock_llm, sample_demand, sample_offers, sample_participants):
-        """Test multiple tool calls in one response."""
+        """Test multiple tool calls in one response (output_plan + create_sub_demand)."""
         mock_llm.add_response({
             "content": None,
             "tool_calls": [
                 {
-                    "name": "ask_agent",
-                    "arguments": {"agent_id": "agent_alice", "question": "More details on ML?"},
+                    "name": "output_plan",
+                    "arguments": {"plan_text": "Main plan here."},
                     "id": "call_1",
                 },
                 {
-                    "name": "start_discovery",
-                    "arguments": {"agent_a": "agent_alice", "agent_b": "agent_bob", "reason": "potential synergy"},
+                    "name": "create_sub_demand",
+                    "arguments": {"gap_description": "Need a DevOps engineer"},
                     "id": "call_2",
                 },
             ],
@@ -167,8 +141,8 @@ class TestCenterCoordinatorSkill:
         })
 
         assert len(result["tool_calls"]) == 2
-        assert result["tool_calls"][0]["name"] == "ask_agent"
-        assert result["tool_calls"][1]["name"] == "start_discovery"
+        assert result["tool_calls"][0]["name"] == "output_plan"
+        assert result["tool_calls"][1]["name"] == "create_sub_demand"
 
 
 class TestToolsRestricted:
@@ -212,47 +186,6 @@ class TestObservationMasking:
         content = messages[0]["content"]
         assert "I have ML experience" in content  # Alice's full offer
         assert "frontend development" in content  # Bob's full offer
-
-    @pytest.mark.asyncio
-    async def test_round_2_masks_offers(self, skill, sample_demand, sample_offers, sample_participants):
-        """Round > 1 with history: original offers are masked."""
-        history = [
-            {"type": "center_reasoning", "round": 1, "content": "Alice is strong in ML..."},
-            {"type": "center_decision", "round": 1, "content": "ask_agent called"},
-        ]
-
-        _, messages = skill._build_prompt({
-            "demand": sample_demand,
-            "offers": sample_offers,
-            "participants": sample_participants,
-            "round_number": 2,
-            "history": history,
-        })
-
-        content = messages[0]["content"]
-        assert "masked" in content.lower()
-        assert "I have ML experience" not in content  # Original offers masked
-        assert "Alice is strong in ML" in content  # Previous reasoning preserved
-
-    @pytest.mark.asyncio
-    async def test_round_2_includes_new_replies(self, skill, sample_demand, sample_offers, sample_participants):
-        """Round > 1: new agent replies should appear."""
-        history = [
-            {"type": "center_reasoning", "round": 1, "content": "Previous reasoning"},
-            {"type": "agent_reply", "agent_id": "agent_alice", "content": "I also have startup experience"},
-        ]
-
-        _, messages = skill._build_prompt({
-            "demand": sample_demand,
-            "offers": sample_offers,
-            "participants": sample_participants,
-            "round_number": 2,
-            "history": history,
-        })
-
-        content = messages[0]["content"]
-        assert "startup experience" in content
-
 
 class TestInvalidToolRejection:
     @pytest.mark.asyncio

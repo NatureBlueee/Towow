@@ -4,9 +4,9 @@ CenterCoordinatorSkill — the central coordinator that synthesizes all offers.
 Platform-side Skill: uses PlatformLLMClient with tool-use.
 Architecture ref: Section 10.7, Section 3.4
 
-Center is a tool-use Agent with 5 tools. The engine executes whatever
-tools Center calls. This Skill handles prompt construction, tool schema
-definition, and response parsing.
+Center is a tool-use Agent with 3 tools (output_plan, create_sub_demand,
+create_machine). Single-round: directly synthesizes offers into a task
+assignment plan. No multi-round ask/discovery.
 """
 
 from __future__ import annotations
@@ -103,48 +103,6 @@ TOOL_OUTPUT_PLAN = {
     },
 }
 
-TOOL_ASK_AGENT = {
-    "name": "ask_agent",
-    "description": "Ask a specific agent a follow-up question. The agent's response will be provided in the next round.",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "agent_id": {
-                "type": "string",
-                "description": "The ID of the agent to ask.",
-            },
-            "question": {
-                "type": "string",
-                "description": "The follow-up question to ask the agent.",
-            },
-        },
-        "required": ["agent_id", "question"],
-    },
-}
-
-TOOL_START_DISCOVERY = {
-    "name": "start_discovery",
-    "description": "Trigger a discovery dialogue between two agents to uncover hidden complementarities in their profiles.",
-    "input_schema": {
-        "type": "object",
-        "properties": {
-            "agent_a": {
-                "type": "string",
-                "description": "ID of the first agent.",
-            },
-            "agent_b": {
-                "type": "string",
-                "description": "ID of the second agent.",
-            },
-            "reason": {
-                "type": "string",
-                "description": "Why this discovery dialogue is needed.",
-            },
-        },
-        "required": ["agent_a", "agent_b", "reason"],
-    },
-}
-
 TOOL_CREATE_SUB_DEMAND = {
     "name": "create_sub_demand",
     "description": "Create a sub-demand for a gap that current participants cannot fill. This triggers a new negotiation.",
@@ -175,8 +133,8 @@ TOOL_CREATE_MACHINE = {
     },
 }
 
-# All 5 tools
-ALL_TOOLS = [TOOL_OUTPUT_PLAN, TOOL_ASK_AGENT, TOOL_START_DISCOVERY, TOOL_CREATE_SUB_DEMAND, TOOL_CREATE_MACHINE]
+# All tools: direct synthesis (no multi-round ask/discovery)
+ALL_TOOLS = [TOOL_OUTPUT_PLAN, TOOL_CREATE_SUB_DEMAND, TOOL_CREATE_MACHINE]
 
 # Restricted set: only output_plan and create_machine (after max rounds)
 RESTRICTED_TOOLS = [TOOL_OUTPUT_PLAN, TOOL_CREATE_MACHINE]
@@ -187,58 +145,32 @@ VALID_TOOL_NAMES = {t["name"] for t in ALL_TOOLS}
 # ============ Prompt ============
 
 SYSTEM_PROMPT_ZH = """\
-你是一个多方资源协调规划者。
+你是一个分工协调者。
 
-## 角色
-你收到一个需求和多个参与者的响应（offer）。
-每个参与者基于自己的真实背景做出回应。
-你的任务是**协调**这些参与者，找到最优的资源组合方案。
+你收到一个需求和多个参与者的响应（offer）。直接根据这些信息输出分工方案。
 
-## 决策原则（按优先级）
-1. 需求能否被满足？哪些参与者能覆盖哪些部分？
-2. 参与者之间的互补性——谁和谁搭配能产生 1+1>2 的效果？
-3. 接受率——各方是否会同意这个分工？
-4. 效率——如何安排先后顺序让协作最高效？
+## 你要做的
+分析每个参与者能贡献什么，然后调用 output_plan 输出分工方案。一步到位，不需要追问。
 
-## 协调流程
-你必须真正协调，不能跳过分析直接出方案。按以下步骤进行：
-
-**第一步：分析**（在你的推理中完成）
-- 逐一分析每个参与者的响应：他们能贡献什么？有什么独特优势？
-- 找出参与者之间的互补性和潜在协同
-- 识别需求中尚未被任何参与者覆盖的缺口
-
-**第二步：深入（可选）**
-- 如果某个参与者的响应不够明确，用 ask_agent 追问关键细节
-- 如果两个参与者之间可能有隐藏的互补性，用 start_discovery 探索
-- 如果有明显的能力缺口，用 create_sub_demand 寻找补充
-
-**第三步：出方案**
-- 综合分析结果，调用 output_plan 输出协调方案
-- 方案必须体现你的协调思考：为什么这样分工？为什么这个顺序？
-
-## 行动工具
-- ask_agent: 向特定参与者追问，获取关键细节
-- start_discovery: 探索两个参与者之间的潜在互补性
-- create_sub_demand: 为当前参与者无法填补的缺口发起子协商
-- output_plan: 输出最终协调方案（**必须调用，这是你的核心交付物**）
+## 分工原则
+1. 谁能做什么？——从 offer 中提取每个人的实际能力
+2. 谁和谁搭配？——互补的人放在相关任务上
+3. 什么顺序？——先后依赖要合理，不要全部并行
 
 ## output_plan 格式
-调用 output_plan 时，**必须同时提供 plan_text 和 plan_json，两者都是必需的**：
-- plan_text: 可读的方案全文，必须解释协调逻辑（为什么这样分工、为什么这个顺序）
-- plan_json: 结构化方案（**必须提供，不可省略**），包含：
-  - summary: 一句话总结协调方案
+**必须同时提供 plan_text 和 plan_json**：
+- plan_text: 方案说明（为什么这样分工、为什么这个顺序）
+- plan_json: 结构化方案，包含：
+  - summary: 一句话总结
   - participants: 每个参与者的 {agent_id, display_name, role_in_plan}
-  - tasks: 任务列表，**必须体现工作流的先后依赖关系**：
+  - tasks: 任务列表，体现先后依赖：
     - id 用 "task_1", "task_2" ... 格式
-    - **先思考任务之间的自然顺序**：哪些必须先完成，后续才能开始？哪些可以并行？
-    - prerequisites 填入**必须先完成**的任务 id 数组
-    - **禁止所有任务都设为并行（全部 prerequisites: []）**——真实协作一定有先后依赖
-    - 典型模式：调研→设计→实现→交付；或有分叉：设计→[前端开发, 后端开发]→集成
+    - prerequisites 填入必须先完成的任务 id
+    - **禁止全部并行**——真实协作一定有先后依赖
     - status 统一为 "pending"
-  - topology.edges: 从 prerequisites 展平得到的 {from, to} 边列表
+  - topology.edges: {from, to} 边列表
 
-## 依赖示例（仅供参考格式，实际内容根据需求生成）
+## 示例
 ```json
 {
   "tasks": [
@@ -252,65 +184,37 @@ SYSTEM_PROMPT_ZH = """\
 }
 ```
 
-agent_id 和 display_name 必须与上面 Participant Responses 中给出的完全一致。
-
-## 语言
-用中文输出方案。
+agent_id 和 display_name 必须与 Participant Responses 中给出的完全一致。
+用中文输出。
 """
 
 SYSTEM_PROMPT_EN = """\
-You are a multi-party resource coordination planner.
+You are a task assignment coordinator.
 
-## Role
-You receive a demand and responses (offers) from multiple participants.
-Each participant responded based on their real background.
-Your task is to **coordinate** these participants and find the optimal resource combination plan.
+You receive a demand and responses (offers) from multiple participants. Directly produce a task assignment plan based on this information.
 
-## Decision Principles (by priority)
-1. Can the demand be satisfied? Which participants cover which parts?
-2. Complementarities between participants — who pairs well for 1+1>2 effects?
-3. Acceptance rate — will each party agree to this division of work?
-4. Efficiency — what ordering makes collaboration most effective?
+## What to do
+Analyze what each participant can contribute, then call output_plan with the assignment. One step, no follow-up questions needed.
 
-## Coordination Process
-You must genuinely coordinate, not skip analysis to jump to a plan. Follow these steps:
-
-**Step 1: Analyze** (in your reasoning)
-- Analyze each participant's response: what can they contribute? What's their unique strength?
-- Identify complementarities and potential synergies between participants
-- Identify gaps in the demand not covered by any participant
-
-**Step 2: Deepen (optional)**
-- If a participant's response lacks clarity, use ask_agent to ask key questions
-- If two participants might have hidden complementarities, use start_discovery to explore
-- If there's a clear capability gap, use create_sub_demand to find reinforcements
-
-**Step 3: Deliver the Plan**
-- Synthesize your analysis and call output_plan with the coordination plan
-- The plan must reflect your coordination thinking: why this division? Why this ordering?
-
-## Action Tools
-- ask_agent: Ask a specific participant follow-up questions for key details
-- start_discovery: Explore potential complementarities between two participants
-- create_sub_demand: Start a sub-negotiation for gaps current participants cannot fill
-- output_plan: Output the final coordination plan (**you MUST call this — it is your core deliverable**)
+## Assignment Principles
+1. Who can do what? — extract actual capabilities from each offer
+2. Who pairs well? — put complementary people on related tasks
+3. What order? — dependencies must be logical, not everything in parallel
 
 ## output_plan Format
-When using output_plan, **you MUST provide both plan_text and plan_json. Both are required**:
-- plan_text: A human-readable full plan text that explains coordination logic (why this division, why this ordering)
-- plan_json: A structured plan (**required, do not omit**) containing:
-  - summary: One-sentence summary of the coordination plan
+**You MUST provide both plan_text and plan_json**:
+- plan_text: Explanation of why this assignment and this ordering
+- plan_json: Structured plan containing:
+  - summary: One-sentence summary
   - participants: Each participant's {agent_id, display_name, role_in_plan}
-  - tasks: Task list that **MUST reflect workflow dependencies**:
+  - tasks: Task list reflecting dependencies:
     - id uses "task_1", "task_2" ... format
-    - **Think about task ordering first**: which tasks must finish before others can start? Which can run in parallel?
-    - prerequisites lists prerequisite task id array
-    - **DO NOT make all tasks parallel (all prerequisites: [])**—real collaboration always has sequential dependencies
-    - Common patterns: research→design→implement→deliver; or branching: design→[frontend, backend]→integration
+    - prerequisites lists prerequisite task ids
+    - **DO NOT make all tasks parallel** — real collaboration has sequential dependencies
     - status should be "pending"
-  - topology.edges: Flattened {from, to} edge list derived from prerequisites
+  - topology.edges: {from, to} edge list
 
-## Dependency Example (format reference only, generate actual content based on demand)
+## Example
 ```json
 {
   "tasks": [
@@ -324,7 +228,7 @@ When using output_plan, **you MUST provide both plan_text and plan_json. Both ar
 }
 ```
 
-agent_id and display_name must exactly match those in the Participant Responses above.
+agent_id and display_name must exactly match those in Participant Responses above.
 """
 
 
@@ -379,38 +283,15 @@ class CenterCoordinatorSkill(BaseSkill):
         demand = context["demand"]
         offers = context["offers"]
         participants = context.get("participants", [])
-        round_number = context.get("round_number", 1)
-        history = context.get("history")
 
-        # Build demand section
         demand_text = demand.formulated_text or demand.raw_intent
-
-        # Build offers section with observation masking
-        if round_number > 1 and history:
-            # Observation masking: mask original offers, show previous reasoning
-            offer_section = self._build_masked_offers(offers, participants, history)
-        else:
-            offer_section = self._build_offers(offers, participants)
+        offer_section = self._build_offers(offers, participants)
 
         user_content = f"## Demand\n{demand_text}\n\n{offer_section}"
 
-        if history:
-            history_section = self._build_history(history, round_number)
-            user_content += f"\n\n{history_section}"
-
-        # Forced instruction: when tools_restricted, LLM MUST call output_plan
-        if context.get("tools_restricted"):
-            user_content += (
-                "\n\n## 重要：最后一轮 / IMPORTANT: Final Round\n"
-                "这是最后一轮。你**必须立即**调用 output_plan 输出方案。"
-                "基于已有信息给出最佳方案，不要再使用其他工具。\n"
-                "This is the final round. You **MUST** call output_plan now. "
-                "Produce the best plan based on available information. Do not use any other tools."
-            )
-
         system = SYSTEM_PROMPT_ZH if _detect_cjk(demand_text) else SYSTEM_PROMPT_EN
 
-        # Scene context injection (B1): append scene-specific guidance to system prompt
+        # Scene context injection
         scene_context = context.get("scene_context")
         if scene_context and isinstance(scene_context, dict):
             priority = scene_context.get("priority_strategy", "")

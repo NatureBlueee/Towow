@@ -109,25 +109,6 @@ def _make_output_plan_response(
     }
 
 
-def _make_ask_agent_response(
-    agent_id: str = "agent_alice",
-    question: str = "What is your experience with AI?",
-    call_id: str = "call_ask_1",
-) -> dict[str, Any]:
-    """Create a mock LLM response with an ask_agent tool call."""
-    return {
-        "content": None,
-        "tool_calls": [
-            {
-                "name": "ask_agent",
-                "arguments": {"agent_id": agent_id, "question": question},
-                "id": call_id,
-            }
-        ],
-        "stop_reason": "tool_use",
-    }
-
-
 def _extract_event_types(pusher: MockEventPusher) -> list[str]:
     """Extract event type values in order from the pusher."""
     return [e.event_type.value for e in pusher.events]
@@ -226,77 +207,6 @@ class TestHappyPathFullNegotiation:
             assert p.state == AgentState.REPLIED
             assert p.offer is not None
             assert p.offer.content != ""
-
-
-class TestCenterMultiRound:
-    """
-    LLM first returns ask_agent tool call, then output_plan.
-    Verify 2 center rounds and both tool call events.
-    """
-
-    @pytest.mark.asyncio
-    async def test_center_multi_round(self):
-        # Setup
-        encoder = MockEncoder(dim=128)
-        resonance = CosineResonanceDetector()
-        pusher = MockEventPusher()
-        adapter = MockProfileDataSource()
-        adapter.set_default_chat_response("I specialize in AI and ML.")
-        adapter.set_chat_response(
-            "agent_alice",
-            "I have deep experience with transformer architectures and LLM fine-tuning.",
-        )
-        llm = MockPlatformLLMClient()
-
-        # Round 1: Center asks agent_alice a follow-up question
-        llm.add_response(
-            _make_ask_agent_response(
-                agent_id="agent_alice",
-                question="Can you elaborate on your AI experience?",
-                call_id="call_ask_1",
-            )
-        )
-        # Round 2: Center produces the plan
-        llm.add_response(
-            _make_output_plan_response(
-                plan_text="After deeper evaluation: Alice is the ideal co-founder.",
-                call_id="call_plan_1",
-            )
-        )
-
-        engine = _build_engine(encoder, resonance, pusher)
-        session = _make_session(max_center_rounds=5)  # Allow more rounds
-        agent_vectors = await _make_agent_vectors(encoder, count=3)
-        center_skill = CenterCoordinatorSkill()
-
-        # Execute
-        result = await run_with_auto_confirm(engine, session,
-            adapter=adapter,
-            llm_client=llm,
-            center_skill=center_skill,
-            agent_vectors=agent_vectors,
-            k_star=3,
-            min_score=-1.0,  # Allow negative cosine sims from mock vectors
-        )
-
-        # Verify session state
-        assert result.state == NegotiationState.COMPLETED
-        assert result.plan_output is not None
-        assert "Alice" in result.plan_output
-        assert result.center_rounds == 2
-
-        # Verify both center tool call events
-        center_events = pusher.get_events_by_type(EventType.CENTER_TOOL_CALL)
-        assert len(center_events) == 2
-
-        # First tool call: ask_agent
-        assert center_events[0].data["tool_name"] == "ask_agent"
-        assert center_events[0].data["round_number"] == 1
-        assert center_events[0].data["tool_args"]["agent_id"] == "agent_alice"
-
-        # Second tool call: output_plan
-        assert center_events[1].data["tool_name"] == "output_plan"
-        assert center_events[1].data["round_number"] == 2
 
 
 class TestNoAgentsStillCompletes:
@@ -496,53 +406,3 @@ class TestTraceChainComplete:
         for i in range(len(trace.entries) - 1):
             assert trace.entries[i].timestamp <= trace.entries[i + 1].timestamp
 
-    @pytest.mark.asyncio
-    async def test_trace_chain_multi_round(self):
-        """Trace captures multiple center rounds properly."""
-        encoder = MockEncoder(dim=128)
-        resonance = CosineResonanceDetector()
-        pusher = MockEventPusher()
-        adapter = MockProfileDataSource()
-        adapter.set_default_chat_response("Happy to help.")
-        llm = MockPlatformLLMClient()
-        # Round 1: ask_agent
-        llm.add_response(
-            _make_ask_agent_response(
-                agent_id="agent_alice",
-                question="Details please?",
-            )
-        )
-        # Round 2: output_plan
-        llm.add_response(
-            _make_output_plan_response(plan_text="Multi-round plan.")
-        )
-
-        engine = _build_engine(encoder, resonance, pusher)
-        session = _make_session(max_center_rounds=5)
-        agent_vectors = await _make_agent_vectors(encoder, count=2)
-        center_skill = CenterCoordinatorSkill()
-
-        result = await run_with_auto_confirm(engine, session,
-            adapter=adapter,
-            llm_client=llm,
-            center_skill=center_skill,
-            agent_vectors=agent_vectors,
-            k_star=2,
-            min_score=-1.0,  # Allow negative cosine sims from mock vectors
-        )
-
-        trace = result.trace
-        assert trace is not None
-        assert trace.completed_at is not None
-
-        # Should have center_tool_ask_agent entry from round 1.
-        # When output_plan is called in round 2, the engine returns via
-        # _finish_with_plan before recording center_tool_output_plan,
-        # but synthesis_complete captures the final phase.
-        entry_steps = [e.step for e in trace.entries]
-        assert "center_tool_ask_agent" in entry_steps
-        assert "synthesis_complete" in entry_steps
-
-        # Total entries: formulation + encoding_resonance + offers_barrier +
-        #   center_tool_ask_agent + synthesis_complete = 5
-        assert len(trace.entries) >= 5
