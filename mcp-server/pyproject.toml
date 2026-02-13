@@ -1,0 +1,16 @@
+[project]
+name = "towow-mcp"
+version = "0.1.0"
+description = "通爻网络 MCP Server — 在 Claude Code / Cursor 中连接通爻"
+requires-python = ">=3.10"
+dependencies = [
+    "mcp>=1.0",
+    "httpx>=0.27",
+]
+
+[project.scripts]
+towow-mcp = "towow_mcp.server:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"

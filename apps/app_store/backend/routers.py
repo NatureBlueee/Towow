@@ -19,7 +19,7 @@ from pathlib import Path
 from typing import Any, Optional
 
 from fastapi import APIRouter, HTTPException, Request, WebSocket, WebSocketDisconnect
-from fastapi.responses import FileResponse, HTMLResponse, StreamingResponse
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, StreamingResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
@@ -30,7 +30,11 @@ from database import (
     get_user_history,
     get_negotiation_detail,
     save_assist_output,
+    get_user_by_email,
+    get_user_by_phone,
+    create_playground_user,
 )
+from sqlalchemy.exc import IntegrityError
 
 logger = logging.getLogger(__name__)
 
@@ -108,6 +112,15 @@ class AssistDemandRequest(BaseModel):
     mode: str = Field(..., pattern="^(polish|surprise)$")
     scene_id: str = ""
     raw_text: str = ""
+
+
+class QuickRegisterRequest(BaseModel):
+    email: str = ""
+    phone: str = ""
+    display_name: str
+    raw_text: str
+    subscribe: bool = False
+    scene_id: str = ""
 
 
 # ============ SecondMe 辅助需求 ============
@@ -224,8 +237,8 @@ def _build_agent_summaries(composite, scope: str, max_agents: int = 5) -> str:
                 if shade_names:
                     parts.append(f"，关注 {', '.join(shade_names)}")
 
-        # 简介
-        bio = info.get("bio", "") or info.get("self_introduction", "")
+        # 简介（playground 用户 fallback 到 raw_text）
+        bio = info.get("bio", "") or info.get("self_introduction", "") or (info.get("raw_text", "") or "")[:100]
         if bio:
             parts.append(f"。{bio[:100]}")
 
@@ -345,6 +358,108 @@ async def connect_user_to_scene(
     state.store_scene_registry.increment_agent_count(scene_id)
 
     return {"status": "ok", **result}
+
+
+# ── 开放注册 API (ADR-009) ──
+
+@router.post("/api/quick-register")
+async def quick_register(req: QuickRegisterRequest, request: Request):
+    """开放注册：提交联络信息 + 任意文本 → 创建 Agent 加入网络。"""
+    from towow.core.models import generate_id
+
+    # 1. 验证
+    if not req.email and not req.phone:
+        raise HTTPException(400, "请提供邮箱或手机号")
+    if not req.raw_text.strip():
+        raise HTTPException(400, "请输入你的介绍内容")
+
+    # 2. 邮箱/手机去重（应用层快速检查）
+    if req.email:
+        existing = get_user_by_email(req.email)
+        if existing:
+            return JSONResponse(status_code=409, content={
+                "agent_id": existing.agent_id,
+                "display_name": existing.display_name,
+                "message": "该邮箱已注册",
+            })
+    if req.phone:
+        existing = get_user_by_phone(req.phone)
+        if existing:
+            return JSONResponse(status_code=409, content={
+                "agent_id": existing.agent_id,
+                "display_name": existing.display_name,
+                "message": "该手机号已注册",
+            })
+
+    # 3. 生成 agent_id
+    agent_id = generate_id("pg")
+
+    # 4. DB 持久化（catch IntegrityError 处理并发竞态）
+    try:
+        create_playground_user(
+            agent_id=agent_id,
+            display_name=req.display_name,
+            email=req.email or None,
+            phone=req.phone or None,
+            subscribe=req.subscribe,
+            raw_profile_text=req.raw_text,
+        )
+    except IntegrityError:
+        existing = None
+        if req.email:
+            existing = get_user_by_email(req.email)
+        if not existing and req.phone:
+            existing = get_user_by_phone(req.phone)
+        if existing:
+            return JSONResponse(status_code=409, content={
+                "agent_id": existing.agent_id,
+                "display_name": existing.display_name,
+                "message": "该联络方式已注册",
+            })
+        raise
+
+    # 5. AgentRegistry 注册
+    #    adapter=default_adapter (ClaudeAdapter)，不是 None
+    #    Playground Agent 必须能 chat() 以生成 Offer
+    state = request.app.state
+    registry = state.agent_registry
+
+    if req.scene_id:
+        scene_ids = [req.scene_id]
+    else:
+        scene_ids = [s["scene_id"] for s in state.store_scene_registry.list_scenes()]
+
+    profile_data = {
+        "raw_text": req.raw_text,
+        "display_name": req.display_name,
+        "source": "playground",
+    }
+    registry.register_agent(
+        agent_id=agent_id,
+        adapter=registry.default_adapter,
+        source="playground",
+        scene_ids=scene_ids,
+        display_name=req.display_name,
+        profile_data=profile_data,
+    )
+
+    # 6. 实时向量编码
+    encoder = state.encoder
+    if encoder:
+        try:
+            vec = await encoder.encode(req.raw_text)
+            state.store_agent_vectors[agent_id] = vec
+        except Exception as e:
+            logger.warning("quick-register: 向量编码失败 %s: %s", agent_id, e)
+
+    logger.info("quick-register: 创建 agent=%s name=%s email=%s scenes=%s",
+                agent_id, req.display_name, req.email or "none", scene_ids)
+
+    return {
+        "agent_id": agent_id,
+        "display_name": req.display_name,
+        "message": "你的 Agent 已创建，可以参与协商了",
+    }
 
 
 # ── SecondMe 辅助需求 API ──

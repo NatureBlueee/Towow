@@ -6,9 +6,10 @@ import { getHistory, getHistoryDetail } from '@/lib/store-api';
 import type { HistoryItem, HistoryDetail } from '@/lib/store-api';
 import { parseOfferContent } from '@/lib/parse-offer-content';
 import { SCENES } from '@/lib/store-scenes';
+import type { AuthSource } from '@/hooks/useStoreAuth';
 
 interface HistoryPanelProps {
-  isAuthenticated: boolean;
+  authSource?: AuthSource;
   /** When this transitions to 'completed', history auto-refreshes. */
   negotiationPhase?: string;
 }
@@ -126,7 +127,7 @@ function OfferCard({ offer }: { offer: { agent_name?: string; agent_id: string; 
   );
 }
 
-export function HistoryPanel({ isAuthenticated, negotiationPhase }: HistoryPanelProps) {
+export function HistoryPanel({ authSource, negotiationPhase }: HistoryPanelProps) {
   const [items, setItems] = useState<HistoryItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -134,9 +135,9 @@ export function HistoryPanel({ isAuthenticated, negotiationPhase }: HistoryPanel
   const [detailLoading, setDetailLoading] = useState(false);
   const prevPhaseRef = useRef(negotiationPhase);
 
-  // Fetch ALL history (no scene filter)
+  // Fetch ALL history (no scene filter) — only for SecondMe users (cookie session required)
   const fetchHistory = useCallback(async () => {
-    if (!isAuthenticated) return;
+    if (authSource !== 'secondme') return;
     setLoading(true);
     try {
       const data = await getHistory();
@@ -146,7 +147,7 @@ export function HistoryPanel({ isAuthenticated, negotiationPhase }: HistoryPanel
     } finally {
       setLoading(false);
     }
-  }, [isAuthenticated]);
+  }, [authSource]);
 
   // Initial load
   useEffect(() => {
@@ -181,8 +182,8 @@ export function HistoryPanel({ isAuthenticated, negotiationPhase }: HistoryPanel
     }
   };
 
-  // Not authenticated — don't show
-  if (!isAuthenticated) {
+  // Only show history for SecondMe users (cookie session required for API)
+  if (authSource !== 'secondme') {
     return null;
   }
 

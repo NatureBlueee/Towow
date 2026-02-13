@@ -6,7 +6,7 @@ import { SceneTabs } from '@/components/store/SceneTabs';
 import { DemandInput } from '@/components/store/DemandInput';
 import { AgentScroll } from '@/components/store/AgentScroll';
 import { NegotiationProgress } from '@/components/store/NegotiationProgress';
-import { PlanOutput } from '@/components/store/PlanOutput';
+import { PlanOutput, DEMO_CHAIN_URL } from '@/components/store/PlanOutput';
 import { DeveloperPanel } from '@/components/store/DeveloperPanel';
 import { HistoryPanel } from '@/components/store/HistoryPanel';
 import { useStoreNegotiation } from '@/hooks/useStoreNegotiation';
@@ -64,17 +64,7 @@ export default function StorePage() {
       {/* Scene tabs */}
       <SceneTabs activeScene={activeScene} onSelect={setActiveScene} />
 
-      {/* Demand input */}
-      <DemandInput
-        sceneId={activeScene}
-        onSubmit={handleSubmit}
-        isSubmitting={negotiation.phase === 'submitting'}
-        isAuthenticated={auth.isAuthenticated}
-        onLoginRequest={auth.login}
-        onAuthExpired={auth.logout}
-      />
-
-      {/* Agent list */}
+      {/* 1. Agent list */}
       <div style={{ marginBottom: 8 }}>
         <div
           style={{
@@ -90,10 +80,17 @@ export default function StorePage() {
         <AgentScroll scope={scope} cardTemplate={activeScene ? scene.cardTemplate : 'default'} />
       </div>
 
-      {/* History panel (ADR-007) — all scenes, auto-refresh on completion */}
-      <HistoryPanel isAuthenticated={auth.isAuthenticated} negotiationPhase={negotiation.phase} />
+      {/* 2. Demand input */}
+      <DemandInput
+        sceneId={activeScene}
+        onSubmit={handleSubmit}
+        isSubmitting={negotiation.phase === 'submitting'}
+        authSource={auth.authSource}
+        onLoginRequest={auth.login}
+        onAuthExpired={auth.logout}
+      />
 
-      {/* Negotiation progress */}
+      {/* 3. Negotiation progress + Plan output (when active) */}
       {negotiation.phase !== 'idle' && (
         <div style={{ padding: '16px 24px' }}>
           <NegotiationProgress
@@ -107,7 +104,6 @@ export default function StorePage() {
         </div>
       )}
 
-      {/* Plan output — show when plan data arrives (WS planJson or REST planOutput) */}
       {(negotiation.planOutput || negotiation.planJson || negotiation.phase === 'completed') && (
         <div style={{ padding: '0 24px 16px' }}>
           <PlanOutput
@@ -115,9 +111,13 @@ export default function StorePage() {
             planJson={negotiation.planJson}
             participants={negotiation.participants}
             planTemplate={activeScene ? scene.planTemplate : 'default'}
+            chainUrl={DEMO_CHAIN_URL}
           />
         </div>
       )}
+
+      {/* 4. History panel — always at bottom */}
+      <HistoryPanel authSource={auth.authSource} negotiationPhase={negotiation.phase} />
 
       {/* Developer panel */}
       <DeveloperPanel

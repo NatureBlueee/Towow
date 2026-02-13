@@ -39,6 +39,13 @@ class User(Base):
     avatar_url = Column(String(512), nullable=True)
     self_intro = Column(Text, nullable=True)
 
+    # 开放注册字段 (ADR-009)
+    email = Column(String(256), nullable=True, unique=True, index=True)
+    phone = Column(String(32), nullable=True)
+    subscribe = Column(Boolean, default=False)
+    raw_profile_text = Column(Text, nullable=True)
+    source = Column(String(32), default="secondme")  # secondme | playground | mcp
+
     # OAuth2 Token 存储
     access_token = Column(Text, nullable=True)
     refresh_token = Column(Text, nullable=True)
@@ -59,6 +66,11 @@ class User(Base):
             "bio": self.bio,
             "avatar_url": self.avatar_url,
             "self_intro": self.self_intro,
+            "email": self.email,
+            "phone": self.phone,
+            "subscribe": self.subscribe,
+            "raw_profile_text": self.raw_profile_text,
+            "source": self.source,
             "is_active": self.is_active,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
@@ -278,6 +290,70 @@ def delete_user(agent_id: str) -> bool:
         session.rollback()
         logger.error(f"Failed to delete user: {e}")
         raise
+    finally:
+        session.close()
+
+
+# ============ Playground User CRUD (ADR-009) ============
+
+def get_user_by_email(email: str) -> Optional[User]:
+    """通过邮箱查找用户（quick-register 去重用）。"""
+    session = get_session()
+    try:
+        return session.query(User).filter(User.email == email).first()
+    finally:
+        session.close()
+
+
+def get_user_by_phone(phone: str) -> Optional[User]:
+    """通过手机号查找用户（quick-register 去重用）。"""
+    session = get_session()
+    try:
+        return session.query(User).filter(User.phone == phone).first()
+    finally:
+        session.close()
+
+
+def create_playground_user(
+    agent_id: str,
+    display_name: str,
+    email: Optional[str] = None,
+    phone: Optional[str] = None,
+    subscribe: bool = False,
+    raw_profile_text: str = "",
+) -> User:
+    """创建 Playground 来源的用户。source='playground'。"""
+    session = get_session()
+    try:
+        user = User(
+            agent_id=agent_id,
+            display_name=display_name,
+            email=email,
+            phone=phone,
+            subscribe=subscribe,
+            raw_profile_text=raw_profile_text,
+            source="playground",
+            skills=[],
+            specialties=[],
+        )
+        session.add(user)
+        session.commit()
+        session.refresh(user)
+        logger.info("Created playground user: %s (email=%s)", agent_id, email or "none")
+        return user
+    except Exception as e:
+        session.rollback()
+        logger.error("Failed to create playground user: %s", e)
+        raise
+    finally:
+        session.close()
+
+
+def get_playground_users() -> List[User]:
+    """获取所有 Playground 用户（启动时恢复用）。"""
+    session = get_session()
+    try:
+        return session.query(User).filter(User.source == "playground").all()
     finally:
         session.close()
 

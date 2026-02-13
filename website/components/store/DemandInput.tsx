@@ -3,12 +3,13 @@
 import { useState, useRef, useCallback } from 'react';
 import { getSceneConfig } from '@/lib/store-scenes';
 import { assistDemandStream } from '@/lib/store-api';
+import type { AuthSource } from '@/hooks/useStoreAuth';
 
 interface DemandInputProps {
   sceneId: string | null;
   onSubmit: (intent: string, scope?: string) => void;
   isSubmitting: boolean;
-  isAuthenticated?: boolean;
+  authSource?: AuthSource;
   onLoginRequest?: () => void;
   onAuthExpired?: () => void;
 }
@@ -113,7 +114,7 @@ function renderInline(text: string): React.ReactNode[] {
   return parts.length ? parts : [text];
 }
 
-export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, onLoginRequest, onAuthExpired }: DemandInputProps) {
+export function DemandInput({ sceneId, onSubmit, isSubmitting, authSource, onLoginRequest, onAuthExpired }: DemandInputProps) {
   const [text, setText] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [assistLoading, setAssistLoading] = useState<'polish' | 'surprise' | null>(null);
@@ -147,7 +148,7 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
   }, [assistLoading]);
 
   const handleAssist = async (mode: 'polish' | 'surprise') => {
-    if (!isAuthenticated) {
+    if (authSource !== 'secondme') {
       onLoginRequest?.();
       return;
     }
@@ -273,7 +274,7 @@ export function DemandInput({ sceneId, onSubmit, isSubmitting, isAuthenticated, 
             ))}
           </div>
           <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-            {isAuthenticated && (
+            {authSource === 'secondme' && (
               <>
                 <button
                   onClick={() => handleAssist('polish')}
