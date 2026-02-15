@@ -105,22 +105,8 @@ class AgentManager:
         logger.info("AgentManager 初始化完成")
 
     def _init_database(self):
-        """初始化数据库并迁移旧数据"""
-        # 确保数据库初始化
+        """初始化数据库（含 schema 迁移）"""
         db.get_engine()
-
-        # 迁移旧的 JSON 数据
-        json_file = Path(__file__).parent.parent / "data" / "user_agents.json"
-        if json_file.exists():
-            try:
-                migrated = db.migrate_from_json(json_file)
-                if migrated > 0:
-                    # 备份并重命名旧文件
-                    backup_file = json_file.with_suffix(".json.bak")
-                    json_file.rename(backup_file)
-                    logger.info(f"Migrated {migrated} users, old file renamed to {backup_file}")
-            except Exception as e:
-                logger.error(f"Migration failed: {e}")
 
     @property
     def agents_config(self) -> Dict[str, UserAgentConfig]:

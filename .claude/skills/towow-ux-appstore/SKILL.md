@@ -1,3 +1,8 @@
+---
+name: towow-ux-appstore
+description: App Store 用户旅程与场景展示专才。负责用户旅程设计和场景展示逻辑。
+---
+
 # App Store 用户旅程与场景展示专才
 
 ## 我是谁
