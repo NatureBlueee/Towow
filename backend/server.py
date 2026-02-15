@@ -191,6 +191,15 @@ async def lifespan(app: FastAPI):
     # V1 Demo scene — disabled, App Store uses real agents from JSON files
     # _seed_demo_scene(app, registry, default_adapter)
 
+    # ── 2b. V2 Intent Field subsystem ────────────────────────
+    from towow.field import MemoryField, MpnetEncoder, SimHashProjector, EncodingPipeline
+    field_encoder = MpnetEncoder()
+    field_projector = SimHashProjector(input_dim=field_encoder.dim)
+    field_pipeline = EncodingPipeline(field_encoder, field_projector)
+    field = MemoryField(field_pipeline)
+    app.state.field = field
+    logger.info("V2 Intent Field initialized (MemoryField + mpnet-768d + SimHash)")
+
     # ── 3. App Store subsystem ─────────────────────────────
     _init_app_store(app, config, registry)
 
@@ -609,6 +618,10 @@ def create_app() -> FastAPI:
     from towow.api.routes import router as v1_api_router, ws_router as v1_ws_router
     application.include_router(v1_api_router, prefix="/v1")
     application.include_router(v1_ws_router, prefix="/v1")
+
+    # ── Intent Field routes (/field/api/*) ──
+    from towow.field.routes import field_router
+    application.include_router(field_router)
 
     # ── App Store routes (/store/api/*, /store/ws/*, /store/auth/*) ──
     from apps.app_store.backend.routers import (

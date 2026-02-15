@@ -39,9 +39,23 @@ backend/towow/               # V1 独立包（不修改 backend/app.py）
     └── schemas.py           # Pydantic 请求/响应模型
 ```
 
+```
+backend/towow/field/              # V2 Intent Field（独立模块，不依赖 V1 core/hdc/）
+├── types.py                      # Intent, FieldResult, OwnerMatch
+├── protocols.py                  # IntentField, Encoder, Projector Protocol
+├── encoder.py                    # MpnetEncoder (768d, paraphrase-multilingual-mpnet-base-v2)
+├── projector.py                  # SimHashProjector (10000-dim binary) + bundle_binary
+├── chunker.py                    # split_chunks（句子边界切分，max_chars=256）
+├── pipeline.py                   # EncodingPipeline（Encoder + Projector + Chunker 组合）
+├── field.py                      # MemoryField（持久内存场，满足 IntentField Protocol）
+├── routes.py                     # V2 HTTP API（deposit/match/match-owners）
+└── profile_loader.py             # Profile 加载工具（JSON → text）
+```
+
 **原则**：
 - 按四层架构组织：协议层（core/）、能力层（skills/）、基础设施层（infra/）、应用层（api/）
-- adapters/ 和 hdc/ 是独立的功能模块，不属于某一层
+- field/ 是 V2 独立模块，内部自包含 Protocol + 实现 + API
+- adapters/ 和 hdc/ 是 V1 独立的功能模块，不属于某一层
 - 每个文件职责单一
 - 新文件创建前确认它属于哪个目录
 
@@ -236,7 +250,20 @@ backend/tests/
 | Infra | test_config + test_event_pusher + test_llm_client | 10 |
 | API | test_routes | 17 |
 | E2E | test_e2e | 6 |
-| **Total** | | **256** |
+| **V1 Total** | | **256** |
+
+**V2 Field 测试（76 测试）**
+
+| 层 | 文件 | 测试数 |
+|----|------|--------|
+| Field | test_memory_field | 25 |
+| Projector | test_projector (SimHash + bundle_binary) | 21 |
+| Pipeline | test_pipeline (StubEncoder + 真实 Projector) | 12 |
+| Chunker | test_chunker | 10 |
+| Profile | test_profile_loader | 8 |
+| **V2 Total** | | **76** |
+
+**全套总计：332 测试**
 
 ### 前端组件
 
@@ -246,7 +273,22 @@ backend/tests/
 
 ---
 
-## 12. App Store API 契约
+## 12. V2 Field 工程决策
+
+| 决策 | 结论 | 理由 |
+|------|------|------|
+| Embedding 模型 | `paraphrase-multilingual-mpnet-base-v2` (768d) | Phase 4 实验锁定，L1 满分，速度快 4× |
+| 投影 | SimHash 10,000-dim binary → packed uint8[1250] | Phase 1 实验锁定，Hamming 距离高效 |
+| Chunking | 句子边界切分，max_chars=256 | mpnet 有效窗口 ~128 tokens ≈ 256 chars |
+| Bundle | 多数投票，偶数平局 seed 打破 | 标准 VSA bundle 算法 |
+| Deposit 策略 | profile_to_text → 单次 deposit（C_baseline） | Phase 3 实验全面领先，碎片化 deposit 退化 |
+| 测试管道 | HashPipeline（SHA-256 + Hamming），非 MagicMock | 严格接口，未定义方法 raise AttributeError |
+| 维度传播 | packed_dim 属性链（Projector → Pipeline → Field） | 消除硬编码，换 D 值自动传播 |
+| 删除算法 | swap-with-last + 反向索引 _pos_index | O(1) 删除，避免 O(N) 扫描 |
+
+---
+
+## 13. App Store API 契约
 
 ### 协商 API（已有）
 
@@ -364,3 +406,4 @@ backend/tests/
 - 2026-02-09：V1 Phase 2 完成后更新——实际代码结构、实现决策、测试覆盖
 - 2026-02-12：新增 Section 12 — App Store API 契约 + 历史 API (ADR-007)
 - 2026-02-13：新增开放注册 API (ADR-009) + 测试数更新至 256
+- 2026-02-16：新增 Section 12 — V2 Field 工程决策；代码结构新增 field/ 目录；测试覆盖新增 V2 76 测试（全套 332）
