@@ -198,7 +198,7 @@ async def lifespan(app: FastAPI):
     field_pipeline = EncodingPipeline(field_encoder, field_projector)
     field = MemoryField(field_pipeline)
     app.state.field = field
-    logger.info("V2 Intent Field initialized (MemoryField + bge-m3-1024d + SimHash)")
+    logger.info("V2 Intent Field initialized (encoder=%s, dim=%d)", type(field_encoder).__name__, field_encoder.dim)
 
     # ── 3. App Store subsystem ─────────────────────────────
     _init_app_store(app, config, registry)

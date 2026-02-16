@@ -12,6 +12,7 @@ Available encoders:
 from __future__ import annotations
 
 import logging
+from pathlib import Path
 
 import numpy as np
 from sentence_transformers import SentenceTransformer
@@ -59,10 +60,16 @@ class BgeM3Encoder:
     EXP-006 (MRL+BQL) 中使用。
     """
 
+    # 本地缓存路径（实验时下载，避免重复下载）
+    _LOCAL_PATH = Path(__file__).resolve().parent.parent.parent / "models" / "bge-m3"
+
     def __init__(
         self, model_path: str | None = None, truncate_dim: int | None = None
     ) -> None:
-        model_name = model_path or _BGE_M3_MODEL
+        if model_path is None and self._LOCAL_PATH.exists():
+            model_name = str(self._LOCAL_PATH)
+        else:
+            model_name = model_path or _BGE_M3_MODEL
         logger.info(
             "Loading encoder model: %s (truncate_dim=%s)", model_name, truncate_dim
         )
