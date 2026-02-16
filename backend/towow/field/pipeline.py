@@ -48,7 +48,8 @@ class EncodingPipeline:
         binary_vecs = self._projector.batch_project(dense_vecs)
         # bundle 的 seed 基于文本 hash，确保确定性
         seed = int(hashlib.sha256(text.encode()).hexdigest()[:8], 16)
-        return bundle_binary(list(binary_vecs), seed=seed)
+        D = getattr(self._projector, 'D', self._projector.packed_dim * 8)
+        return bundle_binary(list(binary_vecs), D=D, seed=seed)
 
     def encode_texts(self, texts: list[str]) -> list[np.ndarray]:
         """批量编码多段文本。每段独立走 chunk+bundle 流水线。"""

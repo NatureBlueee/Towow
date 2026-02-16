@@ -192,13 +192,13 @@ async def lifespan(app: FastAPI):
     # _seed_demo_scene(app, registry, default_adapter)
 
     # ── 2b. V2 Intent Field subsystem ────────────────────────
-    from towow.field import MemoryField, MpnetEncoder, SimHashProjector, EncodingPipeline
-    field_encoder = MpnetEncoder()
+    from towow.field import MemoryField, BgeM3Encoder, SimHashProjector, EncodingPipeline
+    field_encoder = BgeM3Encoder()
     field_projector = SimHashProjector(input_dim=field_encoder.dim)
     field_pipeline = EncodingPipeline(field_encoder, field_projector)
     field = MemoryField(field_pipeline)
     app.state.field = field
-    logger.info("V2 Intent Field initialized (MemoryField + mpnet-768d + SimHash)")
+    logger.info("V2 Intent Field initialized (MemoryField + bge-m3-1024d + SimHash)")
 
     # ── 3. App Store subsystem ─────────────────────────────
     _init_app_store(app, config, registry)
