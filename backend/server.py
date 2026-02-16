@@ -200,6 +200,15 @@ async def lifespan(app: FastAPI):
     app.state.field = field
     logger.info("V2 Intent Field initialized (encoder=%s, dim=%d)", type(field_encoder).__name__, field_encoder.dim)
 
+    # MultiPerspectiveGenerator (needs LLM client)
+    if v1_keys:
+        from towow.field import MultiPerspectiveGenerator
+        app.state.mpg = MultiPerspectiveGenerator(llm_client)
+        logger.info("V2 MultiPerspectiveGenerator initialized")
+    else:
+        app.state.mpg = None
+        logger.warning("V2 MultiPerspectiveGenerator not available (no API key)")
+
     # ── 3. App Store subsystem ─────────────────────────────
     _init_app_store(app, config, registry)
 

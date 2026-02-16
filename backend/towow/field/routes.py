@@ -83,6 +83,20 @@ def _get_field(request: Request):
     return field
 
 
+def _get_mpg(request: Request):
+    mpg = getattr(request.app.state, "mpg", None)
+    if mpg is None:
+        raise HTTPException(status_code=503, detail="MultiPerspectiveGenerator not initialized (no LLM key?)")
+    return mpg
+
+
+_PERSPECTIVE_LABELS = {
+    "resonance": "共振",
+    "complement": "互补",
+    "interference": "干涉",
+}
+
+
 # ── Endpoints ───────────────────────────────────────────
 
 @field_router.post("/deposit", response_model=DepositResponse)
@@ -158,11 +172,94 @@ async def field_stats(request: Request):
     )
 
 
+class PerspectiveMatchRequest(BaseModel):
+    text: str = Field(..., min_length=1, description="Original demand text")
+    k: int = Field(default=5, ge=1, le=50, description="Top-K per perspective")
+
+
+class PerspectiveSection(BaseModel):
+    perspective: str = Field(..., description="resonance | complement | interference")
+    label: str = Field(..., description="Chinese label for perspective")
+    query_used: str = Field(..., description="LLM-rewritten query for this perspective")
+    results: list[OwnerMatchItem]
+
+
+class PerspectiveMatchResponse(BaseModel):
+    original_query: str
+    perspectives: list[PerspectiveSection]
+    generation_time_ms: float
+    match_time_ms: float
+    total_intents: int
+    total_owners: int
+
+
 class LoadProfilesResponse(BaseModel):
     loaded: int
     total_intents: int
     total_owners: int
     message: str
+
+
+@field_router.post("/match-perspectives", response_model=PerspectiveMatchResponse)
+async def match_perspectives(req: PerspectiveMatchRequest, request: Request):
+    """Multi-perspective match: LLM generates 3 query perspectives, each runs match_owners."""
+    field = _get_field(request)
+    mpg = _get_mpg(request)
+
+    # 1. LLM generates 3 perspective queries
+    t0 = time.time()
+    try:
+        perspectives = await mpg.generate(req.text)
+    except Exception as e:
+        logger.error("Multi-perspective generation failed: %s", e)
+        raise HTTPException(status_code=502, detail=f"LLM call failed: {e}")
+    generation_time_ms = (time.time() - t0) * 1000
+    logger.info(
+        "Multi-perspective generation: %.0fms | resonance=%s | complement=%s | interference=%s",
+        generation_time_ms,
+        perspectives.resonance[:60],
+        perspectives.complement[:60],
+        perspectives.interference[:60],
+    )
+
+    # 2. Run match_owners for each perspective
+    t1 = time.time()
+    sections: list[PerspectiveSection] = []
+    for name in ("resonance", "complement", "interference"):
+        query_text = getattr(perspectives, name)
+        owner_results = await field.match_owners(query_text, req.k)
+        sections.append(PerspectiveSection(
+            perspective=name,
+            label=_PERSPECTIVE_LABELS[name],
+            query_used=query_text,
+            results=[
+                OwnerMatchItem(
+                    owner=r.owner,
+                    score=r.score,
+                    top_intents=[
+                        MatchResultItem(
+                            intent_id=i.intent_id, score=i.score,
+                            owner=i.owner, text=i.text, metadata=i.metadata,
+                        )
+                        for i in r.intents
+                    ],
+                )
+                for r in owner_results
+            ],
+        ))
+    match_time_ms = (time.time() - t1) * 1000
+
+    total_intents = await field.count()
+    total_owners = await field.count_owners()
+
+    return PerspectiveMatchResponse(
+        original_query=req.text,
+        perspectives=sections,
+        generation_time_ms=round(generation_time_ms, 1),
+        match_time_ms=round(match_time_ms, 1),
+        total_intents=total_intents,
+        total_owners=total_owners,
+    )
 
 
 @field_router.post("/load-profiles", response_model=LoadProfilesResponse)

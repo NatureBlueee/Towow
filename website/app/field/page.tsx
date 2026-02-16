@@ -6,10 +6,12 @@ import {
   depositIntent,
   matchIntents,
   matchOwners,
+  matchPerspectives,
   loadProfiles,
   type FieldStats,
   type MatchResponse,
   type OwnerMatchResponse,
+  type PerspectiveMatchResponse,
 } from '@/lib/field-api';
 
 type Tab = 'match' | 'match-owners' | 'deposit';
@@ -25,6 +27,8 @@ export default function FieldPage() {
   const [topK, setTopK] = useState(10);
   const [matchResults, setMatchResults] = useState<MatchResponse | null>(null);
   const [ownerResults, setOwnerResults] = useState<OwnerMatchResponse | null>(null);
+  const [perspectiveResults, setPerspectiveResults] = useState<PerspectiveMatchResponse | null>(null);
+  const [multiPerspective, setMultiPerspective] = useState(false);
   const [expandedOwners, setExpandedOwners] = useState<Set<string>>(new Set());
   const [expandedIntents, setExpandedIntents] = useState<Set<string>>(new Set());
 
@@ -71,10 +75,14 @@ export default function FieldPage() {
     setError('');
     setMatchResults(null);
     setOwnerResults(null);
+    setPerspectiveResults(null);
     try {
       if (tab === 'match') {
         const res = await matchIntents(query.trim(), topK);
         setMatchResults(res);
+      } else if (tab === 'match-owners' && multiPerspective) {
+        const res = await matchPerspectives(query.trim(), topK);
+        setPerspectiveResults(res);
       } else {
         const res = await matchOwners(query.trim(), topK);
         setOwnerResults(res);
@@ -86,7 +94,7 @@ export default function FieldPage() {
     } finally {
       setLoading(false);
     }
-  }, [query, tab, topK]);
+  }, [query, tab, topK, multiPerspective]);
 
   const handleDeposit = useCallback(async () => {
     if (!depositText.trim() || !depositOwner.trim()) return;
@@ -272,6 +280,32 @@ export default function FieldPage() {
               </div>
             </div>
 
+            {/* Multi-perspective toggle (Match Owners tab only) */}
+            {tab === 'match-owners' && (
+              <label style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                marginBottom: 16, fontSize: 13, color: '#666',
+                cursor: 'pointer', userSelect: 'none',
+              }}>
+                <input
+                  type="checkbox"
+                  checked={multiPerspective}
+                  onChange={e => {
+                    setMultiPerspective(e.target.checked);
+                    setOwnerResults(null);
+                    setPerspectiveResults(null);
+                  }}
+                  style={{ accentColor: '#7C5CFC', width: 16, height: 16, cursor: 'pointer' }}
+                />
+                <span>
+                  多视角发现
+                  <span style={{ color: '#999', marginLeft: 4 }}>
+                    (共振 + 互补 + 干涉，需要 2-5 秒)
+                  </span>
+                </span>
+              </label>
+            )}
+
             {/* Intent Match Results */}
             {tab === 'match' && matchResults && (
               <ResultsContainer
@@ -294,8 +328,8 @@ export default function FieldPage() {
               </ResultsContainer>
             )}
 
-            {/* Owner Match Results */}
-            {tab === 'match-owners' && ownerResults && (
+            {/* Owner Match Results (single query) */}
+            {tab === 'match-owners' && !multiPerspective && ownerResults && (
               <ResultsContainer
                 queryTime={ownerResults.query_time_ms}
                 total={ownerResults.total_intents}
@@ -315,6 +349,15 @@ export default function FieldPage() {
                   <EmptyResults />
                 )}
               </ResultsContainer>
+            )}
+
+            {/* Multi-perspective Results */}
+            {tab === 'match-owners' && multiPerspective && perspectiveResults && (
+              <PerspectiveResultsView
+                data={perspectiveResults}
+                expandedOwners={expandedOwners}
+                onToggleOwner={toggleOwner}
+              />
             )}
           </div>
         )}
@@ -371,7 +414,7 @@ export default function FieldPage() {
         )}
 
         {/* Example Queries */}
-        {(tab === 'match' || tab === 'match-owners') && !matchResults && !ownerResults && (
+        {(tab === 'match' || tab === 'match-owners') && !matchResults && !ownerResults && !perspectiveResults && (
           <div style={{ marginTop: 8 }}>
             <p style={{ fontSize: 12, color: '#999', marginBottom: 10 }}>Try:</p>
             <div style={{ display: 'flex', flexWrap: 'wrap', gap: 8 }}>
@@ -618,6 +661,101 @@ function OwnerCard({ rank, result, expanded, onToggle }: {
           ))}
         </div>
       )}
+    </div>
+  );
+}
+
+const PERSPECTIVE_COLORS: Record<string, string> = {
+  resonance: '#22C55E',   // green
+  complement: '#3B82F6',  // blue
+  interference: '#8B5CF6', // purple
+};
+
+const PERSPECTIVE_DESCRIPTIONS: Record<string, string> = {
+  resonance: '直接匹配 — 技能和专业领域对口的人',
+  complement: '互补发现 — 能填补需求缺口的人',
+  interference: '意外关联 — 跨域连接，你可能想不到的人',
+};
+
+function PerspectiveResultsView({ data, expandedOwners, onToggleOwner }: {
+  data: PerspectiveMatchResponse;
+  expandedOwners: Set<string>;
+  onToggleOwner: (owner: string) => void;
+}) {
+  return (
+    <div>
+      {/* Timing stats */}
+      <div style={{
+        display: 'flex', justifyContent: 'space-between',
+        fontSize: 12, color: '#999', marginBottom: 16,
+      }}>
+        <span>{data.total_owners} owners, {data.total_intents} intents</span>
+        <span>
+          视角生成 {data.generation_time_ms.toFixed(0)}ms
+          {' + '}
+          匹配 {data.match_time_ms.toFixed(0)}ms
+        </span>
+      </div>
+
+      {/* Perspective sections */}
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
+        {data.perspectives.map(section => (
+          <div key={section.perspective}>
+            {/* Section header */}
+            <div style={{
+              display: 'flex', alignItems: 'center', gap: 10,
+              marginBottom: 8,
+            }}>
+              <div style={{
+                width: 4, height: 24, borderRadius: 2,
+                backgroundColor: PERSPECTIVE_COLORS[section.perspective] || '#999',
+              }} />
+              <div>
+                <div style={{
+                  fontSize: 15, fontWeight: 600,
+                  color: PERSPECTIVE_COLORS[section.perspective] || '#1A1A1A',
+                }}>
+                  {section.label}
+                  <span style={{ fontSize: 12, fontWeight: 400, color: '#999', marginLeft: 8 }}>
+                    {section.results.length} owners
+                  </span>
+                </div>
+                <div style={{ fontSize: 12, color: '#999', marginTop: 2 }}>
+                  {PERSPECTIVE_DESCRIPTIONS[section.perspective]}
+                </div>
+              </div>
+            </div>
+
+            {/* Rewritten query */}
+            <div style={{
+              padding: '8px 12px', marginBottom: 10,
+              fontSize: 12, color: '#777', lineHeight: 1.5,
+              backgroundColor: '#F8F7F5', borderRadius: 8,
+              borderLeft: `3px solid ${PERSPECTIVE_COLORS[section.perspective] || '#DDD'}`,
+            }}>
+              {section.query_used}
+            </div>
+
+            {/* Owner cards */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+              {section.results.map((r, i) => (
+                <OwnerCard
+                  key={`${section.perspective}-${r.owner}`}
+                  rank={i + 1}
+                  result={r}
+                  expanded={expandedOwners.has(`${section.perspective}-${r.owner}`)}
+                  onToggle={() => onToggleOwner(`${section.perspective}-${r.owner}`)}
+                />
+              ))}
+              {section.results.length === 0 && (
+                <div style={{ fontSize: 13, color: '#BBB', padding: '12px 0' }}>
+                  No matches in this perspective
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

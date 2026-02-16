@@ -70,6 +70,22 @@ export interface LoadProfilesResponse {
   message: string;
 }
 
+export interface PerspectiveSection {
+  perspective: 'resonance' | 'complement' | 'interference';
+  label: string;
+  query_used: string;
+  results: OwnerMatchItem[];
+}
+
+export interface PerspectiveMatchResponse {
+  original_query: string;
+  perspectives: PerspectiveSection[];
+  generation_time_ms: number;
+  match_time_ms: number;
+  total_intents: number;
+  total_owners: number;
+}
+
 // ============ API functions ============
 
 export async function getFieldStats(): Promise<FieldStats> {
@@ -109,4 +125,14 @@ export async function matchOwners(
 
 export async function loadProfiles(): Promise<LoadProfilesResponse> {
   return request('/api/load-profiles', { method: 'POST' });
+}
+
+export async function matchPerspectives(
+  text: string,
+  k: number = 5,
+): Promise<PerspectiveMatchResponse> {
+  return request('/api/match-perspectives', {
+    method: 'POST',
+    body: JSON.stringify({ text, k }),
+  });
 }
