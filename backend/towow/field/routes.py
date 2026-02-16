@@ -156,3 +156,44 @@ async def field_stats(request: Request):
         intent_count=await field.count(),
         owner_count=await field.count_owners(),
     )
+
+
+class LoadProfilesResponse(BaseModel):
+    loaded: int
+    total_intents: int
+    total_owners: int
+    message: str
+
+
+@field_router.post("/load-profiles", response_model=LoadProfilesResponse)
+async def load_profiles(request: Request):
+    """Batch-load agent profiles from JSON files into the field."""
+    from towow.field.profile_loader import load_all_profiles
+
+    field = _get_field(request)
+
+    existing = await field.count()
+    if existing > 0:
+        return LoadProfilesResponse(
+            loaded=0,
+            total_intents=existing,
+            total_owners=await field.count_owners(),
+            message=f"Field already has {existing} intents, skipped loading",
+        )
+
+    profiles = load_all_profiles()
+    loaded = 0
+    for owner, text in profiles.items():
+        try:
+            await field.deposit(text, owner)
+            loaded += 1
+        except ValueError:
+            continue
+
+    logger.info("Loaded %d profiles into field", loaded)
+    return LoadProfilesResponse(
+        loaded=loaded,
+        total_intents=await field.count(),
+        total_owners=await field.count_owners(),
+        message=f"Loaded {loaded} agent profiles",
+    )

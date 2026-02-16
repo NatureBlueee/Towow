@@ -23,6 +23,10 @@ const nextConfig: NextConfig = {
         source: '/store/ws/:path*',
         destination: `${backendUrl}/store/ws/:path*`,
       },
+      {
+        source: '/field/api/:path*',
+        destination: `${backendUrl}/field/api/:path*`,
+      },
     ];
   },
 };
