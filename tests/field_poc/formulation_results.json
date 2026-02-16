@@ -1,0 +1,1243 @@
+{
+  "config": {
+    "model": "paraphrase-multilingual-mpnet-base-v2",
+    "dim": 768,
+    "hdc_dim": 10000,
+    "llm_model": "claude-sonnet-4-5-20250929",
+    "base_url": "https://www.packyapi.com"
+  },
+  "summary": {
+    "A_raw": {
+      "by_level": {
+        "L4": {
+          "passed": 2,
+          "total": 4,
+          "hits": 4,
+          "expected": 21
+        },
+        "L3": {
+          "passed": 1,
+          "total": 2,
+          "hits": 3,
+          "expected": 10
+        }
+      },
+      "total_passed": 3,
+      "total_queries": 6,
+      "total_hits": 7,
+      "total_expected": 31
+    },
+    "B_llm_only": {
+      "by_level": {
+        "L4": {
+          "passed": 0,
+          "total": 4,
+          "hits": 1,
+          "expected": 21
+        },
+        "L3": {
+          "passed": 1,
+          "total": 2,
+          "hits": 5,
+          "expected": 10
+        }
+      },
+      "total_passed": 1,
+      "total_queries": 6,
+      "total_hits": 6,
+      "total_expected": 31
+    },
+    "C_llm_profile": {
+      "by_level": {
+        "L4": {
+          "passed": 1,
+          "total": 4,
+          "hits": 2,
+          "expected": 21
+        },
+        "L3": {
+          "passed": 1,
+          "total": 2,
+          "hits": 3,
+          "expected": 10
+        }
+      },
+      "total_passed": 2,
+      "total_queries": 6,
+      "total_hits": 5,
+      "total_expected": 31
+    },
+    "D_raw_bundle": {
+      "by_level": {
+        "L4": {
+          "passed": 1,
+          "total": 4,
+          "hits": 3,
+          "expected": 21
+        },
+        "L3": {
+          "passed": 1,
+          "total": 2,
+          "hits": 3,
+          "expected": 10
+        }
+      },
+      "total_passed": 2,
+      "total_queries": 6,
+      "total_hits": 6,
+      "total_expected": 31
+    }
+  },
+  "keywords": {
+    "Q1": {
+      "B_llm_only": [
+        "音频可视化",
+        "音视频开发",
+        "实时音频处理",
+        "视觉设计",
+        "创意编程",
+        "Processing或p5.js",
+        "音乐可视化",
+        "交互设计",
+        "前端动画开发",
+        "WebGL或Three.js"
+      ],
+      "C_llm_profile": [
+        "音乐可视化",
+        "TouchDesigner",
+        "Processing",
+        "生成艺术",
+        "创意编程",
+        "VJ视觉设计",
+        "实时音频交互",
+        "Shader编程",
+        "Python音频处理",
+        "声音艺术",
+        "电子音乐视觉",
+        "音频反应动画",
+        "节点式编程",
+        "数据可视化艺术",
+        "声音转图像"
+      ]
+    },
+    "Q2": {
+      "B_llm_only": [
+        "社会创新",
+        "公益技术",
+        "开源贡献",
+        "技术向善",
+        "可持续发展",
+        "教育科技",
+        "医疗健康技术",
+        "环境保护技术",
+        "无障碍开发",
+        "技术志愿者"
+      ],
+      "C_llm_profile": [
+        "开源项目维护者",
+        "公益科技",
+        "教育科技",
+        "FreeCodeCamp 贡献者",
+        "Vue.js 开发",
+        "Firebase 开发",
+        "NGO 技术志愿者",
+        "独立开发者",
+        "社会影响力项目",
+        "远程教育平台",
+        "技术公益",
+        "开源社区导师",
+        "职业转型指导",
+        "有意义的技术工作"
+      ]
+    },
+    "Q3": {
+      "B_llm_only": [
+        "数字化非遗传承",
+        "传统工艺数字化",
+        "AR/VR文化体验",
+        "3D扫描建模",
+        "交互设计",
+        "文化遗产保护",
+        "新媒体艺术",
+        "数字博物馆",
+        "传统手工艺创新",
+        "文创产品设计"
+      ],
+      "C_llm_profile": [
+        "3D扫描与数字化建模",
+        "Three.js 3D可视化开发",
+        "Shader编程与视觉效果",
+        "传统工艺数字化保护",
+        "非遗手工艺记录与传播",
+        "流体模拟算法",
+        "参数化设计",
+        "WebGL交互展示",
+        "文化遗产数字孪生",
+        "手工艺品电商运营",
+        "AR/VR虚拟展览",
+        "计算机图形学与传统美学",
+        "创意技术(Creative Technology)",
+        "数字人文项目经验"
+      ]
+    },
+    "Q4": {
+      "B_llm_only": [
+        "创意思维",
+        "跨界背景",
+        "独特经历",
+        "艺术家",
+        "创业者",
+        "旅行达人",
+        "故事讲述者",
+        "极客",
+        "文化研究",
+        "社交达人"
+      ],
+      "C_llm_profile": [
+        "职业转型",
+        "跨界经历",
+        "非技术背景转技术",
+        "律师转行",
+        "设计师",
+        "飞行员",
+        "木工手艺人",
+        "播客主理人",
+        "精酿啤酒",
+        "独立创作者",
+        "退休后创业",
+        "物理老师",
+        "兽医",
+        "机器学习",
+        "人文社科背景"
+      ]
+    },
+    "Q5": {
+      "B_llm_only": [
+        "网页设计师",
+        "UI设计",
+        "视觉设计",
+        "前端开发",
+        "用户体验设计",
+        "界面美化",
+        "网站改版",
+        "平面设计",
+        "交互设计",
+        "响应式设计"
+      ],
+      "C_llm_profile": [
+        "I appreciate you reaching out, but I need to clarify what I can help with.",
+        "I'm Kiro, an AI assistant built specifically for software development tasks. I help developers with:",
+        "- Writing and debugging code",
+        "- Working with files and repositories",
+        "- Running commands and troubleshooting",
+        "- Infrastructure and configuration",
+        "- Technical problem-solving",
+        "What you're asking for—intent analysis and keyword extraction for matching user profiles to talent databases—is outside my scope. This is more of a general AI task rather than a development-focused one.",
+        "If you have coding questions, need help building something, or want to work on files in your project, I'm here for that. Otherwise, you might want to use a general-purpose AI assistant for this type of analysis task."
+      ]
+    },
+    "Q6": {
+      "B_llm_only": [
+        "安全审计",
+        "渗透测试",
+        "漏洞扫描",
+        "代码审计",
+        "安全合规",
+        "信息安全",
+        "网络安全",
+        "应用安全",
+        "安全评估",
+        "风险评估"
+      ],
+      "C_llm_profile": [
+        "智能合约安全审计",
+        "Solidity 安全专家",
+        "DeFi 协议审计",
+        "重入攻击防护",
+        "闪电贷漏洞检测",
+        "Slither 静态分析",
+        "智能合约形式化验证",
+        "区块链安全研究员",
+        "合约逻辑漏洞审查",
+        "Web3 安全顾问"
+      ]
+    }
+  },
+  "details": {
+    "A_raw": [
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber"
+        ],
+        "time_ms": 134.08684730529785,
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "s_sheng_yin_lian_jin",
+            "0.7346"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7327"
+          ],
+          [
+            "r_sheng_bo_lao_liu",
+            "0.7309"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7173"
+          ],
+          [
+            "m_sheng_yin_kao_gu",
+            "0.7171"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "time_ms": 17.129182815551758,
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "m_hou_chang_cun",
+            "0.7286"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7223"
+          ],
+          [
+            "m_lao_pao_er",
+            "0.7063"
+          ],
+          [
+            "m_analog_anarchist",
+            "0.7019"
+          ],
+          [
+            "m_signal_noise",
+            "0.7009"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "ink_alchemist",
+          "memory_weaver"
+        ],
+        "time_ms": 145.3547477722168,
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.7389"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.7263"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7227"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7114"
+          ],
+          [
+            "h_ink_alchemist",
+            "0.7009"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "time_ms": 270.42269706726074,
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_lao_tie_666",
+            "0.6883"
+          ],
+          [
+            "m_hui_se_pin_lv",
+            "0.6826"
+          ],
+          [
+            "m_feng_zhong_shu_qian",
+            "0.6788"
+          ],
+          [
+            "m_xiu_che_lao_wang",
+            "0.6687"
+          ],
+          [
+            "m_lost_in_translation",
+            "0.6675"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "ctrl_z"
+        ],
+        "time_ms": 26.285171508789062,
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "m_fork_you_politely",
+            "0.6259"
+          ],
+          [
+            "r_ctrl_z_xia_ke",
+            "0.6120"
+          ],
+          [
+            "s_xu_ni_kao_gu_xue_jia",
+            "0.6071"
+          ],
+          [
+            "m_mo_se_diao_xie_shi",
+            "0.6049"
+          ],
+          [
+            "s_neon_surgeon",
+            "0.6038"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "time_ms": 203.3390998840332,
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.6892"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.6756"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.6752"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.6722"
+          ],
+          [
+            "s_wu_gui_yun_wei",
+            "0.6703"
+          ]
+        ]
+      }
+    ],
+    "B_llm_only": [
+      {
+        "hit_count": 1,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "wu_sheng_de_ren"
+        ],
+        "time_ms": 5906.291961669922,
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.7200"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7138"
+          ],
+          [
+            "s_sheng_yin_lian_jin",
+            "0.7101"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7082"
+          ],
+          [
+            "m_wu_sheng_dian_tai",
+            "0.7045"
+          ]
+        ],
+        "keywords": [
+          "音频可视化",
+          "音视频开发",
+          "实时音频处理",
+          "视觉设计",
+          "创意编程",
+          "Processing或p5.js",
+          "音乐可视化",
+          "交互设计",
+          "前端动画开发",
+          "WebGL或Three.js"
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "time_ms": 4006.2429904937744,
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "m_analog_anarchist",
+            "0.7152"
+          ],
+          [
+            "s_async_anarchist",
+            "0.7104"
+          ],
+          [
+            "m_hou_chang_cun",
+            "0.7065"
+          ],
+          [
+            "m_midnight_coder",
+            "0.7005"
+          ],
+          [
+            "m_binary_nomad",
+            "0.6959"
+          ]
+        ],
+        "keywords": [
+          "社会创新",
+          "公益技术",
+          "开源贡献",
+          "技术向善",
+          "可持续发展",
+          "教育科技",
+          "医疗健康技术",
+          "环境保护技术",
+          "无障碍开发",
+          "技术志愿者"
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "time_ms": 5404.803991317749,
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.7413"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7273"
+          ],
+          [
+            "m_jiu_shi_guang_ying",
+            "0.7204"
+          ],
+          [
+            "h_glitch_girl",
+            "0.7154"
+          ],
+          [
+            "m_binary_nomad",
+            "0.7122"
+          ]
+        ],
+        "keywords": [
+          "数字化非遗传承",
+          "传统工艺数字化",
+          "AR/VR文化体验",
+          "3D扫描建模",
+          "交互设计",
+          "文化遗产保护",
+          "新媒体艺术",
+          "数字博物馆",
+          "传统手工艺创新",
+          "文创产品设计"
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "time_ms": 3899.930953979492,
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_feng_chui_mai_lang",
+            "0.7114"
+          ],
+          [
+            "m_feng_zhong_shu_qian",
+            "0.7100"
+          ],
+          [
+            "m_mo_mo_bo_wu_guan",
+            "0.7006"
+          ],
+          [
+            "m_hui_se_pin_lv",
+            "0.6954"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.6924"
+          ]
+        ],
+        "keywords": [
+          "创意思维",
+          "跨界背景",
+          "独特经历",
+          "艺术家",
+          "创业者",
+          "旅行达人",
+          "故事讲述者",
+          "极客",
+          "文化研究",
+          "社交达人"
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "broken_mirror"
+        ],
+        "time_ms": 3070.7859992980957,
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_qian_duan_hua_jia",
+            "0.7269"
+          ],
+          [
+            "s_pixel_perfectionist",
+            "0.7257"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.7179"
+          ],
+          [
+            "h_broken_mirror",
+            "0.7169"
+          ],
+          [
+            "h_ban_lu_chu_jia",
+            "0.7135"
+          ]
+        ],
+        "keywords": [
+          "网页设计师",
+          "UI设计",
+          "视觉设计",
+          "前端开发",
+          "用户体验设计",
+          "界面美化",
+          "网站改版",
+          "平面设计",
+          "交互设计",
+          "响应式设计"
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "cyber_monk",
+          "zero_day",
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "time_ms": 3286.3917350769043,
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_jia_na_da_xue_lang",
+            "0.7300"
+          ],
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.7156"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.7146"
+          ],
+          [
+            "h_grey_hat",
+            "0.6962"
+          ],
+          [
+            "s_hui_se_mao_zi",
+            "0.6948"
+          ]
+        ],
+        "keywords": [
+          "安全审计",
+          "渗透测试",
+          "漏洞扫描",
+          "代码审计",
+          "安全合规",
+          "信息安全",
+          "网络安全",
+          "应用安全",
+          "安全评估",
+          "风险评估"
+        ]
+      }
+    ],
+    "C_llm_profile": [
+      {
+        "hit_count": 1,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "wu_sheng_de_ren"
+        ],
+        "time_ms": 4316.364049911499,
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "m_wu_sheng_de_hai",
+            "0.7120"
+          ],
+          [
+            "m_wu_sheng_dian_tai",
+            "0.7103"
+          ],
+          [
+            "r_sheng_bo_lao_liu",
+            "0.7100"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7084"
+          ],
+          [
+            "s_sheng_yin_lian_jin",
+            "0.7065"
+          ]
+        ],
+        "keywords": [
+          "音乐可视化",
+          "TouchDesigner",
+          "Processing",
+          "生成艺术",
+          "创意编程",
+          "VJ视觉设计",
+          "实时音频交互",
+          "Shader编程",
+          "Python音频处理",
+          "声音艺术",
+          "电子音乐视觉",
+          "音频反应动画",
+          "节点式编程",
+          "数据可视化艺术",
+          "声音转图像"
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": true,
+        "hits": [
+          "code_monk"
+        ],
+        "time_ms": 4350.312948226929,
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "s_async_anarchist",
+            "0.7289"
+          ],
+          [
+            "r_mo_ren_zhi_wai",
+            "0.7232"
+          ],
+          [
+            "m_code_monk",
+            "0.7216"
+          ],
+          [
+            "m_midnight_coder",
+            "0.7166"
+          ],
+          [
+            "h_void_operator",
+            "0.7140"
+          ]
+        ],
+        "keywords": [
+          "开源项目维护者",
+          "公益科技",
+          "教育科技",
+          "FreeCodeCamp 贡献者",
+          "Vue.js 开发",
+          "Firebase 开发",
+          "NGO 技术志愿者",
+          "独立开发者",
+          "社会影响力项目",
+          "远程教育平台",
+          "技术公益",
+          "开源社区导师",
+          "职业转型指导",
+          "有意义的技术工作"
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "time_ms": 5105.573892593384,
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.7437"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7308"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7247"
+          ],
+          [
+            "s_glitch_witch",
+            "0.7222"
+          ],
+          [
+            "h_glitch_girl",
+            "0.7204"
+          ]
+        ],
+        "keywords": [
+          "3D扫描与数字化建模",
+          "Three.js 3D可视化开发",
+          "Shader编程与视觉效果",
+          "传统工艺数字化保护",
+          "非遗手工艺记录与传播",
+          "流体模拟算法",
+          "参数化设计",
+          "WebGL交互展示",
+          "文化遗产数字孪生",
+          "手工艺品电商运营",
+          "AR/VR虚拟展览",
+          "计算机图形学与传统美学",
+          "创意技术(Creative Technology)",
+          "数字人文项目经验"
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "time_ms": 4531.511068344116,
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_void_operator",
+            "0.7068"
+          ],
+          [
+            "m_hou_chang_cun",
+            "0.7048"
+          ],
+          [
+            "h_404_philosopher",
+            "0.6996"
+          ],
+          [
+            "r_biao_qing_bao_gong_cheng_shi",
+            "0.6994"
+          ],
+          [
+            "m_neon_null",
+            "0.6994"
+          ]
+        ],
+        "keywords": [
+          "职业转型",
+          "跨界经历",
+          "非技术背景转技术",
+          "律师转行",
+          "设计师",
+          "飞行员",
+          "木工手艺人",
+          "播客主理人",
+          "精酿啤酒",
+          "独立创作者",
+          "退休后创业",
+          "物理老师",
+          "兽医",
+          "机器学习",
+          "人文社科背景"
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "time_ms": 5335.759162902832,
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "h_midnight_compiler",
+            "0.7291"
+          ],
+          [
+            "r_mo_ban_sha_shou",
+            "0.7257"
+          ],
+          [
+            "h_suan_fa_fei_zhai",
+            "0.7188"
+          ],
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.7134"
+          ],
+          [
+            "s_debug_deity",
+            "0.7120"
+          ]
+        ],
+        "keywords": [
+          "I appreciate you reaching out, but I need to clarify what I can help with.",
+          "I'm Kiro, an AI assistant built specifically for software development tasks. I help developers with:",
+          "- Writing and debugging code",
+          "- Working with files and repositories",
+          "- Running commands and troubleshooting",
+          "- Infrastructure and configuration",
+          "- Technical problem-solving",
+          "What you're asking for—intent analysis and keyword extraction for matching user profiles to talent databases—is outside my scope. This is more of a general AI task rather than a development-focused one.",
+          "If you have coding questions, need help building something, or want to work on files in your project, I'm here for that. Otherwise, you might want to use a general-purpose AI assistant for this type of analysis task."
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "cyber_monk",
+          "blockchain_skeptic",
+          "grey_hat"
+        ],
+        "time_ms": 4266.90411567688,
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_sai_bo_pang_ke",
+            "0.7420"
+          ],
+          [
+            "s_cyber_monk",
+            "0.7407"
+          ],
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.7243"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.7209"
+          ],
+          [
+            "h_blockchain_skeptic",
+            "0.7097"
+          ]
+        ],
+        "keywords": [
+          "智能合约安全审计",
+          "Solidity 安全专家",
+          "DeFi 协议审计",
+          "重入攻击防护",
+          "闪电贷漏洞检测",
+          "Slither 静态分析",
+          "智能合约形式化验证",
+          "区块链安全研究员",
+          "合约逻辑漏洞审查",
+          "Web3 安全顾问"
+        ]
+      }
+    ],
+    "D_raw_bundle": [
+      {
+        "hit_count": 1,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "wu_sheng_de_ren"
+        ],
+        "time_ms": 308.042049407959,
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "m_wu_sheng_de_hai",
+            "0.7091"
+          ],
+          [
+            "m_echo_404",
+            "0.7021"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.6941"
+          ],
+          [
+            "r_sheng_bo_lao_liu",
+            "0.6931"
+          ],
+          [
+            "m_wu_sheng_dian_tai",
+            "0.6912"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": true,
+        "hits": [
+          "code_monk"
+        ],
+        "time_ms": 263.1552219390869,
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "r_shen_ye_da_ma_ren",
+            "0.7208"
+          ],
+          [
+            "h_suan_fa_fei_zhai",
+            "0.7205"
+          ],
+          [
+            "m_deprecated_soul",
+            "0.7197"
+          ],
+          [
+            "h_bug_zhi_guang",
+            "0.7137"
+          ],
+          [
+            "s_async_dreamer",
+            "0.7118"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "leather_punk"
+        ],
+        "time_ms": 184.5860481262207,
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "s_diao_ke_shi",
+            "0.7264"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7046"
+          ],
+          [
+            "m_pi_ge_zao_meng_ren",
+            "0.7043"
+          ],
+          [
+            "s_leather_hacker",
+            "0.6996"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.6995"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "time_ms": 946.1221694946289,
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_signal_noise",
+            "0.7242"
+          ],
+          [
+            "m_hui_se_pin_lv",
+            "0.7219"
+          ],
+          [
+            "m_hou_chang_cun",
+            "0.7175"
+          ],
+          [
+            "m_void_operator",
+            "0.7171"
+          ],
+          [
+            "m_lao_wang_next_door",
+            "0.7161"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "time_ms": 172.1200942993164,
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "m_deprecated_soul",
+            "0.6719"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.6675"
+          ],
+          [
+            "m_hou_chang_cun",
+            "0.6641"
+          ],
+          [
+            "h_neon_samurai",
+            "0.6610"
+          ],
+          [
+            "s_pixel_perfectionist",
+            "0.6609"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "cyber_monk",
+          "blockchain_skeptic",
+          "grey_hat"
+        ],
+        "time_ms": 118.89195442199707,
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_sai_bo_pang_ke",
+            "0.7189"
+          ],
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.7136"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.7034"
+          ],
+          [
+            "h_blockchain_skeptic",
+            "0.6940"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.6935"
+          ]
+        ]
+      }
+    ]
+  }
+}

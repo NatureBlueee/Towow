@@ -1,0 +1,756 @@
+[
+  {
+    "query": "安全研究员",
+    "level": "L1",
+    "expected_hits": [
+      "zero_day",
+      "ghost_in_shell",
+      "binary_sage",
+      "zero_day_hunter",
+      "packet_sniffer"
+    ],
+    "min_hits": 3,
+    "single_owners": [
+      "h_grey_hat",
+      "h_ghost_in_shell",
+      "h_zero_day",
+      "s_bit_alchemist",
+      "h_binary_sage",
+      "r_zero_day_hunter",
+      "s_packet_sniffer",
+      "s_protocol_hacker",
+      "s_gui_ling_hacker",
+      "h_digital_hermit"
+    ],
+    "multi_owners": [
+      "h_ghost_in_shell",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "s_packet_sniffer",
+      "r_binary_rebel",
+      "r_zero_day_hunter",
+      "r_bei_jing_de_yun",
+      "s_protocol_hacker",
+      "s_gui_ling_hacker",
+      "r_hei_ke_song_du_zhe",
+      "h_grey_hat"
+    ],
+    "single_expected_hits": 5,
+    "multi_expected_hits": 3
+  },
+  {
+    "query": "Kubernetes 工程师",
+    "level": "L1",
+    "expected_hits": [
+      "sudo_rm",
+      "echo_in_void",
+      "cloud_nomad",
+      "void_operator",
+      "chaos_gardener",
+      "git_rebase_i"
+    ],
+    "min_hits": 3,
+    "single_owners": [
+      "s_wu_gui_yun_wei",
+      "s_async_anarchist",
+      "h_void_operator",
+      "s_docker_nomad",
+      "r_liang_zi_tai_jian",
+      "r_yun_wei_lao_bing",
+      "h_404_philosopher",
+      "h_cloud_nomad",
+      "h_echo_in_void",
+      "h_chaos_gardener"
+    ],
+    "multi_owners": [
+      "s_docker_nomad",
+      "h_echo_in_void",
+      "h_bao_an_ge",
+      "r_wang_ba_lao_ban",
+      "r_qu_kuai_lian_tao_ren",
+      "r_yun_wei_lao_bing",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_bei_jing_de_yun",
+      "r_dai_ma_nong_min",
+      "s_async_anarchist"
+    ],
+    "single_expected_hits": 4,
+    "multi_expected_hits": 1
+  },
+  {
+    "query": "Python 数据分析",
+    "level": "L1",
+    "expected_hits": [
+      "regex_queen",
+      "diao_bao_xia_nv",
+      "shu_ju_lao_nong",
+      "data_witch",
+      "zhan_bu_shi"
+    ],
+    "min_hits": 3,
+    "single_owners": [
+      "h_shu_ju_lao_nong",
+      "r_shu_ju_you_ling",
+      "r_shu_ju_kao_gu_xue_jia",
+      "s_hua_xue_po_po",
+      "r_hua_li_zhuan_shen",
+      "r_shu_ju_lao_si_ji",
+      "h_data_witch",
+      "m_regex_my_heart",
+      "s_data_druid",
+      "m_shu_ju_liu_lang_zhe"
+    ],
+    "multi_owners": [
+      "r_shu_ju_kao_gu_xue_jia",
+      "r_hua_li_zhuan_shen",
+      "h_shu_ju_lao_nong",
+      "s_data_druid",
+      "r_shu_ju_you_ling",
+      "m_signal_noise",
+      "s_shu_ju_yuan_ding",
+      "h_diao_bao_xia_nv",
+      "m_regex_my_heart",
+      "h_liu_lang_de_shu_ju"
+    ],
+    "single_expected_hits": 2,
+    "multi_expected_hits": 2
+  },
+  {
+    "query": "游戏开发 Unity",
+    "level": "L1",
+    "expected_hits": [
+      "mo_fa_shi_de_bug",
+      "pixel_poet",
+      "xiao_chou",
+      "diu_zhen_ren"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "h_mo_fa_shi_de_bug",
+      "r_code_witch",
+      "s_gu_shi_nong_fu",
+      "h_pixel_witch",
+      "h_pixel_poet",
+      "m_malloc_free_love",
+      "s_pastel_coder",
+      "h_diu_zhen_ren",
+      "s_mu_guang_shi_ren",
+      "h_xiao_chou"
+    ],
+    "multi_owners": [
+      "h_mo_fa_shi_de_bug",
+      "r_code_witch",
+      "h_memory_hoarder",
+      "h_wu_ming_zhi",
+      "r_qian_duan_hua_jia",
+      "r_er_ci_yuan_nan_min",
+      "s_gu_shi_nong_fu",
+      "r_mo_ren_zhi_wai",
+      "h_pixel_witch",
+      "h_ink_and_pixel"
+    ],
+    "single_expected_hits": 4,
+    "multi_expected_hits": 1
+  },
+  {
+    "query": "区块链 智能合约 Solidity",
+    "level": "L1",
+    "expected_hits": [
+      "cyber_monk",
+      "liang_zi_da_shu",
+      "blockchain_skeptic",
+      "hui_sheng"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "s_quantum_lawyer",
+      "r_blockchain_skeptic",
+      "s_cyber_monk",
+      "h_blockchain_skeptic",
+      "s_liang_zi_kuang_gong",
+      "h_hui_sheng",
+      "r_sai_bo_pang_ke",
+      "h_liang_zi_da_shu",
+      "r_qu_kuai_lian_tao_ren",
+      "h_digital_hermit"
+    ],
+    "multi_owners": [
+      "r_qu_kuai_lian_tao_ren",
+      "r_binary_rebel",
+      "r_blockchain_skeptic",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_dai_ma_nong_min",
+      "h_ghost_in_shell",
+      "s_hui_se_mao_zi",
+      "h_digital_hermit",
+      "s_quantum_lawyer",
+      "h_echo_in_void"
+    ],
+    "single_expected_hits": 4,
+    "multi_expected_hits": 1
+  },
+  {
+    "query": "做网页 3D 视觉效果的人",
+    "level": "L2",
+    "expected_hits": [
+      "neko_chan",
+      "yu_zhou_chen_ai",
+      "neon_samurai",
+      "liu_guang_ke",
+      "pixel_witch"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "s_pastel_coder",
+      "h_pixel_witch",
+      "h_shader_punk",
+      "h_neon_architect",
+      "s_neon_vandal",
+      "r_ctrl_z_xia_fan",
+      "h_neon_samurai",
+      "h_liu_guang_ke",
+      "s_shu_ju_yuan_ding",
+      "h_mo_yu_da_shi"
+    ],
+    "multi_owners": [
+      "s_pastel_coder",
+      "h_neon_samurai",
+      "h_shader_punk",
+      "h_ink_and_pixel",
+      "h_neon_architect",
+      "r_qian_duan_hua_jia",
+      "h_pixel_witch",
+      "r_neon_samurai",
+      "r_mo_fa_shi_de_bug",
+      "h_mo_yu_da_shi"
+    ],
+    "single_expected_hits": 3,
+    "multi_expected_hits": 2
+  },
+  {
+    "query": "搞声音艺术和实验音乐的",
+    "level": "L2",
+    "expected_hits": [
+      "wu_sheng_de_ren",
+      "echo_chamber",
+      "hui_se_xin_hao",
+      "glitch_queen",
+      "frequency_hermit",
+      "sonic_archaeologist"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "h_wu_sheng_de_ren",
+      "h_sonic_archaeologist",
+      "m_wu_sheng_dian_tai",
+      "m_liu_lang_de_yun",
+      "r_jiu_dian_hua_shi",
+      "m_sheng_yin_kao_gu",
+      "h_echo_chamber",
+      "r_sheng_bo_lao_liu",
+      "s_sheng_yin_lian_jin",
+      "h_hui_se_xin_hao"
+    ],
+    "multi_owners": [
+      "h_wu_sheng_de_ren",
+      "m_sheng_yin_kao_gu",
+      "h_sonic_archaeologist",
+      "h_echo_chamber",
+      "m_wu_sheng_dian_tai",
+      "s_wu_sheng_jian_zhu_shi",
+      "s_sheng_yin_lian_jin",
+      "r_jiu_dian_hua_shi",
+      "m_liu_lang_de_yun",
+      "r_wu_sheng_de_hui"
+    ],
+    "single_expected_hits": 4,
+    "multi_expected_hits": 3
+  },
+  {
+    "query": "能写高性能后端服务的",
+    "level": "L2",
+    "expected_hits": [
+      "packet_loss",
+      "async_await",
+      "midnight_debugger",
+      "mem_leak",
+      "mu_yu_ren"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "r_async_await",
+      "s_pixel_perfectionist",
+      "s_api_whisperer",
+      "h_xiu_che_de_ma_nong",
+      "h_api_dashi",
+      "h_packet_loss",
+      "s_async_alchemist",
+      "h_async_poet",
+      "r_xian_cheng_lao_ma",
+      "r_ctrl_alt_elite"
+    ],
+    "multi_owners": [
+      "r_async_await",
+      "s_cache_prophet",
+      "s_debug_deity",
+      "s_async_alchemist",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_dai_ma_nong_min",
+      "s_async_anarchist",
+      "h_packet_loss",
+      "h_mem_leak",
+      "r_ling_dian_wu_cha"
+    ],
+    "single_expected_hits": 2,
+    "multi_expected_hits": 3
+  },
+  {
+    "query": "做创意互动装置的艺术家",
+    "level": "L2",
+    "expected_hits": [
+      "glitch_girl",
+      "glitch_artist",
+      "glitch_poet",
+      "leather_punk",
+      "fermentation_hacker"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "h_glitch_artist",
+      "m_glitch_witch",
+      "h_glitch_poet",
+      "s_signal_drifter",
+      "h_wu_ming_zhi",
+      "h_wu_sheng_de_ren",
+      "h_fermentation_hacker",
+      "h_liu_lang_de_shu_ju",
+      "h_glitch_girl",
+      "s_signal_witch"
+    ],
+    "multi_owners": [
+      "h_glitch_artist",
+      "r_qian_duan_hua_jia",
+      "m_glitch_witch",
+      "s_mo_shui_cheng_xu_yuan",
+      "h_glitch_girl",
+      "h_wu_ming_zhi",
+      "h_ink_and_pixel",
+      "r_kernel_panic",
+      "h_glitch_poet",
+      "h_pixel_witch"
+    ],
+    "single_expected_hits": 4,
+    "multi_expected_hits": 3
+  },
+  {
+    "query": "懂密码学的人",
+    "level": "L2",
+    "expected_hits": [
+      "digital_hermit",
+      "liang_zi_liu_lang",
+      "bit_alchemist",
+      "mo_sheng_ren",
+      "protocol_punk"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "r_mi_ma_kao_gu_yuan",
+      "s_bit_alchemist",
+      "s_liang_zi_liu_lang",
+      "s_gui_ling_hacker",
+      "h_binary_sage",
+      "h_grey_hat",
+      "m_blockchain_skeptic",
+      "h_packet_witch",
+      "h_mo_sheng_ren",
+      "h_quantum_troll"
+    ],
+    "multi_owners": [
+      "s_liang_zi_kuang_gong",
+      "r_mi_ma_kao_gu_yuan",
+      "s_liang_zi_liu_lang",
+      "h_liang_zi_da_shu",
+      "s_bit_alchemist",
+      "h_mo_sheng_ren",
+      "m_blockchain_skeptic",
+      "s_gui_ling_hacker",
+      "h_qbit_witch",
+      "r_binary_rebel"
+    ],
+    "single_expected_hits": 3,
+    "multi_expected_hits": 3
+  },
+  {
+    "query": "我的项目需要做安全审计",
+    "level": "L3",
+    "expected_hits": [
+      "cyber_monk",
+      "zero_day",
+      "blockchain_skeptic",
+      "grey_hat",
+      "ghost_in_shell"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "r_blockchain_skeptic",
+      "r_binary_rebel",
+      "h_grey_hat",
+      "r_jia_na_da_xue_lang",
+      "s_hui_se_mao_zi",
+      "r_yun_wei_lao_bing",
+      "r_qu_kuai_lian_tao_ren",
+      "r_ce_shi_lao_niang",
+      "s_quantum_lawyer",
+      "r_sudo_rm_rf"
+    ],
+    "multi_owners": [
+      "r_binary_rebel",
+      "s_hui_se_mao_zi",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_bei_jing_de_yun",
+      "r_hei_ke_song_du_zhe",
+      "h_grey_hat",
+      "h_echo_in_void",
+      "s_packet_sniffer",
+      "r_ce_shi_lao_niang",
+      "r_ban_ye_diao_shi"
+    ],
+    "single_expected_hits": 2,
+    "multi_expected_hits": 1
+  },
+  {
+    "query": "我想学怎么做实时视觉特效",
+    "level": "L3",
+    "expected_hits": [
+      "glitch_queen",
+      "shader_shaman",
+      "shader_punk",
+      "shader_witch",
+      "neon_vandal"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "h_pixel_witch",
+      "s_neon_vandal",
+      "r_wu_sheng_de_hua",
+      "h_liu_guang_ke",
+      "s_glitch_queen",
+      "s_pastel_coder",
+      "s_sheng_yin_lian_jin",
+      "h_shader_punk",
+      "s_diao_ke_shi_shader",
+      "r_mo_yu_da_shi"
+    ],
+    "multi_owners": [
+      "s_shader_shaman",
+      "s_shader_witch",
+      "r_ctrl_alt_elite",
+      "s_mo_shui_cheng_xu_yuan",
+      "s_zhan_di_she_ying_shi",
+      "h_pixel_witch",
+      "s_pixel_perfectionist",
+      "s_pastel_coder",
+      "r_neon_samurai",
+      "h_ink_and_pixel"
+    ],
+    "single_expected_hits": 3,
+    "multi_expected_hits": 2
+  },
+  {
+    "query": "帮我部署一个能扛大流量的后端",
+    "level": "L3",
+    "expected_hits": [
+      "sudo_rm",
+      "async_await",
+      "packet_loss",
+      "echo_in_void",
+      "cloud_nomad"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "r_async_await",
+      "r_bei_jing_de_yun",
+      "r_xian_cheng_lao_ma",
+      "r_xiao_zhen_qing_nian",
+      "h_midnight_debugger",
+      "h_bao_an_ge",
+      "r_lao_wang_bu_lao",
+      "r_san_dian_shui",
+      "r_zhong_nian_wei_ji",
+      "r_ban_ye_diao_shi"
+    ],
+    "multi_owners": [
+      "s_cache_prophet",
+      "s_debug_deity",
+      "h_packet_loss",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "h_bao_an_ge",
+      "s_async_alchemist",
+      "s_chaos_architect",
+      "h_memory_hoarder",
+      "r_ling_dian_wu_cha",
+      "h_mem_leak"
+    ],
+    "single_expected_hits": 1,
+    "multi_expected_hits": 1
+  },
+  {
+    "query": "我的网站太丑了需要重新设计",
+    "level": "L3",
+    "expected_hits": [
+      "broken_mirror",
+      "ctrl_z",
+      "wu_ming_zhi",
+      "san_xing_lv_shi",
+      "pixel_chef"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "s_lao_ban_niang",
+      "h_ban_lu_chu_jia",
+      "s_xiao_zhen_she_ji_shi",
+      "r_ctrl_z_xia_fan",
+      "h_ctrl_z",
+      "h_san_xing_lv_shi",
+      "r_ctrl_z_xia_ke",
+      "s_pastel_coder",
+      "r_qian_duan_hua_jia",
+      "r_mo_fa_shi_de_bug"
+    ],
+    "multi_owners": [
+      "r_qian_duan_hua_jia",
+      "s_pastel_coder",
+      "s_lv_shi_de_figma",
+      "r_ctrl_z_xia_fan",
+      "r_mo_fa_shi_de_bug",
+      "r_mo_ren_zhi_wai",
+      "h_broken_mirror",
+      "r_mo_ban_xia_zai_jia",
+      "s_pixel_perfectionist",
+      "r_mo_yu_da_shi"
+    ],
+    "single_expected_hits": 2,
+    "multi_expected_hits": 1
+  },
+  {
+    "query": "数据库越来越慢怎么办",
+    "level": "L3",
+    "expected_hits": [
+      "db_lao_wang",
+      "db_necromancer",
+      "sql_poet",
+      "packet_loss"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "h_db_lao_wang",
+      "s_sql_poet",
+      "h_db_necromancer",
+      "s_api_whisperer",
+      "r_ling_dian_wu_cha",
+      "h_mem_leak",
+      "m_memory_leak_hunter",
+      "s_cache_prophet",
+      "s_wu_gui_yun_wei",
+      "s_debug_deity"
+    ],
+    "multi_owners": [
+      "h_db_lao_wang",
+      "s_sql_poet",
+      "h_db_necromancer",
+      "r_shu_ju_kao_gu_xue_jia",
+      "s_debug_deity",
+      "s_api_whisperer",
+      "h_packet_loss",
+      "r_jie_gou_shi",
+      "s_cache_prophet",
+      "s_data_druid"
+    ],
+    "single_expected_hits": 3,
+    "multi_expected_hits": 4
+  },
+  {
+    "query": "想做一个把声音变成画面的东西",
+    "level": "L4",
+    "expected_hits": [
+      "glitch_girl",
+      "glitch_queen",
+      "wu_sheng_de_ren",
+      "liu_guang_ke",
+      "glitch_monk",
+      "echo_chamber"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "h_wu_sheng_de_ren",
+      "s_sheng_yin_lian_jin",
+      "s_signal_drifter",
+      "h_echo_chamber",
+      "r_wu_sheng_de_hua",
+      "h_liu_guang_ke",
+      "s_signal_witch",
+      "r_wu_sheng_de_hui",
+      "m_wu_sheng_de_hai",
+      "s_mu_guang_shi_ren"
+    ],
+    "multi_owners": [
+      "r_qian_duan_hua_jia",
+      "h_liu_lang_de_shu_ju",
+      "h_echo_chamber",
+      "s_sheng_yin_lian_jin",
+      "s_signal_rider",
+      "h_pixel_witch",
+      "h_wu_sheng_de_ren",
+      "s_data_druid",
+      "h_data_gardener",
+      "r_jiu_dian_hua_shi"
+    ],
+    "single_expected_hits": 3,
+    "multi_expected_hits": 2
+  },
+  {
+    "query": "用技术做点有意义的事",
+    "level": "L4",
+    "expected_hits": [
+      "git_push_origin_love",
+      "dai_ma_wu_tuo_bang",
+      "stack_overflow_soul",
+      "code_monk"
+    ],
+    "min_hits": 1,
+    "single_owners": [
+      "h_glitch_girl",
+      "r_404_poet",
+      "s_mo_fa_shu_dian",
+      "r_jiu_shu_dian_de_deng",
+      "h_wu_sheng_de_ren",
+      "h_glitch_poet",
+      "s_mycelium_networker",
+      "m_glitch_witch",
+      "h_glitch_artist",
+      "r_hei_ke_song_du_zhe"
+    ],
+    "multi_owners": [
+      "r_zhong_nian_wei_ji",
+      "r_qian_duan_hua_jia",
+      "r_mo_ren_zhi_wai",
+      "h_hua_li_de_shi_bai",
+      "r_feng_zhong_de_dai_ma",
+      "r_jia_ban_jue_yuan_zhe",
+      "r_bian_yi_qi_po_yi_zhe",
+      "r_bei_ou_xue_piao",
+      "r_shu_ju_kao_gu_xue_jia",
+      "r_mo_mo_xie_dai_ma"
+    ],
+    "single_expected_hits": 0,
+    "multi_expected_hits": 0
+  },
+  {
+    "query": "把传统手艺和数字技术结合",
+    "level": "L4",
+    "expected_hits": [
+      "lao_tie_rust",
+      "ink_alchemist",
+      "leather_punk",
+      "memory_weaver",
+      "ink_and_pixel",
+      "diao_ke_shi_shader"
+    ],
+    "min_hits": 2,
+    "single_owners": [
+      "s_leather_hacker",
+      "s_diao_ke_shi",
+      "h_leather_punk",
+      "h_memory_weaver",
+      "h_ink_alchemist",
+      "s_xiao_zhen_she_ji_shi",
+      "m_analog_hacker",
+      "s_mo_shui_cheng_xu_yuan",
+      "r_jie_zou_bian_cheng_shi",
+      "r_mo_ni_lian_jin_shi"
+    ],
+    "multi_owners": [
+      "r_qian_duan_hua_jia",
+      "m_glitch_witch",
+      "s_xiao_zhen_she_ji_shi",
+      "h_neon_architect",
+      "h_memory_weaver",
+      "r_neon_samurai",
+      "s_liang_zi_kuang_gong",
+      "r_qu_kuai_lian_tao_ren",
+      "r_shu_zi_you_min",
+      "r_shu_ju_kao_gu_xue_jia"
+    ],
+    "single_expected_hits": 3,
+    "multi_expected_hits": 1
+  },
+  {
+    "query": "我需要帮手",
+    "level": "L4",
+    "expected_hits": [],
+    "min_hits": 0,
+    "single_owners": [
+      "r_xiao_chao_lao_ban_niang",
+      "h_mo_yu_da_shi",
+      "m_xiao_zhen_ma_ma",
+      "r_zhong_nian_wei_ji",
+      "r_xian_cheng_lao_ma",
+      "m_silicon_valley_refugee",
+      "m_lao_tie_666",
+      "r_mo_yu_da_shi",
+      "m_xiu_che_lao_wang",
+      "m_tao_bao_dian_zhu"
+    ],
+    "multi_owners": [
+      "r_zhong_nian_wei_ji",
+      "r_xian_cheng_lao_ma",
+      "r_jia_ban_jue_yuan_zhe",
+      "r_xiao_chao_lao_ban_niang",
+      "r_jie_gou_shi",
+      "r_dai_ma_chui_shui",
+      "m_git_push_origin_love",
+      "s_xian_xia_cheng_xu_yuan",
+      "r_kuai_di_zhan_zhang",
+      "m_bug_free_zone"
+    ],
+    "single_expected_hits": 0,
+    "multi_expected_hits": 0
+  },
+  {
+    "query": "认识一些有趣的人",
+    "level": "L4",
+    "expected_hits": [
+      "lao_tie_rust",
+      "san_xing_lv_shi",
+      "zhan_bu_shi",
+      "shou_yi_ren",
+      "fei_xing_yuan_404"
+    ],
+    "min_hits": 1,
+    "single_owners": [
+      "m_mo_mo_bo_wu_guan",
+      "m_schrodingers_date",
+      "m_mo_sheng_zhi_wu_yuan",
+      "m_mo_gu_bo_wu_xue_jia",
+      "m_ctrl_alt_delete_feelings",
+      "m_pixel_pusher",
+      "m_luo_ji_yan_jiu_yuan",
+      "m_lao_pao_er",
+      "m_shu_ye_ting_xue",
+      "m_signal_noise"
+    ],
+    "multi_owners": [
+      "r_jiu_shu_dian_de_deng",
+      "m_binary_nomad",
+      "r_shu_zi_you_min",
+      "m_fei_xu_tan_xian_jia",
+      "m_mo_mo_bo_wu_guan",
+      "m_liu_lang_de_yun",
+      "m_mo_sheng_ren",
+      "r_biao_qing_bao_gong_cheng_shi",
+      "m_code_monk",
+      "s_zhan_bu_shi_sql"
+    ],
+    "single_expected_hits": 0,
+    "multi_expected_hits": 0
+  }
+]

@@ -1,0 +1,476 @@
+{
+  "experiment": "EXP-008",
+  "hypothesis": "H1: multi total_value >= single total_value (LLM-as-Judge)",
+  "date": "2026-02-16",
+  "config": {
+    "judge_model": "claude-sonnet-4-5-20250929",
+    "encoder": "bge-m3-1024d",
+    "projector": "simhash-10000d",
+    "n_agents": 447,
+    "n_queries": 20,
+    "top_k": 10,
+    "scoring_dimensions": [
+      "direct_relevance",
+      "complementary_value",
+      "serendipity"
+    ],
+    "value_range_per_agent": "3-15 (sum of 3 dimensions, each 1-5)"
+  },
+  "results": {
+    "total_value": {
+      "single_mean": 109.1,
+      "multi_mean": 103.85,
+      "single_std": 11.852847759083048,
+      "multi_std": 9.743074463432988
+    },
+    "paired_bootstrap": {
+      "mean_delta": -5.25,
+      "ci_95_lower": -11.8,
+      "ci_95_upper": 1.2,
+      "significant": false
+    },
+    "win_tie_loss": {
+      "multi_wins": 5,
+      "ties": 1,
+      "single_wins": 14
+    },
+    "high_serendipity_agents": {
+      "single_total": 115,
+      "multi_total": 105
+    },
+    "per_level": {
+      "L1": {
+        "single_mean": 114.6,
+        "multi_mean": 101.6,
+        "delta_mean": -13.0,
+        "n": 5
+      },
+      "L2": {
+        "single_mean": 109.2,
+        "multi_mean": 110.6,
+        "delta_mean": 1.4,
+        "n": 5
+      },
+      "L3": {
+        "single_mean": 99.8,
+        "multi_mean": 102.2,
+        "delta_mean": 2.4,
+        "n": 5
+      },
+      "L4": {
+        "single_mean": 112.8,
+        "multi_mean": 101.0,
+        "delta_mean": -11.8,
+        "n": 5
+      }
+    },
+    "h1_supported": false
+  },
+  "comparison_with_precision_k": {
+    "precision_k_verdict": "multi significantly worse (-30pp)",
+    "total_value_verdict": "multi worse (-5.2)",
+    "verdicts_diverge": false
+  },
+  "per_query": [
+    {
+      "query": "安全研究员",
+      "level": "L1",
+      "single_total_value": 106.0,
+      "multi_total_value": 102.0,
+      "delta": -4.0,
+      "single_breakdown": {
+        "direct": 45.0,
+        "complement": 39.0,
+        "serendipity": 22.0
+      },
+      "multi_breakdown": {
+        "direct": 41.0,
+        "complement": 39.0,
+        "serendipity": 22.0
+      },
+      "high_serendipity_single": 3,
+      "high_serendipity_multi": 3,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "Kubernetes 工程师",
+      "level": "L1",
+      "single_total_value": 113.0,
+      "multi_total_value": 89.0,
+      "delta": -24.0,
+      "single_breakdown": {
+        "direct": 49.0,
+        "complement": 41.0,
+        "serendipity": 23.0
+      },
+      "multi_breakdown": {
+        "direct": 34.0,
+        "complement": 32.0,
+        "serendipity": 23.0
+      },
+      "high_serendipity_single": 3,
+      "high_serendipity_multi": 3,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "Python 数据分析",
+      "level": "L1",
+      "single_total_value": 119.0,
+      "multi_total_value": 115.0,
+      "delta": -4.0,
+      "single_breakdown": {
+        "direct": 46.0,
+        "complement": 39.0,
+        "serendipity": 34.0
+      },
+      "multi_breakdown": {
+        "direct": 46.0,
+        "complement": 38.0,
+        "serendipity": 31.0
+      },
+      "high_serendipity_single": 8,
+      "high_serendipity_multi": 8,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "游戏开发 Unity",
+      "level": "L1",
+      "single_total_value": 110.0,
+      "multi_total_value": 97.0,
+      "delta": -13.0,
+      "single_breakdown": {
+        "direct": 41.0,
+        "complement": 42.0,
+        "serendipity": 27.0
+      },
+      "multi_breakdown": {
+        "direct": 33.0,
+        "complement": 39.0,
+        "serendipity": 25.0
+      },
+      "high_serendipity_single": 5,
+      "high_serendipity_multi": 5,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "区块链 智能合约 Solidity",
+      "level": "L1",
+      "single_total_value": 125.0,
+      "multi_total_value": 105.0,
+      "delta": -20.0,
+      "single_breakdown": {
+        "direct": 48.0,
+        "complement": 43.0,
+        "serendipity": 34.0
+      },
+      "multi_breakdown": {
+        "direct": 33.0,
+        "complement": 42.0,
+        "serendipity": 30.0
+      },
+      "high_serendipity_single": 7,
+      "high_serendipity_multi": 7,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "做网页 3D 视觉效果的人",
+      "level": "L2",
+      "single_total_value": 108.0,
+      "multi_total_value": 112.0,
+      "delta": 4.0,
+      "single_breakdown": {
+        "direct": 39.0,
+        "complement": 39.0,
+        "serendipity": 30.0
+      },
+      "multi_breakdown": {
+        "direct": 42.0,
+        "complement": 42.0,
+        "serendipity": 28.0
+      },
+      "high_serendipity_single": 6,
+      "high_serendipity_multi": 6,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "搞声音艺术和实验音乐的",
+      "level": "L2",
+      "single_total_value": 115.0,
+      "multi_total_value": 115.0,
+      "delta": 0.0,
+      "single_breakdown": {
+        "direct": 40.0,
+        "complement": 41.0,
+        "serendipity": 34.0
+      },
+      "multi_breakdown": {
+        "direct": 39.0,
+        "complement": 42.0,
+        "serendipity": 34.0
+      },
+      "high_serendipity_single": 8,
+      "high_serendipity_multi": 7,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "能写高性能后端服务的",
+      "level": "L2",
+      "single_total_value": 93.0,
+      "multi_total_value": 109.0,
+      "delta": 16.0,
+      "single_breakdown": {
+        "direct": 37.0,
+        "complement": 34.0,
+        "serendipity": 22.0
+      },
+      "multi_breakdown": {
+        "direct": 44.0,
+        "complement": 43.0,
+        "serendipity": 22.0
+      },
+      "high_serendipity_single": 4,
+      "high_serendipity_multi": 4,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "做创意互动装置的艺术家",
+      "level": "L2",
+      "single_total_value": 117.0,
+      "multi_total_value": 102.0,
+      "delta": -15.0,
+      "single_breakdown": {
+        "direct": 43.0,
+        "complement": 43.0,
+        "serendipity": 31.0
+      },
+      "multi_breakdown": {
+        "direct": 38.0,
+        "complement": 39.0,
+        "serendipity": 25.0
+      },
+      "high_serendipity_single": 7,
+      "high_serendipity_multi": 5,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "懂密码学的人",
+      "level": "L2",
+      "single_total_value": 113.0,
+      "multi_total_value": 115.0,
+      "delta": 2.0,
+      "single_breakdown": {
+        "direct": 39.0,
+        "complement": 42.0,
+        "serendipity": 32.0
+      },
+      "multi_breakdown": {
+        "direct": 42.0,
+        "complement": 42.0,
+        "serendipity": 31.0
+      },
+      "high_serendipity_single": 7,
+      "high_serendipity_multi": 7,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "我的项目需要做安全审计",
+      "level": "L3",
+      "single_total_value": 99.0,
+      "multi_total_value": 97.0,
+      "delta": -2.0,
+      "single_breakdown": {
+        "direct": 38.0,
+        "complement": 41.0,
+        "serendipity": 20.0
+      },
+      "multi_breakdown": {
+        "direct": 36.0,
+        "complement": 40.0,
+        "serendipity": 21.0
+      },
+      "high_serendipity_single": 2,
+      "high_serendipity_multi": 3,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "我想学怎么做实时视觉特效",
+      "level": "L3",
+      "single_total_value": 104.0,
+      "multi_total_value": 102.0,
+      "delta": -2.0,
+      "single_breakdown": {
+        "direct": 36.0,
+        "complement": 39.0,
+        "serendipity": 29.0
+      },
+      "multi_breakdown": {
+        "direct": 35.0,
+        "complement": 39.0,
+        "serendipity": 28.0
+      },
+      "high_serendipity_single": 6,
+      "high_serendipity_multi": 6,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "帮我部署一个能扛大流量的后端",
+      "level": "L3",
+      "single_total_value": 85.0,
+      "multi_total_value": 106.0,
+      "delta": 21.0,
+      "single_breakdown": {
+        "direct": 35.0,
+        "complement": 34.0,
+        "serendipity": 16.0
+      },
+      "multi_breakdown": {
+        "direct": 39.0,
+        "complement": 45.0,
+        "serendipity": 22.0
+      },
+      "high_serendipity_single": 1,
+      "high_serendipity_multi": 2,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "我的网站太丑了需要重新设计",
+      "level": "L3",
+      "single_total_value": 112.0,
+      "multi_total_value": 108.0,
+      "delta": -4.0,
+      "single_breakdown": {
+        "direct": 43.0,
+        "complement": 38.0,
+        "serendipity": 31.0
+      },
+      "multi_breakdown": {
+        "direct": 37.0,
+        "complement": 40.0,
+        "serendipity": 31.0
+      },
+      "high_serendipity_single": 7,
+      "high_serendipity_multi": 7,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "数据库越来越慢怎么办",
+      "level": "L3",
+      "single_total_value": 99.0,
+      "multi_total_value": 98.0,
+      "delta": -1.0,
+      "single_breakdown": {
+        "direct": 38.0,
+        "complement": 41.0,
+        "serendipity": 20.0
+      },
+      "multi_breakdown": {
+        "direct": 36.0,
+        "complement": 39.0,
+        "serendipity": 23.0
+      },
+      "high_serendipity_single": 2,
+      "high_serendipity_multi": 3,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "想做一个把声音变成画面的东西",
+      "level": "L4",
+      "single_total_value": 106.0,
+      "multi_total_value": 99.0,
+      "delta": -7.0,
+      "single_breakdown": {
+        "direct": 35.0,
+        "complement": 41.0,
+        "serendipity": 30.0
+      },
+      "multi_breakdown": {
+        "direct": 33.0,
+        "complement": 39.0,
+        "serendipity": 27.0
+      },
+      "high_serendipity_single": 6,
+      "high_serendipity_multi": 5,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "用技术做点有意义的事",
+      "level": "L4",
+      "single_total_value": 120.0,
+      "multi_total_value": 83.0,
+      "delta": -37.0,
+      "single_breakdown": {
+        "direct": 35.0,
+        "complement": 42.0,
+        "serendipity": 43.0
+      },
+      "multi_breakdown": {
+        "direct": 29.0,
+        "complement": 31.0,
+        "serendipity": 23.0
+      },
+      "high_serendipity_single": 10,
+      "high_serendipity_multi": 3,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "把传统手艺和数字技术结合",
+      "level": "L4",
+      "single_total_value": 124.0,
+      "multi_total_value": 92.0,
+      "delta": -32.0,
+      "single_breakdown": {
+        "direct": 44.0,
+        "complement": 42.0,
+        "serendipity": 38.0
+      },
+      "multi_breakdown": {
+        "direct": 28.0,
+        "complement": 35.0,
+        "serendipity": 29.0
+      },
+      "high_serendipity_single": 9,
+      "high_serendipity_multi": 5,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "我需要帮手",
+      "level": "L4",
+      "single_total_value": 86.0,
+      "multi_total_value": 106.0,
+      "delta": 20.0,
+      "single_breakdown": {
+        "direct": 27.0,
+        "complement": 34.0,
+        "serendipity": 25.0
+      },
+      "multi_breakdown": {
+        "direct": 33.0,
+        "complement": 41.0,
+        "serendipity": 32.0
+      },
+      "high_serendipity_single": 5,
+      "high_serendipity_multi": 7,
+      "expected_hit_precision": null
+    },
+    {
+      "query": "认识一些有趣的人",
+      "level": "L4",
+      "single_total_value": 128.0,
+      "multi_total_value": 125.0,
+      "delta": -3.0,
+      "single_breakdown": {
+        "direct": 46.0,
+        "complement": 43.0,
+        "serendipity": 39.0
+      },
+      "multi_breakdown": {
+        "direct": 43.0,
+        "complement": 43.0,
+        "serendipity": 39.0
+      },
+      "high_serendipity_single": 9,
+      "high_serendipity_multi": 9,
+      "expected_hit_precision": null
+    }
+  ]
+}

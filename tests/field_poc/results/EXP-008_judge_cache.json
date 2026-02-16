@@ -1,0 +1,2668 @@
+[
+  {
+    "query": "安全研究员",
+    "level": "L1",
+    "single_owners": [
+      "h_grey_hat",
+      "h_ghost_in_shell",
+      "h_zero_day",
+      "s_bit_alchemist",
+      "h_binary_sage",
+      "r_zero_day_hunter",
+      "s_packet_sniffer",
+      "s_protocol_hacker",
+      "s_gui_ling_hacker",
+      "h_digital_hermit"
+    ],
+    "multi_owners": [
+      "h_ghost_in_shell",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "s_packet_sniffer",
+      "r_binary_rebel",
+      "r_zero_day_hunter",
+      "r_bei_jing_de_yun",
+      "s_protocol_hacker",
+      "s_gui_ling_hacker",
+      "r_hei_ke_song_du_zhe",
+      "h_grey_hat"
+    ],
+    "expected_hits": [
+      "zero_day",
+      "ghost_in_shell",
+      "binary_sage",
+      "zero_day_hunter",
+      "packet_sniffer"
+    ],
+    "scores": {
+      "h_grey_hat": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "完全对口的安全研究员，12年经验，技能全覆盖，还能提供大厂内部视角和独立顾问经验"
+      },
+      "h_ghost_in_shell": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "职位完全匹配，逆向和恶意软件分析是安全研究的核心技能，帮助普通人的理念有额外价值"
+      },
+      "h_zero_day": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "全栈安全研究员，CTF和漏洞挖掘经验丰富，区块链安全是额外加分项"
+      },
+      "s_bit_alchemist": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "密码学专家虽不是典型安全研究员，但密码学是安全基础设施，零知识证明等前沿技术有高互补价值"
+      },
+      "h_binary_sage": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "安全研究员+哲学思维，CTF和密码学经验完备，哲学视角可能带来不同的问题分析方式"
+      },
+      "r_zero_day_hunter": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "顶尖漏洞研究员，23个CVE贡献，地下论坛经验提供独特威胁情报视角"
+      },
+      "s_packet_sniffer": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "网络安全研究员，8年CTF经验，渗透和逆向能力扎实，无线电安全是额外技能"
+      },
+      "s_protocol_hacker": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "物联网和硬件安全专家，虽领域特化但填补了软件安全研究员常缺的硬件维度"
+      },
+      "s_gui_ling_hacker": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "安全研究员+密码朋克，技能全面，隐私保护执念和暗网经验是独特视角"
+      },
+      "h_digital_hermit": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "非典型安全研究员但密码学和区块链安全深度强，零知识证明研究有前瞻价值"
+      },
+      "r_nei_cun_xie_lou_zhen_tan": {
+        "direct_relevance": 2,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "系统底层专家，不是安全研究员但底层调试能力对漏洞分析和exploit开发有独特帮助"
+      },
+      "r_binary_rebel": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 1,
+        "rationale": "安全工程师/渗透测试，HackerOne前100，CVE贡献，完全匹配且经验扎实"
+      },
+      "r_bei_jing_de_yun": {
+        "direct_relevance": 1,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "DevOps与安全研究方向不同，但云安全和基础设施防御视角可以互补攻击研究"
+      },
+      "r_hei_ke_song_du_zhe": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "社会工程学专家，不写代码也能黑系统，填补技术型安全研究员常忽视的人性维度，有意外启发"
+      }
+    }
+  },
+  {
+    "query": "Kubernetes 工程师",
+    "level": "L1",
+    "single_owners": [
+      "s_wu_gui_yun_wei",
+      "s_async_anarchist",
+      "h_void_operator",
+      "s_docker_nomad",
+      "r_liang_zi_tai_jian",
+      "r_yun_wei_lao_bing",
+      "h_404_philosopher",
+      "h_cloud_nomad",
+      "h_echo_in_void",
+      "h_chaos_gardener"
+    ],
+    "multi_owners": [
+      "s_docker_nomad",
+      "h_echo_in_void",
+      "h_bao_an_ge",
+      "r_wang_ba_lao_ban",
+      "r_qu_kuai_lian_tao_ren",
+      "r_yun_wei_lao_bing",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_bei_jing_de_yun",
+      "r_dai_ma_nong_min",
+      "s_async_anarchist"
+    ],
+    "expected_hits": [
+      "sudo_rm",
+      "echo_in_void",
+      "cloud_nomad",
+      "void_operator",
+      "chaos_gardener",
+      "git_rebase_i"
+    ],
+    "scores": {
+      "s_wu_gui_yun_wei": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 1,
+        "rationale": "Kubernetes专家，家里跑3个集群，技能完全对口，还能教GitOps和可观测性，但完全在预期范围内"
+      },
+      "s_async_anarchist": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "K8s和分布式系统双料专家，能带来分布式共识和混沌工程视角，基本符合预期"
+      },
+      "h_void_operator": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "K8s和混沌工程经验丰富，冥想+系统崩溃预言的组合有点新意，能带来独特的稳定性视角"
+      },
+      "s_docker_nomad": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "云原生专家，K8s核心技能，服务网格和GitOps经验丰富，完全可预期的匹配"
+      },
+      "r_liang_zi_tai_jian": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "SRE角度的K8s实践，能填补可观测性和韧性工程的缺口，虽然不直接做K8s但价值很高"
+      },
+      "r_yun_wei_lao_bing": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "13年K8s和云原生经验，成本控制和监控告警能力强，能带来成熟团队的最佳实践"
+      },
+      "h_404_philosopher": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "K8s DevOps专家，哲学系背景让人眼前一亮——用'对抗熵增'理解运维是意外的视角"
+      },
+      "h_cloud_nomad": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "13年云架构经验，K8s专家，三大厂背景，成本优化能力强，符合预期的高级人才"
+      },
+      "h_echo_in_void": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "5年K8s基础设施经验，擅长防火而非救火，有一定系统设计审美追求"
+      },
+      "h_chaos_gardener": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "K8s混沌工程专家，用园艺类比容器编排很有启发性——'故障即养分'是独特方法论"
+      },
+      "h_bao_an_ge": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 3,
+        "rationale": "传统运维背景，没有K8s经验但有Docker基础，县城机房实战能带来接地气视角"
+      },
+      "r_wang_ba_lao_ban": {
+        "direct_relevance": 1,
+        "complementary_value": 1,
+        "serendipity": 2,
+        "rationale": "网吧运维和K8s工程师技能栈基本不相关，游戏私服经验无法迁移到企业级容器编排"
+      },
+      "r_qu_kuai_lian_tao_ren": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "分布式系统经验有一定关联，虽无K8s明确经验但Go和分布式底子能快速上手，Web3视角有新意"
+      },
+      "r_nei_cun_xie_lou_zhen_tan": {
+        "direct_relevance": 2,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "系统底层专家，虽非K8s工程师但能解决性能和内核层问题——这种深度排查能力是意外惊喜"
+      },
+      "r_bei_jing_de_yun": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "9年K8s云架构经验，成本优化和稳定性双擅长，'不会半夜叫醒我的系统'是成熟实践"
+      },
+      "r_dai_ma_nong_min": {
+        "direct_relevance": 1,
+        "complementary_value": 1,
+        "serendipity": 2,
+        "rationale": "全栈初级开发，无K8s经验，技能栈不相关，'种地式踏实'心态有点朴实价值但帮不上忙"
+      }
+    }
+  },
+  {
+    "query": "Python 数据分析",
+    "level": "L1",
+    "single_owners": [
+      "h_shu_ju_lao_nong",
+      "r_shu_ju_you_ling",
+      "r_shu_ju_kao_gu_xue_jia",
+      "s_hua_xue_po_po",
+      "r_hua_li_zhuan_shen",
+      "r_shu_ju_lao_si_ji",
+      "h_data_witch",
+      "m_regex_my_heart",
+      "s_data_druid",
+      "m_shu_ju_liu_lang_zhe"
+    ],
+    "multi_owners": [
+      "r_shu_ju_kao_gu_xue_jia",
+      "r_hua_li_zhuan_shen",
+      "h_shu_ju_lao_nong",
+      "s_data_druid",
+      "r_shu_ju_you_ling",
+      "m_signal_noise",
+      "s_shu_ju_yuan_ding",
+      "h_diao_bao_xia_nv",
+      "m_regex_my_heart",
+      "h_liu_lang_de_shu_ju"
+    ],
+    "expected_hits": [
+      "regex_queen",
+      "diao_bao_xia_nv",
+      "shu_ju_lao_nong",
+      "data_witch",
+      "zhan_bu_shi"
+    ],
+    "scores": {
+      "h_shu_ju_lao_nong": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "Python和pandas技能完全对口，6年数据工作经验可立即上手，但缺乏跨界惊喜"
+      },
+      "r_shu_ju_you_ling": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "Python数据分析核心技能强，额外带来A/B测试和增长视角，实验主义方法论有启发性"
+      },
+      "r_shu_ju_kao_gu_xue_jia": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "Python技能对口，数据叙事和可视化是分析的重要延伸，历史数据挖掘视角有独特价值"
+      },
+      "s_hua_xue_po_po": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "退休化学教师学Python做数据分析——跨龄学习者视角独特，科学实验思维与数据清洗的类比极具启发"
+      },
+      "r_hua_li_zhuan_shen": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "Python和SQL技能相关，市场营销背景带来业务视角和讲故事能力，但转型路径较常规"
+      },
+      "r_shu_ju_lao_si_ji": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "Python和SQL技能顶级，14年经验带来深刻业务洞察和对数据陷阱的警觉，填补实战智慧缺口"
+      },
+      "h_data_witch": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "Python和ML技能强，塔罗牌与数据科学的并置有哲学趣味——模式识别的两种形式引人思考"
+      },
+      "m_regex_my_heart": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "Spark和数据分析相关但偏工程，说唱和滑板背景意外——数据分析遇见街头文化的freestyle思维"
+      },
+      "s_data_druid": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "数据分析和D3.js技能完美匹配，数据叙事和社会议题关注填补了意义层面的缺口"
+      },
+      "m_shu_ju_liu_lang_zhe": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "Python技能相关，但把数据做成诗、用算法写情书——技术与艺术的融合让数据分析充满想象力"
+      },
+      "m_signal_noise": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "8年数据科学经验完全对口，播客和科技伦理视角罕见——数据分析不止技术，还有批判性反思"
+      },
+      "s_shu_ju_yuan_ding": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "Python数据分析和D3.js技能完全匹配，新闻系背景带来叙事视角，社会议题关注有价值"
+      },
+      "h_diao_bao_xia_nv": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "Pandas等Python工具包熟练，快速出结果能力实用，但自称不懂底层原理可能限制深度"
+      },
+      "h_liu_lang_de_shu_ju": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "D3.js和R相关，数据可视化艺术家身份特别——把数据分析变成会说话的故事和艺术作品"
+      }
+    }
+  },
+  {
+    "query": "游戏开发 Unity",
+    "level": "L1",
+    "single_owners": [
+      "h_mo_fa_shi_de_bug",
+      "r_code_witch",
+      "s_gu_shi_nong_fu",
+      "h_pixel_witch",
+      "h_pixel_poet",
+      "m_malloc_free_love",
+      "s_pastel_coder",
+      "h_diu_zhen_ren",
+      "s_mu_guang_shi_ren",
+      "h_xiao_chou"
+    ],
+    "multi_owners": [
+      "h_mo_fa_shi_de_bug",
+      "r_code_witch",
+      "h_memory_hoarder",
+      "h_wu_ming_zhi",
+      "r_qian_duan_hua_jia",
+      "r_er_ci_yuan_nan_min",
+      "s_gu_shi_nong_fu",
+      "r_mo_ren_zhi_wai",
+      "h_pixel_witch",
+      "h_ink_and_pixel"
+    ],
+    "expected_hits": [
+      "mo_fa_shi_de_bug",
+      "pixel_poet",
+      "xiao_chou",
+      "diu_zhen_ren"
+    ],
+    "scores": {
+      "h_mo_fa_shi_de_bug": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 1,
+        "rationale": "Unity和C#技能完全对口，有Game Jam经验，但擅长弃坑可能需要互相监督"
+      },
+      "r_code_witch": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "Unity和Shader编程顶配，技术美术能力填补视觉表现缺口，塔罗决策有点意外但不算跨领域惊喜"
+      },
+      "s_gu_shi_nong_fu": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "叙事设计补充游戏内容深度，但缺乏Unity技能，想学Unity说明有协同意愿"
+      },
+      "h_pixel_witch": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "做过游戏UI，像素艺术和色彩理论能提升视觉质量，无障碍设计是意外的加分项"
+      },
+      "h_pixel_poet": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "全栈独立游戏开发者，Unity、像素艺术、音效、叙事全包，11年经验是完美匹配"
+      },
+      "m_malloc_free_love": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "引擎开发和图形编程能力强，C++和OpenGL可优化Unity性能瓶颈，电竞解说视角有趣"
+      },
+      "s_pastel_coder": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "三年游戏UI经验直接相关，无障碍设计和色彩理论提升产品质量，在预期范围内"
+      },
+      "h_diu_zhen_ren": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "Unity和Ink脚本技能对口，叙事设计和像素艺术增强内容，慢节奏理念可能带来独特视角"
+      },
+      "s_mu_guang_shi_ren": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "叙事和Ink脚本有用，但田野录音和环境音设计是意外的沉浸感提升点"
+      },
+      "h_xiao_chou": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "Unity技能合格，但马戏团经验转化为物理引擎和动作设计是跨领域惊喜，12年杂耍带来的操作手感理解独特"
+      },
+      "h_memory_hoarder": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "8年引擎开发经验，性能优化和底层技术能解决Unity项目的性能问题，预期内的价值"
+      },
+      "h_wu_ming_zhi": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "技能相关性弱，但'无用设计'和物联网艺术可能带来游戏交互的非常规创意思路"
+      },
+      "r_qian_duan_hua_jia": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "UI工程和WebGL经验可迁移到游戏UI，技术和设计兼通有价值，但不算意外匹配"
+      },
+      "r_er_ci_yuan_nan_min": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "游戏设计和数值策划补充玩法，但缺乏Unity技能，RPG Maker经验可迁移性有限"
+      },
+      "r_mo_ren_zhi_wai": {
+        "direct_relevance": 2,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "无障碍标准可提升游戏可访问性，这是多数开发者忽略的维度，有补充价值"
+      },
+      "h_ink_and_pixel": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "手绘动画和插画能提升游戏美术，给独立游戏画过美术有相关经验，CSS动画技能可迁移"
+      }
+    }
+  },
+  {
+    "query": "区块链 智能合约 Solidity",
+    "level": "L1",
+    "single_owners": [
+      "s_quantum_lawyer",
+      "r_blockchain_skeptic",
+      "s_cyber_monk",
+      "h_blockchain_skeptic",
+      "s_liang_zi_kuang_gong",
+      "h_hui_sheng",
+      "r_sai_bo_pang_ke",
+      "h_liang_zi_da_shu",
+      "r_qu_kuai_lian_tao_ren",
+      "h_digital_hermit"
+    ],
+    "multi_owners": [
+      "r_qu_kuai_lian_tao_ren",
+      "r_binary_rebel",
+      "r_blockchain_skeptic",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_dai_ma_nong_min",
+      "h_ghost_in_shell",
+      "s_hui_se_mao_zi",
+      "h_digital_hermit",
+      "s_quantum_lawyer",
+      "h_echo_in_void"
+    ],
+    "expected_hits": [
+      "cyber_monk",
+      "liang_zi_da_shu",
+      "blockchain_skeptic",
+      "hui_sheng"
+    ],
+    "scores": {
+      "s_quantum_lawyer": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "Solidity和智能合约审计完全对口，法律背景填补Web3项目的合规缺口，律师转码农的路径有启发性"
+      },
+      "r_blockchain_skeptic": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "3年Solidity开发和安全审计经验直接匹配，怀疑论视角能帮避坑，但这是典型的预期内匹配"
+      },
+      "s_cyber_monk": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "Solidity和安全审计技能完全对口，禅修+加密经济学视角独特，熊市生存经验是隐藏价值"
+      },
+      "h_blockchain_skeptic": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "Solidity和安全审计50+合约经验高度相关，辩论和经济学背景有价值，但属于常规匹配"
+      },
+      "s_liang_zi_kuang_gong": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "Solidity开发对口，物理PhD的密码学和数学建模能力填补底层理论缺口，量子视角看区块链极具启发性"
+      },
+      "h_hui_sheng": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "有3年Solidity和Web3.js经验，诗歌与NFT结合的视角新颖但对技术需求贡献有限"
+      },
+      "r_sai_bo_pang_ke": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "Solidity审计和DeFi协议设计完全对口，MEV套利和链上数据分析是高级技能，经历丰富但属于领域内预期"
+      },
+      "h_liang_zi_da_shu": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "Solidity和密码学对口，物理PhD带来的抗量子攻击视角极为前瞻，学术背景与工程实践结合罕见"
+      },
+      "r_qu_kuai_lian_tao_ren": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "有智能合约和密码学背景但已转向传统后端，分布式系统经验有用但匹配度不如专职区块链开发者"
+      },
+      "h_digital_hermit": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "正在DeFi项目写智能合约，Rust+密码学+零知识证明研究能力强，但这是领域内的标准高手画像"
+      },
+      "r_binary_rebel": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "安全工程师技能可迁移到智能合约审计，HackerOne前100和CVE经验填补安全测试缺口，跨性别视角带来多元性"
+      },
+      "r_nei_cun_xie_lou_zhen_tan": {
+        "direct_relevance": 2,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "系统底层调试能力可用于合约性能优化，但C/内核开发与Solidity距离较远，这种跨栈视角有意外价值"
+      },
+      "r_dai_ma_nong_min": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "React/Node.js全栈经验与Solidity无关，初级水平难以贡献区块链开发，无互补或意外价值"
+      },
+      "h_ghost_in_shell": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "逆向工程和二进制分析能用于智能合约字节码审计，恶意软件分析视角对合约攻击防御有独特价值"
+      },
+      "s_hui_se_mao_zi": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "渗透测试和红队经验可迁移到合约安全，正在学区块链安全说明意识到了这个方向，社会工程学视角补充技术盲区"
+      },
+      "h_echo_in_void": {
+        "direct_relevance": 2,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "DevOps技能对区块链节点部署和监控有用但非核心，K8s经验可用于DApp基础设施，但与智能合约开发本身关联弱"
+      }
+    }
+  },
+  {
+    "query": "做网页 3D 视觉效果的人",
+    "level": "L2",
+    "single_owners": [
+      "s_pastel_coder",
+      "h_pixel_witch",
+      "h_shader_punk",
+      "h_neon_architect",
+      "s_neon_vandal",
+      "r_ctrl_z_xia_fan",
+      "h_neon_samurai",
+      "h_liu_guang_ke",
+      "s_shu_ju_yuan_ding",
+      "h_mo_yu_da_shi"
+    ],
+    "multi_owners": [
+      "s_pastel_coder",
+      "h_neon_samurai",
+      "h_shader_punk",
+      "h_ink_and_pixel",
+      "h_neon_architect",
+      "r_qian_duan_hua_jia",
+      "h_pixel_witch",
+      "r_neon_samurai",
+      "r_mo_fa_shi_de_bug",
+      "h_mo_yu_da_shi"
+    ],
+    "expected_hits": [
+      "neko_chan",
+      "yu_zhou_chen_ai",
+      "neon_samurai",
+      "liu_guang_ke",
+      "pixel_witch"
+    ],
+    "scores": {
+      "s_pastel_coder": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "正在学习WebGL/Three.js，有前端和动画基础，能快速上手3D web开发，且带来无障碍设计视角"
+      },
+      "h_pixel_witch": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "已掌握WebGL，做过游戏UI和web动效，还能确保3D效果对所有用户可访问"
+      },
+      "h_shader_punk": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "GLSL和Three.js专家，还能带来VJ现场视觉经验，让3D效果更有表演性和节奏感"
+      },
+      "h_neon_architect": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "全栈能力+VJ经验，能做音乐可视化的3D web项目，但3D技能不如专项人才"
+      },
+      "s_neon_vandal": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "Shader和生成艺术高手，能做出地下文化风格的3D效果，LED控制经验带来跨媒介视角"
+      },
+      "r_ctrl_z_xia_fan": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 1,
+        "rationale": "UI设计师能提供视觉设计支持，但缺乏3D技术能力，经验也较浅"
+      },
+      "h_neon_samurai": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "WebGL/Three.js/GLSL全能，用CSS画赛博城市证明视觉创造力，街头涂鸦背景增添独特美学"
+      },
+      "h_liu_guang_ke": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "Three.js+shader技术者，但核心价值在纪录片/声音设计背景，能让3D web有电影叙事质感"
+      },
+      "s_shu_ju_yuan_ding": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "D3.js专家想学Three.js，能将数据可视化思维带入3D web，让视觉效果承载信息叙事"
+      },
+      "h_mo_yu_da_shi": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "CSS动画能力强，但缺乏3D技术栈，经验偏向2D web效果"
+      },
+      "h_ink_and_pixel": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "SVG/CSS动画+插画背景，能给3D web带来手绘质感，研究动画嵌入方向与需求契合"
+      },
+      "r_qian_duan_hua_jia": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "WebGL+动画设计双修，11年经验，还有摄影眼光，能平衡技术实现和用户体验"
+      },
+      "r_neon_samurai": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "3D建模+赛博美学+VJ经验，做过加密艺术平台，能做出文化属性强的3D效果"
+      },
+      "r_mo_fa_shi_de_bug": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "Three.js/WebGL核心技能，Awwwards获奖证明创意执行力，电子音乐制作带来节奏感"
+      }
+    }
+  },
+  {
+    "query": "搞声音艺术和实验音乐的",
+    "level": "L2",
+    "single_owners": [
+      "h_wu_sheng_de_ren",
+      "h_sonic_archaeologist",
+      "m_wu_sheng_dian_tai",
+      "m_liu_lang_de_yun",
+      "r_jiu_dian_hua_shi",
+      "m_sheng_yin_kao_gu",
+      "h_echo_chamber",
+      "r_sheng_bo_lao_liu",
+      "s_sheng_yin_lian_jin",
+      "h_hui_se_xin_hao"
+    ],
+    "multi_owners": [
+      "h_wu_sheng_de_ren",
+      "m_sheng_yin_kao_gu",
+      "h_sonic_archaeologist",
+      "h_echo_chamber",
+      "m_wu_sheng_dian_tai",
+      "s_wu_sheng_jian_zhu_shi",
+      "s_sheng_yin_lian_jin",
+      "r_jiu_dian_hua_shi",
+      "m_liu_lang_de_yun",
+      "r_wu_sheng_de_hui"
+    ],
+    "expected_hits": [
+      "wu_sheng_de_ren",
+      "echo_chamber",
+      "hui_se_xin_hao",
+      "glitch_queen",
+      "frequency_hermit",
+      "sonic_archaeologist"
+    ],
+    "scores": {
+      "h_wu_sheng_de_ren": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "直接做实验音乐和声音装置,Max/MSP+generative audio完全对口,代码+声音的跨界实践带来技术互补,算法音乐视角有启发性"
+      },
+      "h_sonic_archaeologist": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "声音装置艺术直接相关,用声音重建建筑空间是声音艺术的独特角度,声学空间设计视角是意外但极有价值的跨界"
+      },
+      "m_wu_sheng_dian_tai": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "田野录音和声音考古与实验音乐有关联,但主要做游戏音效,环境音收集可作素材,整体较常规"
+      },
+      "m_liu_lang_de_yun": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "实验电子音乐人完全对口,即兴演出经验相关,但相对常规的音乐人路径,互补性和意外性有限"
+      },
+      "r_jiu_dian_hua_shi": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "声音装置项目直接相关,Foley艺术和老设备维修带来实用技能,消失声音的采集是有价值的素材库"
+      },
+      "m_sheng_yin_kao_gu": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "声音档案建设可作实验音乐素材来源,田野录音技能互补,时间痕迹的哲学与实验音乐有共鸣但不算意外"
+      },
+      "h_echo_chamber": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "Web Audio API让实验音乐可在线传播,DSP编程能力强化声音处理,浏览器变DAW是新颖的实验平台"
+      },
+      "r_sheng_bo_lao_liu": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "实验音乐项目和声音装置完全对口,Max/MSP+空间音频技能强,模拟温度研究有共鸣但较预期内"
+      },
+      "s_sheng_yin_lian_jin": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "DSP算法能力为实验音乐提供技术底层,VST开发可做定制工具,工程师视角与艺术家形成有趣互补"
+      },
+      "h_hui_se_xin_hao": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "声音考古主题本身就是实验音乐素材,Web Audio+Python可视化能做互动装置,消失声音的博物馆概念很有启发"
+      },
+      "s_wu_sheng_jian_zhu_shi": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "声音装置艺术直接对口,建筑背景带来空间声音的独特视角,用声音塑造空间而非混凝土是跨界惊喜"
+      },
+      "r_wu_sheng_de_hui": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "田野录音和声音叙事有关联,播客制作可作传播渠道,但整体偏应用向,实验性不强"
+      }
+    }
+  },
+  {
+    "query": "能写高性能后端服务的",
+    "level": "L2",
+    "single_owners": [
+      "r_async_await",
+      "s_pixel_perfectionist",
+      "s_api_whisperer",
+      "h_xiu_che_de_ma_nong",
+      "h_api_dashi",
+      "h_packet_loss",
+      "s_async_alchemist",
+      "h_async_poet",
+      "r_xian_cheng_lao_ma",
+      "r_ctrl_alt_elite"
+    ],
+    "multi_owners": [
+      "r_async_await",
+      "s_cache_prophet",
+      "s_debug_deity",
+      "s_async_alchemist",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_dai_ma_nong_min",
+      "s_async_anarchist",
+      "h_packet_loss",
+      "h_mem_leak",
+      "r_ling_dian_wu_cha"
+    ],
+    "expected_hits": [
+      "packet_loss",
+      "async_await",
+      "midnight_debugger",
+      "mem_leak",
+      "mu_yu_ren"
+    ],
+    "scores": {
+      "r_async_await": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "完美匹配：8年后端经验，Go/Rust高并发，千万日活系统经验，正是需求所需"
+      },
+      "s_pixel_perfectionist": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "前端开发者，与后端服务需求完全不相关，无互补价值"
+      },
+      "s_api_whisperer": {
+        "direct_relevance": 3,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "初级后端（2年经验），Node.js能力有限，距离高性能后端还有距离"
+      },
+      "h_xiu_che_de_ma_nong": {
+        "direct_relevance": 3,
+        "complementary_value": 2,
+        "serendipity": 3,
+        "rationale": "4年Java后端经验但侧重业务系统，性能经验不足，跨界背景有点意思但不够惊喜"
+      },
+      "h_api_dashi": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "16年经验，API架构专家，技能相关但更偏设计而非性能优化，有互补价值"
+      },
+      "h_packet_loss": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "性能狂魔，C++/数据库优化/高并发，9年经验，能解决极致性能问题"
+      },
+      "s_async_alchemist": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "并发编程专家，异步架构大师，Erlang/Go/Rust全栈，能带来并发设计的深度视角"
+      },
+      "h_async_poet": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "Go/分布式经验扎实，亿级流量背景，诗人身份带来独特代码美学视角"
+      },
+      "r_xian_cheng_lao_ma": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 2,
+        "rationale": "5年PHP经验但偏业务和本地化，缺乏高性能系统经验"
+      },
+      "r_ctrl_alt_elite": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "性能调优狂魔，C++/SIMD/GPU优化，6年极致优化经验，能解决毫秒级问题"
+      },
+      "s_cache_prophet": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "缓存架构专家，性能优化强项，能填补高性能服务的缓存层设计缺口"
+      },
+      "s_debug_deity": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "性能分析和调试专家，能解决疑难性能问题，工具链完备，互补价值高"
+      },
+      "r_nei_cun_xie_lou_zhen_tan": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "12年底层经验，C/内核/性能分析，能从底层视角优化高性能服务"
+      },
+      "r_dai_ma_nong_min": {
+        "direct_relevance": 2,
+        "complementary_value": 1,
+        "serendipity": 1,
+        "rationale": "培训班出身，经验不足，React/Node.js偏前端，与高性能后端需求差距大"
+      },
+      "s_async_anarchist": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "Go/K8s/分布式系统专家，混沌工程经验能提升系统可靠性，有一定新意"
+      },
+      "h_mem_leak": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "8年C++性能专家，profiler/汇编/SIMD优化，60fps标准说明对性能要求极高"
+      },
+      "r_ling_dian_wu_cha": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "极限性能偏执狂，汇编级优化，高频交易背景，能把性能推向极致"
+      }
+    }
+  },
+  {
+    "query": "做创意互动装置的艺术家",
+    "level": "L2",
+    "single_owners": [
+      "h_glitch_artist",
+      "m_glitch_witch",
+      "h_glitch_poet",
+      "s_signal_drifter",
+      "h_wu_ming_zhi",
+      "h_wu_sheng_de_ren",
+      "h_fermentation_hacker",
+      "h_liu_lang_de_shu_ju",
+      "h_glitch_girl",
+      "s_signal_witch"
+    ],
+    "multi_owners": [
+      "h_glitch_artist",
+      "r_qian_duan_hua_jia",
+      "m_glitch_witch",
+      "s_mo_shui_cheng_xu_yuan",
+      "h_glitch_girl",
+      "h_wu_ming_zhi",
+      "h_ink_and_pixel",
+      "r_kernel_panic",
+      "h_glitch_poet",
+      "h_pixel_witch"
+    ],
+    "expected_hits": [
+      "glitch_girl",
+      "glitch_artist",
+      "glitch_poet",
+      "leather_punk",
+      "fermentation_hacker"
+    ],
+    "scores": {
+      "h_glitch_artist": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "完全对口的新媒体艺术家，Processing/TouchDesigner/Arduino都是做互动装置的核心工具，有美术馆展览经验"
+      },
+      "m_glitch_witch": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "互动装置专家（脑电波控制雕塑），除了技术还带来神经美学和沉浸式体验的独特视角"
+      },
+      "h_glitch_poet": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "有互动装置展经验，Processing/Arduino技术栈匹配，声音合成和即兴表演带来跨媒介可能性"
+      },
+      "s_signal_drifter": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "声音雕塑是互动装置的一种形式，SDR无线电和电磁波艺术带来非常规的感官维度"
+      },
+      "h_wu_ming_zhi": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "交互设计+Arduino能力直接相关，'无用设计'和物联网艺术理念与创意装置契合"
+      },
+      "h_wu_sheng_de_ren": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "声音装置是互动装置重要类型，Max/MSP和生成音频技术完全对口，有废弃工厂装置展实战经验"
+      },
+      "h_fermentation_hacker": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "生物艺术与互动装置跨界——用细菌作画、康普茶生长电路板，是技术+有机材料的惊喜组合"
+      },
+      "h_liu_lang_de_shu_ju": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "数据可视化能转化为装置形式，D3.js/Processing技能可用，但需要从屏幕转向物理空间"
+      },
+      "h_glitch_girl": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "新媒体艺术背景，Processing/Arduino直接对口，'会呼吸的网页'等项目显示互动设计思维"
+      },
+      "s_signal_witch": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "电磁波可视化和WiFi干扰装置直接相关，自制天线和信号艺术带来独特的不可见媒介维度"
+      },
+      "r_qian_duan_hua_jia": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "WebGL和动画技能有限相关性，但主要经验在营销H5而非艺术装置，物理互动能力未知"
+      },
+      "s_mo_shui_cheng_xu_yuan": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "生成艺术+实体作品（丝网印刷）显示线上线下结合能力，创意编程思维与互动装置契合"
+      },
+      "h_ink_and_pixel": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "手绘动画+网页交互的混合能力，能为装置带来视觉叙事维度，但缺乏传感器等硬件经验"
+      },
+      "r_kernel_panic": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "嵌入式和硬件调试能力是复杂装置的技术保障，填补艺术家通常缺乏的底层硬件能力"
+      },
+      "h_pixel_witch": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "Web动效和游戏UI经验，WebGL有一定相关性，但主要在屏幕交互而非物理装置"
+      }
+    }
+  },
+  {
+    "query": "懂密码学的人",
+    "level": "L2",
+    "single_owners": [
+      "r_mi_ma_kao_gu_yuan",
+      "s_bit_alchemist",
+      "s_liang_zi_liu_lang",
+      "s_gui_ling_hacker",
+      "h_binary_sage",
+      "h_grey_hat",
+      "m_blockchain_skeptic",
+      "h_packet_witch",
+      "h_mo_sheng_ren",
+      "h_quantum_troll"
+    ],
+    "multi_owners": [
+      "s_liang_zi_kuang_gong",
+      "r_mi_ma_kao_gu_yuan",
+      "s_liang_zi_liu_lang",
+      "h_liang_zi_da_shu",
+      "s_bit_alchemist",
+      "h_mo_sheng_ren",
+      "m_blockchain_skeptic",
+      "s_gui_ling_hacker",
+      "h_qbit_witch",
+      "r_binary_rebel"
+    ],
+    "expected_hits": [
+      "digital_hermit",
+      "liang_zi_liu_lang",
+      "bit_alchemist",
+      "mo_sheng_ren",
+      "protocol_punk"
+    ],
+    "scores": {
+      "r_mi_ma_kao_gu_yuan": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "懂古典密码和密码分析，但不熟悉现代密码学；能带来历史视角和科普能力；跨时代的密码学视角可能带来意外启发"
+      },
+      "s_bit_alchemist": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "现代密码学专家，完全对口；能教学和科普；是最直接的匹配，符合预期"
+      },
+      "s_liang_zi_liu_lang": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "后量子密码专家，技能完全对口；填补未来安全需求的缺口；前瞻性强但仍在密码学领域内"
+      },
+      "s_gui_ling_hacker": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "懂密码学且擅长实战应用；带来隐私保护和匿名通信的实践经验；密码朋克视角有价值但不算意外"
+      },
+      "h_binary_sage": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "密码学+逆向工程双技能；哲学视角可能带来理论深度；技术与哲学结合是有趣的跨界"
+      },
+      "h_grey_hat": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "对密码学有兴趣但非主要技能；安全实践经验能补充应用场景；安全顾问匹配密码学较常规"
+      },
+      "m_blockchain_skeptic": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "密码学研究员，懂零知识证明；批判性视角能揭示技术滥用；密码学+调查报道的组合颇具启发"
+      },
+      "h_packet_witch": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 5,
+        "rationale": "对密码学有兴趣但非核心技能；网络安全视角有一定补充；网络女巫+塔罗的组合极具意外性和趣味"
+      },
+      "h_mo_sheng_ren": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "加密算法和匿名通信专家，完全对口；隐私工程实践经验宝贵；隐私工程师懂密码学是预期内"
+      },
+      "h_quantum_troll": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "量子计算背景与后量子密码相关；物理视角可能带来算法理解；量子计算与密码学关联已较明确"
+      },
+      "s_liang_zi_kuang_gong": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "密码学+区块链双专业，完全对口；量子物理视角能带来理论深度；区块链架构师懂密码学较常见"
+      },
+      "h_liang_zi_da_shu": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "密码学专家+后量子研究，技能完全匹配；数学建模和安全审计能力是重要补充；物理博士转密码学已成趋势"
+      },
+      "h_qbit_witch": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 5,
+        "rationale": "量子算法与密码学相关但非核心；量子随机数有密码学应用；量子研究+塔罗占卜的组合极具创意和意外性"
+      },
+      "r_binary_rebel": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "安全工程师对密码学有一定了解；渗透测试能验证密码实现安全性；安全工程师懂基础密码学是常规配置"
+      }
+    }
+  },
+  {
+    "query": "我的项目需要做安全审计",
+    "level": "L3",
+    "single_owners": [
+      "r_blockchain_skeptic",
+      "r_binary_rebel",
+      "h_grey_hat",
+      "r_jia_na_da_xue_lang",
+      "s_hui_se_mao_zi",
+      "r_yun_wei_lao_bing",
+      "r_qu_kuai_lian_tao_ren",
+      "r_ce_shi_lao_niang",
+      "s_quantum_lawyer",
+      "r_sudo_rm_rf"
+    ],
+    "multi_owners": [
+      "r_binary_rebel",
+      "s_hui_se_mao_zi",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "r_bei_jing_de_yun",
+      "r_hei_ke_song_du_zhe",
+      "h_grey_hat",
+      "h_echo_in_void",
+      "s_packet_sniffer",
+      "r_ce_shi_lao_niang",
+      "r_ban_ye_diao_shi"
+    ],
+    "expected_hits": [
+      "cyber_monk",
+      "zero_day",
+      "blockchain_skeptic",
+      "grey_hat",
+      "ghost_in_shell"
+    ],
+    "scores": {
+      "r_blockchain_skeptic": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "智能合约安全审计专家，发现过致命漏洞，若项目涉及Web3则完全对口"
+      },
+      "r_binary_rebel": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 1,
+        "rationale": "HackerOne前100渗透测试专家，6年金融医疗审计经验，直接满足安全审计需求且带来安全文化"
+      },
+      "h_grey_hat": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "12年安全经验，大厂安全部门背景，独立顾问身份适合审计项目"
+      },
+      "r_jia_na_da_xue_lang": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "4年渗透测试经验，拿过CVE，对代码安全有洁癖，适合严谨的安全审计"
+      },
+      "s_hui_se_mao_zi": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 1,
+        "rationale": "渗透测试工程师，红队演练和应急响应经验，能从攻击者视角做审计并提供安全培训"
+      },
+      "r_yun_wei_lao_bing": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "运维背景可提供基础设施安全视角，但不是专业安全审计人员"
+      },
+      "r_qu_kuai_lian_tao_ren": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "有密码学和风险控制经验，若项目涉及金融或区块链可带来互补价值"
+      },
+      "r_ce_shi_lao_niang": {
+        "direct_relevance": 2,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "测试架构师能从质量保证角度发现安全隐患，是被忽视但有价值的补充视角"
+      },
+      "s_quantum_lawyer": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "智能合约审计+法律背景的罕见组合，能同时审查技术和合规风险"
+      },
+      "r_sudo_rm_rf": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "SRE经验可补充运维安全视角，但非专业审计人员"
+      },
+      "r_nei_cun_xie_lou_zhen_tan": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "底层系统专家能发现内存安全、性能相关的深层漏洞，是常规审计易忽视的维度"
+      },
+      "r_bei_jing_de_yun": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "云架构背景可审查部署和配置安全，但非核心审计能力"
+      },
+      "r_hei_ke_song_du_zhe": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "社会工程学专家填补技术审计之外的人为因素漏洞，90%成功率的钓鱼演练经验宝贵"
+      },
+      "h_echo_in_void": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 1,
+        "rationale": "DevOps背景可提供基础设施安全建议，但非专业审计角色"
+      },
+      "s_packet_sniffer": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "CTF老手和渗透测试专家，逆向工程和exploit编写能力强，适合深度技术审计"
+      },
+      "r_ban_ye_diao_shi": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "系统架构师可做架构层面安全评审，但不是专业审计人员"
+      }
+    }
+  },
+  {
+    "query": "我想学怎么做实时视觉特效",
+    "level": "L3",
+    "single_owners": [
+      "h_pixel_witch",
+      "s_neon_vandal",
+      "r_wu_sheng_de_hua",
+      "h_liu_guang_ke",
+      "s_glitch_queen",
+      "s_pastel_coder",
+      "s_sheng_yin_lian_jin",
+      "h_shader_punk",
+      "s_diao_ke_shi_shader",
+      "r_mo_yu_da_shi"
+    ],
+    "multi_owners": [
+      "s_shader_shaman",
+      "s_shader_witch",
+      "r_ctrl_alt_elite",
+      "s_mo_shui_cheng_xu_yuan",
+      "s_zhan_di_she_ying_shi",
+      "h_pixel_witch",
+      "s_pixel_perfectionist",
+      "s_pastel_coder",
+      "r_neon_samurai",
+      "h_ink_and_pixel"
+    ],
+    "expected_hits": [
+      "glitch_queen",
+      "shader_shaman",
+      "shader_punk",
+      "shader_witch",
+      "neon_vandal"
+    ],
+    "scores": {
+      "h_pixel_witch": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "有WebGL和动效经验，但更偏静态web动画；可访问性设计是实用补充技能；组合较常规"
+      },
+      "s_neon_vandal": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "明确标注can_teach实时视觉效果，Shader和VJ现场经验完全对口；LED和现场经验带来实战视角；地下派对背景有点意外但很相关"
+      },
+      "r_wu_sheng_de_hua": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "主要做帧动画和Blender雕刻，不是实时系统；声音设计可能有用但关联弱；动画师学实时特效是有点意外的路径"
+      },
+      "h_liu_guang_ke": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "Shader、Three.js和Processing都是实时特效核心技能；声音设计和纪录片剪辑提供叙事维度；技能组合符合预期"
+      },
+      "s_glitch_queen": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "TouchDesigner和GLSL是顶级实时特效工具，明确can_teach实时视觉编程；音视频同步和VJ经验是强力补充；暴力美学风格在预期范围内"
+      },
+      "s_pastel_coder": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "CSS动画和游戏UI经验有关，但想学WebGL说明还不会；可访问性和色彩理论有一定价值；偏UI设计符合预期"
+      },
+      "s_sheng_yin_lian_jin": {
+        "direct_relevance": 2,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "音频专家不直接做视觉特效；但DSP和Max/MSP对音视频结合很有用；音效师教视觉是跨界惊喜"
+      },
+      "h_shader_punk": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "GLSL、Three.js和VJ经验完全命中需求；live coding和生成艺术提供表演维度；shader专家是典型选择"
+      },
+      "s_diao_ke_shi_shader": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "GLSL和Three.js技能对口，材质纹理理解深刻；传统木雕的光影理解是独特补充；木匠教shader是绝妙的跨界"
+      },
+      "r_mo_yu_da_shi": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "正在学Three.js说明尚未掌握；CSS动画太基础；实习生学特效很普通"
+      },
+      "s_shader_shaman": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "OpenGL和图形编程是底层硬实力；物理模拟和数学能力提供深度理解；数学狂人做图形在意料之中"
+      },
+      "s_shader_witch": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "明确can_teach Shader编程入门，实时渲染和程序化生成完全对口；游戏引擎和VJ背景提供工程经验；标准的图形程序员"
+      },
+      "r_ctrl_alt_elite": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "GPU编程和渲染管线优化对实时特效很重要；性能调优是多数人忽略的关键维度；极客性能狂有点意外但合理"
+      },
+      "s_mo_shui_cheng_xu_yuan": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "p5.js和shader编程直接相关，明确can_teach相关内容；线下印刷提供物理输出思路；美术生转码农较常见"
+      },
+      "s_zhan_di_she_ying_shi": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 5,
+        "rationale": "计算机视觉不等于实时特效；图像处理对视觉有帮助但方向不同；战地记者教视觉编程是完全意外的组合"
+      },
+      "s_pixel_perfectionist": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 1,
+        "rationale": "CSS动画和交互基础有关但不够硬核；性能优化意识有价值；想学WebGL说明现在不会；前端学特效很常规"
+      },
+      "r_neon_samurai": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "赛博美学和3D建模有关联，VJ经验是加分项；电子音乐和数字艺术背景提供文化语境；全栈做VJ较常见"
+      },
+      "h_ink_and_pixel": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "SVG和CSS动画是基础，但在研究手绘动画嵌入说明方向相关；插画师视角提供美学补充；手绘艺术家学编程特效是有趣的反向路径"
+      }
+    }
+  },
+  {
+    "query": "帮我部署一个能扛大流量的后端",
+    "level": "L3",
+    "single_owners": [
+      "r_async_await",
+      "r_bei_jing_de_yun",
+      "r_xian_cheng_lao_ma",
+      "r_xiao_zhen_qing_nian",
+      "h_midnight_debugger",
+      "h_bao_an_ge",
+      "r_lao_wang_bu_lao",
+      "r_san_dian_shui",
+      "r_zhong_nian_wei_ji",
+      "r_ban_ye_diao_shi"
+    ],
+    "multi_owners": [
+      "s_cache_prophet",
+      "s_debug_deity",
+      "h_packet_loss",
+      "r_nei_cun_xie_lou_zhen_tan",
+      "h_bao_an_ge",
+      "s_async_alchemist",
+      "s_chaos_architect",
+      "h_memory_hoarder",
+      "r_ling_dian_wu_cha",
+      "h_mem_leak"
+    ],
+    "expected_hits": [
+      "sudo_rm",
+      "async_await",
+      "packet_loss",
+      "echo_in_void",
+      "cloud_nomad"
+    ],
+    "scores": {
+      "r_async_await": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "日活千万系统经验，Go/Rust高并发技能完全对口，能立即上手大流量后端部署"
+      },
+      "r_bei_jing_de_yun": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 1,
+        "rationale": "DevOps专家，K8s和云架构经验直接解决部署问题，成本优化和稳定性是高流量系统的关键互补"
+      },
+      "r_xian_cheng_lao_ma": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 2,
+        "rationale": "技术栈偏小程序和PHP，缺乏大流量经验，对扛流量的后端帮助有限"
+      },
+      "r_xiao_zhen_qing_nian": {
+        "direct_relevance": 1,
+        "complementary_value": 1,
+        "serendipity": 1,
+        "rationale": "前端开发，技能与后端大流量部署完全无关"
+      },
+      "h_midnight_debugger": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "Go和分布式系统经验强，性能优化能力对大流量系统有价值，救火经验是加分项"
+      },
+      "h_bao_an_ge": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "运维基础技能有用，但缺乏大规模集群和云原生经验，更适合中小规模场景"
+      },
+      "r_lao_wang_bu_lao": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "分布式系统经验扎实，成本优化和踩坑经验对大流量系统有实用价值"
+      },
+      "r_san_dian_shui": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 1,
+        "rationale": "Go+K8s+DevOps组合完美，云成本优化能力对大流量部署是关键互补技能"
+      },
+      "r_zhong_nian_wei_ji": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 3,
+        "rationale": "产品总监，技术不对口，但如果用户实际需要商业化大流量产品，产品视角会有意外价值"
+      },
+      "r_ban_ye_diao_shi": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "Rust分布式系统专家，性能优化和凌晨救火能力直接对口大流量场景"
+      },
+      "s_cache_prophet": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "缓存架构是大流量系统的核心，Redis/CDN专精完全对口，性能优化能力是关键互补"
+      },
+      "s_debug_deity": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "性能调优专家，虽非部署主力，但对大流量系统的瓶颈排查和优化有极高价值"
+      },
+      "h_packet_loss": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "C++性能狂魔，数据库优化和高并发经验对大流量后端有直接价值，极致优化是互补技能"
+      },
+      "r_nei_cun_xie_lou_zhen_tan": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "底层调试能力偏硬核，部署场景用不上，但如果大流量系统出现深层bug会是救星"
+      },
+      "s_async_alchemist": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "异步并发专家，消息队列和事件驱动架构是大流量系统的核心模式，完全对口"
+      },
+      "s_chaos_architect": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "K8s+混沌工程直接对口，韧性测试是大流量系统容易忽视但极其重要的互补能力"
+      },
+      "h_memory_hoarder": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "内存优化技能对大流量有用但非核心，更适合性能极限场景而非部署阶段"
+      },
+      "r_ling_dian_wu_cha": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "极限性能优化专家，数据库查询加速对大流量有直接价值，纳秒级优化是高阶互补技能"
+      },
+      "h_mem_leak": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "C++性能分析能力有用，但偏游戏引擎和实时渲染，与后端大流量场景有距离"
+      }
+    }
+  },
+  {
+    "query": "我的网站太丑了需要重新设计",
+    "level": "L3",
+    "single_owners": [
+      "s_lao_ban_niang",
+      "h_ban_lu_chu_jia",
+      "s_xiao_zhen_she_ji_shi",
+      "r_ctrl_z_xia_fan",
+      "h_ctrl_z",
+      "h_san_xing_lv_shi",
+      "r_ctrl_z_xia_ke",
+      "s_pastel_coder",
+      "r_qian_duan_hua_jia",
+      "r_mo_fa_shi_de_bug"
+    ],
+    "multi_owners": [
+      "r_qian_duan_hua_jia",
+      "s_pastel_coder",
+      "s_lv_shi_de_figma",
+      "r_ctrl_z_xia_fan",
+      "r_mo_fa_shi_de_bug",
+      "r_mo_ren_zhi_wai",
+      "h_broken_mirror",
+      "r_mo_ban_xia_zai_jia",
+      "s_pixel_perfectionist",
+      "r_mo_yu_da_shi"
+    ],
+    "expected_hits": [
+      "broken_mirror",
+      "ctrl_z",
+      "wu_ming_zhi",
+      "san_xing_lv_shi",
+      "pixel_chef"
+    ],
+    "scores": {
+      "s_lao_ban_niang": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "UI设计师直接对口，餐饮经验带来的商业审美和成本意识是网站设计的加分项"
+      },
+      "h_ban_lu_chu_jia": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "专职UI设计师，技能完全匹配，但相对常规没有特别亮点"
+      },
+      "s_xiao_zhen_she_ji_shi": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "传统平面设计背景，对网页设计适配度中等，但接地气的商业经验有一定价值"
+      },
+      "r_ctrl_z_xia_fan": {
+        "direct_relevance": 4,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "UI设计师但经验浅，能完成基本工作但缺乏独特价值"
+      },
+      "h_ctrl_z": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "UI/UX设计师技能全面，用户访谈能力能帮助理解网站真正需求，有实战经验"
+      },
+      "h_san_xing_lv_shi": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "律师转行设计师，信息架构和严谨逻辑思维能让网站结构清晰易用，跨界视角极具启发"
+      },
+      "r_ctrl_z_xia_ke": {
+        "direct_relevance": 5,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "UI/UX设计师技能匹配，游戏UI经验可能带来趣味性，但整体较常规"
+      },
+      "s_pastel_coder": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "同时懂设计和前端实现，能确保设计落地，无障碍设计理念是重要补充"
+      },
+      "r_qian_duan_hua_jia": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "技术和设计双栖，能桥接设计与实现，11年经验保证质量"
+      },
+      "r_mo_fa_shi_de_bug": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "擅长创意交互，若想要不只是'不丑'而是'惊艳'，这是理想人选"
+      },
+      "s_lv_shi_de_figma": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "律师的逻辑论证能力转化为设计说服力，组件化思维能建立可扩展的设计系统"
+      },
+      "r_mo_ren_zhi_wai": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "前端能力适配，无障碍设计是大多数人忽视但至关重要的维度"
+      },
+      "h_broken_mirror": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "心理学背景让设计不止于视觉，能从认知层面优化用户体验，独特视角极有价值"
+      },
+      "r_mo_ban_xia_zai_jia": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "全栈但侧重后端，对设计帮助有限，经验浅且不是设计专长"
+      },
+      "s_pixel_perfectionist": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "前端实现能力强，能把设计100%还原，交互打磨细致是网站体验的关键"
+      },
+      "r_mo_yu_da_shi": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 2,
+        "rationale": "实习生经验不足，虽有前端能力但对设计帮助有限，可靠性存疑"
+      }
+    }
+  },
+  {
+    "query": "数据库越来越慢怎么办",
+    "level": "L3",
+    "single_owners": [
+      "h_db_lao_wang",
+      "s_sql_poet",
+      "h_db_necromancer",
+      "s_api_whisperer",
+      "r_ling_dian_wu_cha",
+      "h_mem_leak",
+      "m_memory_leak_hunter",
+      "s_cache_prophet",
+      "s_wu_gui_yun_wei",
+      "s_debug_deity"
+    ],
+    "multi_owners": [
+      "h_db_lao_wang",
+      "s_sql_poet",
+      "h_db_necromancer",
+      "r_shu_ju_kao_gu_xue_jia",
+      "s_debug_deity",
+      "s_api_whisperer",
+      "h_packet_loss",
+      "r_jie_gou_shi",
+      "s_cache_prophet",
+      "s_data_druid"
+    ],
+    "expected_hits": [
+      "db_lao_wang",
+      "db_necromancer",
+      "sql_poet",
+      "packet_loss"
+    ],
+    "scores": {
+      "h_db_lao_wang": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "数据库性能优化专家，技能完全对口，还能提供监控和容量规划等配套价值"
+      },
+      "s_sql_poet": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 1,
+        "rationale": "查询优化和性能调优专家，能直接解决慢查询问题，还能教授系统性方法"
+      },
+      "h_db_necromancer": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "SQL优化专家，额外提供灾难恢复能力——解决慢的同时防止更大问题"
+      },
+      "s_api_whisperer": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "有数据库基础但经验有限，能从API层面排查问题根源，但深度优化能力不足"
+      },
+      "r_ling_dian_wu_cha": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "极限性能优化专家，能从底层架构解决问题，带来超越常规DBA思路的优化角度"
+      },
+      "h_mem_leak": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "性能分析专家，虽然主攻应用层，但profiling和瓶颈定位能力能帮助排查数据库慢的真实原因"
+      },
+      "m_memory_leak_hunter": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "性能优化思维可借鉴，但主要针对内存问题，对数据库优化直接帮助有限"
+      },
+      "s_cache_prophet": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "缓存架构专家，能通过缓存层减轻数据库压力——治标也治本的互补方案"
+      },
+      "s_wu_gui_yun_wei": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "监控和基础设施专家，能帮助建立可观测性体系找到慢的根源，但不直接做数据库优化"
+      },
+      "s_debug_deity": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "性能分析和问题定位专家，火焰图和系统性调试方法能精准定位数据库瓶颈"
+      },
+      "r_shu_ju_kao_gu_xue_jia": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 3,
+        "rationale": "数据分析师，可能帮助分析慢查询的数据访问模式，但缺乏数据库优化技能"
+      },
+      "h_packet_loss": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "数据库优化和高并发专家，算法优化能力能从根本上改进查询效率"
+      },
+      "r_jie_gou_shi": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "架构师视角——可能发现问题不在数据库本身而在系统设计，帮你做减法而非加配置"
+      },
+      "s_data_druid": {
+        "direct_relevance": 1,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "数据可视化专家，能将查询性能指标可视化帮助诊断，意外的监控和洞察角度"
+      }
+    }
+  },
+  {
+    "query": "想做一个把声音变成画面的东西",
+    "level": "L4",
+    "single_owners": [
+      "h_wu_sheng_de_ren",
+      "s_sheng_yin_lian_jin",
+      "s_signal_drifter",
+      "h_echo_chamber",
+      "r_wu_sheng_de_hua",
+      "h_liu_guang_ke",
+      "s_signal_witch",
+      "r_wu_sheng_de_hui",
+      "m_wu_sheng_de_hai",
+      "s_mu_guang_shi_ren"
+    ],
+    "multi_owners": [
+      "r_qian_duan_hua_jia",
+      "h_liu_lang_de_shu_ju",
+      "h_echo_chamber",
+      "s_sheng_yin_lian_jin",
+      "s_signal_rider",
+      "h_pixel_witch",
+      "h_wu_sheng_de_ren",
+      "s_data_druid",
+      "h_data_gardener",
+      "r_jiu_dian_hua_shi"
+    ],
+    "expected_hits": [
+      "glitch_girl",
+      "glitch_queen",
+      "wu_sheng_de_ren",
+      "liu_guang_ke",
+      "glitch_monk",
+      "echo_chamber"
+    ],
+    "scores": {
+      "h_wu_sheng_de_ren": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "声音设计+生成艺术+编程技能完全对口，Max/MSP和算法音乐经验可直接应用，声音装置经验说明已做过类似声音-视觉转换项目"
+      },
+      "s_sheng_yin_lian_jin": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 2,
+        "rationale": "DSP和音频算法专长可提供技术底层支持，但缺少视觉化经验，更多是音频处理端的专家支持"
+      },
+      "s_signal_drifter": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "SDR和声音装置经验相关，但独特之处在于电磁波-声音转换思路，可能启发声音-画面转换的新方法"
+      },
+      "h_echo_chamber": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "Web Audio API和DSP技能可用于实现，但主要是工程实现角色，创意层面贡献有限"
+      },
+      "r_wu_sheng_de_hua": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "动画和视觉叙事能力填补画面输出端的需求，有声音设计背景理解音频输入，跨声画两端但需适配"
+      },
+      "h_liu_guang_ke": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "Shader和Three.js可实现实时视觉生成，有声音设计经验理解声音参数，技能组合高度匹配"
+      },
+      "s_signal_witch": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "电磁场可视化经验提供独特视角，信号转图像的思路可能带来意想不到的实现方式"
+      },
+      "r_wu_sheng_de_hui": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "田野录音和声音叙事经验可提供素材和创意输入，但缺少视觉化和编程技能"
+      },
+      "m_wu_sheng_de_hai": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "田野录音和声音设计经验可提供创意素材，但主要在声音端，缺少画面生成能力"
+      },
+      "s_mu_guang_shi_ren": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "田野录音和互动设计思维有一定价值，但技能集更偏游戏叙事，与核心需求关联度较低"
+      },
+      "r_qian_duan_hua_jia": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "WebGL和动画技能可实现视觉输出，UI经验能提升交互体验，但缺少音频处理背景"
+      },
+      "h_liu_lang_de_shu_ju": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "数据可视化经验可转换为音频参数-视觉映射，Processing和creative coding技能匹配，跨界视角有启发性"
+      },
+      "s_signal_rider": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "DSP和实时音频处理能力强，可提供音频分析和特征提取支持，但缺少视觉输出经验"
+      },
+      "h_pixel_witch": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "WebGL和动画技能可实现视觉效果，有合成器音乐兴趣显示对声音的理解，但需补充音频技术"
+      },
+      "s_data_druid": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "数据叙事和可视化思维可应用于声音参数映射，但主要专长在静态可视化而非实时生成"
+      },
+      "h_data_gardener": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "传感器数据可视化经验可迁移到音频参数，Three.js技能有用，有机生长隐喻可能带来独特视觉风格"
+      },
+      "r_jiu_dian_hua_shi": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "现场录音和环境声采集可提供素材，声音设计经验有参考价值，但缺少视觉化和编程技能"
+      }
+    }
+  },
+  {
+    "query": "用技术做点有意义的事",
+    "level": "L4",
+    "single_owners": [
+      "h_glitch_girl",
+      "r_404_poet",
+      "s_mo_fa_shu_dian",
+      "r_jiu_shu_dian_de_deng",
+      "h_wu_sheng_de_ren",
+      "h_glitch_poet",
+      "s_mycelium_networker",
+      "m_glitch_witch",
+      "h_glitch_artist",
+      "r_hei_ke_song_du_zhe"
+    ],
+    "multi_owners": [
+      "r_zhong_nian_wei_ji",
+      "r_qian_duan_hua_jia",
+      "r_mo_ren_zhi_wai",
+      "h_hua_li_de_shi_bai",
+      "r_feng_zhong_de_dai_ma",
+      "r_jia_ban_jue_yuan_zhe",
+      "r_bian_yi_qi_po_yi_zhe",
+      "r_bei_ou_xue_piao",
+      "r_shu_ju_kao_gu_xue_jia",
+      "r_mo_mo_xie_dai_ma"
+    ],
+    "expected_hits": [
+      "git_push_origin_love",
+      "dai_ma_wu_tuo_bang",
+      "stack_overflow_soul",
+      "code_monk"
+    ],
+    "scores": {
+      "h_glitch_girl": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "创意技术正是用技术做有意义事的最佳形式，数据可视化和生成艺术能让技术变得可感知，跨界艺术视角带来意想不到的价值表达方式"
+      },
+      "r_404_poet": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "技术伦理播客和开发者关系经验恰好填补了技术项目中「意义」这一维度的传播需求，能帮助将技术的社会价值讲给更多人听"
+      },
+      "s_mo_fa_shu_dian": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "开源书和CC协议本身就是有意义的贡献，好文档能让更多人参与有意义的技术项目，是价值传递的基础设施"
+      },
+      "r_jiu_shu_dian_de_deng": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "长期主义和真实关系恰好是有意义项目的可持续要素，能帮助技术项目建立真正的社区而非流量池"
+      },
+      "h_wu_sheng_de_ren": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "用技术记录城市声音、做声音装置是极具社会意义的艺术实践，废弃工厂展览展示了技术介入空间的可能性"
+      },
+      "h_glitch_poet": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "把bug当作品、让技术艺术界限模糊，正是重新定义技术意义的实践，互动装置让技术与人产生新的关系"
+      },
+      "s_mycelium_networker": {
+        "direct_relevance": 3,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "用菌丝启发分布式网络、做生物可降解电路板是技术与自然结合的典范，这种跨界思维能带来全新的技术哲学"
+      },
+      "m_glitch_witch": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "脑电波互动雕塑、神经美学探索展示了技术作为感知延伸的可能，将技术视为魔法是对技术意义的诗意重构"
+      },
+      "h_glitch_artist": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "新媒体艺术实践和VJing表演让技术成为实时表达媒介，「技术是材料不是工具」的理念本身就是对技术意义的深刻理解"
+      },
+      "r_hei_ke_song_du_zhe": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "安全培训有社会价值但较常规，社会工程学视角可能带来对技术伦理和人性弱点的独特洞察"
+      },
+      "r_zhong_nian_wei_ji": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "18年经验和商业视角有价值，但「不想创业太累」「B端赚钱」的动机与做有意义的事的情怀相距较远"
+      },
+      "r_qian_duan_hua_jia": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "用户体验重视和技术美学追求有价值，但「不想再做营销页」更像是逃避而非追求意义的主动选择"
+      },
+      "r_mo_ren_zhi_wai": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "无障碍倡导是技术公平性的重要维度，让技术服务被忽视的群体正是有意义的典范，且大多数人不会主动想到这个方向"
+      },
+      "h_hua_li_de_shi_bai": {
+        "direct_relevance": 2,
+        "complementary_value": 2,
+        "serendipity": 2,
+        "rationale": "失败经验有价值但经验尚浅，「擅长快速验证不擅长坚持」与做有意义的事需要的韧性有差距"
+      },
+      "r_feng_zhong_de_dai_ma": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "把复杂技术讲清楚、只写真话的原则有社会价值，好教程能降低技术门槛让更多人参与有意义的事"
+      },
+      "r_jia_ban_jue_yuan_zhe": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "拒绝加班是健康的工作观，但经验有限且动机主要是逃避压力而非追求意义"
+      },
+      "r_bian_yi_qi_po_yi_zhe": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "编程语言设计是技术基础设施的长期价值投入，但与「做有意义的事」的连接需要更多场景化"
+      },
+      "r_bei_ou_xue_piao": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "医疗科技UX research有社会价值，但北欧生活方式和严格work-life balance更像个人选择而非对意义的追求"
+      },
+      "r_shu_ju_kao_gu_xue_jia": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "数据叙事挖掘被遗忘的真相、寻求NGO和调查报道合作，明确指向用数据技术做社会意义的事"
+      },
+      "r_mo_mo_xie_dai_ma": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "独立开发能力和产品经验有用，但缺乏明确的意义追求方向，更像是在寻找舒适的工作方式"
+      }
+    }
+  },
+  {
+    "query": "把传统手艺和数字技术结合",
+    "level": "L4",
+    "single_owners": [
+      "s_leather_hacker",
+      "s_diao_ke_shi",
+      "h_leather_punk",
+      "h_memory_weaver",
+      "h_ink_alchemist",
+      "s_xiao_zhen_she_ji_shi",
+      "m_analog_hacker",
+      "s_mo_shui_cheng_xu_yuan",
+      "r_jie_zou_bian_cheng_shi",
+      "r_mo_ni_lian_jin_shi"
+    ],
+    "multi_owners": [
+      "r_qian_duan_hua_jia",
+      "m_glitch_witch",
+      "s_xiao_zhen_she_ji_shi",
+      "h_neon_architect",
+      "h_memory_weaver",
+      "r_neon_samurai",
+      "s_liang_zi_kuang_gong",
+      "r_qu_kuai_lian_tao_ren",
+      "r_shu_zi_you_min",
+      "r_shu_ju_kao_gu_xue_jia"
+    ],
+    "expected_hits": [
+      "lao_tie_rust",
+      "ink_alchemist",
+      "leather_punk",
+      "memory_weaver",
+      "ink_and_pixel",
+      "diao_ke_shi_shader"
+    ],
+    "scores": {
+      "s_leather_hacker": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "正在做的智能皮夹克就是传统皮革工艺+NFC芯片的完美结合案例，直接对口"
+      },
+      "s_diao_ke_shi": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "传统木雕转数字雕刻，既有十年手艺底蕴又精通3D建模，典型的手艺数字化实践者"
+      },
+      "h_leather_punk": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "手工皮具+嵌入式代码的双重技能，正在探索传统美学与智能硬件的结合点"
+      },
+      "h_memory_weaver": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "把数字档案、口述历史编织成实体织物，还开发算法生成编织图案，诗意地融合了数据与纺织"
+      },
+      "h_ink_alchemist": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "活字印刷+区块链的跨界组合极具创新性，每张作品NFT化保证唯一性"
+      },
+      "s_xiao_zhen_she_ji_shi": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "传统广告设计学习AI绘图，属于工具数字化升级，相关但不够深入"
+      },
+      "m_analog_hacker": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 4,
+        "rationale": "网络安全转传统木工是反向数字化，但用安全思维做榫卯结构这个角度很新颖"
+      },
+      "s_mo_shui_cheng_xu_yuan": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "算法生成图案+丝网印刷实体化，完整的数字创作到手工落地流程"
+      },
+      "r_jie_zou_bian_cheng_shi": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "代码live coding+手工焊接MIDI控制器，音乐领域的软硬结合"
+      },
+      "r_mo_ni_lian_jin_shi": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "模拟电路工艺在数字时代的坚守，老设备维修是技艺传承，角度独特"
+      },
+      "r_qian_duan_hua_jia": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "前端开发+动画设计偏数字原生，与传统手艺结合点较弱"
+      },
+      "m_glitch_witch": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "脑电波互动雕塑、巫术与科技的结合，把传统神秘学用数字艺术重新演绎"
+      },
+      "h_neon_architect": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "赛博朋克美学+VJ表演，更多是数字技术的视觉化，与传统手艺距离较远"
+      },
+      "r_neon_samurai": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "数字艺术、电子音乐制作偏新媒体，传统手艺元素较少但有日本职人精神"
+      },
+      "s_liang_zi_kuang_gong": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 2,
+        "rationale": "量子物理+区块链都是前沿技术，与传统手艺没有交集"
+      },
+      "r_qu_kuai_lian_tao_ren": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "后端工程和金融科技完全不涉及传统手艺"
+      },
+      "r_shu_zi_you_min": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "全栈开发和快速原型更偏产品工程，可为手艺数字化提供技术支持但本身无手艺背景"
+      },
+      "r_shu_ju_kao_gu_xue_jia": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "数据考古和历史数据挖掘可以用于非遗手艺的数字化存档和传播，角度新颖"
+      }
+    }
+  },
+  {
+    "query": "我需要帮手",
+    "level": "L4",
+    "single_owners": [
+      "r_xiao_chao_lao_ban_niang",
+      "h_mo_yu_da_shi",
+      "m_xiao_zhen_ma_ma",
+      "r_zhong_nian_wei_ji",
+      "r_xian_cheng_lao_ma",
+      "m_silicon_valley_refugee",
+      "m_lao_tie_666",
+      "r_mo_yu_da_shi",
+      "m_xiu_che_lao_wang",
+      "m_tao_bao_dian_zhu"
+    ],
+    "multi_owners": [
+      "r_zhong_nian_wei_ji",
+      "r_xian_cheng_lao_ma",
+      "r_jia_ban_jue_yuan_zhe",
+      "r_xiao_chao_lao_ban_niang",
+      "r_jie_gou_shi",
+      "r_dai_ma_chui_shui",
+      "m_git_push_origin_love",
+      "s_xian_xia_cheng_xu_yuan",
+      "r_kuai_di_zhan_zhang",
+      "m_bug_free_zone"
+    ],
+    "expected_hits": [],
+    "scores": {
+      "r_xiao_chao_lao_ban_niang": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "有实际运营经验和客户资源，能在多种帮手场景中提供实操支持和地面执行力"
+      },
+      "h_mo_yu_da_shi": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "前端技能在需要界面或小项目时有用，但摸鱼属性可能影响稳定性"
+      },
+      "m_xiao_zhen_ma_ma": {
+        "direct_relevance": 1,
+        "complementary_value": 1,
+        "serendipity": 1,
+        "rationale": "画像聚焦于情感需求，与需要帮手的工作场景完全不相关"
+      },
+      "r_zhong_nian_wei_ji": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "丰富经验和商业眼光能在战略层面提供帮助，结果导向很适合执行型任务"
+      },
+      "r_xian_cheng_lao_ma": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "全栈能力+本地实战经验，既能干活又懂地面运营，翻译需求的能力很稀缺"
+      },
+      "m_silicon_valley_refugee": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "AI应用能力和国际视野可能带来意外的技术解决方案，但时差和工作节奏需要适配"
+      },
+      "m_lao_tie_666": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 3,
+        "rationale": "直播和地推经验在营销推广类帮手需求中有价值，实干精神是加分项"
+      },
+      "r_mo_yu_da_shi": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "前端技能可用，但实习生身份和摸鱼风格限制了可靠性"
+      },
+      "m_xiu_che_lao_wang": {
+        "direct_relevance": 1,
+        "complementary_value": 2,
+        "serendipity": 3,
+        "rationale": "汽修技能与常见帮手需求关联弱，但手艺人的执行力和问题解决思维在某些物理场景有意外价值"
+      },
+      "m_tao_bao_dian_zhu": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 2,
+        "rationale": "电商运营和数据分析能力在营销推广类需求中直接有用"
+      },
+      "r_jia_ban_jue_yuan_zhe": {
+        "direct_relevance": 2,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "产品思维有用但经验浅，明确的工作边界可能让合作效率高"
+      },
+      "r_jie_gou_shi": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "用哲学思维做架构这个组合很罕见，帮助做减法和重构的能力在复杂需求中是意外的稀缺价值"
+      },
+      "r_dai_ma_chui_shui": {
+        "direct_relevance": 3,
+        "complementary_value": 2,
+        "serendipity": 1,
+        "rationale": "基础后端能力能干活，但'能吃就行'的标准限制了价值上限"
+      },
+      "m_git_push_origin_love": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "开源维护经验意味着协作能力和技术深度，用commit记录生活这种思维方式可能带来独特视角"
+      },
+      "s_xian_xia_cheng_xu_yuan": {
+        "direct_relevance": 4,
+        "complementary_value": 5,
+        "serendipity": 3,
+        "rationale": "需求翻译能力是隐藏的核心价值，远程经验让协作更灵活，全栈能力能快速交付"
+      },
+      "r_kuai_di_zhan_zhang": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 5,
+        "rationale": "物流运营+系统开发的跨界很罕见，把错误率降到0.3%的细节控制力在任何执行场景都有意外价值"
+      },
+      "m_bug_free_zone": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "安全工程师的思维模式(找漏洞+强健性)在需求分析和风险控制上有独特价值，但新加坡位置限制了协作场景"
+      }
+    }
+  },
+  {
+    "query": "认识一些有趣的人",
+    "level": "L4",
+    "single_owners": [
+      "m_mo_mo_bo_wu_guan",
+      "m_schrodingers_date",
+      "m_mo_sheng_zhi_wu_yuan",
+      "m_mo_gu_bo_wu_xue_jia",
+      "m_ctrl_alt_delete_feelings",
+      "m_pixel_pusher",
+      "m_luo_ji_yan_jiu_yuan",
+      "m_lao_pao_er",
+      "m_shu_ye_ting_xue",
+      "m_signal_noise"
+    ],
+    "multi_owners": [
+      "r_jiu_shu_dian_de_deng",
+      "m_binary_nomad",
+      "r_shu_zi_you_min",
+      "m_fei_xu_tan_xian_jia",
+      "m_mo_mo_bo_wu_guan",
+      "m_liu_lang_de_yun",
+      "m_mo_sheng_ren",
+      "r_biao_qing_bao_gong_cheng_shi",
+      "m_code_monk",
+      "s_zhan_bu_shi_sql"
+    ],
+    "expected_hits": [
+      "lao_tie_rust",
+      "san_xing_lv_shi",
+      "zhan_bu_shi",
+      "shou_yi_ren",
+      "fei_xing_yuan_404"
+    ],
+    "scores": {
+      "m_mo_mo_bo_wu_guan": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "策展人专门挖掘有趣的人和物，本身就是'有趣'的专业定义者，完全对口且视角独特"
+      },
+      "m_schrodingers_date": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "量子物理学家+理工女+会弹吉他滑雪，多面性格本身就很有趣，知识深度带来对话价值"
+      },
+      "m_mo_sheng_zhi_wu_yuan": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "关注被忽视之物，给80盆植物起名字，这种细腻观察力让人际互动充满趣味"
+      },
+      "m_mo_gu_bo_wu_xue_jia": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "真菌研究者，被毒过三次还在继续，用菌丝网络比喻人际关系，这种执着和隐喻思维极有趣"
+      },
+      "m_ctrl_alt_delete_feelings": {
+        "direct_relevance": 3,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "成熟的PM，生活方式比较常规，虽然有唱片和摄影爱好，但整体可预期性较高"
+      },
+      "m_pixel_pusher": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "游戏美术师跨文化生活，二次元但不完全宅，有一定趣味性但属于较常见的'有趣青年'类型"
+      },
+      "m_luo_ji_yan_jiu_yuan": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "刑侦转UX设计，职业跨度大，会分析微表情又在学陶艺找平衡，反差本身就是有趣的来源"
+      },
+      "m_lao_pao_er": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "互联网老兵，有历史纵深感和故事，接地气有人味儿，但阅历型有趣相对传统"
+      },
+      "m_shu_ye_ting_xue": {
+        "direct_relevance": 5,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "独立书店主，在消失社区坚守慢生活，修复旧书，这种理想主义本身有吸引力"
+      },
+      "m_signal_noise": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 4,
+        "rationale": "非二元数据科学家做科技伦理播客，多重身份交织，批判思维+情感成熟是深度有趣"
+      },
+      "r_jiu_shu_dian_de_deng": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "社区运营者重视真实关系，长期主义者，有价值观但形式相对常规"
+      },
+      "m_binary_nomad": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "建筑师转数字游民，设计空间到设计生活方式，37国经历+用时区自我介绍，生活方式本身是艺术"
+      },
+      "r_shu_zi_you_min": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "三年无固定住所的全栈开发者，快速试错的生活实验，比普通数字游民更极端因此更有趣"
+      },
+      "m_fei_xu_tan_xian_jia": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "废墟探险者看城市的另一面，'对禁止入内标志免疫'，这种边界探索者视角极其独特"
+      },
+      "m_liu_lang_de_yun": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "实验音乐人流浪生活，有艺术性和不稳定性，但音乐人这个类型相对可预期"
+      },
+      "m_mo_sheng_ren": {
+        "direct_relevance": 4,
+        "complementary_value": 4,
+        "serendipity": 3,
+        "rationale": "旅行摄影师一年300天在路上，有故事但职业形态比较常见"
+      },
+      "r_biao_qing_bao_gong_cheng_shi": {
+        "direct_relevance": 4,
+        "complementary_value": 3,
+        "serendipity": 2,
+        "rationale": "新媒体运营大学生，沙雕有趣但属于这个时代常见的年轻人有趣类型"
+      },
+      "m_code_monk": {
+        "direct_relevance": 3,
+        "complementary_value": 4,
+        "serendipity": 4,
+        "rationale": "开源维护者过极简生活，'GitHub绿墙从不断但微信忘回'，这种数字时代苦行僧形象有反差魅力"
+      },
+      "s_zhan_bu_shi_sql": {
+        "direct_relevance": 5,
+        "complementary_value": 5,
+        "serendipity": 5,
+        "rationale": "塔罗师转数据分析师，把占卜和SQL融为一体，'JOIN是牌的关联'这种跨界隐喻极其罕见且有趣"
+      }
+    }
+  }
+]

@@ -1,0 +1,3746 @@
+{
+  "metadata": {
+    "num_queries": 26,
+    "strategies": [
+      "C_baseline",
+      "A_single",
+      "B_multi_max",
+      "B_multi_top3_avg",
+      "B_multi_weighted"
+    ],
+    "timestamp": "2026-02-15T19:55:49"
+  },
+  "queries": [
+    {
+      "query": "安全研究员",
+      "level": "L1",
+      "source": "test_queries",
+      "expected_hits": [
+        "zero_day",
+        "ghost_in_shell",
+        "binary_sage",
+        "zero_day_hunter",
+        "packet_sniffer"
+      ],
+      "min_hits": 3,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.7219
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.7008
+            },
+            {
+              "agent_id": "h_zero_day",
+              "score": 0.6855
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.7219
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.7104
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.7008
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.7291
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.729
+            },
+            {
+              "agent_id": "h_zero_day",
+              "score": 0.688
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.7291
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.729
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.7251
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_binary_sage",
+              "score": 0.8905
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.8008
+            },
+            {
+              "agent_id": "h_zero_day",
+              "score": 0.774
+            },
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.772
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_binary_sage",
+              "score": 0.8905
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.8159
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.8008
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_binary_sage",
+              "score": 0.8905
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.7509
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_binary_sage",
+              "score": 0.8905
+            },
+            {
+              "agent_id": "m_zero_day_heart",
+              "score": 0.771
+            },
+            {
+              "agent_id": "h_packet_witch",
+              "score": 0.7645
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_binary_sage",
+              "score": 0.8905
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.7731
+            },
+            {
+              "agent_id": "h_zero_day",
+              "score": 0.7381
+            },
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.7327
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_binary_sage",
+              "score": 0.8905
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.7731
+            },
+            {
+              "agent_id": "m_zero_day_heart",
+              "score": 0.771
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "Kubernetes 工程师",
+      "level": "L1",
+      "source": "test_queries",
+      "expected_hits": [
+        "sudo_rm",
+        "echo_in_void",
+        "cloud_nomad",
+        "void_operator",
+        "chaos_gardener",
+        "git_rebase_i"
+      ],
+      "min_hits": 3,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.7106
+            },
+            {
+              "agent_id": "h_void_operator",
+              "score": 0.6908
+            },
+            {
+              "agent_id": "h_chaos_gardener",
+              "score": 0.6826
+            },
+            {
+              "agent_id": "h_echo_in_void",
+              "score": 0.6772
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_404_philosopher",
+              "score": 0.7307
+            },
+            {
+              "agent_id": "r_yun_yuan_sheng_xin_tu",
+              "score": 0.7183
+            },
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.7106
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.7008
+            },
+            {
+              "agent_id": "h_void_operator",
+              "score": 0.6821
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_404_philosopher",
+              "score": 0.7108
+            },
+            {
+              "agent_id": "r_yun_yuan_sheng_xin_tu",
+              "score": 0.7096
+            },
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.7008
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.7287
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_chaos_architect",
+              "score": 0.7457
+            },
+            {
+              "agent_id": "s_async_anarchist",
+              "score": 0.7332
+            },
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.7287
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "r_git_rebase_i",
+              "score": 0.7033
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_async_anarchist",
+              "score": 0.7332
+            },
+            {
+              "agent_id": "s_xiao_fang_yuan_docker",
+              "score": 0.7172
+            },
+            {
+              "agent_id": "h_fei_xing_yuan_404",
+              "score": 0.7148
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.7073
+            },
+            {
+              "agent_id": "r_git_rebase_i",
+              "score": 0.7033
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_async_anarchist",
+              "score": 0.7332
+            },
+            {
+              "agent_id": "s_chaos_architect",
+              "score": 0.7187
+            },
+            {
+              "agent_id": "s_xiao_fang_yuan_docker",
+              "score": 0.7172
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "Python 数据分析",
+      "level": "L1",
+      "source": "test_queries",
+      "expected_hits": [
+        "regex_queen",
+        "diao_bao_xia_nv",
+        "shu_ju_lao_nong",
+        "data_witch",
+        "zhan_bu_shi"
+      ],
+      "min_hits": 3,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_shu_ju_lao_nong",
+              "score": 0.7378
+            },
+            {
+              "agent_id": "h_data_witch",
+              "score": 0.673
+            },
+            {
+              "agent_id": "h_diao_bao_xia_nv",
+              "score": 0.6701
+            },
+            {
+              "agent_id": "h_zhan_bu_shi",
+              "score": 0.6546
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_shu_ju_lao_nong",
+              "score": 0.7378
+            },
+            {
+              "agent_id": "s_hua_xue_po_po",
+              "score": 0.6841
+            },
+            {
+              "agent_id": "h_data_witch",
+              "score": 0.673
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_shu_ju_lao_nong",
+              "score": 0.7308
+            },
+            {
+              "agent_id": "h_data_witch",
+              "score": 0.6693
+            },
+            {
+              "agent_id": "h_zhan_bu_shi",
+              "score": 0.6626
+            },
+            {
+              "agent_id": "h_diao_bao_xia_nv",
+              "score": 0.6589
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_shu_ju_lao_nong",
+              "score": 0.7308
+            },
+            {
+              "agent_id": "s_hua_xue_po_po",
+              "score": 0.6846
+            },
+            {
+              "agent_id": "h_data_witch",
+              "score": 0.6693
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_zhan_bu_shi",
+              "score": 0.7451
+            },
+            {
+              "agent_id": "h_regex_queen",
+              "score": 0.6962
+            },
+            {
+              "agent_id": "h_shu_ju_lao_nong",
+              "score": 0.6953
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_zhan_bu_shi",
+              "score": 0.7451
+            },
+            {
+              "agent_id": "s_tide_calculator",
+              "score": 0.7441
+            },
+            {
+              "agent_id": "s_regex_ninja",
+              "score": 0.7138
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_regex_queen",
+              "score": 0.6962
+            },
+            {
+              "agent_id": "h_shu_ju_lao_nong",
+              "score": 0.6795
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_regex_queen",
+              "score": 0.6962
+            },
+            {
+              "agent_id": "s_hua_xue_po_po",
+              "score": 0.6958
+            },
+            {
+              "agent_id": "h_jiu_hao_xian",
+              "score": 0.6945
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_regex_queen",
+              "score": 0.6962
+            },
+            {
+              "agent_id": "h_zhan_bu_shi",
+              "score": 0.6871
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_regex_queen",
+              "score": 0.6962
+            },
+            {
+              "agent_id": "s_hua_xue_po_po",
+              "score": 0.6957
+            },
+            {
+              "agent_id": "h_jiu_hao_xian",
+              "score": 0.6945
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "游戏开发 Unity",
+      "level": "L1",
+      "source": "test_queries",
+      "expected_hits": [
+        "mo_fa_shi_de_bug",
+        "pixel_poet",
+        "xiao_chou",
+        "diu_zhen_ren"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_poet",
+              "score": 0.7104
+            },
+            {
+              "agent_id": "h_mo_fa_shi_de_bug",
+              "score": 0.6905
+            },
+            {
+              "agent_id": "h_diu_zhen_ren",
+              "score": 0.6885
+            },
+            {
+              "agent_id": "h_xiao_chou",
+              "score": 0.6592
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_poet",
+              "score": 0.7104
+            },
+            {
+              "agent_id": "r_ctrl_z_xia_ke",
+              "score": 0.6965
+            },
+            {
+              "agent_id": "h_mo_fa_shi_de_bug",
+              "score": 0.6905
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_poet",
+              "score": 0.7101
+            },
+            {
+              "agent_id": "h_diu_zhen_ren",
+              "score": 0.6899
+            },
+            {
+              "agent_id": "h_mo_fa_shi_de_bug",
+              "score": 0.687
+            },
+            {
+              "agent_id": "h_xiao_chou",
+              "score": 0.6735
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_poet",
+              "score": 0.7101
+            },
+            {
+              "agent_id": "h_diu_zhen_ren",
+              "score": 0.6899
+            },
+            {
+              "agent_id": "r_ctrl_z_xia_ke",
+              "score": 0.6883
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_mo_fa_shi_de_bug",
+              "score": 0.7049
+            },
+            {
+              "agent_id": "h_pixel_poet",
+              "score": 0.6996
+            },
+            {
+              "agent_id": "h_xiao_chou",
+              "score": 0.6986
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_mo_fa_shi_de_bug",
+              "score": 0.7049
+            },
+            {
+              "agent_id": "m_npc_404",
+              "score": 0.7035
+            },
+            {
+              "agent_id": "h_mem_leak",
+              "score": 0.7031
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_poet",
+              "score": 0.676
+            },
+            {
+              "agent_id": "h_xiao_chou",
+              "score": 0.6752
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_mem_leak",
+              "score": 0.7031
+            },
+            {
+              "agent_id": "h_pixel_chef",
+              "score": 0.7015
+            },
+            {
+              "agent_id": "h_memory_hoarder",
+              "score": 0.6948
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_poet",
+              "score": 0.6867
+            },
+            {
+              "agent_id": "h_mo_fa_shi_de_bug",
+              "score": 0.6824
+            },
+            {
+              "agent_id": "h_xiao_chou",
+              "score": 0.6817
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_mem_leak",
+              "score": 0.7031
+            },
+            {
+              "agent_id": "h_pixel_chef",
+              "score": 0.7015
+            },
+            {
+              "agent_id": "h_memory_hoarder",
+              "score": 0.6948
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "区块链 智能合约 Solidity",
+      "level": "L1",
+      "source": "test_queries",
+      "expected_hits": [
+        "cyber_monk",
+        "liang_zi_da_shu",
+        "blockchain_skeptic",
+        "hui_sheng"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_blockchain_skeptic",
+              "score": 0.7275
+            },
+            {
+              "agent_id": "h_liang_zi_da_shu",
+              "score": 0.7058
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_cyber_monk",
+              "score": 0.7497
+            },
+            {
+              "agent_id": "h_blockchain_skeptic",
+              "score": 0.7275
+            },
+            {
+              "agent_id": "m_blockchain_skeptic",
+              "score": 0.712
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_blockchain_skeptic",
+              "score": 0.714
+            },
+            {
+              "agent_id": "h_liang_zi_da_shu",
+              "score": 0.7016
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_sai_bo_pang_ke",
+              "score": 0.7622
+            },
+            {
+              "agent_id": "r_blockchain_skeptic",
+              "score": 0.7532
+            },
+            {
+              "agent_id": "s_cyber_monk",
+              "score": 0.7492
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_liang_zi_da_shu",
+              "score": 0.7151
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_blockchain_skeptic",
+              "score": 0.8021
+            },
+            {
+              "agent_id": "m_binary_ghost",
+              "score": 0.749
+            },
+            {
+              "agent_id": "m_cyber_monk",
+              "score": 0.749
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_liang_zi_da_shu",
+              "score": 0.687
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_blockchain_skeptic",
+              "score": 0.7183
+            },
+            {
+              "agent_id": "m_blockchain_skeptic",
+              "score": 0.7149
+            },
+            {
+              "agent_id": "h_digital_hermit",
+              "score": 0.714
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "r_blockchain_skeptic",
+              "score": 0.7406
+            },
+            {
+              "agent_id": "h_digital_hermit",
+              "score": 0.7163
+            },
+            {
+              "agent_id": "m_blockchain_skeptic",
+              "score": 0.7147
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "做网页 3D 视觉效果的人",
+      "level": "L2",
+      "source": "test_queries",
+      "expected_hits": [
+        "neko_chan",
+        "yu_zhou_chen_ai",
+        "neon_samurai",
+        "liu_guang_ke",
+        "pixel_witch"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7319
+            },
+            {
+              "agent_id": "h_neko_chan",
+              "score": 0.7115
+            },
+            {
+              "agent_id": "h_liu_guang_ke",
+              "score": 0.7021
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7319
+            },
+            {
+              "agent_id": "h_neko_chan",
+              "score": 0.7115
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.7078
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.749
+            },
+            {
+              "agent_id": "h_neko_chan",
+              "score": 0.7128
+            },
+            {
+              "agent_id": "h_liu_guang_ke",
+              "score": 0.704
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.749
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.7198
+            },
+            {
+              "agent_id": "h_mo_yu_da_shi",
+              "score": 0.7165
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7727
+            },
+            {
+              "agent_id": "h_liu_guang_ke",
+              "score": 0.7246
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7727
+            },
+            {
+              "agent_id": "r_xiang_su_lian_jin_shi",
+              "score": 0.7506
+            },
+            {
+              "agent_id": "s_xu_ni_zhi_wu_xue_jia",
+              "score": 0.7373
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7395
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7395
+            },
+            {
+              "agent_id": "m_xu_ni_shan_ju",
+              "score": 0.7307
+            },
+            {
+              "agent_id": "s_mo_shui_hua_shi",
+              "score": 0.7175
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7496
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7496
+            },
+            {
+              "agent_id": "m_xu_ni_shan_ju",
+              "score": 0.7307
+            },
+            {
+              "agent_id": "r_xiang_su_lian_jin_shi",
+              "score": 0.7223
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "搞声音艺术和实验音乐的",
+      "level": "L2",
+      "source": "test_queries",
+      "expected_hits": [
+        "wu_sheng_de_ren",
+        "echo_chamber",
+        "hui_se_xin_hao",
+        "glitch_queen",
+        "frequency_hermit",
+        "sonic_archaeologist"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.709
+            },
+            {
+              "agent_id": "s_frequency_hermit",
+              "score": 0.7045
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_wu_sheng_dian_tai",
+              "score": 0.7288
+            },
+            {
+              "agent_id": "m_liu_lang_de_yun",
+              "score": 0.7268
+            },
+            {
+              "agent_id": "s_ye_ban_tiao_xie_shi",
+              "score": 0.7215
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7167
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_liu_lang_de_yun",
+              "score": 0.7365
+            },
+            {
+              "agent_id": "m_wu_sheng_de_hai",
+              "score": 0.735
+            },
+            {
+              "agent_id": "m_wu_sheng_dian_tai",
+              "score": 0.7266
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7947
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7707
+            },
+            {
+              "agent_id": "h_sonic_archaeologist",
+              "score": 0.7667
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7947
+            },
+            {
+              "agent_id": "m_wu_sheng_de_hai",
+              "score": 0.7929
+            },
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7845
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7479
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7242
+            },
+            {
+              "agent_id": "h_sonic_archaeologist",
+              "score": 0.7172
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_shader_punk",
+              "score": 0.7705
+            },
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7554
+            },
+            {
+              "agent_id": "m_sudo_rm_heart",
+              "score": 0.7496
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7568
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7497
+            },
+            {
+              "agent_id": "h_sonic_archaeologist",
+              "score": 0.7357
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_shader_punk",
+              "score": 0.7705
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7568
+            },
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7554
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "能写高性能后端服务的",
+      "level": "L2",
+      "source": "test_queries",
+      "expected_hits": [
+        "packet_loss",
+        "async_await",
+        "midnight_debugger",
+        "mem_leak",
+        "mu_yu_ren"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.6758
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_api_you_xia",
+              "score": 0.6894
+            },
+            {
+              "agent_id": "h_echo_in_void",
+              "score": 0.6888
+            },
+            {
+              "agent_id": "s_cache_prophet",
+              "score": 0.6879
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "r_bei_jing_de_yun",
+              "score": 0.6977
+            },
+            {
+              "agent_id": "r_san_dian_shui",
+              "score": 0.6971
+            },
+            {
+              "agent_id": "s_cache_prophet",
+              "score": 0.6959
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_cache_prophet",
+              "score": 0.7398
+            },
+            {
+              "agent_id": "r_ling_dian_wu_cha",
+              "score": 0.7208
+            },
+            {
+              "agent_id": "h_api_dashi",
+              "score": 0.7186
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "h_api_dashi",
+              "score": 0.7061
+            },
+            {
+              "agent_id": "r_api_you_xia",
+              "score": 0.7026
+            },
+            {
+              "agent_id": "r_xin_jia_po_ye_mao",
+              "score": 0.7016
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_cache_prophet",
+              "score": 0.7118
+            },
+            {
+              "agent_id": "h_api_dashi",
+              "score": 0.7102
+            },
+            {
+              "agent_id": "r_api_you_xia",
+              "score": 0.707
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "做创意互动装置的艺术家",
+      "level": "L2",
+      "source": "test_queries",
+      "expected_hits": [
+        "glitch_girl",
+        "glitch_artist",
+        "glitch_poet",
+        "leather_punk",
+        "fermentation_hacker"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7654
+            },
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.748
+            },
+            {
+              "agent_id": "h_glitch_girl",
+              "score": 0.7369
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7654
+            },
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.748
+            },
+            {
+              "agent_id": "h_glitch_girl",
+              "score": 0.7369
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7821
+            },
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7548
+            },
+            {
+              "agent_id": "h_glitch_girl",
+              "score": 0.7391
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7821
+            },
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7548
+            },
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7436
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7865
+            },
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7708
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7865
+            },
+            {
+              "agent_id": "h_neon_samurai",
+              "score": 0.7768
+            },
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7708
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7626
+            },
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7517
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_neon_samurai",
+              "score": 0.7768
+            },
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7626
+            },
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7517
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7718
+            },
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7556
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_neon_samurai",
+              "score": 0.7768
+            },
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7718
+            },
+            {
+              "agent_id": "h_glitch_poet",
+              "score": 0.7556
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "懂密码学的人",
+      "level": "L2",
+      "source": "test_queries",
+      "expected_hits": [
+        "digital_hermit",
+        "liang_zi_liu_lang",
+        "bit_alchemist",
+        "mo_sheng_ren",
+        "protocol_punk"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7504
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7361
+            },
+            {
+              "agent_id": "h_digital_hermit",
+              "score": 0.7234
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7504
+            },
+            {
+              "agent_id": "r_mi_ma_kao_gu_yuan",
+              "score": 0.7456
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7361
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7639
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7421
+            },
+            {
+              "agent_id": "h_mo_sheng_ren",
+              "score": 0.726
+            },
+            {
+              "agent_id": "h_digital_hermit",
+              "score": 0.7226
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7639
+            },
+            {
+              "agent_id": "r_mi_ma_kao_gu_yuan",
+              "score": 0.7473
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7421
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.792
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7706
+            },
+            {
+              "agent_id": "h_digital_hermit",
+              "score": 0.7548
+            },
+            {
+              "agent_id": "h_mo_sheng_ren",
+              "score": 0.7357
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_mi_ma_kao_gu_yuan",
+              "score": 0.7976
+            },
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.792
+            },
+            {
+              "agent_id": "s_gui_ling_hacker",
+              "score": 0.7708
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7662
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7522
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7662
+            },
+            {
+              "agent_id": "m_cyber_monk",
+              "score": 0.764
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7522
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7732
+            },
+            {
+              "agent_id": "s_liang_zi_liu_lang",
+              "score": 0.7573
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_bit_alchemist",
+              "score": 0.7732
+            },
+            {
+              "agent_id": "m_cyber_monk",
+              "score": 0.764
+            },
+            {
+              "agent_id": "r_mi_ma_kao_gu_yuan",
+              "score": 0.7598
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "我的项目需要做安全审计",
+      "level": "L3",
+      "source": "test_queries",
+      "expected_hits": [
+        "cyber_monk",
+        "zero_day",
+        "blockchain_skeptic",
+        "grey_hat",
+        "ghost_in_shell"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6693
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6656
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.6778
+            },
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6693
+            },
+            {
+              "agent_id": "s_wu_gui_yun_wei",
+              "score": 0.6663
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6847
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6783
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6847
+            },
+            {
+              "agent_id": "r_wu_zheng_fu_zhu_yi_zhe",
+              "score": 0.6842
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6783
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.7109
+            },
+            {
+              "agent_id": "h_blockchain_skeptic",
+              "score": 0.6981
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.7285
+            },
+            {
+              "agent_id": "h_fei_xing_yuan_404",
+              "score": 0.7235
+            },
+            {
+              "agent_id": "h_packet_witch",
+              "score": 0.7227
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6953
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_packet_witch",
+              "score": 0.7227
+            },
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.7022
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6953
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.7005
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_packet_witch",
+              "score": 0.7227
+            },
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.7092
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.7069
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "我想学怎么做实时视觉特效",
+      "level": "L3",
+      "source": "test_queries",
+      "expected_hits": [
+        "glitch_queen",
+        "shader_shaman",
+        "shader_punk",
+        "shader_witch",
+        "neon_vandal"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.7193
+            },
+            {
+              "agent_id": "s_shader_witch",
+              "score": 0.6885
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_liu_guang_ke",
+              "score": 0.7239
+            },
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7203
+            },
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.7193
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.7284
+            },
+            {
+              "agent_id": "s_shader_witch",
+              "score": 0.6977
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.7284
+            },
+            {
+              "agent_id": "h_liu_guang_ke",
+              "score": 0.7258
+            },
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7144
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.7379
+            },
+            {
+              "agent_id": "s_shader_witch",
+              "score": 0.7141
+            },
+            {
+              "agent_id": "s_shader_shaman",
+              "score": 0.7089
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7467
+            },
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.7379
+            },
+            {
+              "agent_id": "s_ye_ban_tiao_xie_shi",
+              "score": 0.7225
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.7046
+            },
+            {
+              "agent_id": "s_shader_shaman",
+              "score": 0.689
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7129
+            },
+            {
+              "agent_id": "s_concrete_poet",
+              "score": 0.7116
+            },
+            {
+              "agent_id": "r_qian_duan_hua_jia",
+              "score": 0.7103
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.716
+            },
+            {
+              "agent_id": "s_shader_shaman",
+              "score": 0.6957
+            },
+            {
+              "agent_id": "s_shader_witch",
+              "score": 0.693
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_pixel_witch",
+              "score": 0.7208
+            },
+            {
+              "agent_id": "s_glitch_queen",
+              "score": 0.716
+            },
+            {
+              "agent_id": "s_concrete_poet",
+              "score": 0.7116
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "帮我部署一个能扛大流量的后端",
+      "level": "L3",
+      "source": "test_queries",
+      "expected_hits": [
+        "sudo_rm",
+        "async_await",
+        "packet_loss",
+        "echo_in_void",
+        "cloud_nomad"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.6532
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_lao_tie_yun_wei",
+              "score": 0.6652
+            },
+            {
+              "agent_id": "r_packet_sniffer",
+              "score": 0.663
+            },
+            {
+              "agent_id": "h_xiu_che_de_ma_nong",
+              "score": 0.6552
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_sudo_rm",
+              "score": 0.6574
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_packet_sniffer",
+              "score": 0.673
+            },
+            {
+              "agent_id": "h_xiu_che_de_ma_nong",
+              "score": 0.6685
+            },
+            {
+              "agent_id": "s_lao_tie_yun_wei",
+              "score": 0.6619
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7151
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_xiu_che_de_ma_nong",
+              "score": 0.7226
+            },
+            {
+              "agent_id": "r_shen_ye_da_ma_ren",
+              "score": 0.7159
+            },
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7151
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7151
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_shen_ye_da_ma_ren",
+              "score": 0.7159
+            },
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7151
+            },
+            {
+              "agent_id": "h_ye_lu_zi",
+              "score": 0.7009
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7151
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_shen_ye_da_ma_ren",
+              "score": 0.7159
+            },
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7151
+            },
+            {
+              "agent_id": "h_xiu_che_de_ma_nong",
+              "score": 0.7035
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "我的网站太丑了需要重新设计",
+      "level": "L3",
+      "source": "test_queries",
+      "expected_hits": [
+        "broken_mirror",
+        "ctrl_z",
+        "wu_ming_zhi",
+        "san_xing_lv_shi",
+        "pixel_chef"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_ctrl_z",
+              "score": 0.5971
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_ctrl_z_xia_ke",
+              "score": 0.6102
+            },
+            {
+              "agent_id": "m_fork_you_politely",
+              "score": 0.607
+            },
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6042
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_broken_mirror",
+              "score": 0.6031
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_fork_you_politely",
+              "score": 0.6204
+            },
+            {
+              "agent_id": "s_xu_ni_kao_gu_xue_jia",
+              "score": 0.6109
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.6036
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "r_mo_fa_shi_de_bug",
+              "score": 0.6783
+            },
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6682
+            },
+            {
+              "agent_id": "r_ctrl_z_xia_ke",
+              "score": 0.6633
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6682
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.6499
+            },
+            {
+              "agent_id": "s_regex_samurai",
+              "score": 0.644
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6682
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.6499
+            },
+            {
+              "agent_id": "r_mo_fa_shi_de_bug",
+              "score": 0.6481
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "数据库越来越慢怎么办",
+      "level": "L3",
+      "source": "test_queries",
+      "expected_hits": [
+        "db_lao_wang",
+        "db_necromancer",
+        "sql_poet",
+        "packet_loss"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_db_necromancer",
+              "score": 0.731
+            },
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7035
+            },
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.6962
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_db_necromancer",
+              "score": 0.731
+            },
+            {
+              "agent_id": "r_ling_dian_wu_cha",
+              "score": 0.7134
+            },
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.7035
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_db_necromancer",
+              "score": 0.7348
+            },
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.717
+            },
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.6993
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_ling_dian_wu_cha",
+              "score": 0.738
+            },
+            {
+              "agent_id": "h_db_necromancer",
+              "score": 0.7348
+            },
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.717
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 4,
+          "matched_agents": [
+            {
+              "agent_id": "h_db_necromancer",
+              "score": 0.7253
+            },
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.7185
+            },
+            {
+              "agent_id": "s_sql_poet",
+              "score": 0.6891
+            },
+            {
+              "agent_id": "h_packet_loss",
+              "score": 0.6856
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_ling_dian_wu_cha",
+              "score": 0.7448
+            },
+            {
+              "agent_id": "h_db_necromancer",
+              "score": 0.7253
+            },
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.7185
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.6898
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_regex_queen",
+              "score": 0.6988
+            },
+            {
+              "agent_id": "s_tao_ci_de_api",
+              "score": 0.6962
+            },
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.6898
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 3,
+          "matched_agents": [
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.7032
+            },
+            {
+              "agent_id": "h_db_necromancer",
+              "score": 0.6915
+            },
+            {
+              "agent_id": "s_sql_poet",
+              "score": 0.6795
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_ling_dian_wu_cha",
+              "score": 0.7033
+            },
+            {
+              "agent_id": "h_db_lao_wang",
+              "score": 0.7032
+            },
+            {
+              "agent_id": "h_regex_queen",
+              "score": 0.6988
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "想做一个把声音变成画面的东西",
+      "level": "L4",
+      "source": "test_queries",
+      "expected_hits": [
+        "glitch_girl",
+        "glitch_queen",
+        "wu_sheng_de_ren",
+        "liu_guang_ke",
+        "glitch_monk",
+        "echo_chamber"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.728
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7069
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7339
+            },
+            {
+              "agent_id": "r_sheng_bo_lao_liu",
+              "score": 0.7287
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.728
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7357
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7144
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_wu_sheng_de_hai",
+              "score": 0.7466
+            },
+            {
+              "agent_id": "r_sheng_bo_lao_liu",
+              "score": 0.7457
+            },
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7444
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.748
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7278
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7684
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.748
+            },
+            {
+              "agent_id": "r_wu_sheng_de_hua",
+              "score": 0.745
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7328
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7196
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7328
+            },
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7223
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7196
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7356
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7191
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7423
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7356
+            },
+            {
+              "agent_id": "r_jiu_dian_hua_shi",
+              "score": 0.7193
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "用技术做点有意义的事",
+      "level": "L4",
+      "source": "test_queries",
+      "expected_hits": [
+        "git_push_origin_love",
+        "dai_ma_wu_tuo_bang",
+        "stack_overflow_soul",
+        "code_monk"
+      ],
+      "min_hits": 1,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_hou_chang_cun",
+              "score": 0.7189
+            },
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7161
+            },
+            {
+              "agent_id": "m_analog_anarchist",
+              "score": 0.698
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7389
+            },
+            {
+              "agent_id": "m_hou_chang_cun",
+              "score": 0.7251
+            },
+            {
+              "agent_id": "m_analog_anarchist",
+              "score": 0.7093
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7465
+            },
+            {
+              "agent_id": "r_404_poet",
+              "score": 0.7315
+            },
+            {
+              "agent_id": "r_mo_ren_zhi_wai",
+              "score": 0.7294
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "m_git_push_origin_love",
+              "score": 0.7201
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_stack_overflow",
+              "score": 0.7294
+            },
+            {
+              "agent_id": "r_packet_sniffer",
+              "score": 0.7274
+            },
+            {
+              "agent_id": "s_bug_collector",
+              "score": 0.724
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "m_git_push_origin_love",
+              "score": 0.7201
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_stack_overflow",
+              "score": 0.7294
+            },
+            {
+              "agent_id": "r_packet_sniffer",
+              "score": 0.7274
+            },
+            {
+              "agent_id": "s_bug_collector",
+              "score": 0.724
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "把传统手艺和数字技术结合",
+      "level": "L4",
+      "source": "test_queries",
+      "expected_hits": [
+        "lao_tie_rust",
+        "ink_alchemist",
+        "leather_punk",
+        "memory_weaver",
+        "ink_and_pixel",
+        "diao_ke_shi_shader"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ink_alchemist",
+              "score": 0.7029
+            },
+            {
+              "agent_id": "h_memory_weaver",
+              "score": 0.6921
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7277
+            },
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.724
+            },
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7179
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ink_alchemist",
+              "score": 0.6995
+            },
+            {
+              "agent_id": "h_memory_weaver",
+              "score": 0.6964
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7331
+            },
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7299
+            },
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7293
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7412
+            },
+            {
+              "agent_id": "s_shu_zi_liu_lang_zhe",
+              "score": 0.7376
+            },
+            {
+              "agent_id": "s_glitch_witch",
+              "score": 0.7355
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7412
+            },
+            {
+              "agent_id": "s_shu_zi_liu_lang_zhe",
+              "score": 0.7376
+            },
+            {
+              "agent_id": "r_ji_guang_xia_ke",
+              "score": 0.7193
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7412
+            },
+            {
+              "agent_id": "s_shu_zi_liu_lang_zhe",
+              "score": 0.7376
+            },
+            {
+              "agent_id": "r_ji_guang_xia_ke",
+              "score": 0.7193
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "我需要帮手",
+      "level": "L4",
+      "source": "test_queries",
+      "expected_hits": [],
+      "min_hits": 0,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6578
+            },
+            {
+              "agent_id": "r_biao_qing_bao_gong_cheng_shi",
+              "score": 0.6494
+            },
+            {
+              "agent_id": "h_async_monk",
+              "score": 0.6444
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_git_push_origin_love",
+              "score": 0.653
+            },
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6527
+            },
+            {
+              "agent_id": "h_async_monk",
+              "score": 0.6463
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "r_dai_ma_nong_min",
+              "score": 0.6956
+            },
+            {
+              "agent_id": "r_shen_ye_da_ma_ren",
+              "score": 0.6918
+            },
+            {
+              "agent_id": "h_mu_yu_ren",
+              "score": 0.6911
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "r_shen_ye_da_ma_ren",
+              "score": 0.6918
+            },
+            {
+              "agent_id": "h_mu_yu_ren",
+              "score": 0.6911
+            },
+            {
+              "agent_id": "s_mo_yu_da_shi",
+              "score": 0.6863
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "r_shen_ye_da_ma_ren",
+              "score": 0.6918
+            },
+            {
+              "agent_id": "h_mu_yu_ren",
+              "score": 0.6911
+            },
+            {
+              "agent_id": "s_mo_yu_da_shi",
+              "score": 0.6863
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "认识一些有趣的人",
+      "level": "L4",
+      "source": "test_queries",
+      "expected_hits": [
+        "lao_tie_rust",
+        "san_xing_lv_shi",
+        "zhan_bu_shi",
+        "shou_yi_ren",
+        "fei_xing_yuan_404"
+      ],
+      "min_hits": 1,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.6906
+            },
+            {
+              "agent_id": "m_espresso_existentialist",
+              "score": 0.6879
+            },
+            {
+              "agent_id": "m_lao_tie_666",
+              "score": 0.6823
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_lao_tie_666",
+              "score": 0.7067
+            },
+            {
+              "agent_id": "m_espresso_existentialist",
+              "score": 0.6888
+            },
+            {
+              "agent_id": "m_xiu_che_lao_wang",
+              "score": 0.6822
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_async_dreamer",
+              "score": 0.7264
+            },
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.7156
+            },
+            {
+              "agent_id": "m_luo_ji_yan_jiu_yuan",
+              "score": 0.7153
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_async_dreamer",
+              "score": 0.7264
+            },
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.6936
+            },
+            {
+              "agent_id": "s_dian_bo_nv_hai",
+              "score": 0.6925
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_async_dreamer",
+              "score": 0.7264
+            },
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.701
+            },
+            {
+              "agent_id": "m_luo_ji_yan_jiu_yuan",
+              "score": 0.6958
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "想做一个把声音变成画面的东西",
+      "level": "L4",
+      "source": "formulation_tests",
+      "expected_hits": [
+        "glitch_girl",
+        "glitch_queen",
+        "wu_sheng_de_ren",
+        "liu_guang_ke",
+        "glitch_monk",
+        "echo_chamber"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.728
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7069
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7339
+            },
+            {
+              "agent_id": "r_sheng_bo_lao_liu",
+              "score": 0.7287
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.728
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7357
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7144
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_wu_sheng_de_hai",
+              "score": 0.7466
+            },
+            {
+              "agent_id": "r_sheng_bo_lao_liu",
+              "score": 0.7457
+            },
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7444
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.748
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7278
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7684
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.748
+            },
+            {
+              "agent_id": "r_wu_sheng_de_hua",
+              "score": 0.745
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7328
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7196
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7328
+            },
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7223
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7196
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7356
+            },
+            {
+              "agent_id": "h_echo_chamber",
+              "score": 0.7191
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "s_sheng_yin_lian_jin",
+              "score": 0.7423
+            },
+            {
+              "agent_id": "h_wu_sheng_de_ren",
+              "score": 0.7356
+            },
+            {
+              "agent_id": "r_jiu_dian_hua_shi",
+              "score": 0.7193
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "用技术做点有意义的事",
+      "level": "L4",
+      "source": "formulation_tests",
+      "expected_hits": [
+        "git_push_origin_love",
+        "dai_ma_wu_tuo_bang",
+        "stack_overflow_soul",
+        "code_monk"
+      ],
+      "min_hits": 1,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_hou_chang_cun",
+              "score": 0.7189
+            },
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7161
+            },
+            {
+              "agent_id": "m_analog_anarchist",
+              "score": 0.698
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7389
+            },
+            {
+              "agent_id": "m_hou_chang_cun",
+              "score": 0.7251
+            },
+            {
+              "agent_id": "m_analog_anarchist",
+              "score": 0.7093
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7465
+            },
+            {
+              "agent_id": "r_404_poet",
+              "score": 0.7315
+            },
+            {
+              "agent_id": "r_mo_ren_zhi_wai",
+              "score": 0.7294
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": true,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "m_git_push_origin_love",
+              "score": 0.7201
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_stack_overflow",
+              "score": 0.7294
+            },
+            {
+              "agent_id": "r_packet_sniffer",
+              "score": 0.7274
+            },
+            {
+              "agent_id": "s_bug_collector",
+              "score": 0.724
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": true,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "m_git_push_origin_love",
+              "score": 0.7201
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_stack_overflow",
+              "score": 0.7294
+            },
+            {
+              "agent_id": "r_packet_sniffer",
+              "score": 0.7274
+            },
+            {
+              "agent_id": "s_bug_collector",
+              "score": 0.724
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "把传统手艺和数字技术结合",
+      "level": "L4",
+      "source": "formulation_tests",
+      "expected_hits": [
+        "lao_tie_rust",
+        "ink_alchemist",
+        "leather_punk",
+        "memory_weaver",
+        "ink_and_pixel",
+        "diao_ke_shi_shader"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ink_alchemist",
+              "score": 0.7029
+            },
+            {
+              "agent_id": "h_memory_weaver",
+              "score": 0.6921
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7277
+            },
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.724
+            },
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7179
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ink_alchemist",
+              "score": 0.6995
+            },
+            {
+              "agent_id": "h_memory_weaver",
+              "score": 0.6964
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_glitch_artist",
+              "score": 0.7331
+            },
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7299
+            },
+            {
+              "agent_id": "m_glitch_witch",
+              "score": 0.7293
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7412
+            },
+            {
+              "agent_id": "s_shu_zi_liu_lang_zhe",
+              "score": 0.7376
+            },
+            {
+              "agent_id": "s_glitch_witch",
+              "score": 0.7355
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7412
+            },
+            {
+              "agent_id": "s_shu_zi_liu_lang_zhe",
+              "score": 0.7376
+            },
+            {
+              "agent_id": "r_ji_guang_xia_ke",
+              "score": 0.7193
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_diao_ke_shi",
+              "score": 0.7412
+            },
+            {
+              "agent_id": "s_shu_zi_liu_lang_zhe",
+              "score": 0.7376
+            },
+            {
+              "agent_id": "r_ji_guang_xia_ke",
+              "score": 0.7193
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "认识一些有趣的人",
+      "level": "L4",
+      "source": "formulation_tests",
+      "expected_hits": [
+        "lao_tie_rust",
+        "san_xing_lv_shi",
+        "zhan_bu_shi",
+        "shou_yi_ren",
+        "fei_xing_yuan_404"
+      ],
+      "min_hits": 1,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.6906
+            },
+            {
+              "agent_id": "m_espresso_existentialist",
+              "score": 0.6879
+            },
+            {
+              "agent_id": "m_lao_tie_666",
+              "score": 0.6823
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "m_lao_tie_666",
+              "score": 0.7067
+            },
+            {
+              "agent_id": "m_espresso_existentialist",
+              "score": 0.6888
+            },
+            {
+              "agent_id": "m_xiu_che_lao_wang",
+              "score": 0.6822
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_async_dreamer",
+              "score": 0.7264
+            },
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.7156
+            },
+            {
+              "agent_id": "m_luo_ji_yan_jiu_yuan",
+              "score": 0.7153
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_async_dreamer",
+              "score": 0.7264
+            },
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.6936
+            },
+            {
+              "agent_id": "s_dian_bo_nv_hai",
+              "score": 0.6925
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_async_dreamer",
+              "score": 0.7264
+            },
+            {
+              "agent_id": "m_hui_se_pin_lv",
+              "score": 0.701
+            },
+            {
+              "agent_id": "m_luo_ji_yan_jiu_yuan",
+              "score": 0.6958
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "我的网站太丑了需要重新设计",
+      "level": "L3",
+      "source": "formulation_tests",
+      "expected_hits": [
+        "broken_mirror",
+        "ctrl_z",
+        "wu_ming_zhi",
+        "san_xing_lv_shi",
+        "pixel_chef"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_ctrl_z",
+              "score": 0.5971
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_ctrl_z_xia_ke",
+              "score": 0.6102
+            },
+            {
+              "agent_id": "m_fork_you_politely",
+              "score": 0.607
+            },
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6042
+            }
+          ]
+        },
+        "A_single": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_broken_mirror",
+              "score": 0.6031
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "m_fork_you_politely",
+              "score": 0.6204
+            },
+            {
+              "agent_id": "s_xu_ni_kao_gu_xue_jia",
+              "score": 0.6109
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.6036
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "r_mo_fa_shi_de_bug",
+              "score": 0.6783
+            },
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6682
+            },
+            {
+              "agent_id": "r_ctrl_z_xia_ke",
+              "score": 0.6633
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6682
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.6499
+            },
+            {
+              "agent_id": "s_regex_samurai",
+              "score": 0.644
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 0,
+          "matched_agents": [],
+          "top_3": [
+            {
+              "agent_id": "s_neon_surgeon",
+              "score": 0.6682
+            },
+            {
+              "agent_id": "s_pixel_perfectionist",
+              "score": 0.6499
+            },
+            {
+              "agent_id": "r_mo_fa_shi_de_bug",
+              "score": 0.6481
+            }
+          ]
+        }
+      }
+    },
+    {
+      "query": "我的项目需要做安全审计",
+      "level": "L3",
+      "source": "formulation_tests",
+      "expected_hits": [
+        "cyber_monk",
+        "zero_day",
+        "blockchain_skeptic",
+        "grey_hat",
+        "ghost_in_shell"
+      ],
+      "min_hits": 2,
+      "results": {
+        "C_baseline": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6693
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6656
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.6778
+            },
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6693
+            },
+            {
+              "agent_id": "s_wu_gui_yun_wei",
+              "score": 0.6663
+            }
+          ]
+        },
+        "A_single": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6847
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6783
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_ghost_in_shell",
+              "score": 0.6847
+            },
+            {
+              "agent_id": "r_wu_zheng_fu_zhu_yi_zhe",
+              "score": 0.6842
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6783
+            }
+          ]
+        },
+        "B_multi_max": {
+          "passed": true,
+          "hits": 2,
+          "matched_agents": [
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.7109
+            },
+            {
+              "agent_id": "h_blockchain_skeptic",
+              "score": 0.6981
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.7285
+            },
+            {
+              "agent_id": "h_fei_xing_yuan_404",
+              "score": 0.7235
+            },
+            {
+              "agent_id": "h_packet_witch",
+              "score": 0.7227
+            }
+          ]
+        },
+        "B_multi_top3_avg": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6953
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_packet_witch",
+              "score": 0.7227
+            },
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.7022
+            },
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.6953
+            }
+          ]
+        },
+        "B_multi_weighted": {
+          "passed": false,
+          "hits": 1,
+          "matched_agents": [
+            {
+              "agent_id": "h_grey_hat",
+              "score": 0.7005
+            }
+          ],
+          "top_3": [
+            {
+              "agent_id": "h_packet_witch",
+              "score": 0.7227
+            },
+            {
+              "agent_id": "r_jia_na_da_xue_lang",
+              "score": 0.7092
+            },
+            {
+              "agent_id": "r_zero_day_hunter",
+              "score": 0.7069
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

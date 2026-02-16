@@ -1,0 +1,255 @@
+{
+  "experiment": "EXP-006",
+  "hypothesis": "H1: MRL+BQL 512-bit retains >=90% of BGE-M3+SimHash pass rate",
+  "date": "2026-02-16",
+  "config": {
+    "baseline": {
+      "encoder": "bge-m3-1024d",
+      "projector": "simhash",
+      "proj_D": 10000,
+      "bytes_per_intent": 1250
+    },
+    "variant": {
+      "encoder": "bge-m3-512d (MRL)",
+      "projector": "bql",
+      "proj_D": 512,
+      "bytes_per_intent": 64
+    },
+    "simhash_seed": 42,
+    "top_k": 10,
+    "n_agents": 447,
+    "n_queries": 20
+  },
+  "results": {
+    "level_pass_rate": {
+      "L1": {
+        "simhash": 0.8,
+        "bql": 0.4
+      },
+      "L2": {
+        "simhash": 1.0,
+        "bql": 0.6
+      },
+      "L3": {
+        "simhash": 0.8,
+        "bql": 0.6
+      },
+      "L4": {
+        "simhash": 0.6,
+        "bql": 0.4
+      }
+    },
+    "overall_pass_rate": {
+      "simhash": 0.8,
+      "bql": 0.5,
+      "retained": 0.625
+    },
+    "hit_rate": {
+      "simhash": 0.5473684210526316,
+      "bql": 0.3368421052631579,
+      "retained": 0.6153846153846153
+    },
+    "paired_bootstrap": {
+      "mean_delta": -0.19,
+      "ci_95_lower": -0.29833333333333334,
+      "ci_95_upper": -0.09,
+      "significant": true
+    },
+    "storage": {
+      "simhash_bytes": 1250,
+      "bql_bytes": 64,
+      "compression_ratio": 19.53125
+    },
+    "hypothesis_test": {
+      "threshold": 0.9,
+      "retained": 0.625,
+      "supported": false
+    }
+  },
+  "timing": {
+    "simhash_deposit_s": 34.9,
+    "bql_deposit_s": 33.0
+  },
+  "per_query": [
+    {
+      "query": "安全研究员",
+      "level": "L1",
+      "simhash_hits": 5,
+      "bql_hits": 1,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": false
+    },
+    {
+      "query": "Kubernetes 工程师",
+      "level": "L1",
+      "simhash_hits": 4,
+      "bql_hits": 1,
+      "expected": 6,
+      "simhash_passed": true,
+      "bql_passed": false
+    },
+    {
+      "query": "Python 数据分析",
+      "level": "L1",
+      "simhash_hits": 2,
+      "bql_hits": 2,
+      "expected": 5,
+      "simhash_passed": false,
+      "bql_passed": false
+    },
+    {
+      "query": "游戏开发 Unity",
+      "level": "L1",
+      "simhash_hits": 4,
+      "bql_hits": 2,
+      "expected": 4,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "区块链 智能合约 Solidity",
+      "level": "L1",
+      "simhash_hits": 4,
+      "bql_hits": 4,
+      "expected": 4,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "做网页 3D 视觉效果的人",
+      "level": "L2",
+      "simhash_hits": 3,
+      "bql_hits": 2,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "搞声音艺术和实验音乐的",
+      "level": "L2",
+      "simhash_hits": 4,
+      "bql_hits": 1,
+      "expected": 6,
+      "simhash_passed": true,
+      "bql_passed": false
+    },
+    {
+      "query": "能写高性能后端服务的",
+      "level": "L2",
+      "simhash_hits": 2,
+      "bql_hits": 3,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "做创意互动装置的艺术家",
+      "level": "L2",
+      "simhash_hits": 4,
+      "bql_hits": 3,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "懂密码学的人",
+      "level": "L2",
+      "simhash_hits": 3,
+      "bql_hits": 1,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": false
+    },
+    {
+      "query": "我的项目需要做安全审计",
+      "level": "L3",
+      "simhash_hits": 2,
+      "bql_hits": 1,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": false
+    },
+    {
+      "query": "我想学怎么做实时视觉特效",
+      "level": "L3",
+      "simhash_hits": 3,
+      "bql_hits": 2,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "帮我部署一个能扛大流量的后端",
+      "level": "L3",
+      "simhash_hits": 1,
+      "bql_hits": 1,
+      "expected": 5,
+      "simhash_passed": false,
+      "bql_passed": false
+    },
+    {
+      "query": "我的网站太丑了需要重新设计",
+      "level": "L3",
+      "simhash_hits": 2,
+      "bql_hits": 2,
+      "expected": 5,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "数据库越来越慢怎么办",
+      "level": "L3",
+      "simhash_hits": 3,
+      "bql_hits": 3,
+      "expected": 4,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "想做一个把声音变成画面的东西",
+      "level": "L4",
+      "simhash_hits": 3,
+      "bql_hits": 1,
+      "expected": 6,
+      "simhash_passed": true,
+      "bql_passed": false
+    },
+    {
+      "query": "用技术做点有意义的事",
+      "level": "L4",
+      "simhash_hits": 0,
+      "bql_hits": 0,
+      "expected": 4,
+      "simhash_passed": false,
+      "bql_passed": false
+    },
+    {
+      "query": "把传统手艺和数字技术结合",
+      "level": "L4",
+      "simhash_hits": 3,
+      "bql_hits": 2,
+      "expected": 6,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "我需要帮手",
+      "level": "L4",
+      "simhash_hits": 0,
+      "bql_hits": 0,
+      "expected": 0,
+      "simhash_passed": true,
+      "bql_passed": true
+    },
+    {
+      "query": "认识一些有趣的人",
+      "level": "L4",
+      "simhash_hits": 0,
+      "bql_hits": 0,
+      "expected": 5,
+      "simhash_passed": false,
+      "bql_passed": false
+    }
+  ]
+}

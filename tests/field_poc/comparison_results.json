@@ -1,0 +1,5689 @@
+{
+  "summary": {
+    "MiniLM-384d-flat-dense": {
+      "by_level": {
+        "L1": {
+          "passed": 4,
+          "total": 5,
+          "hits": 16,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 5,
+          "total": 5,
+          "hits": 11,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 4,
+          "total": 5,
+          "hits": 9,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 1,
+          "total": 5,
+          "hits": 1,
+          "expected": 21
+        }
+      },
+      "total_passed": 14,
+      "total_queries": 20,
+      "total_hits": 37,
+      "total_expected": 95
+    },
+    "MiniLM-384d-flat-binary": {
+      "by_level": {
+        "L1": {
+          "passed": 4,
+          "total": 5,
+          "hits": 15,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 5,
+          "total": 5,
+          "hits": 11,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 3,
+          "total": 5,
+          "hits": 8,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 1,
+          "total": 5,
+          "hits": 1,
+          "expected": 21
+        }
+      },
+      "total_passed": 13,
+      "total_queries": 20,
+      "total_hits": 35,
+      "total_expected": 95
+    },
+    "MiniLM-384d-chunk-dense": {
+      "by_level": {
+        "L1": {
+          "passed": 3,
+          "total": 5,
+          "hits": 15,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 4,
+          "total": 5,
+          "hits": 14,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 3,
+          "total": 5,
+          "hits": 11,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 2,
+          "total": 5,
+          "hits": 2,
+          "expected": 21
+        }
+      },
+      "total_passed": 12,
+      "total_queries": 20,
+      "total_hits": 42,
+      "total_expected": 95
+    },
+    "MiniLM-384d-chunk-binary": {
+      "by_level": {
+        "L1": {
+          "passed": 3,
+          "total": 5,
+          "hits": 13,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 3,
+          "total": 5,
+          "hits": 12,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 4,
+          "total": 5,
+          "hits": 12,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 2,
+          "total": 5,
+          "hits": 2,
+          "expected": 21
+        }
+      },
+      "total_passed": 12,
+      "total_queries": 20,
+      "total_hits": 39,
+      "total_expected": 95
+    },
+    "mpnet-768d-flat-dense": {
+      "by_level": {
+        "L1": {
+          "passed": 5,
+          "total": 5,
+          "hits": 18,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 4,
+          "total": 5,
+          "hits": 11,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 3,
+          "total": 5,
+          "hits": 9,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 3,
+          "total": 5,
+          "hits": 4,
+          "expected": 21
+        }
+      },
+      "total_passed": 15,
+      "total_queries": 20,
+      "total_hits": 42,
+      "total_expected": 95
+    },
+    "mpnet-768d-flat-binary": {
+      "by_level": {
+        "L1": {
+          "passed": 5,
+          "total": 5,
+          "hits": 17,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 4,
+          "total": 5,
+          "hits": 11,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 4,
+          "total": 5,
+          "hits": 10,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 3,
+          "total": 5,
+          "hits": 4,
+          "expected": 21
+        }
+      },
+      "total_passed": 16,
+      "total_queries": 20,
+      "total_hits": 42,
+      "total_expected": 95
+    },
+    "mpnet-768d-chunk-dense": {
+      "by_level": {
+        "L1": {
+          "passed": 4,
+          "total": 5,
+          "hits": 15,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 4,
+          "total": 5,
+          "hits": 12,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 4,
+          "total": 5,
+          "hits": 13,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 4,
+          "total": 5,
+          "hits": 5,
+          "expected": 21
+        }
+      },
+      "total_passed": 16,
+      "total_queries": 20,
+      "total_hits": 45,
+      "total_expected": 95
+    },
+    "mpnet-768d-chunk-binary": {
+      "by_level": {
+        "L1": {
+          "passed": 4,
+          "total": 5,
+          "hits": 15,
+          "expected": 24
+        },
+        "L2": {
+          "passed": 4,
+          "total": 5,
+          "hits": 12,
+          "expected": 26
+        },
+        "L3": {
+          "passed": 4,
+          "total": 5,
+          "hits": 12,
+          "expected": 24
+        },
+        "L4": {
+          "passed": 3,
+          "total": 5,
+          "hits": 4,
+          "expected": 21
+        }
+      },
+      "total_passed": 15,
+      "total_queries": 20,
+      "total_hits": 43,
+      "total_expected": 95
+    }
+  },
+  "details": {
+    "MiniLM-384d-flat-dense": [
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "ghost_in_shell",
+          "zero_day_hunter",
+          "packet_sniffer"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "r_jia_na_da_xue_lang",
+            "0.5857"
+          ],
+          [
+            "h_grey_hat",
+            "0.5758"
+          ],
+          [
+            "s_hui_se_mao_zi",
+            "0.5502"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.5358"
+          ],
+          [
+            "r_yun_wei_lao_bing",
+            "0.5226"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "cloud_nomad",
+          "void_operator",
+          "git_rebase_i"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "s_jian_zhu_shi_de_k8s",
+            "0.5436"
+          ],
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.4960"
+          ],
+          [
+            "r_yun_yuan_sheng_xin_tu",
+            "0.4792"
+          ],
+          [
+            "h_void_operator",
+            "0.4677"
+          ],
+          [
+            "h_dian_jiao_ban",
+            "0.4666"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "diao_bao_xia_nv",
+          "shu_ju_lao_nong"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "h_shu_ju_lao_nong",
+            "0.6097"
+          ],
+          [
+            "r_shu_ju_you_ling",
+            "0.5863"
+          ],
+          [
+            "s_shu_ju_yuan_ding",
+            "0.5524"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.4841"
+          ],
+          [
+            "s_hua_xue_po_po",
+            "0.4835"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "h_pixel_poet",
+            "0.6111"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.5780"
+          ],
+          [
+            "r_er_ci_yuan_nan_min",
+            "0.5486"
+          ],
+          [
+            "h_diu_zhen_ren",
+            "0.5348"
+          ],
+          [
+            "r_code_witch",
+            "0.5246"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "cyber_monk",
+          "liang_zi_da_shu",
+          "blockchain_skeptic",
+          "hui_sheng"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_sai_bo_pang_ke",
+            "0.7334"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.6888"
+          ],
+          [
+            "s_cyber_monk",
+            "0.6736"
+          ],
+          [
+            "r_qu_kuai_lian_tao_ren",
+            "0.6241"
+          ],
+          [
+            "h_hui_sheng",
+            "0.5935"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.6746"
+          ],
+          [
+            "h_ink_and_pixel",
+            "0.6604"
+          ],
+          [
+            "r_mo_yu_da_shi",
+            "0.6347"
+          ],
+          [
+            "s_xu_ni_zhi_wu_xue_jia",
+            "0.6336"
+          ],
+          [
+            "s_mo_shui_cheng_xu_yuan",
+            "0.6158"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "sonic_archaeologist"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "m_sheng_yin_kao_gu",
+            "0.7464"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7193"
+          ],
+          [
+            "s_ye_ban_tiao_xie_shi",
+            "0.7193"
+          ],
+          [
+            "s_sheng_yin_lian_jin",
+            "0.7126"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.6908"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "packet_loss",
+          "midnight_debugger"
+        ],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "h_packet_loss",
+            "0.5599"
+          ],
+          [
+            "h_bao_an_ge",
+            "0.5366"
+          ],
+          [
+            "s_cache_prophet",
+            "0.5222"
+          ],
+          [
+            "h_echo_in_void",
+            "0.5136"
+          ],
+          [
+            "r_ctrl_alt_elite",
+            "0.5135"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_girl",
+          "glitch_poet"
+        ],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "h_ink_and_pixel",
+            "0.7145"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.7093"
+          ],
+          [
+            "h_glitch_poet",
+            "0.6944"
+          ],
+          [
+            "m_san_dian_shui",
+            "0.6942"
+          ],
+          [
+            "h_glitch_girl",
+            "0.6887"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "liang_zi_liu_lang",
+          "bit_alchemist",
+          "mo_sheng_ren"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "r_mi_ma_kao_gu_yuan",
+            "0.7090"
+          ],
+          [
+            "s_bit_alchemist",
+            "0.7051"
+          ],
+          [
+            "s_cyber_monk",
+            "0.6499"
+          ],
+          [
+            "h_binary_sage",
+            "0.6491"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.6485"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "h_grey_hat",
+            "0.5790"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.5633"
+          ],
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.5503"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.5492"
+          ],
+          [
+            "s_hui_se_mao_zi",
+            "0.5421"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.6098"
+          ],
+          [
+            "s_glitch_witch",
+            "0.5957"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.5798"
+          ],
+          [
+            "h_mo_yu_da_shi",
+            "0.5785"
+          ],
+          [
+            "s_glitch_queen",
+            "0.5679"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "echo_in_void"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "m_void_operator",
+            "0.4346"
+          ],
+          [
+            "h_bao_an_ge",
+            "0.4170"
+          ],
+          [
+            "r_git_rebase_i",
+            "0.3864"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.3821"
+          ],
+          [
+            "s_cache_prophet",
+            "0.3682"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "s_xu_ni_kao_gu_xue_jia",
+            "0.5207"
+          ],
+          [
+            "h_jiu_hao_xian",
+            "0.4175"
+          ],
+          [
+            "r_ctrl_z_xia_ke",
+            "0.4017"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.3999"
+          ],
+          [
+            "s_pastel_coder",
+            "0.3957"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "sql_poet"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "h_db_lao_wang",
+            "0.6903"
+          ],
+          [
+            "h_db_necromancer",
+            "0.6596"
+          ],
+          [
+            "s_sql_poet",
+            "0.6228"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.6051"
+          ],
+          [
+            "h_zhan_bu_shi",
+            "0.5498"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "wu_sheng_de_ren"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "s_sheng_yin_lian_jin",
+            "0.6468"
+          ],
+          [
+            "m_sheng_yin_kao_gu",
+            "0.6110"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.6045"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.5821"
+          ],
+          [
+            "r_sheng_bo_lao_liu",
+            "0.5771"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "h_dian_jiao_ban",
+            "0.6149"
+          ],
+          [
+            "r_ji_guang_xia_ke",
+            "0.5838"
+          ],
+          [
+            "r_kernel_panic",
+            "0.5704"
+          ],
+          [
+            "h_glitch_artist",
+            "0.5701"
+          ],
+          [
+            "m_hou_chang_cun",
+            "0.5646"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.6348"
+          ],
+          [
+            "h_neon_architect",
+            "0.5950"
+          ],
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.5702"
+          ],
+          [
+            "m_lao_pao_er",
+            "0.5690"
+          ],
+          [
+            "h_glitch_poet",
+            "0.5644"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "h_async_monk",
+            "0.4211"
+          ],
+          [
+            "r_biao_qing_bao_gong_cheng_shi",
+            "0.4054"
+          ],
+          [
+            "m_void_operator",
+            "0.3594"
+          ],
+          [
+            "h_regex_ronin",
+            "0.3473"
+          ],
+          [
+            "h_wu_xian_chong",
+            "0.3430"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_xiu_che_lao_wang",
+            "0.4601"
+          ],
+          [
+            "m_xiao_chi_dian_lao_ban_niang",
+            "0.4440"
+          ],
+          [
+            "m_lao_tie_666",
+            "0.4116"
+          ],
+          [
+            "m_lao_pao_er",
+            "0.4101"
+          ],
+          [
+            "m_xian_cheng_ma_nong",
+            "0.4027"
+          ]
+        ]
+      }
+    ],
+    "MiniLM-384d-flat-binary": [
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "ghost_in_shell",
+          "zero_day_hunter",
+          "packet_sniffer"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "r_jia_na_da_xue_lang",
+            "0.7003"
+          ],
+          [
+            "h_grey_hat",
+            "0.6904"
+          ],
+          [
+            "s_hui_se_mao_zi",
+            "0.6809"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.6752"
+          ],
+          [
+            "r_yun_wei_lao_bing",
+            "0.6750"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "void_operator",
+          "git_rebase_i"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "s_jian_zhu_shi_de_k8s",
+            "0.6766"
+          ],
+          [
+            "r_yun_yuan_sheng_xin_tu",
+            "0.6625"
+          ],
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.6593"
+          ],
+          [
+            "h_void_operator",
+            "0.6539"
+          ],
+          [
+            "h_404_philosopher",
+            "0.6509"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "diao_bao_xia_nv",
+          "shu_ju_lao_nong"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "h_shu_ju_lao_nong",
+            "0.7097"
+          ],
+          [
+            "r_shu_ju_you_ling",
+            "0.7034"
+          ],
+          [
+            "s_shu_ju_yuan_ding",
+            "0.6869"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.6658"
+          ],
+          [
+            "s_hua_xue_po_po",
+            "0.6612"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "h_pixel_poet",
+            "0.7162"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.6982"
+          ],
+          [
+            "r_er_ci_yuan_nan_min",
+            "0.6926"
+          ],
+          [
+            "h_diu_zhen_ren",
+            "0.6810"
+          ],
+          [
+            "m_malloc_free_love",
+            "0.6793"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "cyber_monk",
+          "liang_zi_da_shu",
+          "blockchain_skeptic",
+          "hui_sheng"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_sai_bo_pang_ke",
+            "0.7545"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.7330"
+          ],
+          [
+            "s_cyber_monk",
+            "0.7302"
+          ],
+          [
+            "r_qu_kuai_lian_tao_ren",
+            "0.7095"
+          ],
+          [
+            "h_hui_sheng",
+            "0.7063"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.7380"
+          ],
+          [
+            "h_ink_and_pixel",
+            "0.7287"
+          ],
+          [
+            "r_mo_yu_da_shi",
+            "0.7213"
+          ],
+          [
+            "s_xu_ni_zhi_wu_xue_jia",
+            "0.7144"
+          ],
+          [
+            "s_mo_shui_cheng_xu_yuan",
+            "0.7142"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "sonic_archaeologist"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "m_sheng_yin_kao_gu",
+            "0.7649"
+          ],
+          [
+            "s_ye_ban_tiao_xie_shi",
+            "0.7628"
+          ],
+          [
+            "s_sheng_yin_lian_jin",
+            "0.7550"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7549"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7416"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "packet_loss",
+          "midnight_debugger"
+        ],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "h_packet_loss",
+            "0.6976"
+          ],
+          [
+            "h_bao_an_ge",
+            "0.6814"
+          ],
+          [
+            "h_echo_in_void",
+            "0.6750"
+          ],
+          [
+            "s_cache_prophet",
+            "0.6748"
+          ],
+          [
+            "r_shen_ye_da_ma_ren",
+            "0.6747"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_girl",
+          "glitch_poet"
+        ],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.7528"
+          ],
+          [
+            "h_ink_and_pixel",
+            "0.7498"
+          ],
+          [
+            "h_glitch_girl",
+            "0.7433"
+          ],
+          [
+            "h_glitch_poet",
+            "0.7404"
+          ],
+          [
+            "m_san_dian_shui",
+            "0.7388"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "digital_hermit",
+          "liang_zi_liu_lang",
+          "bit_alchemist"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "r_mi_ma_kao_gu_yuan",
+            "0.7540"
+          ],
+          [
+            "s_bit_alchemist",
+            "0.7510"
+          ],
+          [
+            "h_binary_sage",
+            "0.7299"
+          ],
+          [
+            "s_cyber_monk",
+            "0.7257"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.7207"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "h_grey_hat",
+            "0.6961"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.6869"
+          ],
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.6833"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.6812"
+          ],
+          [
+            "s_hui_se_mao_zi",
+            "0.6768"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.7034"
+          ],
+          [
+            "s_glitch_witch",
+            "0.7032"
+          ],
+          [
+            "h_mo_yu_da_shi",
+            "0.6954"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.6944"
+          ],
+          [
+            "s_glitch_queen",
+            "0.6894"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "sudo_rm"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "m_void_operator",
+            "0.6435"
+          ],
+          [
+            "h_bao_an_ge",
+            "0.6353"
+          ],
+          [
+            "s_cache_prophet",
+            "0.6259"
+          ],
+          [
+            "h_bit_witch",
+            "0.6220"
+          ],
+          [
+            "h_sudo_rm",
+            "0.6214"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "s_xu_ni_kao_gu_xue_jia",
+            "0.6791"
+          ],
+          [
+            "s_pastel_coder",
+            "0.6381"
+          ],
+          [
+            "h_jiu_hao_xian",
+            "0.6367"
+          ],
+          [
+            "r_ctrl_z_xia_ke",
+            "0.6336"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.6323"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "sql_poet"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "h_db_lao_wang",
+            "0.7452"
+          ],
+          [
+            "h_db_necromancer",
+            "0.7321"
+          ],
+          [
+            "s_sql_poet",
+            "0.7167"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.7024"
+          ],
+          [
+            "h_zhan_bu_shi",
+            "0.6885"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "wu_sheng_de_ren"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "s_sheng_yin_lian_jin",
+            "0.7267"
+          ],
+          [
+            "m_sheng_yin_kao_gu",
+            "0.7062"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7032"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7009"
+          ],
+          [
+            "r_sheng_bo_lao_liu",
+            "0.6959"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "h_dian_jiao_ban",
+            "0.7100"
+          ],
+          [
+            "r_kernel_panic",
+            "0.7019"
+          ],
+          [
+            "r_ji_guang_xia_ke",
+            "0.6988"
+          ],
+          [
+            "m_hou_chang_cun",
+            "0.6925"
+          ],
+          [
+            "h_glitch_artist",
+            "0.6898"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.7195"
+          ],
+          [
+            "h_neon_architect",
+            "0.7021"
+          ],
+          [
+            "h_glitch_girl",
+            "0.6921"
+          ],
+          [
+            "m_glitch_witch",
+            "0.6918"
+          ],
+          [
+            "m_lao_pao_er",
+            "0.6885"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "h_async_monk",
+            "0.6393"
+          ],
+          [
+            "r_biao_qing_bao_gong_cheng_shi",
+            "0.6388"
+          ],
+          [
+            "h_regex_ronin",
+            "0.6207"
+          ],
+          [
+            "m_void_operator",
+            "0.6207"
+          ],
+          [
+            "h_wu_xian_chong",
+            "0.6148"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_xiu_che_lao_wang",
+            "0.6498"
+          ],
+          [
+            "m_xiao_chi_dian_lao_ban_niang",
+            "0.6410"
+          ],
+          [
+            "m_xian_cheng_ma_nong",
+            "0.6296"
+          ],
+          [
+            "m_ctrl_alt_delete_feelings",
+            "0.6274"
+          ],
+          [
+            "m_feng_chui_mai_lang",
+            "0.6252"
+          ]
+        ]
+      }
+    ],
+    "MiniLM-384d-chunk-dense": [
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "ghost_in_shell",
+          "binary_sage",
+          "zero_day_hunter"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "h_grey_hat",
+            "0.8432"
+          ],
+          [
+            "r_binary_rebel",
+            "0.8206"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.8080"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.8019"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.8012"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "echo_in_void",
+          "cloud_nomad"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "h_kernel_panic",
+            "0.6443"
+          ],
+          [
+            "h_jian_zhu_gong",
+            "0.6354"
+          ],
+          [
+            "r_a_mu_si_te_dan_che_shou",
+            "0.6326"
+          ],
+          [
+            "r_jia_zhuang_shi_fu",
+            "0.6319"
+          ],
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.6292"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "diao_bao_xia_nv",
+          "zhan_bu_shi"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "s_hua_xue_po_po",
+            "0.5351"
+          ],
+          [
+            "h_zhan_bu_shi",
+            "0.5231"
+          ],
+          [
+            "r_shu_ju_you_ling",
+            "0.5057"
+          ],
+          [
+            "s_shu_ju_yuan_ding",
+            "0.5009"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.4951"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "xiao_chou",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_code_witch",
+            "0.6728"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.6574"
+          ],
+          [
+            "h_xiao_chou",
+            "0.6447"
+          ],
+          [
+            "h_pixel_poet",
+            "0.5892"
+          ],
+          [
+            "m_malloc_free_love",
+            "0.5847"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "liang_zi_da_shu",
+          "blockchain_skeptic",
+          "hui_sheng"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_sai_bo_pang_ke",
+            "0.6693"
+          ],
+          [
+            "s_protocol_rebel",
+            "0.6619"
+          ],
+          [
+            "h_liang_zi_da_shu",
+            "0.6384"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.6333"
+          ],
+          [
+            "m_packet_sniffer_poet",
+            "0.6233"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "neon_samurai",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.7646"
+          ],
+          [
+            "s_pastel_coder",
+            "0.7358"
+          ],
+          [
+            "h_ink_and_pixel",
+            "0.7115"
+          ],
+          [
+            "h_jian_zhu_gong",
+            "0.7016"
+          ],
+          [
+            "h_neon_samurai",
+            "0.6997"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber",
+          "hui_se_xin_hao",
+          "sonic_archaeologist"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "h_wu_sheng_de_ren",
+            "0.7926"
+          ],
+          [
+            "h_echo_chamber",
+            "0.7703"
+          ],
+          [
+            "h_sonic_archaeologist",
+            "0.7197"
+          ],
+          [
+            "r_jiu_dian_hua_shi",
+            "0.7129"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7037"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "packet_loss",
+          "async_await",
+          "midnight_debugger"
+        ],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "r_ling_dian_wu_cha",
+            "0.6639"
+          ],
+          [
+            "h_packet_loss",
+            "0.6582"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.6525"
+          ],
+          [
+            "r_ban_ye_diao_shi",
+            "0.6494"
+          ],
+          [
+            "s_lao_tie_yun_wei",
+            "0.6466"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "s_glitch_witch",
+            "0.7599"
+          ],
+          [
+            "s_mo_shui_hua_shi",
+            "0.7571"
+          ],
+          [
+            "r_wu_sheng_de_hua",
+            "0.7496"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.7404"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.7340"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "digital_hermit",
+          "liang_zi_liu_lang",
+          "bit_alchemist",
+          "mo_sheng_ren"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "s_gui_ling_hacker",
+            "0.7980"
+          ],
+          [
+            "m_blockchain_skeptic",
+            "0.7904"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.7903"
+          ],
+          [
+            "s_bit_alchemist",
+            "0.7890"
+          ],
+          [
+            "h_digital_hermit",
+            "0.7698"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "blockchain_skeptic",
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_binary_rebel",
+            "0.6549"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.5953"
+          ],
+          [
+            "r_shu_ju_lian_jin_shi",
+            "0.5872"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.5835"
+          ],
+          [
+            "h_grey_hat",
+            "0.5797"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch",
+          "neon_vandal"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "s_shader_witch",
+            "0.6528"
+          ],
+          [
+            "s_glitch_queen",
+            "0.6439"
+          ],
+          [
+            "s_neon_vandal",
+            "0.6278"
+          ],
+          [
+            "h_pixel_witch",
+            "0.6194"
+          ],
+          [
+            "s_pastel_coder",
+            "0.6069"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "sudo_rm"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "s_lao_tie_yun_wei",
+            "0.5941"
+          ],
+          [
+            "m_docker_compose_life",
+            "0.5866"
+          ],
+          [
+            "r_git_rebase_i",
+            "0.5847"
+          ],
+          [
+            "r_wu_ren_ji_lang_ke",
+            "0.5842"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.5832"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "wu_ming_zhi"
+        ],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "s_xu_ni_kao_gu_xue_jia",
+            "0.4432"
+          ],
+          [
+            "r_gu_ji_xiu_fu_shi",
+            "0.3142"
+          ],
+          [
+            "h_neon_samurai",
+            "0.3090"
+          ],
+          [
+            "h_jiu_hao_xian",
+            "0.3062"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.3050"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "sql_poet"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "s_sql_poet",
+            "0.5761"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.5226"
+          ],
+          [
+            "r_hua_li_zhuan_shen",
+            "0.4972"
+          ],
+          [
+            "h_db_lao_wang",
+            "0.4947"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.4907"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "h_wu_sheng_de_ren",
+            "0.7303"
+          ],
+          [
+            "h_echo_chamber",
+            "0.7250"
+          ],
+          [
+            "r_jiu_dian_hua_shi",
+            "0.7225"
+          ],
+          [
+            "r_wu_sheng_de_hui",
+            "0.7171"
+          ],
+          [
+            "h_sonic_archaeologist",
+            "0.6990"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "r_ji_guang_xia_ke",
+            "0.6953"
+          ],
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.6748"
+          ],
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.6688"
+          ],
+          [
+            "m_analog_anarchist",
+            "0.6609"
+          ],
+          [
+            "s_tuo_la_ji_niang",
+            "0.6599"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.6465"
+          ],
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.6404"
+          ],
+          [
+            "m_glitch_witch",
+            "0.6396"
+          ],
+          [
+            "r_jie_gou_shi",
+            "0.6387"
+          ],
+          [
+            "s_glitch_witch",
+            "0.6361"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "h_bug_hunter_lyn",
+            "0.6014"
+          ],
+          [
+            "h_wu_xian_chong",
+            "0.5988"
+          ],
+          [
+            "h_bao_an_ge",
+            "0.5824"
+          ],
+          [
+            "h_xiao_zhen_qing_nian",
+            "0.5776"
+          ],
+          [
+            "h_dian_jiao_ban",
+            "0.5731"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_feng_chui_mai_lang",
+            "0.5449"
+          ],
+          [
+            "m_kuai_shou_yi_jie",
+            "0.5306"
+          ],
+          [
+            "m_xiang_cun_jiao_shi",
+            "0.5305"
+          ],
+          [
+            "m_xiu_che_lao_wang",
+            "0.5241"
+          ],
+          [
+            "m_xiao_zhen_ma_ma",
+            "0.5239"
+          ]
+        ]
+      }
+    ],
+    "MiniLM-384d-chunk-binary": [
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "ghost_in_shell",
+          "binary_sage",
+          "zero_day_hunter"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "h_grey_hat",
+            "0.7997"
+          ],
+          [
+            "r_binary_rebel",
+            "0.7974"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.7855"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.7837"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.7833"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "echo_in_void",
+          "chaos_gardener"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "h_kernel_panic",
+            "0.7177"
+          ],
+          [
+            "h_jian_zhu_gong",
+            "0.7087"
+          ],
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.7072"
+          ],
+          [
+            "r_jia_zhuang_shi_fu",
+            "0.7069"
+          ],
+          [
+            "h_fork_zhi_lu",
+            "0.7068"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "zhan_bu_shi"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "s_hua_xue_po_po",
+            "0.6764"
+          ],
+          [
+            "s_shu_ju_yuan_ding",
+            "0.6722"
+          ],
+          [
+            "h_zhan_bu_shi",
+            "0.6702"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.6635"
+          ],
+          [
+            "s_data_druid",
+            "0.6610"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "xiao_chou",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_code_witch",
+            "0.7351"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.7246"
+          ],
+          [
+            "h_xiao_chou",
+            "0.7209"
+          ],
+          [
+            "m_malloc_free_love",
+            "0.7074"
+          ],
+          [
+            "h_pixel_poet",
+            "0.7022"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "liang_zi_da_shu",
+          "blockchain_skeptic"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "h_liang_zi_da_shu",
+            "0.7159"
+          ],
+          [
+            "s_protocol_rebel",
+            "0.7151"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.7143"
+          ],
+          [
+            "r_sai_bo_pang_ke",
+            "0.7143"
+          ],
+          [
+            "m_packet_sniffer_poet",
+            "0.7053"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "neon_samurai",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.7715"
+          ],
+          [
+            "h_ink_and_pixel",
+            "0.7543"
+          ],
+          [
+            "s_pastel_coder",
+            "0.7485"
+          ],
+          [
+            "h_jian_zhu_gong",
+            "0.7397"
+          ],
+          [
+            "h_neon_samurai",
+            "0.7382"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber",
+          "hui_se_xin_hao",
+          "sonic_archaeologist"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "h_wu_sheng_de_ren",
+            "0.7863"
+          ],
+          [
+            "h_echo_chamber",
+            "0.7819"
+          ],
+          [
+            "h_sonic_archaeologist",
+            "0.7578"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7451"
+          ],
+          [
+            "m_liu_lang_de_yun",
+            "0.7444"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "packet_loss"
+        ],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "h_packet_loss",
+            "0.7215"
+          ],
+          [
+            "h_memory_hoarder",
+            "0.7193"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.7172"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.7115"
+          ],
+          [
+            "s_lao_tie_yun_wei",
+            "0.7103"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "s_glitch_witch",
+            "0.7707"
+          ],
+          [
+            "s_mo_shui_hua_shi",
+            "0.7690"
+          ],
+          [
+            "s_mu_guang_shi_ren",
+            "0.7556"
+          ],
+          [
+            "m_async_await_u",
+            "0.7548"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.7539"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "digital_hermit",
+          "liang_zi_liu_lang",
+          "bit_alchemist",
+          "mo_sheng_ren"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "s_gui_ling_hacker",
+            "0.7977"
+          ],
+          [
+            "m_blockchain_skeptic",
+            "0.7842"
+          ],
+          [
+            "h_digital_hermit",
+            "0.7804"
+          ],
+          [
+            "s_bit_alchemist",
+            "0.7798"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.7789"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_binary_rebel",
+            "0.7211"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.6964"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.6930"
+          ],
+          [
+            "h_grey_hat",
+            "0.6882"
+          ],
+          [
+            "r_shu_ju_lian_jin_shi",
+            "0.6871"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch",
+          "neon_vandal"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "s_glitch_queen",
+            "0.7159"
+          ],
+          [
+            "s_shader_witch",
+            "0.7137"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7081"
+          ],
+          [
+            "s_neon_vandal",
+            "0.7081"
+          ],
+          [
+            "s_pastel_coder",
+            "0.6999"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "packet_loss"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "r_san_dian_shui",
+            "0.6933"
+          ],
+          [
+            "m_docker_compose_life",
+            "0.6922"
+          ],
+          [
+            "r_wu_ren_ji_lang_ke",
+            "0.6907"
+          ],
+          [
+            "r_git_rebase_i",
+            "0.6860"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.6844"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "wu_ming_zhi"
+        ],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "s_xu_ni_kao_gu_xue_jia",
+            "0.6464"
+          ],
+          [
+            "h_jiu_hao_xian",
+            "0.6031"
+          ],
+          [
+            "h_wu_ming_zhi",
+            "0.6022"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.5960"
+          ],
+          [
+            "r_gu_ji_xiu_fu_shi",
+            "0.5949"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "sql_poet"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "s_sql_poet",
+            "0.6929"
+          ],
+          [
+            "h_db_lao_wang",
+            "0.6647"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.6634"
+          ],
+          [
+            "r_hua_li_zhuan_shen",
+            "0.6630"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.6613"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "h_echo_chamber",
+            "0.7626"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7546"
+          ],
+          [
+            "r_wu_sheng_de_hui",
+            "0.7462"
+          ],
+          [
+            "r_jiu_dian_hua_shi",
+            "0.7454"
+          ],
+          [
+            "h_sonic_archaeologist",
+            "0.7441"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.7358"
+          ],
+          [
+            "r_ji_guang_xia_ke",
+            "0.7334"
+          ],
+          [
+            "r_mo_ni_lian_jin_shi",
+            "0.7252"
+          ],
+          [
+            "r_jie_gou_shi",
+            "0.7242"
+          ],
+          [
+            "m_analog_anarchist",
+            "0.7234"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "m_glitch_witch",
+            "0.7218"
+          ],
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.7181"
+          ],
+          [
+            "r_jie_gou_shi",
+            "0.7169"
+          ],
+          [
+            "m_analog_anarchist",
+            "0.7163"
+          ],
+          [
+            "h_jiu_ba_dj",
+            "0.7150"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "h_bug_hunter_lyn",
+            "0.7033"
+          ],
+          [
+            "h_wu_xian_chong",
+            "0.7020"
+          ],
+          [
+            "h_ye_lu_zi",
+            "0.6993"
+          ],
+          [
+            "h_bao_an_ge",
+            "0.6975"
+          ],
+          [
+            "h_dian_jiao_ban",
+            "0.6969"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_kuai_shou_yi_jie",
+            "0.6766"
+          ],
+          [
+            "m_feng_chui_mai_lang",
+            "0.6705"
+          ],
+          [
+            "m_xiao_zhen_ma_ma",
+            "0.6668"
+          ],
+          [
+            "m_xiu_che_lao_wang",
+            "0.6654"
+          ],
+          [
+            "m_xiang_cun_jiao_shi",
+            "0.6632"
+          ]
+        ]
+      }
+    ],
+    "mpnet-768d-flat-dense": [
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "ghost_in_shell",
+          "zero_day_hunter"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "r_jia_na_da_xue_lang",
+            "0.6657"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.6333"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.6275"
+          ],
+          [
+            "h_grey_hat",
+            "0.6026"
+          ],
+          [
+            "s_hui_se_mao_zi",
+            "0.5589"
+          ]
+        ]
+      },
+      {
+        "hit_count": 5,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "echo_in_void",
+          "void_operator",
+          "chaos_gardener",
+          "git_rebase_i"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "h_404_philosopher",
+            "0.6554"
+          ],
+          [
+            "r_yun_yuan_sheng_xin_tu",
+            "0.6177"
+          ],
+          [
+            "h_sudo_rm",
+            "0.6173"
+          ],
+          [
+            "s_docker_nomad",
+            "0.6092"
+          ],
+          [
+            "r_git_rebase_i",
+            "0.5736"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "diao_bao_xia_nv",
+          "shu_ju_lao_nong",
+          "data_witch",
+          "zhan_bu_shi"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "h_shu_ju_lao_nong",
+            "0.6816"
+          ],
+          [
+            "s_hua_xue_po_po",
+            "0.5670"
+          ],
+          [
+            "h_diao_bao_xia_nv",
+            "0.5238"
+          ],
+          [
+            "h_data_witch",
+            "0.5169"
+          ],
+          [
+            "r_ling_dian_wu_cha",
+            "0.5079"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "h_pixel_poet",
+            "0.6035"
+          ],
+          [
+            "r_ctrl_z_xia_ke",
+            "0.5865"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.5593"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.5449"
+          ],
+          [
+            "h_diu_zhen_ren",
+            "0.5411"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "cyber_monk",
+          "liang_zi_da_shu",
+          "blockchain_skeptic"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_sai_bo_pang_ke",
+            "0.7737"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.7324"
+          ],
+          [
+            "s_cyber_monk",
+            "0.6949"
+          ],
+          [
+            "h_blockchain_skeptic",
+            "0.6313"
+          ],
+          [
+            "m_blockchain_skeptic",
+            "0.6191"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "liu_guang_ke",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.6510"
+          ],
+          [
+            "s_pixel_perfectionist",
+            "0.6318"
+          ],
+          [
+            "h_mo_yu_da_shi",
+            "0.6243"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.6140"
+          ],
+          [
+            "h_neko_chan",
+            "0.6003"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "frequency_hermit"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "m_liu_lang_de_yun",
+            "0.6545"
+          ],
+          [
+            "s_ye_ban_tiao_xie_shi",
+            "0.6474"
+          ],
+          [
+            "m_wu_sheng_dian_tai",
+            "0.6436"
+          ],
+          [
+            "m_sheng_yin_kao_gu",
+            "0.6415"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.6329"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "r_san_dian_shui",
+            "0.5751"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.5614"
+          ],
+          [
+            "r_xin_jia_po_ye_mao",
+            "0.5608"
+          ],
+          [
+            "r_api_you_xia",
+            "0.5512"
+          ],
+          [
+            "s_cache_prophet",
+            "0.5477"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_girl",
+          "glitch_artist",
+          "glitch_poet"
+        ],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.7269"
+          ],
+          [
+            "h_glitch_poet",
+            "0.7180"
+          ],
+          [
+            "m_glitch_witch",
+            "0.6754"
+          ],
+          [
+            "h_glitch_girl",
+            "0.6736"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.6553"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "digital_hermit",
+          "liang_zi_liu_lang",
+          "bit_alchemist"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "s_bit_alchemist",
+            "0.7109"
+          ],
+          [
+            "r_mi_ma_kao_gu_yuan",
+            "0.6956"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.6819"
+          ],
+          [
+            "s_cyber_monk",
+            "0.6780"
+          ],
+          [
+            "h_digital_hermit",
+            "0.6626"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.5524"
+          ],
+          [
+            "s_wu_gui_yun_wei",
+            "0.5169"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.5166"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.5104"
+          ],
+          [
+            "h_grey_hat",
+            "0.5100"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "s_glitch_queen",
+            "0.6438"
+          ],
+          [
+            "h_liu_guang_ke",
+            "0.6265"
+          ],
+          [
+            "h_pixel_witch",
+            "0.6045"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.6024"
+          ],
+          [
+            "s_guang_ying_bu_shou",
+            "0.5902"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "sudo_rm"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "r_packet_sniffer",
+            "0.4934"
+          ],
+          [
+            "h_sudo_rm",
+            "0.4831"
+          ],
+          [
+            "s_wu_gui_yun_wei",
+            "0.4802"
+          ],
+          [
+            "s_lao_tie_yun_wei",
+            "0.4799"
+          ],
+          [
+            "r_liu_lang_zhe",
+            "0.4561"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "ctrl_z"
+        ],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "m_fork_you_politely",
+            "0.3651"
+          ],
+          [
+            "r_ctrl_z_xia_ke",
+            "0.3420"
+          ],
+          [
+            "m_mo_se_diao_xie_shi",
+            "0.3186"
+          ],
+          [
+            "s_xu_ni_kao_gu_xue_jia",
+            "0.3155"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.3130"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "packet_loss"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "r_ling_dian_wu_cha",
+            "0.6763"
+          ],
+          [
+            "h_db_necromancer",
+            "0.6455"
+          ],
+          [
+            "h_db_lao_wang",
+            "0.5780"
+          ],
+          [
+            "h_regex_queen",
+            "0.5562"
+          ],
+          [
+            "h_packet_loss",
+            "0.5398"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "s_sheng_yin_lian_jin",
+            "0.6717"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.6653"
+          ],
+          [
+            "r_sheng_bo_lao_liu",
+            "0.6548"
+          ],
+          [
+            "m_sheng_yin_kao_gu",
+            "0.6270"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.6141"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "m_hou_chang_cun",
+            "0.6350"
+          ],
+          [
+            "m_glitch_witch",
+            "0.6240"
+          ],
+          [
+            "m_lao_pao_er",
+            "0.5924"
+          ],
+          [
+            "m_signal_noise",
+            "0.5777"
+          ],
+          [
+            "m_xu_ni_shan_ju",
+            "0.5678"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "ink_alchemist",
+          "memory_weaver"
+        ],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.6649"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.6459"
+          ],
+          [
+            "m_glitch_witch",
+            "0.6357"
+          ],
+          [
+            "h_pixel_witch",
+            "0.6065"
+          ],
+          [
+            "h_ink_alchemist",
+            "0.5820"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "m_void_operator",
+            "0.5106"
+          ],
+          [
+            "h_async_monk",
+            "0.4937"
+          ],
+          [
+            "r_biao_qing_bao_gong_cheng_shi",
+            "0.4720"
+          ],
+          [
+            "s_neon_surgeon",
+            "0.4665"
+          ],
+          [
+            "r_mo_yu_da_shi",
+            "0.4234"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_lao_tie_666",
+            "0.5653"
+          ],
+          [
+            "m_feng_zhong_shu_qian",
+            "0.5406"
+          ],
+          [
+            "m_hui_se_pin_lv",
+            "0.5332"
+          ],
+          [
+            "m_xiu_che_lao_wang",
+            "0.5081"
+          ],
+          [
+            "m_void_operator",
+            "0.5045"
+          ]
+        ]
+      }
+    ],
+    "mpnet-768d-flat-binary": [
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "ghost_in_shell",
+          "zero_day_hunter"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "r_jia_na_da_xue_lang",
+            "0.7324"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.7224"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.7208"
+          ],
+          [
+            "h_grey_hat",
+            "0.7056"
+          ],
+          [
+            "s_hui_se_mao_zi",
+            "0.6904"
+          ]
+        ]
+      },
+      {
+        "hit_count": 5,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "echo_in_void",
+          "void_operator",
+          "chaos_gardener",
+          "git_rebase_i"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "h_404_philosopher",
+            "0.7247"
+          ],
+          [
+            "r_yun_yuan_sheng_xin_tu",
+            "0.7165"
+          ],
+          [
+            "h_sudo_rm",
+            "0.7074"
+          ],
+          [
+            "s_docker_nomad",
+            "0.7067"
+          ],
+          [
+            "r_git_rebase_i",
+            "0.6968"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "diao_bao_xia_nv",
+          "shu_ju_lao_nong",
+          "data_witch"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "h_shu_ju_lao_nong",
+            "0.7394"
+          ],
+          [
+            "s_hua_xue_po_po",
+            "0.6834"
+          ],
+          [
+            "h_diao_bao_xia_nv",
+            "0.6696"
+          ],
+          [
+            "h_data_witch",
+            "0.6689"
+          ],
+          [
+            "r_shu_ju_you_min",
+            "0.6672"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "h_pixel_poet",
+            "0.7053"
+          ],
+          [
+            "r_ctrl_z_xia_ke",
+            "0.6987"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.6870"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.6824"
+          ],
+          [
+            "h_diu_zhen_ren",
+            "0.6808"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "cyber_monk",
+          "liang_zi_da_shu",
+          "blockchain_skeptic"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_sai_bo_pang_ke",
+            "0.7788"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.7598"
+          ],
+          [
+            "s_cyber_monk",
+            "0.7473"
+          ],
+          [
+            "h_blockchain_skeptic",
+            "0.7155"
+          ],
+          [
+            "s_liang_zi_kuang_gong",
+            "0.7148"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "liu_guang_ke",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.7218"
+          ],
+          [
+            "s_pixel_perfectionist",
+            "0.7130"
+          ],
+          [
+            "h_mo_yu_da_shi",
+            "0.7109"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.7093"
+          ],
+          [
+            "h_neko_chan",
+            "0.7038"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "frequency_hermit"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "m_liu_lang_de_yun",
+            "0.7306"
+          ],
+          [
+            "m_wu_sheng_dian_tai",
+            "0.7266"
+          ],
+          [
+            "m_sheng_yin_kao_gu",
+            "0.7181"
+          ],
+          [
+            "s_ye_ban_tiao_xie_shi",
+            "0.7177"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7131"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "r_san_dian_shui",
+            "0.6906"
+          ],
+          [
+            "h_echo_in_void",
+            "0.6900"
+          ],
+          [
+            "s_cache_prophet",
+            "0.6879"
+          ],
+          [
+            "r_xin_jia_po_ye_mao",
+            "0.6878"
+          ],
+          [
+            "r_api_you_xia",
+            "0.6869"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_girl",
+          "glitch_artist",
+          "glitch_poet"
+        ],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.7598"
+          ],
+          [
+            "h_glitch_poet",
+            "0.7511"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7324"
+          ],
+          [
+            "h_glitch_girl",
+            "0.7285"
+          ],
+          [
+            "r_mo_fa_shi_de_bug",
+            "0.7269"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "digital_hermit",
+          "liang_zi_liu_lang",
+          "bit_alchemist"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "s_bit_alchemist",
+            "0.7513"
+          ],
+          [
+            "r_mi_ma_kao_gu_yuan",
+            "0.7466"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.7382"
+          ],
+          [
+            "s_cyber_monk",
+            "0.7361"
+          ],
+          [
+            "h_digital_hermit",
+            "0.7263"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_wu_zheng_fu_zhu_yi_zhe",
+            "0.6892"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.6756"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.6752"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.6722"
+          ],
+          [
+            "s_wu_gui_yun_wei",
+            "0.6703"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "s_glitch_queen",
+            "0.7169"
+          ],
+          [
+            "h_liu_guang_ke",
+            "0.7131"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7088"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.7041"
+          ],
+          [
+            "s_shader_witch",
+            "0.6963"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "echo_in_void"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "r_packet_sniffer",
+            "0.6648"
+          ],
+          [
+            "s_lao_tie_yun_wei",
+            "0.6640"
+          ],
+          [
+            "h_sudo_rm",
+            "0.6630"
+          ],
+          [
+            "s_wu_gui_yun_wei",
+            "0.6578"
+          ],
+          [
+            "h_xiu_che_de_ma_nong",
+            "0.6506"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "ctrl_z"
+        ],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "m_fork_you_politely",
+            "0.6259"
+          ],
+          [
+            "r_ctrl_z_xia_ke",
+            "0.6120"
+          ],
+          [
+            "s_xu_ni_kao_gu_xue_jia",
+            "0.6071"
+          ],
+          [
+            "m_mo_se_diao_xie_shi",
+            "0.6049"
+          ],
+          [
+            "s_neon_surgeon",
+            "0.6038"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "packet_loss"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "r_ling_dian_wu_cha",
+            "0.7441"
+          ],
+          [
+            "h_db_necromancer",
+            "0.7301"
+          ],
+          [
+            "h_db_lao_wang",
+            "0.7042"
+          ],
+          [
+            "h_regex_queen",
+            "0.6941"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.6938"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "s_sheng_yin_lian_jin",
+            "0.7346"
+          ],
+          [
+            "h_wu_sheng_de_ren",
+            "0.7327"
+          ],
+          [
+            "r_sheng_bo_lao_liu",
+            "0.7309"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7173"
+          ],
+          [
+            "m_sheng_yin_kao_gu",
+            "0.7171"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "m_hou_chang_cun",
+            "0.7286"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7223"
+          ],
+          [
+            "m_lao_pao_er",
+            "0.7063"
+          ],
+          [
+            "m_analog_anarchist",
+            "0.7019"
+          ],
+          [
+            "m_signal_noise",
+            "0.7009"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "ink_alchemist",
+          "memory_weaver"
+        ],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "h_glitch_artist",
+            "0.7389"
+          ],
+          [
+            "s_diao_ke_shi",
+            "0.7263"
+          ],
+          [
+            "m_glitch_witch",
+            "0.7227"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7114"
+          ],
+          [
+            "h_ink_alchemist",
+            "0.7009"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "m_void_operator",
+            "0.6752"
+          ],
+          [
+            "h_async_monk",
+            "0.6657"
+          ],
+          [
+            "s_neon_surgeon",
+            "0.6556"
+          ],
+          [
+            "r_biao_qing_bao_gong_cheng_shi",
+            "0.6544"
+          ],
+          [
+            "m_sudo_rm_heart",
+            "0.6392"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_lao_tie_666",
+            "0.6883"
+          ],
+          [
+            "m_hui_se_pin_lv",
+            "0.6826"
+          ],
+          [
+            "m_feng_zhong_shu_qian",
+            "0.6788"
+          ],
+          [
+            "m_xiu_che_lao_wang",
+            "0.6687"
+          ],
+          [
+            "m_lost_in_translation",
+            "0.6675"
+          ]
+        ]
+      }
+    ],
+    "mpnet-768d-chunk-dense": [
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "ghost_in_shell",
+          "zero_day_hunter"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "r_binary_rebel",
+            "0.7659"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.7593"
+          ],
+          [
+            "h_grey_hat",
+            "0.7521"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.7517"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.7438"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "echo_in_void",
+          "chaos_gardener",
+          "git_rebase_i"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "r_yun_yuan_sheng_xin_tu",
+            "0.6391"
+          ],
+          [
+            "h_sudo_rm",
+            "0.6061"
+          ],
+          [
+            "r_kernel_panic",
+            "0.5986"
+          ],
+          [
+            "s_chaos_architect",
+            "0.5913"
+          ],
+          [
+            "h_echo_in_void",
+            "0.5865"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "regex_queen",
+          "zhan_bu_shi"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "s_shu_ju_yuan_ding",
+            "0.6033"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.5921"
+          ],
+          [
+            "s_hua_xue_po_po",
+            "0.5709"
+          ],
+          [
+            "r_hua_li_zhuan_shen",
+            "0.5675"
+          ],
+          [
+            "r_regex_wizard",
+            "0.5653"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "xiao_chou",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_code_witch",
+            "0.6815"
+          ],
+          [
+            "h_xiao_chou",
+            "0.6379"
+          ],
+          [
+            "m_malloc_free_love",
+            "0.6267"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.6210"
+          ],
+          [
+            "h_pixel_poet",
+            "0.6149"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "liang_zi_da_shu",
+          "blockchain_skeptic"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "m_blockchain_skeptic",
+            "0.6464"
+          ],
+          [
+            "h_liang_zi_da_shu",
+            "0.6458"
+          ],
+          [
+            "r_sai_bo_pang_ke",
+            "0.6453"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.6310"
+          ],
+          [
+            "h_digital_hermit",
+            "0.6206"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "neon_samurai",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.7834"
+          ],
+          [
+            "h_ink_and_pixel",
+            "0.7623"
+          ],
+          [
+            "r_wu_sheng_de_hua",
+            "0.7188"
+          ],
+          [
+            "h_neon_samurai",
+            "0.7175"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.7170"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber",
+          "sonic_archaeologist"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "h_wu_sheng_de_ren",
+            "0.7685"
+          ],
+          [
+            "h_glitch_poet",
+            "0.7463"
+          ],
+          [
+            "m_liu_lang_de_yun",
+            "0.7216"
+          ],
+          [
+            "h_echo_chamber",
+            "0.7195"
+          ],
+          [
+            "h_sonic_archaeologist",
+            "0.7136"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "r_ling_dian_wu_cha",
+            "0.7293"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.6904"
+          ],
+          [
+            "r_packet_sniffer",
+            "0.6744"
+          ],
+          [
+            "r_san_dian_shui",
+            "0.6673"
+          ],
+          [
+            "h_memory_hoarder",
+            "0.6666"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_girl",
+          "glitch_poet"
+        ],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "r_wu_sheng_de_hua",
+            "0.7914"
+          ],
+          [
+            "h_glitch_poet",
+            "0.7724"
+          ],
+          [
+            "s_glitch_witch",
+            "0.7689"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.7544"
+          ],
+          [
+            "h_glitch_girl",
+            "0.7471"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "digital_hermit",
+          "liang_zi_liu_lang",
+          "bit_alchemist",
+          "mo_sheng_ren"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "s_bit_alchemist",
+            "0.8032"
+          ],
+          [
+            "s_gui_ling_hacker",
+            "0.7934"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.7632"
+          ],
+          [
+            "h_digital_hermit",
+            "0.7533"
+          ],
+          [
+            "h_liang_zi_da_shu",
+            "0.7532"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "blockchain_skeptic",
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_binary_rebel",
+            "0.6871"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.6528"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.6386"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.6230"
+          ],
+          [
+            "h_grey_hat",
+            "0.6120"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch",
+          "neon_vandal"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "s_shader_witch",
+            "0.6206"
+          ],
+          [
+            "h_pixel_witch",
+            "0.6107"
+          ],
+          [
+            "s_zhan_di_she_ying_shi",
+            "0.6080"
+          ],
+          [
+            "s_guang_ying_bu_shou",
+            "0.6031"
+          ],
+          [
+            "r_wu_sheng_de_hua",
+            "0.6003"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "echo_in_void"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "s_lao_tie_yun_wei",
+            "0.7191"
+          ],
+          [
+            "h_fei_xing_yuan_404",
+            "0.6472"
+          ],
+          [
+            "s_tuo_la_ji_niang",
+            "0.6418"
+          ],
+          [
+            "r_bei_jing_de_yun",
+            "0.6333"
+          ],
+          [
+            "h_echo_in_void",
+            "0.6321"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "ctrl_z",
+          "wu_ming_zhi"
+        ],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_ctrl_z_xia_ke",
+            "0.4206"
+          ],
+          [
+            "h_neon_samurai",
+            "0.4195"
+          ],
+          [
+            "h_ctrl_z",
+            "0.4128"
+          ],
+          [
+            "h_neko_chan",
+            "0.4090"
+          ],
+          [
+            "r_mo_ban_sha_shou",
+            "0.4066"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "sql_poet",
+          "packet_loss"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "r_ling_dian_wu_cha",
+            "0.6054"
+          ],
+          [
+            "h_db_lao_wang",
+            "0.5744"
+          ],
+          [
+            "s_sql_poet",
+            "0.5587"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.5464"
+          ],
+          [
+            "r_regex_wizard",
+            "0.5461"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "h_wu_sheng_de_ren",
+            "0.7816"
+          ],
+          [
+            "r_wu_sheng_de_hua",
+            "0.7404"
+          ],
+          [
+            "h_echo_chamber",
+            "0.7277"
+          ],
+          [
+            "s_signal_rider",
+            "0.7144"
+          ],
+          [
+            "r_jiu_dian_hua_shi",
+            "0.7139"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": true,
+        "hits": [
+          "git_push_origin_love"
+        ],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "m_analog_anarchist",
+            "0.7357"
+          ],
+          [
+            "m_deprecated_soul",
+            "0.7236"
+          ],
+          [
+            "m_xian_cheng_ma_nong",
+            "0.7111"
+          ],
+          [
+            "m_signal_noise",
+            "0.7056"
+          ],
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.7023"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "ink_alchemist",
+          "memory_weaver"
+        ],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "s_glitch_witch",
+            "0.6779"
+          ],
+          [
+            "h_pixel_witch",
+            "0.6749"
+          ],
+          [
+            "h_memory_weaver",
+            "0.6711"
+          ],
+          [
+            "h_glitch_girl",
+            "0.6667"
+          ],
+          [
+            "h_glitch_poet",
+            "0.6663"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "r_yun_wei_lao_bing",
+            "0.6347"
+          ],
+          [
+            "r_xiao_zhen_qing_nian",
+            "0.6302"
+          ],
+          [
+            "h_legacy_code_archaeologist",
+            "0.6228"
+          ],
+          [
+            "h_xiao_zhen_qing_nian",
+            "0.6201"
+          ],
+          [
+            "h_bao_an_ge",
+            "0.6160"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_luo_ji_yan_jiu_yuan",
+            "0.6332"
+          ],
+          [
+            "m_xian_cheng_ma_nong",
+            "0.6291"
+          ],
+          [
+            "m_xiang_cun_jiao_shi",
+            "0.6288"
+          ],
+          [
+            "m_feng_chui_mai_lang",
+            "0.6270"
+          ],
+          [
+            "m_xiu_che_lao_wang",
+            "0.6144"
+          ]
+        ]
+      }
+    ],
+    "mpnet-768d-chunk-binary": [
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "zero_day",
+          "ghost_in_shell",
+          "zero_day_hunter"
+        ],
+        "query": "安全研究员",
+        "level": "L1",
+        "top5": [
+          [
+            "r_binary_rebel",
+            "0.7689"
+          ],
+          [
+            "h_grey_hat",
+            "0.7654"
+          ],
+          [
+            "r_zero_day_hunter",
+            "0.7649"
+          ],
+          [
+            "r_jia_na_da_xue_lang",
+            "0.7641"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.7595"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 6,
+        "min_required": 3,
+        "passed": true,
+        "hits": [
+          "sudo_rm",
+          "echo_in_void",
+          "cloud_nomad",
+          "chaos_gardener"
+        ],
+        "query": "Kubernetes 工程师",
+        "level": "L1",
+        "top5": [
+          [
+            "r_yun_yuan_sheng_xin_tu",
+            "0.7067"
+          ],
+          [
+            "h_sudo_rm",
+            "0.7035"
+          ],
+          [
+            "h_echo_in_void",
+            "0.6977"
+          ],
+          [
+            "r_kernel_panic",
+            "0.6977"
+          ],
+          [
+            "h_chaos_gardener",
+            "0.6919"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 3,
+        "passed": false,
+        "hits": [
+          "regex_queen",
+          "zhan_bu_shi"
+        ],
+        "query": "Python 数据分析",
+        "level": "L1",
+        "top5": [
+          [
+            "s_shu_ju_yuan_ding",
+            "0.7034"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.6954"
+          ],
+          [
+            "r_shu_ju_kao_gu_xue_jia",
+            "0.6829"
+          ],
+          [
+            "s_hua_xue_po_po",
+            "0.6803"
+          ],
+          [
+            "r_regex_wizard",
+            "0.6788"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "mo_fa_shi_de_bug",
+          "pixel_poet",
+          "xiao_chou",
+          "diu_zhen_ren"
+        ],
+        "query": "游戏开发 Unity",
+        "level": "L1",
+        "top5": [
+          [
+            "r_code_witch",
+            "0.7316"
+          ],
+          [
+            "h_xiao_chou",
+            "0.7110"
+          ],
+          [
+            "m_malloc_free_love",
+            "0.7068"
+          ],
+          [
+            "h_pixel_poet",
+            "0.7048"
+          ],
+          [
+            "h_mo_fa_shi_de_bug",
+            "0.6991"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "liang_zi_da_shu",
+          "blockchain_skeptic"
+        ],
+        "query": "区块链 智能合约 Solidity",
+        "level": "L1",
+        "top5": [
+          [
+            "m_blockchain_skeptic",
+            "0.7192"
+          ],
+          [
+            "h_liang_zi_da_shu",
+            "0.7156"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.7124"
+          ],
+          [
+            "h_digital_hermit",
+            "0.7110"
+          ],
+          [
+            "r_sai_bo_pang_ke",
+            "0.7107"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "neko_chan",
+          "neon_samurai",
+          "pixel_witch"
+        ],
+        "query": "做网页 3D 视觉效果的人",
+        "level": "L2",
+        "top5": [
+          [
+            "h_pixel_witch",
+            "0.7777"
+          ],
+          [
+            "h_ink_and_pixel",
+            "0.7718"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.7551"
+          ],
+          [
+            "r_wu_sheng_de_hua",
+            "0.7507"
+          ],
+          [
+            "h_neon_samurai",
+            "0.7495"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber",
+          "sonic_archaeologist"
+        ],
+        "query": "搞声音艺术和实验音乐的",
+        "level": "L2",
+        "top5": [
+          [
+            "h_wu_sheng_de_ren",
+            "0.7711"
+          ],
+          [
+            "h_echo_chamber",
+            "0.7624"
+          ],
+          [
+            "h_glitch_poet",
+            "0.7606"
+          ],
+          [
+            "m_wu_sheng_de_hai",
+            "0.7551"
+          ],
+          [
+            "h_jiu_ba_dj",
+            "0.7514"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [],
+        "query": "能写高性能后端服务的",
+        "level": "L2",
+        "top5": [
+          [
+            "r_ling_dian_wu_cha",
+            "0.7533"
+          ],
+          [
+            "r_packet_sniffer",
+            "0.7336"
+          ],
+          [
+            "r_wang_ba_lao_ban",
+            "0.7272"
+          ],
+          [
+            "h_memory_hoarder",
+            "0.7263"
+          ],
+          [
+            "r_glitch_witch",
+            "0.7255"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_girl",
+          "glitch_poet"
+        ],
+        "query": "做创意互动装置的艺术家",
+        "level": "L2",
+        "top5": [
+          [
+            "r_wu_sheng_de_hua",
+            "0.7790"
+          ],
+          [
+            "s_glitch_witch",
+            "0.7743"
+          ],
+          [
+            "h_glitch_poet",
+            "0.7656"
+          ],
+          [
+            "r_xiang_su_lian_jin_shi",
+            "0.7616"
+          ],
+          [
+            "h_glitch_girl",
+            "0.7610"
+          ]
+        ]
+      },
+      {
+        "hit_count": 4,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "digital_hermit",
+          "liang_zi_liu_lang",
+          "bit_alchemist",
+          "mo_sheng_ren"
+        ],
+        "query": "懂密码学的人",
+        "level": "L2",
+        "top5": [
+          [
+            "s_gui_ling_hacker",
+            "0.7870"
+          ],
+          [
+            "s_bit_alchemist",
+            "0.7837"
+          ],
+          [
+            "h_digital_hermit",
+            "0.7724"
+          ],
+          [
+            "h_liang_zi_da_shu",
+            "0.7700"
+          ],
+          [
+            "s_liang_zi_liu_lang",
+            "0.7677"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "blockchain_skeptic",
+          "grey_hat",
+          "ghost_in_shell"
+        ],
+        "query": "我的项目需要做安全审计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_jia_na_da_xue_lang",
+            "0.7293"
+          ],
+          [
+            "r_binary_rebel",
+            "0.7291"
+          ],
+          [
+            "r_blockchain_skeptic",
+            "0.7123"
+          ],
+          [
+            "h_ghost_in_shell",
+            "0.7069"
+          ],
+          [
+            "h_grey_hat",
+            "0.7050"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "glitch_queen",
+          "shader_witch",
+          "neon_vandal"
+        ],
+        "query": "我想学怎么做实时视觉特效",
+        "level": "L3",
+        "top5": [
+          [
+            "s_shader_witch",
+            "0.7034"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7031"
+          ],
+          [
+            "s_zhan_di_she_ying_shi",
+            "0.7016"
+          ],
+          [
+            "r_wu_sheng_de_hua",
+            "0.7009"
+          ],
+          [
+            "s_glitch_queen",
+            "0.6956"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "echo_in_void"
+        ],
+        "query": "帮我部署一个能扛大流量的后端",
+        "level": "L3",
+        "top5": [
+          [
+            "s_lao_tie_yun_wei",
+            "0.7443"
+          ],
+          [
+            "h_fei_xing_yuan_404",
+            "0.7130"
+          ],
+          [
+            "s_tuo_la_ji_niang",
+            "0.7104"
+          ],
+          [
+            "r_wang_ba_lao_ban",
+            "0.7080"
+          ],
+          [
+            "r_packet_sniffer",
+            "0.7070"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 5,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "ctrl_z",
+          "wu_ming_zhi"
+        ],
+        "query": "我的网站太丑了需要重新设计",
+        "level": "L3",
+        "top5": [
+          [
+            "r_ctrl_z_xia_ke",
+            "0.6402"
+          ],
+          [
+            "h_neon_samurai",
+            "0.6337"
+          ],
+          [
+            "r_mo_ban_sha_shou",
+            "0.6319"
+          ],
+          [
+            "h_ctrl_z",
+            "0.6305"
+          ],
+          [
+            "h_wu_ming_zhi",
+            "0.6292"
+          ]
+        ]
+      },
+      {
+        "hit_count": 3,
+        "expected_count": 4,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "db_lao_wang",
+          "db_necromancer",
+          "sql_poet"
+        ],
+        "query": "数据库越来越慢怎么办",
+        "level": "L3",
+        "top5": [
+          [
+            "r_ling_dian_wu_cha",
+            "0.7002"
+          ],
+          [
+            "r_shu_ju_lao_si_ji",
+            "0.6931"
+          ],
+          [
+            "h_db_lao_wang",
+            "0.6882"
+          ],
+          [
+            "r_regex_wizard",
+            "0.6829"
+          ],
+          [
+            "h_memory_hoarder",
+            "0.6790"
+          ]
+        ]
+      },
+      {
+        "hit_count": 2,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": true,
+        "hits": [
+          "wu_sheng_de_ren",
+          "echo_chamber"
+        ],
+        "query": "想做一个把声音变成画面的东西",
+        "level": "L4",
+        "top5": [
+          [
+            "h_wu_sheng_de_ren",
+            "0.7807"
+          ],
+          [
+            "h_echo_chamber",
+            "0.7608"
+          ],
+          [
+            "s_signal_rider",
+            "0.7531"
+          ],
+          [
+            "r_wu_sheng_de_hua",
+            "0.7530"
+          ],
+          [
+            "r_jiu_dian_hua_shi",
+            "0.7480"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 4,
+        "min_required": 1,
+        "passed": true,
+        "hits": [
+          "git_push_origin_love"
+        ],
+        "query": "用技术做点有意义的事",
+        "level": "L4",
+        "top5": [
+          [
+            "m_deprecated_soul",
+            "0.7561"
+          ],
+          [
+            "m_analog_anarchist",
+            "0.7524"
+          ],
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.7485"
+          ],
+          [
+            "m_xian_cheng_ma_nong",
+            "0.7472"
+          ],
+          [
+            "m_signal_noise",
+            "0.7455"
+          ]
+        ]
+      },
+      {
+        "hit_count": 1,
+        "expected_count": 6,
+        "min_required": 2,
+        "passed": false,
+        "hits": [
+          "memory_weaver"
+        ],
+        "query": "把传统手艺和数字技术结合",
+        "level": "L4",
+        "top5": [
+          [
+            "s_glitch_witch",
+            "0.7332"
+          ],
+          [
+            "h_pixel_witch",
+            "0.7299"
+          ],
+          [
+            "h_memory_weaver",
+            "0.7276"
+          ],
+          [
+            "r_feng_zhong_de_dai_ma",
+            "0.7261"
+          ],
+          [
+            "h_glitch_girl",
+            "0.7255"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 0,
+        "min_required": 0,
+        "passed": true,
+        "hits": [],
+        "query": "我需要帮手",
+        "level": "L4",
+        "top5": [
+          [
+            "h_xiao_zhen_qing_nian",
+            "0.7121"
+          ],
+          [
+            "r_xiao_zhen_qing_nian",
+            "0.7105"
+          ],
+          [
+            "h_legacy_code_archaeologist",
+            "0.7094"
+          ],
+          [
+            "h_cun_tou_bo_zhu",
+            "0.7087"
+          ],
+          [
+            "h_ye_lu_zi",
+            "0.7067"
+          ]
+        ]
+      },
+      {
+        "hit_count": 0,
+        "expected_count": 5,
+        "min_required": 1,
+        "passed": false,
+        "hits": [],
+        "query": "认识一些有趣的人",
+        "level": "L4",
+        "top5": [
+          [
+            "m_hui_se_pin_lv",
+            "0.7130"
+          ],
+          [
+            "m_feng_chui_mai_lang",
+            "0.7127"
+          ],
+          [
+            "m_luo_ji_yan_jiu_yuan",
+            "0.7115"
+          ],
+          [
+            "m_xiang_cun_jiao_shi",
+            "0.7105"
+          ],
+          [
+            "m_xiu_che_lao_wang",
+            "0.7101"
+          ]
+        ]
+      }
+    ]
+  }
+}
