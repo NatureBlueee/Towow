@@ -269,7 +269,7 @@ export default function JourneyPage() {
           </li>
           <li>
             <a
-              href="https://github.com/NatureBlueee/Towow/blob/main/docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md"
+              href="https://github.com/NatureBlueee/Towow/blob/main/docs/design-logs/DESIGN_LOG_001_PROJECTION_AND_SELF.md"
               target="_blank"
               rel="noopener noreferrer"
               className={styles.footerLink}

@@ -376,7 +376,7 @@ Dev Skill：具体怎么写代码？怎么保证质量？
 ## 参考文档
 
 - **架构设计**：`docs/ARCHITECTURE_DESIGN.md`
-- **设计日志**：`docs/DESIGN_LOG_001/002/003.md`
+- **设计日志**：`docs/design-logs/DESIGN_LOG_001/002/003.md`
 - **任务目录**：`docs/CONTRIBUTION_TASK_CATALOG.md`
 - **已有文章**：`docs/articles/01_投影.md`, `02_谦逊.md`, `03_回声.md`
 - **Arch Skill**：`.claude/skills/arch/SKILL.md`（架构原则和世界观）

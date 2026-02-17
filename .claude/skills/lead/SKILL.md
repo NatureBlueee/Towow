@@ -273,7 +273,7 @@ description: 通爻开发流程统领。从想法到生产代码的全流程管�
 |----------|----------|
 | 契约（API、Protocol、事件 schema） | `docs/ENGINEERING_REFERENCE.md` |
 | 架构决策 | `docs/decisions/ADR-NNN` |
-| 发现 bug / 教训 | `docs/issues/NNN-xxx.md` |
+| 发现 bug / 教训 | `docs/archive/issues/NNN-xxx.md` |
 | 跨 session 状态 | `MEMORY.md` |
 | 项目结构 | `CLAUDE.md` |
 
@@ -322,7 +322,7 @@ description: 通爻开发流程统领。从想法到生产代码的全流程管�
 | `docs/ARCHITECTURE_DESIGN.md` | 架构设计权威来源（13 sections） |
 | `docs/ENGINEERING_REFERENCE.md` | 工程标准 |
 | `docs/decisions/` | 架构决策记录 (ADR) |
-| `docs/issues/` | 问题诊断记录 |
+| `docs/archive/issues/` | 问题诊断记录（已归档） |
 | `CLAUDE.md` | 项目结构和开发命令 |
 | `MEMORY.md` | 跨 session 状态 |
 

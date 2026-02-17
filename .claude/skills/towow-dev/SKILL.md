@@ -276,7 +276,7 @@ Center 在 SYNTHESIZING 状态可以循环调用工具（ask_agent → 回到 SY
 |------|------|------|
 | 工程标准（必读） | `docs/ENGINEERING_REFERENCE.md` | 代码结构、命名、错误处理统一标准 |
 | 架构设计 | `docs/ARCHITECTURE_DESIGN.md` | 设计原则、协商流程、Skill 接口 |
-| 开发日志 | `docs/DEV_LOG_V1.md` | V1 全部决策和执行记录 |
+| 开发日志 | `docs/engineering/DEV_LOG_V1.md` | V1 全部决策和执行记录 |
 | Protocol 定义 | `backend/towow/core/protocols.py` | 6 个模块接口契约 |
 | 核心模型 | `backend/towow/core/models.py` | 数据结构定义 |
 | 测试 fixtures | `backend/tests/towow/conftest.py` | Mock 对象和 sample data |

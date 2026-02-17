@@ -543,7 +543,7 @@ description: 通爻网络工程 Leader。负责工程实现协调、Agent Team �
 | Skill 系统 | 架构文档 Section 10.3-10.9 | 6 个 Skill 的接口定义 |
 | 追溯链结构 | 架构文档 Section 11.7 | JSON log 格式 |
 | Center 工具集 | 架构文档 Section 3.4 | Center 的 5 个工具定义 |
-| 设计日志 #001-#005 | `docs/DESIGN_LOG_*.md` | 理解设计决策的背景和推理 |
+| 设计日志 #001-#005 | `docs/design-logs/DESIGN_LOG_*.md` | 理解设计决策的背景和推理 |
 | V1 Skill Prompts | `docs/prompts/*.md` | 5 个 Skill 的 V1 Prompt 草案 |
 | 场景即产品 | 架构文档 Section 13 + Design Log #005 | 产品范式 |
 | 投影即函数 | 架构文档 Section 7.1.6 + Design Log #003 | Profile 和 Agent 的本质 |

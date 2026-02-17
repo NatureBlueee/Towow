@@ -261,7 +261,7 @@ PLAN-006 最终采用的解法有一个值得记住的模式：
 | 文档 | 关系 |
 |------|------|
 | `docs/ARCHITECTURE_DESIGN.md` Section 0.8 | 投影是基本操作（理论基础） |
-| `docs/issues/006-app-store-component-duplication.md` | 问题的完整诊断 |
+| `docs/archive/issues/006-app-store-component-duplication.md` | 问题的完整诊断 |
 | `docs/decisions/PLAN-006-app-store-graph-reuse.md` | 具体的修复方案 |
 | `memory/planning-lessons.md` | 接缝盲区、类型对齐≠数据流通等工程教训 |
 | `docs/ARCHITECTURE_DESIGN.md` Section 0.2 | 本质与实现分离（基础原则） |

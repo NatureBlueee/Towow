@@ -322,7 +322,7 @@ Python FastAPI 后端 (port 8080)
 ## 参考
 
 - `docs/ARCHITECTURE_DESIGN.md` Section 11: Execution & Echo
-- `docs/DESIGN_LOG_002_ECHO_AND_EXECUTION.md`: WOWOK 集成策略
+- `docs/design-logs/DESIGN_LOG_002_ECHO_AND_EXECUTION.md`: WOWOK 集成策略
 - WOWOK 对象文档: `wowokWeb/docs/docs/object/`
 - WOWOK SDK: npm 包 `wowok`
 - WOWOK MCP Servers: 10 个，每个对象一个

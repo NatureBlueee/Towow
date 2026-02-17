@@ -1,6 +1,6 @@
 # PLAN-011: V2 Intent Field 实现方案
 
-**关联**: ADR-011, ADR-011-interface-design, Protocol Genome v0.3
+**关联**: ADR-011, SPEC-011-v2-intent-field-interface, Protocol Genome v0.3
 **日期**: 2026-02-15
 
 ## 概述
@@ -41,7 +41,7 @@ encoder.py  projector.py        ← 依赖 numpy, sentence-transformers
 
 ### 1. protocols.py — 接口定义
 
-从 ADR-011-interface-design 直接映射。定义三个 Protocol：
+从 SPEC-011-v2-intent-field-interface 直接映射。定义三个 Protocol：
 - `IntentField`: deposit, match, match_owners, remove, remove_owner, count, count_owners
 - `Encoder`: encode, encode_batch, dim
 - `Projector`: project, similarity, batch_similarity

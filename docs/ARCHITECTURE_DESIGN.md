@@ -139,7 +139,7 @@ Offer收集完毕（等待屏障）
 
 > 讨论日期：2026-02-07
 > 核心认知：**"自"在系统之外，系统中只有投影（"我"）。** 一个人的存在不能被完整数字化——我们能做的是提供尽可能好的投影。投影越多、越持续更新，图像越清晰——但永远是投影，不是原件。
-> 详细讨论记录：`docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md`
+> 详细讨论记录：`docs/design-logs/DESIGN_LOG_001_PROJECTION_AND_SELF.md`
 
 #### 系统中的三个层次
 
@@ -277,7 +277,7 @@ Template 数据 → 编码为超向量 → 融入 Edge Agent 画像
 | 边界 | 明确 | 模糊 |
 | V1 | 实现 | 不实现（未来自然涌现） |
 
-场景可以是市场的种子，但市场也可以没有场景——纯粹从开放网络中的重复交互涌现。详见 `docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md`。
+场景可以是市场的种子，但市场也可以没有场景——纯粹从开放网络中的重复交互涌现。详见 `docs/design-logs/DESIGN_LOG_001_PROJECTION_AND_SELF.md`。
 
 #### 商业路径与工程路径对齐
 
@@ -1382,7 +1382,7 @@ SecondMe OAuth → 获取 Profile Data → 投影成 Edge Agent Vector → 存�
 
 ##### 相关设计文档
 
-- Design Log #003: `docs/DESIGN_LOG_003_PROJECTION_AS_FUNCTION.md`
+- Design Log #003: `docs/design-logs/DESIGN_LOG_003_PROJECTION_AS_FUNCTION.md`
 - Task #3（简化版）：Service Agent 透镜机制
 
 #### 7.1.7 Agent 模板（Template Adapter）
@@ -2169,7 +2169,7 @@ class MockEchoSource(EchoSource):  # 测试实现
 
 ### 11.9 相关设计文档
 
-- `docs/DESIGN_LOG_002_ECHO_AND_EXECUTION.md`（详细设计日志，待修订）
+- `docs/design-logs/DESIGN_LOG_002_ECHO_AND_EXECUTION.md`（详细设计日志，待修订）
 - WOWOK 对象文档：`/Users/nature/个人项目/wowokWeb/docs/docs/object/`
 - WOWOK MCP servers：npm 包 `wowok_*_mcp_server`
 
@@ -2230,7 +2230,7 @@ class MockEchoSource(EchoSource):  # 测试实现
 
 > 2026-02-08 新增。与 Section 12（经济模型）和 Section 1.4（场景定义）关联。
 > 核心判断：**协商单元是通用引擎，场景定义是唯一的差异化。** 一旦协商单元的 API 边界和事件协议定义清楚，做任何新场景的产品就变成了"配置 + UI"，而不是"从头开发"。
-> 详细讨论记录：`docs/DESIGN_LOG_005_SCENE_AS_PRODUCT.md`
+> 详细讨论记录：`docs/design-logs/DESIGN_LOG_005_SCENE_AS_PRODUCT.md`
 
 ### 13.1 核心洞察
 
@@ -2331,7 +2331,7 @@ V3: 场景溶解，市场 + 开放网络 → 响应范式完全体
 - [x] 网络调度中心设计：V1简单广播，未来语义Gossip → 见 Section 6.1.7
 - [x] 各Skill的提示词设计 → 见 Section 10.2-10.10 Skill 系统（接口定义 + SkillPolisher 机制）；V1 Prompt 草案见 `docs/prompts/`
 - [x] 架构一致性审视（2026-02-07）→ Section 3/5 重写与 Section 10 对齐；需求formulation 替代需求方筛选（见 1.2）；方案确认为协商自然终止态（见 10.2）；设计原则提升到 Section 0
-- [x] "自-我"工程映射与 Service Agent 模型（2026-02-07）→ 见 Section 1.3；设计原则 0.8/0.9/0.10；Design Log: `docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md`
+- [x] "自-我"工程映射与 Service Agent 模型（2026-02-07）→ 见 Section 1.3；设计原则 0.8/0.9/0.10；Design Log: `docs/design-logs/DESIGN_LOG_001_PROJECTION_AND_SELF.md`
 - [x] 场景独立定义（2026-02-07）→ 见 Section 1.4；V1 定位：商业入口 + 数据收集
 - [x] 事件语义更新（2026-02-07）→ 见 Section 3.5；新增 demand.formulate，取消 plan.distribute / response.confirm 作为独立事件
 - [x] AgentIdentity 数据结构更新（2026-02-07）→ 预留 agent_type、parent_id 字段

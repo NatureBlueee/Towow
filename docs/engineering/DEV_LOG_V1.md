@@ -174,9 +174,9 @@
 
 | 文档 | 路径 | 内容 |
 |------|------|------|
-| Issue 001 | `docs/issues/001-formulation-pipeline-broken.md` | 问题诊断：5 个根因、影响分析 |
-| ADR-001 | `docs/adr/001-unified-adapter-registry.md` | 架构决策记录：6 个 ED、数据流图 |
-| PLAN-001 | `docs/plans/001-adr001-implementation.md` | 实施计划：3 Phase、验收标准 |
+| Issue 001 | `docs/archive/issues/001-formulation-pipeline-broken.md` | 问题诊断：5 个根因、影响分析 |
+| ADR-001 | `docs/decisions/ADR-001-unified-adapter-registry.md` | 架构决策记录：6 个 ED、数据流图 |
+| PLAN-001 | `docs/decisions/PLAN-001-adapter-registry-implementation.md` | 实施计划：3 Phase、验收标准 |
 
 ### 变更统计
 

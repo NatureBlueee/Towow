@@ -1,6 +1,6 @@
 # PLAN-002: MCP Server 实现
 
-**关联**: ADR-002 (已批准), ADR-002-interface-design (阶段 ③ 完成)
+**关联**: ADR-002 (已批准), SPEC-002-mcp-interface-design (阶段 ③ 完成)
 **阶段**: ④ 实现方案
 
 ---

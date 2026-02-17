@@ -11,7 +11,7 @@ ToWow (通爻) is an AI Agent collaboration platform. Core concepts: Projection 
 ```
 Towow/
 ├── backend/
-│   ├── server.py              # Unified entry (Auth + V1 Engine + App Store)
+│   ├── server.py              # Unified entry (Auth + V1 Engine + V2 Field + App Store)
 │   ├── towow/                 # V1 negotiation engine
 │   │   ├── core/              # State machine, models, events, protocols
 │   │   ├── api/               # REST + WebSocket endpoints
@@ -20,7 +20,8 @@ Towow/
 │   │   ├── adapters/          # Claude, SecondMe adapters
 │   │   └── infra/             # LLM client, event pusher, config
 │   ├── routers/               # Auth routes
-│   └── tests/towow/           # 256 tests
+│   ├── towow/field/           # V2 Intent Field module
+│   └── tests/towow/           # 332 tests (V1: 256 + V2: 76)
 ├── apps/
 │   └── app_store/             # App Store (frontend + backend)
 ├── website/                   # Next.js 16 frontend (Vercel)
@@ -31,8 +32,9 @@ Towow/
 ├── docs/                      # Architecture + design logs
 │   ├── ARCHITECTURE_DESIGN.md # V1 architecture (13 sections)
 │   ├── ENGINEERING_REFERENCE.md
-│   ├── DEV_LOG_V1.md
-│   ├── DESIGN_LOG_001-005.md
+│   ├── design-logs/           # Design logs 001-006
+│   ├── engineering/           # DEV_LOG_V1.md, DEV_LOG_V2.md
+│   ├── archive/               # Stale tasks, promo, features, issues
 │   └── prompts/               # V1 skill prompts
 ├── .claude/skills/            # Engineering skills (lead, arch, towow-eng, towow-dev, etc.)
 ├── Dockerfile                 # Production deployment
@@ -50,7 +52,7 @@ TOWOW_ANTHROPIC_API_KEY=sk-ant-... uvicorn server:app --reload --port 8080
 # Frontend (port 3000)
 cd website && npm run dev
 
-# Tests (256 total)
+# Tests (332 total)
 cd backend && source venv/bin/activate && python -m pytest tests/towow/ -v
 
 # Frontend build
@@ -66,7 +68,9 @@ cd website && npm run build
 | `/v1/ws/*` | V1 WebSocket |
 | `/store/api/*` | App Store Network |
 | `/store/*` | App Store Frontend |
+| `/field/api/*` | V2 Intent Field (deposit, match, match-owners, match-perspectives) |
 | `/playground` | Open registration + negotiation (ADR-009) |
+| `/field` | V2 Field experience page |
 | `/health` | Health check |
 
 ## Important Configuration
@@ -98,6 +102,35 @@ CREATED → FORMULATING → FORMULATED → ENCODING → OFFERING → BARRIER_WAI
 
 ### 7 Event Types
 `formulation.ready` → `resonance.activated` → `offer.received` ×N → `barrier.complete` → `center.tool_call` ×N → `plan.ready` | `sub_negotiation.started`
+
+## V2 Intent Field
+
+### Code Map
+```
+backend/towow/field/
+  types.py        # Core data types (Intent, MatchResult, OwnerMatch)
+  protocols.py    # Encoder, Projector, Chunker protocols
+  encoder.py      # MpnetEncoder + BgeM3Encoder (1024d, MRL support)
+  projector.py    # SimHashProjector + MrlBqlProjector
+  chunker.py      # SlidingWindowChunker
+  pipeline.py     # IntentPipeline (encode → project → chunk)
+  field.py        # MemoryField (deposit, match, match_owners)
+  multi_perspective.py  # MultiPerspectiveGenerator (3 perspectives: resonance/complement/interference)
+  profile_loader.py     # Batch load agent profiles from JSON
+  routes.py       # FastAPI router (/field/api/*)
+```
+
+### V2 API Endpoints
+- `POST /field/api/deposit` — Deposit intent into field
+- `POST /field/api/match` — Match text (Intent level)
+- `POST /field/api/match-owners` — Match text (Owner level, aggregated)
+- `POST /field/api/match-perspectives` — Multi-perspective match (LLM generates 3 query perspectives)
+- `POST /field/api/load-profiles` — Batch load agent profiles
+- `GET /field/api/stats` — Field statistics
+
+### Tests
+- Unit tests: `backend/tests/towow/test_field/` (76+ tests)
+- Experiments: `tests/field_poc/` (EXP-005~008)
 
 ## Development Governance
 

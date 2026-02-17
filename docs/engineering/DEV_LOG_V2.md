@@ -90,7 +90,7 @@ V2 Intent Field 是基于 Protocol Genome v0.3 的干净重建，不依赖 V1 �
 6. 协议止于可见性
 7. 对外接口只接受 text
 
-### 接口设计（`docs/decisions/ADR-011-interface-design.md`）
+### 接口设计（`docs/decisions/SPEC-011-v2-intent-field-interface.md`）
 
 三个 Protocol + 三个数据类型：
 

@@ -28,8 +28,12 @@ const t = useTranslations('namespace');
 - Shared styles: `styles/*.css`
 - Static assets: `public/`
 
+## Styling
+- **i18n pages** (`app/[locale]/`): CSS Modules (*.module.css), NO Tailwind
+- **Tool pages** (`app/playground/`, `app/field/`): Inline styles (matching warm-white design system, `#F8F6F3` bg)
+
 ## Do NOT
-- Use Tailwind or inline styles (project uses CSS Modules)
+- Use Tailwind (project does not use Tailwind)
 - Add new npm dependencies without explicit approval
 - Modify `next.config.ts` or `middleware.ts` without approval
 - Use `any` type — maintain strict TypeScript

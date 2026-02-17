@@ -416,9 +416,9 @@ description: 通爻之声。通爻哲学到语言的投影函数——品牌表�
 | `docs/articles/02_谦逊.md` | 表达的黄金标准 |
 | `docs/articles/03_回声.md` | 表达的黄金标准 |
 | `docs/ARCHITECTURE_DESIGN.md` | 理解的权威来源——所有技术细节从这里查 |
-| `docs/DESIGN_LOG_001_PROJECTION_AND_SELF.md` | 投影哲学的深度讨论 |
-| `docs/DESIGN_LOG_004_ECONOMIC_MODEL_AND_ECOSYSTEM.md` | 商业叙事、竞争分析、投资人 Q&A |
-| `docs/DESIGN_LOG_005_SCENE_AS_PRODUCT.md` | 产品范式、API 边界、场景定义 |
+| `docs/design-logs/DESIGN_LOG_001_PROJECTION_AND_SELF.md` | 投影哲学的深度讨论 |
+| `docs/design-logs/DESIGN_LOG_004_ECONOMIC_MODEL_AND_ECOSYSTEM.md` | 商业叙事、竞争分析、投资人 Q&A |
+| `docs/design-logs/DESIGN_LOG_005_SCENE_AS_PRODUCT.md` | 产品范式、API 边界、场景定义 |
 | `.claude/skills/arch/SKILL.md` | 架构思维方式——理解"原"问题的方法论 |
 
 **使用方式**：
