@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>通爻协议基因组 v0.3</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400&family=DM+Mono:wght@300;400&family=Noto+Serif+SC:wght@400;500;600&display=swap');
+
+  :root {
+    --bg: #FAF9F6;
+    --text: #1A1A18;
+    --text-s: #6B6B65;
+    --accent: #2D3047;
+    --warm: #6B4C3B;
+    --rule: #D6D5D0;
+    --blk: #F0EFEA;
+    --blk-b: #C8C7C2;
+    --w: 740px;
+  }
+
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { font-size:17px; -webkit-font-smoothing:antialiased; }
+
+  body {
+    background:var(--bg); color:var(--text);
+    font-family:'Crimson Pro','Noto Serif SC',Georgia,serif;
+    line-height:1.85; padding:3.5rem 1.5rem;
+  }
+
+  .c { max-width:var(--w); margin:0 auto; }
+
+  header { text-align:center; padding-bottom:3rem; border-bottom:1px solid var(--rule); margin-bottom:3.5rem; }
+  header h1 { font-size:2.1rem; font-weight:600; letter-spacing:0.14em; color:var(--accent); margin-bottom:0.3rem; }
+  .ver { font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--text-s); letter-spacing:0.08em; }
+  .epi { margin-top:2rem; font-style:italic; font-size:1rem; color:var(--text-s); line-height:1.9; max-width:520px; margin-left:auto; margin-right:auto; }
+
+  section { margin-bottom:3.5rem; }
+  .sid { font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--warm); letter-spacing:0.1em; text-transform:uppercase; display:block; margin-bottom:0.35rem; }
+  h2 { font-size:1.4rem; font-weight:600; color:var(--accent); margin-bottom:1.1rem; line-height:1.4; }
+  h3 { font-size:1.05rem; font-weight:500; color:var(--accent); margin-top:1.6rem; margin-bottom:0.7rem; }
+  p { margin-bottom:0.95rem; text-align:justify; hyphens:auto; }
+
+  .k { font-size:1.1rem; color:var(--accent); line-height:1.7; margin:1.3rem 0; padding-left:1.1rem; border-left:2px solid var(--accent); }
+
+  /* Definition blocks */
+  .def { background:var(--blk); border-left:3px solid var(--warm); padding:0.9rem 1.2rem; margin:1.1rem 0; font-size:0.93rem; line-height:1.75; }
+  .def-l { font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--warm); letter-spacing:0.06em; text-transform:uppercase; display:block; margin-bottom:0.25rem; }
+  .def p { margin-bottom:0.5rem; } .def p:last-child { margin-bottom:0; }
+
+  /* Operational blocks */
+  .op { background:var(--blk); border-left:3px solid var(--accent); padding:0.9rem 1.2rem; margin:1.1rem 0; font-size:0.93rem; line-height:1.75; }
+  .op-l { font-family:'DM Mono',monospace; font-size:0.68rem; color:var(--accent); letter-spacing:0.06em; text-transform:uppercase; display:block; margin-bottom:0.25rem; }
+  .op code { font-family:'DM Mono',monospace; font-size:0.82rem; background:rgba(0,0,0,0.04); padding:0.1rem 0.35rem; border-radius:2px; }
+
+  /* Uncertain / open blocks */
+  .unc { background:#FFF8F0; border-left:3px solid #D4A574; padding:0.9rem 1.2rem; margin:1.1rem 0; font-size:0.93rem; line-height:1.75; }
+  .unc-l { font-family:'DM Mono',monospace; font-size:0.68rem; color:#D4A574; letter-spacing:0.06em; text-transform:uppercase; display:block; margin-bottom:0.25rem; }
+
+  /* Layer chain */
+  .lc { background:var(--blk); padding:1.4rem 1.6rem; border-radius:3px; margin:1.5rem 0; font-size:0.88rem; line-height:2; }
+  .lc .l { display:flex; align-items:baseline; padding-left:calc(var(--d,0)*1.2rem); }
+  .lc .ln { font-weight:500; color:var(--accent); min-width:5.5rem; }
+  .lc .ld { color:var(--text-s); font-size:0.84rem; }
+  .lc .ar { color:var(--warm); padding-left:calc(var(--d,0)*1.2rem); font-family:'DM Mono',monospace; font-size:0.72rem; }
+
+  /* Tables */
+  .tbl { width:100%; border-collapse:collapse; margin:1.3rem 0; font-size:0.87rem; }
+  .tbl th { font-family:'DM Mono',monospace; font-size:0.68rem; font-weight:400; color:var(--text-s); letter-spacing:0.07em; text-transform:uppercase; text-align:left; padding:0.55rem 0.7rem; border-bottom:2px solid var(--accent); }
+  .tbl td { padding:0.55rem 0.7rem; border-bottom:1px solid var(--rule); vertical-align:top; }
+  .tbl tr:last-child td { border-bottom:none; }
+  .m { font-family:'DM Mono',monospace; font-size:0.78rem; color:var(--accent); }
+
+  /* Code blocks */
+  .cb { background:#2D3047; color:#E8E8E3; font-family:'DM Mono',monospace; font-size:0.78rem; line-height:1.7; padding:1.1rem 1.3rem; border-radius:3px; margin:1.2rem 0; overflow-x:auto; white-space:pre; }
+  .cb .cm { color:#8B8B85; } .cb .hi { color:#D4A574; }
+
+  /* Question list */
+  .ql { list-style:none; counter-reset:q; }
+  .ql li { counter-increment:q; margin-bottom:0.75rem; padding-left:1.8rem; position:relative; font-size:0.9rem; }
+  .ql li::before { content:counter(q); position:absolute; left:0; font-family:'DM Mono',monospace; font-size:0.72rem; color:var(--warm); width:1.2rem; text-align:right; }
+
+  hr.d { border:none; border-top:1px solid var(--rule); margin:3rem 0; }
+
+  footer { text-align:center; padding-top:2rem; border-top:1px solid var(--rule); margin-top:2.5rem; }
+  footer p { font-family:'DM Mono',monospace; font-size:0.66rem; color:var(--text-s); text-align:center; letter-spacing:0.04em; }
+
+  @media(max-width:600px) { html{font-size:15px;} body{padding:2rem 1rem;} header h1{font-size:1.7rem;} }
+  @media print { body{background:white;padding:0;font-size:10.5pt;} .c{max-width:100%;} section{page-break-inside:avoid;} }
+</style>
+</head>
+<body>
+<div class="c">
+
+<header>
+  <h1>通爻协议基因组</h1>
+  <div class="ver">ToWow Protocol Genome · v0.3 · 2026-02-14</div>
+  <p class="epi">
+    高维的存在必须通过低维的实体才能产生作用。<br>
+    作用的碎片返回高维，改变存在本身。生生不息。<br>
+    协议是这个循环在 Agent 协作场景下的工程实例。
+  </p>
+</header>
+
+<!-- ═══════════ §-1 世界观基底 ═══════════ -->
+<section>
+  <span class="sid">§-1</span>
+  <h2>世界观基底</h2>
+
+  <p>一个人的完整存在是高维的——包含所有经历、信念、模式、矛盾、潜能。但完整存在无法直接与另一个完整存在互操作。它必须通过投影——选择性地降维——变成可以被理解、被比较、被响应的信号。</p>
+
+  <p>投影必然损失信息。但投影换来行动能力：一段文字虽然远不如一个人完整，但一段文字可以与另一段文字匹配。</p>
+
+  <p>投影产生碎片。碎片在低维空间互操作——匹配、组合、协作。互操作的结果返回高维，改变存在本身。源头之水往下流，越流越大，灌满大海。大海又往上缩，浓缩成精华回到源头。再次下流。</p>
+
+  <p class="k">下降（投影，信息损失，换取行动能力）→ 行动（低维互操作）→ 上升（碎片浓缩，返回高维）→ 再次下降。这是阴阳循环。阴是意图（未显化的张力），阳是数据（显化的痕迹）。阴阳交叉，谓之爻。</p>
+
+  <h3>投影链：人的内在结构</h3>
+
+  <p>人的内在是一条投影链。每一层都是上一层通过一个透镜的投影——越往下越具体、越可操作、越可被观测，但越不完整。</p>
+
+  <div class="lc">
+    <div class="l" style="--d:0"><span class="ln">存在</span><span class="ld">不可言说的全息整体。手指指向的月亮。佛祖说的空。</span></div>
+    <div class="ar" style="--d:0">↓ 切面</div>
+    <div class="l" style="--d:1"><span class="ln">存在状态</span><span class="ld">一段时期内的切面。容许矛盾共存。一个人可同时有多个状态交叉运行。</span></div>
+    <div class="ar" style="--d:1">↓ 与世界的交互</div>
+    <div class="l" style="--d:2"><span class="ln">作品空间</span><span class="ld">交互留下的痕迹——体验、关系、创造物。碎片越多，空间越大，能量越高。</span></div>
+    <div class="ar" style="--d:2">↓ 内在锚点</div>
+    <div class="l" style="--d:3"><span class="ln">世界观</span><span class="ld">由信念锚点组成的圆。首尾相接则稳定，断裂则不稳定。</span></div>
+    <div class="ar" style="--d:3">↓ 跨语境的方向</div>
+    <div class="l" style="--d:4"><span class="ln">信念</span><span class="ld">跨语境的方向线——恋爱、工作、学习中一致。</span></div>
+    <div class="ar" style="--d:4">↓ 语境内的重复</div>
+    <div class="l" style="--d:5"><span class="ln">模式</span><span class="ld">语境内、跨关系的重复结构。需要结构性工具才能识别。</span></div>
+    <div class="ar" style="--d:5">↓ 关系性的默认</div>
+    <div class="l" style="--d:6"><span class="ln">预设</span><span class="ld">对特定关系的默认假定。不跨越关系边界。</span></div>
+    <div class="ar" style="--d:6">↓ 情境性的临时假定</div>
+    <div class="l" style="--d:7"><span class="ln">假设</span><span class="ld">一段对话、一个话题内的临时假定。可被快速反思和修正。</span></div>
+    <div class="ar" style="--d:7">↓ 实际表达</div>
+    <div class="l" style="--d:8"><span class="ln">内容</span><span class="ld">实际表达的文字、行为、选择。投影链的末端，可观测层。</span></div>
+  </div>
+
+  <p>大多数人能反思到假设层。少数人识别预设和模式。极少数人提取信念和世界观。作品空间需要大量创造才能拼凑——你留下的投影越多，你的自我越完整。存在本身不可言说。</p>
+
+  <h3>协议在投影链中的位置</h3>
+
+  <p>协议处理投影链的下半段。Agent 的 Profile 是存在状态和作品空间的投影——历史痕迹的数字化集合。一段需求文本是假设和内容层的投影——当下张力的直接表达。协议将这些投影编码为可比较的信号，在信号空间中匹配，产生协作。协作的结果返回，改变参与者的上层状态。</p>
+
+  <p>协议不触碰存在本身。但协议服务于存在的表达和实现。协议是创始人世界观的一次工程化实例——世界观是高维，协议是它在 Agent 协作场景下的低维投影。这份文档也是——世界观通过文字这个透镜投影为可被理解、可被执行的信号。高维信息越丰富，低维投影越准确。天上一天，人间一年——高维错一点，低维错很多。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §0 通爻是什么 ═══════════ -->
+<section>
+  <span class="sid">§0</span>
+  <h2>通爻是什么</h2>
+
+  <p>微信做的不是社交，是足够好用的即时通讯。社交是副产品。抖音做的不是内容生态，是以视频为载体的信息传递。内容生态是副产品。</p>
+
+  <p class="k">通爻做的不是协作，是让任何意图以趋近于零的成本找到与之最相关的意图。协作、市场、社区是副产品。</p>
+
+  <p>当前数字世界的主导模式是<strong>搜索范式</strong>：用户必须知道自己要什么，知道去哪找，主动发起检索，承担精确化的全部成本。通爻提出<strong>响应范式</strong>：用户发出意图信号（可以模糊），系统用用户的隐式上下文替他精确化，能响应的存在体自动浮现。精确化的成本从用户转移到系统。</p>
+
+  <h3>两种摩擦</h3>
+
+  <p>商业中的人为摩擦有两种：</p>
+
+  <p><strong>发现摩擦</strong>——找不到对的意图。AI 磨平。编码、匹配、相关性建立。这是通爻的职责。</p>
+
+  <p><strong>信任摩擦</strong>——找到了但不信任。Web3 磨平。链上记录、验证、流转。这是 WOWOK 的职责。</p>
+
+  <p>当两种摩擦同时趋零，商业摩擦只剩物理极限——距离、时间、能量。去中介化、个性化、无摩擦协作由此涌现。一个不懂 Web3 的 AI 协议不是好协议；一个不懂 AI 的 Web3 协议也不是。</p>
+
+  <div class="op">
+    <span class="op-l">V1 已验证</span>
+    <p>五步协商引擎：<code>formulate → resonate → offer → synthesize → approve</code></p>
+    <p>用户输入自然语言需求 → LLM 丰富化 + Profile 上下文 → sentence-transformers 编码（768维向量）→ 余弦相似度匹配 Agent 池 → 收集独立回应 → 综合为协作方案 → 用户确认或拒绝。</p>
+    <p>TypeScript 实现。221 个测试通过。App Store 演示端到端流程。447 个 Agent（4 场景）。</p>
+    <p>V1 验证了"投影-匹配-判定"的基本链路可以工作。但 V1 的具体步骤不全是世界观的自然投影——详见 §8。</p>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §1 一个操作 ═══════════ -->
+<section>
+  <span class="sid">§1</span>
+  <h2>一个操作：投影</h2>
+
+  <p>协议中只有一个操作。</p>
+
+  <p class="k">丰富 → 透镜 → 聚焦</p>
+
+  <div class="def">
+    <span class="def-l">哲学定义</span>
+    <p>高维信息通过一个选择性结构降维为可操作的低维信号。信息必然损失，但换来行动能力——低维信号可以被比较、匹配、组合，而高维信息不能直接做这些操作。</p>
+  </div>
+
+  <div class="op">
+    <span class="op-l">操作定义</span>
+    <p>一段自然语言文本（丰富）通过编码函数（透镜）变成固定维度向量（聚焦）。</p>
+    <p>函数签名：<code>encode(text: string) → vector: float[768]</code></p>
+    <p>向量之间可以计算余弦相似度，实现高效匹配。透镜可替换——替换编码器 = 替换透镜，输入输出类型不变。</p>
+  </div>
+
+  <p>协议的全部工作：<strong>让投影的摩擦趋近于零。</strong></p>
+
+  <h3>消去测试</h3>
+  <p>去掉投影，系统不存在——没有编码就没有匹配，没有匹配就没有可见性。去掉任何其他概念（场景、方案、评分），系统仍然可以运转。投影是唯一不可消去的操作。</p>
+
+  <h3>统一性</h3>
+  <p>V1 的五步序列是同一操作在五个尺度上的应用——每一步都是 <em>丰富 → 透镜 → 聚焦</em>，只是透镜不同：</p>
+
+  <table class="tbl">
+    <thead><tr><th>步骤</th><th>丰富（输入）</th><th>透镜（处理）</th><th>聚焦（输出）</th></tr></thead>
+    <tbody>
+      <tr><td class="m">formulate</td><td>用户原始输入 + 隐式上下文</td><td>LLM 丰富化 + Profile 数据</td><td>结构化的意图表达</td></tr>
+      <tr><td class="m">resonate</td><td>编码意图（向量）</td><td>余弦相似度 × Agent 池</td><td>top-k 匹配集合</td></tr>
+      <tr><td class="m">offer</td><td>需求 + Agent 能力</td><td>每个 Agent 的风格和知识</td><td>独立回应</td></tr>
+      <tr><td class="m">synthesize</td><td>多个独立回应</td><td>Center Agent 聚合逻辑</td><td>协作方案（Plan）</td></tr>
+      <tr><td class="m">approve</td><td>方案</td><td>人的判断</td><td>行为（接受/拒绝/沉默/……）</td></tr>
+    </tbody>
+  </table>
+
+  <p>每步的透镜可独立替换。替换编码方式 = 换 resonate 的透镜。替换综合方式 = 换 synthesize 的透镜。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §2 唯一的粒子 ═══════════ -->
+<section>
+  <span class="sid">§2</span>
+  <h2>唯一的粒子：意图</h2>
+
+  <p>系统中只有一种基本粒子。</p>
+
+  <div class="def">
+    <span class="def-l">哲学定义</span>
+    <p><strong>意图</strong> = 存在体当前状态与期望状态之间的张力。没有无动机的行为。选择在某处输入某段文字，这个行为本身就是张力的表达。</p>
+  </div>
+
+  <div class="op">
+    <span class="op-l">操作定义</span>
+    <p>一段自然语言文本，经 <code>encode()</code> 转化为固定维度向量。来源无关，类型统一。</p>
+    <p>来源类型：</p>
+    <p>· <strong>显式意图</strong>（demand）：用户手动输入。如 <code>"我需要一个懂 Rust 的全栈工程师"</code></p>
+    <p>· <strong>隐式意图</strong>（profile）：Agent 的 Profile 数据。如 <code>"全栈工程师，5年 Rust 经验，对分布式系统感兴趣"</code></p>
+    <p>· <strong>反馈意图</strong>：任何交互产生的数据。评价、行为记录、链上数据、沉默。</p>
+    <p>三种来源在编码后处理方式完全相同。</p>
+  </div>
+
+  <p>显式意图和隐式意图是同一粒子的不同密度。显式意图是当下张力的主动表达（假设/内容层的投影）。隐式意图是历史张力的沉淀（模式/信念层的累积投影）。两者都是高维存在的低维碎片，只是捕获了不同层的结构。</p>
+
+  <h3>意图的三个条件</h3>
+
+  <p>意图天然具有三个性质，每个性质对应一个工程挑战：</p>
+
+  <table class="tbl">
+    <thead><tr><th>性质</th><th>含义</th><th>工程挑战</th><th>解法</th></tr></thead>
+    <tbody>
+      <tr><td class="m">模糊</td><td>用户不完全知道自己要什么</td><td>模糊输入无法精确匹配</td><td>Formulation：用隐式意图填补显式意图的模糊（§6）</td></tr>
+      <tr><td class="m">动态</td><td>意图随时间和交互变化</td><td>静态索引过时</td><td>持久场 + 实时增量更新</td></tr>
+      <tr><td class="m">无限</td><td>Agent 池和意图流无上限</td><td>全量比较不可扩展</td><td>亚线性匹配（ANN/HNSW 或超维计算）</td></tr>
+    </tbody>
+  </table>
+
+  <p>三个条件的解构成单点突破的工程路线图——详见 §9。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §3 协议边界 ═══════════ -->
+<section>
+  <span class="sid">§3</span>
+  <h2>协议边界与协议栈</h2>
+
+  <h3>通爻的边界</h3>
+
+  <p>通爻只做一件事：<strong>让意图以趋近于零的成本找到相关意图，建立可见性。</strong></p>
+
+  <p>可见性建立之后——参与者怎么交流、怎么协作、怎么交付、怎么付款——不是通爻的事。就像 TCP/IP 只管把数据包从 A 送到 B，不管数据包里是什么。</p>
+
+  <div class="op">
+    <span class="op-l">协议边界</span>
+    <p>协议之内：意图编码（<code>encode</code>）、场内流动（<code>field</code>）、相关性匹配（<code>match</code>）、可见性建立（<code>visibility</code>）。</p>
+    <p>协议之外：协作执行、经济行为、关系发展、项目推进。</p>
+  </div>
+
+  <h3>协议栈：两种摩擦的解</h3>
+
+  <p>通爻不在真空中运行。意图匹配之后需要信任才能产生行动，行动产生的数据需要回流才能改善匹配。这构成一个协议栈：</p>
+
+  <div class="cb"><span class="hi">应用层</span>  场景化的产品和服务
+         外卖、自由职业、信息交换、Agent 市场……
+
+<span class="hi">通爻</span>    发现层（阴）：意图 → 编码 → 场 → 匹配 → 可见性
+<span class="hi">WOWOK</span>   信任层（阳）：行动 → 链上记录 → 验证 → 流转
+         <span class="cm">绑定：链上数据 → encode() → 新意图投入场中</span>
+
+<span class="hi">基础设施</span> 区块链、向量索引、LLM、adapter</div>
+
+  <p>通爻与 WOWOK 不是上下游，是互补——阴和阳。通爻解决"找不到对的意图"（发现摩擦），WOWOK 解决"找到了但不信任"（信任摩擦）。绑定后，链上每一个动作——支付、交付、评价、争议、沉默——都自动成为新意图投入场中。循环闭合。</p>
+
+  <div class="unc">
+    <span class="unc-l">待验证</span>
+    <p>WOWOK 绑定是闭合循环的最优方式（去中心化、链上可观测），但不是唯一方式。中心化的评价系统和支付系统也能闭合循环（Uber、Airbnb 模式）。WOWOK 在 Genome 中的定位：推荐的信任层实现，而非协议层的必然要求。去中心化场景下是必要的；纯链下场景下是可选的。</p>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §4 循环 ═══════════ -->
+<section>
+  <span class="sid">§4</span>
+  <h2>循环：阴阳交替</h2>
+
+  <p>V1 的模型：需求 → 匹配 → 方案 → 判定（yes/no）→ 若拒绝则循环。这个模型假设存在一个明确的"判定节点"。</p>
+
+  <p>更底层的现实：<strong>意图 → 数据 → 意图 → 数据 → ……</strong></p>
+
+  <p class="k">阴（意图，未显化的张力）→ 阳（数据/行为，显化的痕迹）→ 阴 → 阳。两步。没有第三步。</p>
+
+  <p>"判定"不是一个函数调用 <code>approve(plan) → boolean</code>。它是一段连续的行为流。你点外卖——外卖到了——你给五星（阳）。你什么都没做（也是阳——不行动本身就是数据）。你开始一个十个月的项目，中间交了钱、交了一部分工作、产生了争议——这是一条长链，每一步都是阴阳交替。</p>
+
+  <p>阳的形态是场景化的：</p>
+
+  <table class="tbl">
+    <thead><tr><th>场景</th><th>阳（数据/行为）的形态</th><th>回流为新意图</th></tr></thead>
+    <tbody>
+      <tr><td>信息交换</td><td>一段回复、一次点赞、一次沉默</td><td>用户的下一个问题</td></tr>
+      <tr><td>自由职业</td><td>PRD 交付、支付、评价</td><td>新的需求或新的能力声明</td></tr>
+      <tr><td>长期合作</td><td>阶段交付、中期调整、争议解决</td><td>每个节点产生新意图</td></tr>
+      <tr><td>Agent 市场</td><td>调用次数、token 消耗、用户留存</td><td>Agent Profile 的隐式更新</td></tr>
+    </tbody>
+  </table>
+
+  <p>协议不规定阳的形态。协议只保证：任何形态的阳，只要产生了可编码的数据，就可以作为新意图回流到场中。循环不依赖于"拒绝"才发生——任何行为都产生新意图。系统没有起点和终点。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §5 度量 ═══════════ -->
+<section>
+  <span class="sid">§5</span>
+  <h2>度量</h2>
+
+  <p>V1 的度量：通过率 <code>approval_rate = yes / (yes + no)</code>。这依赖于明确的 approve/reject 节点。在阴阳循环模型中，这个节点不总是存在。</p>
+
+  <p>更底层的度量：<strong>换手率</strong>——单位时间内，场中阴阳循环的完整转动次数。</p>
+
+  <div class="op">
+    <span class="op-l">操作定义</span>
+    <p><code>turnover = count(Intent 投入 → Match 建立 → 新 Intent 回流) / time</code></p>
+    <p>换手率是场的宏观性质，不需要观测单次交互的结果。它类比市场微观结构中的换手率——度量场的活力，不度量单次交易的盈亏。</p>
+  </div>
+
+  <div class="def">
+    <span class="def-l">自纠正性质</span>
+    <p>制造虚假 Match 提高换手率 → 虚假 Match 不产生有效阳 → 分子（完整循环）不增长，噪声增多，真实匹配被淹没 → 真实换手率下降。过度保守只建立高确信度 Match → 数量少，深度不足 → 换手率低。换手率天然在匹配数量和匹配质量之间寻找均衡。</p>
+  </div>
+
+  <p>通过率不消失，它降级为场景层度量——在有明确判定节点的场景下（如 V1 的 approve 步骤），通过率是换手率的特化形式。</p>
+
+  <div class="unc">
+    <span class="unc-l">待验证</span>
+    <p>换手率度量活力，不直接度量价值。一个充满低质量循环的场换手率可能很高但没有价值。是否需要质量系数加权？质量由谁定义？如果由协议定义，违反端侧判定原则。如果由端侧定义，回到通过率的困难。这个张力尚未解决。</p>
+  </div>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §6 Formulation ═══════════ -->
+<section>
+  <span class="sid">§6</span>
+  <h2>Formulation：不对称设计</h2>
+
+  <p>意图是模糊的。用户说"我需要帮手"——搜索引擎无法处理。通爻的解法：<strong>用精确的隐式意图填补模糊的显式意图。</strong></p>
+
+  <p class="k">Formulation 是单侧的。用户侧 formulate，Agent 侧不需要。</p>
+
+  <p>为什么不对称？</p>
+
+  <div class="cb"><span class="hi">用户侧（查询时）</span>
+  模糊的显式意图（"我需要帮手"）
+  + 丰富的隐式意图（来自 adapter：SecondMe 数据、Profile、历史行为）
+  → formulation（LLM 精确化）
+  → 编码 → 投入场中
+
+<span class="hi">Agent 侧（注册时）</span>
+  Profile 已经是丰富的隐式意图
+  → 编码 → 已在场中（注册时即完成）
+  <span class="cm">Agent 的 Profile 编码 = Agent 侧的 formulation，发生在注册时</span></div>
+
+  <p>这就是响应范式的操作含义——不是"信息找人"的口号，是精确化成本从用户转移到系统。用户不需要知道怎么精确表达，系统用他的上下文替他做。</p>
+
+  <p>Adapter 是 formulation 的关键基础设施。Adapter 连接外部数据源（SecondMe、Claude、其他 LLM），提供用户的隐式上下文。没有 adapter，formulation 退化为原始输入的直接编码——可以工作，但匹配精度受限于用户的表达能力。</p>
+
+  <h3>Agent 侧的隐式 formulation</h3>
+
+  <p>Agent 的 Profile 是静态的隐式意图（注册时编码一次）。但如果 Agent 接入 WOWOK，它的每一次链上行为都更新它的隐式意图——Agent 在场中的位置随行为自动漂移。</p>
+
+  <p>用户侧：显式 formulation，每次查询，用 adapter 的实时数据。主动的、即时的。<br>
+  Agent 侧：隐式 formulation，每次行为（通过 WOWOK 数据更新 profile 编码）。被动的、累积的。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §7 原则 ═══════════ -->
+<section>
+  <span class="sid">§7</span>
+  <h2>一条原则</h2>
+
+  <p>协议反复施加投影。编码是投影，匹配是投影，formulation 是投影。但有一个地方协议不能投影：</p>
+
+  <p class="k">协议止于可见性。可见性之后的一切行为属于参与者。</p>
+
+  <p>没有中心标准定义"好的匹配"。参与者用自己的内在结构——信念、模式、预设——作为透镜判断。协议提供的方案、推荐、排序都只是建议性投影。最终的行为决策权不可被协议剥夺。</p>
+
+  <p>这是 V1 中"最后的透镜属于端侧"的更底层表述。V1 的表述假设存在一个 approve/reject 节点。更准确的表述：协议不生产行为，协议生产可见性。行为是可见性的副产品，由参与者自主产生。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §8 V1 评估 ═══════════ -->
+<section>
+  <span class="sid">§8</span>
+  <h2>V1 工程评估</h2>
+
+  <h3>从世界观重新投影 vs V1 实际</h3>
+
+  <table class="tbl">
+    <thead><tr><th>世界观推导</th><th>V1 实际</th><th>偏差性质</th></tr></thead>
+    <tbody>
+      <tr><td>统一的 Intent 数据结构</td><td>demand 和 profile 是不同的数据路径</td><td>不必要的分叉。demand 走 formulate，profile 走 AgentRegistry，两条路径有不同的处理逻辑。</td></tr>
+      <tr><td>同一操作（投影）的不同实例</td><td>五个独立管道模块</td><td>过度工程化。五步之间的关系是固定顺序的管道，而非可组合的操作实例。</td></tr>
+      <tr><td>持久的场（向量索引）</td><td>每次请求扫描全 Agent 池</td><td>HTTP 请求-响应心智模型的产物。没有持久场。</td></tr>
+      <tr><td>可见性 + 端侧行为</td><td>Center Agent 综合为 Plan</td><td>越界透镜。synthesize 在 approve 之前做了"什么值得呈现"的判定，替代了用户的选择。</td></tr>
+      <tr><td>阴阳循环（任何行为 = 新意图）</td><td>终端式 approve（yes/no 即结束）</td><td>结构性缺失。V1 没有反馈-递归机制。</td></tr>
+    </tbody>
+  </table>
+
+  <h3>V1 中值得保留的</h3>
+
+  <p><strong>formulate + resonate</strong> 是世界观的自然投影。formulate 解决意图的模糊性（§6），resonate 解决意图的匹配（§1）。这两步是单点突破的核心。</p>
+
+  <p><strong>sentence-transformers 编码</strong>在当前规模（数百 Agent）下够用。编码保真度的问题（互补关系检测、深层关联捕获）是优化方向，不是架构缺陷。</p>
+
+  <p><strong>221 个测试</strong>验证了基本链路的正确性。测试覆盖可以在新架构上复用。</p>
+
+  <h3>V1 中需要重构的</h3>
+
+  <p><strong>demand/profile 统一为 Intent。</strong> 一种数据结构，一条处理路径。ADR-001 的 adapter 管道断裂问题随之消失。</p>
+
+  <p><strong>synthesize 从协议层移到应用层。</strong> 某些场景需要综合（生成 Plan），某些只需要可见性（展示匹配列表）。综合不是协议的必要步骤。</p>
+
+  <p><strong>增加反馈-递归机制。</strong> 任何行为产生的数据可以作为新 Intent 回流到场中。这是 V1 最大的结构性缺失。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §9 单点突破 ═══════════ -->
+<section>
+  <span class="sid">§9</span>
+  <h2>单点突破：模糊意图 → 精准匹配</h2>
+
+  <p>所有讨论收敛到一个可执行的工程目标：</p>
+
+  <p class="k">用户输入模糊意图，看到精准匹配的相关意图，知道为什么匹配。在一万人的网络里比现有方式快很多。</p>
+
+  <p>成功标准：用户觉得系统比自己去找更快、更准。不需要比 Google 好，不需要比 LinkedIn 好。只需要在 Agent 协作这个垂直场景里，比翻文档、问朋友、发帖子更快更准。</p>
+
+  <h3>三个模块，对应三个条件</h3>
+
+  <table class="tbl">
+    <thead><tr><th>意图条件</th><th>模块</th><th>工程任务</th></tr></thead>
+    <tbody>
+      <tr><td class="m">模糊</td><td>Formulation pipeline</td><td>Adapter 接口 + LLM 精确化。用隐式意图（SecondMe/Profile 数据）补全模糊的显式意图。单侧设计。</td></tr>
+      <tr><td class="m">动态</td><td>持久场</td><td>向量索引 + 增量更新。新意图投入后实时匹配，旧意图衰减或更新。不是每次请求重建。</td></tr>
+      <tr><td class="m">无限</td><td>亚线性匹配</td><td>ANN/HNSW 索引或超维计算（HDC）。单次匹配成本从 O(N) 降至 O(log N)。</td></tr>
+    </tbody>
+  </table>
+
+  <p>第一个做好了（formulation），就已经是一个可用的产品。第二个做好了（持久场），系统可以处理动态变化。第三个做好了（亚线性匹配），系统可以扩展到大规模网络。</p>
+
+  <p>V1 的五步中，真正服务于这个目标的是 formulate 和 resonate。offer 和 synthesize 是应用层功能（某些场景需要，某些不需要）。approve 是自然行为，不需要专门设计。</p>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ §10 开放问题 ═══════════ -->
+<section>
+  <span class="sid">§10</span>
+  <h2>开放问题</h2>
+
+  <ul class="ql">
+    <li><strong>编码的结构保留。</strong> 当前向量编码（语义相似性）能否同时检测互补关系（缺口-填充）、共振关系（同向放大）和干涉关系（深层关联）？超维计算（HDC）是否是更好的编码方案？</li>
+    <li><strong>场的结构。</strong> 持久索引 vs 事件流？意图有时效性——昨天需要工程师，今天已找到。场需要衰减机制，还是场根本不是"索引"而是"有时间窗口的事件流"？两种模型的动力学行为非常不同。</li>
+    <li><strong>度量的价值维度。</strong> 换手率度量活力不度量价值。是否需要质量系数？质量由谁定义？这个张力与"协议止于可见性"原则之间的矛盾怎么解？</li>
+    <li><strong>协调摩擦。</strong> 发现摩擦 + 信任摩擦是否穷尽了商业摩擦的种类？"双方找到了彼此也信任对方但谈不拢条件"——这是发现的子问题（发现正确的条款组合）还是独立的第三种摩擦？</li>
+    <li><strong>循环的收敛。</strong> 意图 → 数据 → 新意图的循环在什么条件下收敛？是否需要能量衰减（每次循环新意图的权重递减）？振荡怎么防止？</li>
+    <li><strong>阴阳的不对称性。</strong> 大量意图投入场中，只有少量产生有意义的数据。系统可能不是对称的阴阳交替，而是漏斗。漏斗的形状影响系统的所有性质。如何建模？</li>
+    <li><strong>WOWOK 绑定的必要性 vs 可选性。</strong> 去中心化场景下 WOWOK 是循环闭合的必要条件。链下场景呢？协议层是否应该对信任层实现保持中立？</li>
+    <li><strong>可见性之后的最小交互。</strong> 微信如果只让你知道张三存在但不让你发消息，它就不是即时通讯。通爻如果只建立可见性但不促成任何形式的交互，是否足够？可见性和行动之间是否需要一个最小的"通道"？</li>
+  </ul>
+</section>
+
+<hr class="d">
+
+<!-- ═══════════ 附录 ═══════════ -->
+<section>
+  <span class="sid">附录</span>
+  <h2>推导历史</h2>
+
+  <p>本文档的结论从以下推导路径产生：</p>
+
+  <p><strong>ADR 审视</strong>（2026-02-13）→ 识别出 10 个 ADR 都是边界泄漏的症状 → 发现根本问题是协议层与应用层的边界混淆。</p>
+
+  <p><strong>协议核心问题推导</strong>（2026-02-13）→ "在无限、动态、模糊的意图场中，使意图液化的最小结构是什么？" → 三组件模型（编码器、场、端侧决策）→ 跨学科验证（热力学、市场微观结构、精神分析、符号学）→ 通过率作为损失函数。</p>
+
+  <p><strong>概念提纯</strong>（2026-02-14）→ 识别概念通胀 → 三组件坍缩为一个操作（投影）→ 六节五概念结构 → Genome v0.1。</p>
+
+  <p><strong>世界观接入</strong>（2026-02-14）→ 投影链（存在→内容的九层）→ 协议是世界观的工程化实例 → 阴阳循环模型 → V1 偏差识别 → "协作协议"重新定位为"相关性协议" → 两种摩擦模型 → WOWOK 作为信任层 → formulation 的不对称设计 → 单点突破定义 → Genome v0.3。</p>
+
+  <p>完整推导记录：<code>derivation-record.md</code></p>
+</section>
+
+<footer>
+  <p>通爻网络 · ToWow Network</p>
+  <p>本文档是协议的核心定义 · 所有工程决策、品牌叙事、对外沟通从此推导</p>
+  <p>v0.3 · 2026-02-14 · 收割版</p>
+</footer>
+
+</div>
+</body>
+</html>

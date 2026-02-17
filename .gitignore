@@ -38,6 +38,9 @@ worktree-*/
 .env
 .env.local
 
+# ML model weights (local only, too large for git)
+backend/models/
+
 # Data directories
 data/
 # Allow pre-computed vectors (production needs this, no ML framework required)
