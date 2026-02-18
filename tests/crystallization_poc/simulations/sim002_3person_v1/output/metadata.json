@@ -1,0 +1,27 @@
+{
+  "experiment": "EXP-009",
+  "simulation": "SIM-002",
+  "date": "2026-02-18T16:49:35.445410",
+  "participants": [
+    "Lina",
+    "赵维",
+    "Maya"
+  ],
+  "endpoint_model": "claude-sonnet-4-5-20250929",
+  "catalyst_model": "claude-sonnet-4-5-20250929",
+  "plan_model": "claude-sonnet-4-5-20250929",
+  "max_rounds": 6,
+  "actual_rounds": 6,
+  "converged": false,
+  "prompts": {
+    "endpoint": "prompts/endpoint_v0.md",
+    "catalyst": "prompts/catalyst_v1.md",
+    "plan_generator": "prompts/plan_generator_v0.md"
+  },
+  "profiles": {
+    "Lina": "profile-synthetic-lina.md",
+    "赵维": "profile-synthetic-zhaowei.md",
+    "Maya": "profile-synthetic-maya.md"
+  },
+  "comparison_baseline": "SIM-001 (catalyst_v0)"
+}

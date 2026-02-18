@@ -32,6 +32,7 @@
 | [ADR-011](decisions/ADR-011-v2-intent-field.md) | 已批准 | V2 Intent Field |
 | [ADR-012](decisions/ADR-012-research-to-execution-pivot.md) | 已实施 | 研究到执行转向 |
 | [ADR-013](decisions/ADR-013-post-experiment-decisions.md) | 已批准 | 实验后三组决策 |
+| [ADR-014](decisions/ADR-014-module2-crystallization-implementation.md) | 已批准 | 模块二结晶实现决策 |
 
 ### 实现方案 (PLAN) 和接口规格 (SPEC)
 
@@ -63,7 +64,7 @@
 | [003](design-logs/DESIGN_LOG_003_PROJECTION_AS_FUNCTION.md) | 投影即函数 | Agent = 投影函数，不是有状态对象 |
 | [004](design-logs/DESIGN_LOG_004_ECONOMIC_MODEL_AND_ECOSYSTEM.md) | 经济模型与生态 | 商业叙事、竞争分析、投资人 Q&A |
 | [005](design-logs/DESIGN_LOG_005_SCENE_AS_PRODUCT.md) | 场景即产品 | 产品范式、API 边界 |
-| [006](design-logs/DESIGN_LOG_006_CRYSTALLIZATION_PROTOCOL.md) | 结晶协议 | V2 协议从第一性原理重新推导 |
+| [006](design-logs/DESIGN_LOG_006_CRYSTALLIZATION_PROTOCOL.md) | 结晶协议 | 模块二自包含设计文档（2026-02-16 定稿） |
 
 ---
 
@@ -84,8 +85,10 @@
 | [001](research/001-intent-to-intent-encoding.md) | Intent 编码研究 |
 | [002](research/002-experiment-skill-design.md) | 实验 Skill 设计 |
 | [003](research/003-adr012-execution-results.md) | ADR-012 实验结果 (EXP-005~008) |
+| [004](research/004-crystallization-experiment-plan.md) | 模块二结晶实验计划 |
+| [005](research/005-wowok-machine-reference.md) | WOWOK Machine 智能合约参考（Phase 3 格式） |
 
-实验数据：`tests/field_poc/results/`
+实验数据：`tests/field_poc/results/`（模块一）、`tests/crystallization_poc/`（模块二）
 
 ---
 
@@ -111,6 +114,16 @@
 
 ---
 
+## 社区 (`community/`)
+
+| 文件 | 说明 |
+|------|------|
+| [profile-contribution-guide](community/profile-contribution-guide.md) | Profile 贡献指南——结晶实验的材料共建 |
+
+Profile 数据：`data/profiles/`
+
+---
+
 ## 归档 (`archive/`)
 
 历史产物，不再维护。保留供参考。
@@ -122,3 +135,4 @@
 - `archive/genome-v03.html` — Genome v0.3 HTML 版
 - `archive/topology*.html` — 拓扑可视化
 - `archive/arch-report.md`, `eng-report.md` — 审计报告
+- `archive/DESIGN_LOG_006_CRYSTALLIZATION_PROTOCOL_v1.md` — 结晶协议旧版设计（已被自包含版替代）

@@ -1,0 +1,1 @@
+../sim001_3person/trigger.md
