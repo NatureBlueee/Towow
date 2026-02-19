@@ -87,6 +87,11 @@
 | [003](research/003-adr012-execution-results.md) | ADR-012 实验结果 (EXP-005~008) |
 | [004](research/004-crystallization-experiment-plan.md) | 模块二结晶实验计划 |
 | [005](research/005-wowok-machine-reference.md) | WOWOK Machine 智能合约参考（Phase 3 格式） |
+| [006](research/006-exp009-crystallization-poc-results.md) | EXP-009 结晶 POC 结果（SIM-001 v0 + SIM-002 v1） |
+| [008](research/008-exp009-review/) | EXP-009 深度复盘（架构讨论 + prompt 迭代方向） |
+| [010](research/010-secondme-endpoint-research.md) | SecondMe 深度技术评估：作为端侧 Agent 实现层 |
+| [011](research/011-wowok-business-technical-analysis.md) | WOWOK × 通爻技术商业深度分析 |
+| [012](research/012-global-similar-projects-scan.md) | 全球类似项目深度扫描（14 个先行者分析） |
 
 实验数据：`tests/field_poc/results/`（模块一）、`tests/crystallization_poc/`（模块二）
 
@@ -136,3 +141,4 @@ Profile 数据：`data/profiles/`
 - `archive/topology*.html` — 拓扑可视化
 - `archive/arch-report.md`, `eng-report.md` — 审计报告
 - `archive/DESIGN_LOG_006_CRYSTALLIZATION_PROTOCOL_v1.md` — 结晶协议旧版设计（已被自包含版替代）
+- `archive/007-compact-instruction-for-next-session.md` — 会话交接备忘（2026-02-18，已过期）

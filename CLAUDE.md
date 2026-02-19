@@ -32,11 +32,21 @@ Towow/
 ├── docs/                      # Architecture + design logs
 │   ├── ARCHITECTURE_DESIGN.md # V1 architecture (13 sections)
 │   ├── ENGINEERING_REFERENCE.md
-│   ├── design-logs/           # Design logs 001-006
+│   ├── INDEX.md               # 文档导航地图
+│   ├── decisions/             # ADR-001~014, PLAN-*, SPEC-*
+│   ├── design-logs/           # Design logs 001-006 (结晶协议在006)
+│   ├── research/              # 研究文档 000-012 (含 008/ 子目录)
 │   ├── engineering/           # DEV_LOG_V1.md, DEV_LOG_V2.md
-│   ├── archive/               # Stale tasks, promo, features, issues
-│   └── prompts/               # V1 skill prompts
-├── .claude/skills/            # Engineering skills (lead, arch, towow-eng, towow-dev, etc.)
+│   ├── guides/                # quickstart, v1-engine, guide-001
+│   ├── community/             # Profile 贡献指南
+│   ├── prompts/               # V1 skill prompts
+│   └── archive/               # Stale tasks, promo, features, issues
+├── tests/                     # 项目级实验测试（V2 POC）
+│   ├── field_poc/             # 场实验 EXP-005~008
+│   └── crystallization_poc/   # 结晶 POC EXP-009 (SIM-001 v0 + SIM-002 v1)
+├── data/
+│   └── profiles/              # 社区 Agent Profile（待收集）
+├── .claude/skills/            # Engineering skills (lead, arch, towow-ops, towow-eng, towow-dev, etc.)
 ├── Dockerfile                 # Production deployment
 ├── railway.toml               # Railway config
 └── CLAUDE.md                  # This file
@@ -129,8 +139,9 @@ backend/towow/field/
 - `GET /field/api/stats` — Field statistics
 
 ### Tests
-- Unit tests: `backend/tests/towow/test_field/` (76+ tests)
-- Experiments: `tests/field_poc/` (EXP-005~008)
+- Unit tests: `backend/tests/towow/test_field/` (76 tests)
+- 场实验: `tests/field_poc/` (EXP-005~008: 编码器/BQL/多视角/LLM-as-Judge)
+- 结晶实验: `tests/crystallization_poc/` (EXP-009: SIM-001 v0 + SIM-002 v1, catalyst prompt 迭代)
 
 ## Development Governance
 
