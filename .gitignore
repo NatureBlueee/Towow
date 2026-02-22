@@ -65,5 +65,9 @@ out/
 # Archives
 *.zip
 
+# Real user experiment data (NEVER upload — contains real people's profiles and outputs)
+tests/crystallization_poc/state.json
+tests/crystallization_poc/simulations/real/run_*/
+
 # Separate git repositories
 openagents/
