@@ -43,9 +43,11 @@ Towow/
 │   └── archive/               # Stale tasks, promo, features, issues
 ├── tests/                     # 项目级实验测试（V2 POC）
 │   ├── field_poc/             # 场实验 EXP-005~008
-│   └── crystallization_poc/   # 结晶 POC EXP-009 (SIM-001 v0 + SIM-002 v1)
+│   └── crystallization_poc/   # 结晶实验 (state.json + prompts/ + simulations/)
+│       ├── state.json         # 实验状态（单一真相源）
+│       └── simulations/real/  # 真人实验 (run_real.py + run_NNN/)
 ├── data/
-│   └── profiles/              # 社区 Agent Profile（待收集）
+│   └── profiles/real/         # 真人 Agent Profile
 ├── .claude/skills/            # Engineering skills (lead, arch, towow-ops, towow-eng, towow-dev, etc.)
 ├── Dockerfile                 # Production deployment
 ├── railway.toml               # Railway config
@@ -141,7 +143,7 @@ backend/towow/field/
 ### Tests
 - Unit tests: `backend/tests/towow/test_field/` (76 tests)
 - 场实验: `tests/field_poc/` (EXP-005~008: 编码器/BQL/多视角/LLM-as-Judge)
-- 结晶实验: `tests/crystallization_poc/` (EXP-009: SIM-001 v0 + SIM-002 v1, catalyst prompt 迭代)
+- 结晶实验: `tests/crystallization_poc/` (state.json + prompts/ + simulations/real/run_real.py)
 
 ## Development Governance
 
@@ -176,6 +178,7 @@ Each agent MUST load the relevant `.claude/skills/` for its domain:
 | Test design / verification | `towow-eng-test` | general-purpose |
 | Architecture alignment | `arch` | Explore or Plan |
 | Engineering coordination | `towow-eng` (Leader) | Plan |
+| Crystallization experiments | `towow-crystal` | general-purpose |
 | **Full lifecycle (default)** | **`lead`** | **general-purpose** |
 
 ### Key Principles

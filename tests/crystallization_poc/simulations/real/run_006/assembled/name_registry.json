@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "source": "config.json",
+  "canonical": {
+    "P03": "西天取经的宝盖头",
+    "P01": "枫丝语",
+    "P05": "范晓宁",
+    "P04": "Mark Jin",
+    "P08": "启凡"
+  },
+  "demand_source": "P02",
+  "note": "This is the single source of truth for participant names. All pipeline outputs must use names from this registry. Any name not listed here is a violation."
+}

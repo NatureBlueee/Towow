@@ -1,0 +1,62 @@
+{
+  "run_id": "RUN-006",
+  "assembled_at": "2026-02-22T08:35:53.278011+00:00",
+  "name_registry": "name_registry.json",
+  "stages": {
+    "catalyst": {
+      "system_prompt": "catalyst_system.txt",
+      "static_bindings": [
+        "participant_list",
+        "participant_count",
+        "pair_count"
+      ],
+      "dynamic_bindings": [
+        "tension_context (via user message)"
+      ]
+    },
+    "endpoint": {
+      "files": {
+        "P03": "endpoint_P03_system.txt",
+        "P01": "endpoint_P01_system.txt",
+        "P05": "endpoint_P05_system.txt",
+        "P04": "endpoint_P04_system.txt",
+        "P08": "endpoint_P08_system.txt"
+      },
+      "static_bindings": [
+        "agent_name",
+        "profile"
+      ],
+      "dynamic_bindings": [
+        "tension_context (bind before R1)",
+        "catalyst_output_previous_round (bind before R2+)"
+      ]
+    },
+    "delivery": {
+      "files": {
+        "P03": "delivery_P03_system.txt",
+        "P01": "delivery_P01_system.txt",
+        "P05": "delivery_P05_system.txt",
+        "P04": "delivery_P04_system.txt",
+        "P08": "delivery_P08_system.txt"
+      },
+      "static_bindings": [
+        "agent_name",
+        "profile"
+      ],
+      "dynamic_bindings": [
+        "tension_context (bind before generation)",
+        "plan (bind before generation)"
+      ]
+    },
+    "plan": {
+      "profiles": "plan_profiles.txt",
+      "static_bindings": [
+        "participant names in profile headers"
+      ],
+      "dynamic_bindings": [
+        "TRIGGER_CONTEXT",
+        "CRYSTALLIZATION_TRANSCRIPT"
+      ]
+    }
+  }
+}

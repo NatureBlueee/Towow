@@ -12,6 +12,7 @@
 
 具体要回答的问题：
 
+0. **Formulation 能否从 Profile 中提取出原始意图没有说出的隐式需求？** （丰富化质量）
 1. **催化 prompt 怎么写才能最有效地识别跨语义空间的等价表达？** （翻译质量）
 2. **催化 prompt 怎么写才能优先传递对收敛影响最大的信息差？** （传输策略）
 3. **端侧 prompt 怎么写才能让不同能力的 Agent 都产出高质量回复？** （参考模板质量）
@@ -48,6 +49,29 @@
 - [ ] 收集 3+ 个深度 Profile（社区共建 + 自写）
 - [ ] 设计 1 个触发事件
 - [ ] 探索 WOWOK Machine JSON 格式（为 Phase 3 准备）
+
+### Phase 0.5：Formulation 观测
+
+Formulation 是管道最上游——它做得不好，后面再怎么调催化都救不回来。
+
+**观测策略**：
+- 每次 RUN 先看 `formulated_demand.md`，判断：
+  - 读起来像不像这个人在更完整地表达自己？
+  - 有没有捕捉到 Profile 里的隐式需求？
+  - 有没有编造 Profile 中不存在的信息？
+  - 有没有丢掉原始意图中的关键信息？
+- 如果有问题，先修 formulation prompt 再进后续迭代
+
+**迭代策略**：
+- Formulation 任务相对简单（读 Profile + 丰富化），预计 v0-v1 就能稳定
+- 如果 Phase A 跑完催化已调好但端侧回复始终"偏"，回头检查 formulation
+- 对比实验（如需要）：raw intent vs formulated intent，同配置跑两次
+
+**评估维度**：
+1. **信息保真** (pass/fail)：原始意图中的所有信息都保留了吗？
+2. **隐式挖掘** (0-3)：从 Profile 中挖出了几个原话没提到但真实存在的需求？
+3. **无编造** (pass/fail)：有没有编造 Profile 中不存在的信息？
+4. **下游效果**：端侧 Agent 的回复是否与需求方的真实张力对齐？
 
 ### Phase 1：Prompt v0 + 首轮模拟
 
@@ -94,8 +118,9 @@
 
 ### 人工评估（Phase 1-2）
 
-每轮结晶完成后，评估者回答：
+每次 RUN 完成后，评估者回答：
 
+0. **Formulation 质量**：formulated_demand.md 是否像这个人在完整表达自己？隐式需求挖掘了几个？有无编造？
 1. **翻译质量** (1-5)：催化是否成功指出了跨语义空间的等价表达？
 2. **传输完整性** (1-5)：催化是否遗漏了与张力消解相关的信息差？
 3. **端侧质量** (1-5)：参与者的回复是否有实质性内容？
@@ -113,6 +138,7 @@
 tests/crystallization_poc/
   README.md                    # 实验说明
   prompts/
+    formulation_v0.md          # 需求丰富化 prompt v0
     endpoint_v0.md             # 端侧 prompt v0
     catalyst_v0.md             # 催化 prompt v0
     plan_generator_v0.md       # 方案生成 prompt v0

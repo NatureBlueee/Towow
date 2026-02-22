@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import type { Metadata } from 'next';
-import { TeamAuthProvider } from '@/context/TeamAuthContext';
+// [MAINTENANCE MODE] TeamAuthProvider disabled — it calls getCurrentUser which requires backend
+// import { TeamAuthProvider } from '@/context/TeamAuthContext';
 
 export const metadata: Metadata = {
   title: 'Team Matcher - ToWow',
@@ -8,12 +9,12 @@ export const metadata: Metadata = {
 };
 
 /**
- * Team Matcher layout with optional authentication.
+ * Team Matcher layout.
  *
- * TeamAuthProvider silently checks if the user is logged in and makes
- * the agent_id available for WebSocket connections. If the user is NOT
- * logged in, pages still render normally in mock mode.
+ * [MAINTENANCE MODE] TeamAuthProvider temporarily removed to avoid backend calls.
+ * To restore: uncomment TeamAuthProvider import and wrap children with it.
  */
 export default function TeamLayout({ children }: { children: ReactNode }) {
-  return <TeamAuthProvider>{children}</TeamAuthProvider>;
+  // return <TeamAuthProvider>{children}</TeamAuthProvider>;
+  return <>{children}</>;
 }

@@ -1,5 +1,8 @@
+// [MAINTENANCE MODE] Backend is down — show maintenance banner
+// Original code: import { NegotiationPage } from '@/components/negotiation/NegotiationPage';
+import { MaintenanceBanner } from '@/components/shared/MaintenanceBanner';
+
 import type { Metadata } from 'next';
-import { NegotiationPage } from '@/components/negotiation/NegotiationPage';
 
 export const metadata: Metadata = {
   title: 'Negotiation - ToWow',
@@ -7,5 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default function Page() {
-  return <NegotiationPage />;
+  // return <NegotiationPage />;
+  return <MaintenanceBanner pageName="Negotiation" />;
 }

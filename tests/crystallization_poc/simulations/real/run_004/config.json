@@ -1,0 +1,77 @@
+{
+  "run_id": "RUN-004",
+  "description": "一致性补丁集验证：endpoint_v2(信息函数不变量+T/I/B/E对准) + formulation_v1.1(匿名化) + catalyst_v2.1(逐对检查)",
+  "demand": {
+    "id": "D01",
+    "source_profile": "P06",
+    "raw_intent": "我是聋人，艺名是李默妹，Entj射手座是一个没有基础「走向星球、长寿科技、人工智能安全性能管理体系及个人提升」的普通人，但是我想要普通人通过 AI Agent系统的学习四个方面领域整结创作新的有用技术发展未来科技，慢慢来研究和发现….."
+  },
+  "participants": [
+    {
+      "id": "P03",
+      "name": "西天取经的宝盖头",
+      "profile_path": "data/profiles/real/pingdior.md"
+    },
+    {
+      "id": "P04",
+      "name": "Mark Jin",
+      "profile_path": "data/profiles/real/markjin.md"
+    },
+    {
+      "id": "P07",
+      "name": "张晨曦",
+      "profile_path": "data/profiles/real/chenxizhang.md"
+    }
+  ],
+  "prompt_versions": {
+    "formulation": "v1.1",
+    "endpoint": "v2",
+    "catalyst": "v2.1",
+    "plan": "v0"
+  },
+  "prompt_paths": {
+    "formulation": "tests/crystallization_poc/prompts/formulation_v1.1.md",
+    "endpoint": "tests/crystallization_poc/prompts/endpoint_v2.md",
+    "catalyst": "tests/crystallization_poc/prompts/catalyst_v2.1.md",
+    "plan": "tests/crystallization_poc/prompts/plan_generator_v0.md"
+  },
+  "model": {
+    "formulation": "claude-sonnet-4-6",
+    "endpoint": "claude-sonnet-4-6",
+    "catalyst": "claude-sonnet-4-6",
+    "plan": "claude-sonnet-4-6"
+  },
+  "max_rounds": 6,
+  "convergence_mechanism": "catalyst_phase_detection",
+  "output_dir": "tests/crystallization_poc/simulations/real/run_004/output/",
+  "frozen_from": "RUN-003",
+  "frozen_conditions": {
+    "same_demand": true,
+    "same_participants": true,
+    "same_model": true,
+    "same_max_rounds": true
+  },
+  "verification_targets": {
+    "a_grade_relations": {
+      "baseline": "27/31 (87%)",
+      "criterion": ">=87% or absolute count not lower"
+    },
+    "pairwise_coverage": {
+      "baseline": "2/3 pairs with deep relations (P04↔P03 missing)",
+      "criterion": "3/3 pairs with at least one direct bilateral relation"
+    },
+    "convergence_rounds": {
+      "baseline": 4,
+      "criterion": "<=4 rounds"
+    },
+    "residual_tension_quality": {
+      "baseline": "domain expert gaps correctly marked",
+      "criterion": "not worse than RUN-003"
+    }
+  },
+  "rollback_plan": {
+    "if_no_improvement": "rollback mod 2+3, keep only endpoint_v2, run RUN-004b",
+    "if_004b_no_improvement": "diagnosis has gaps, re-audit RUN-004 data",
+    "if_004b_improves": "mod 2 or 3 introduced negative effect, isolate"
+  }
+}

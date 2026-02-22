@@ -92,8 +92,20 @@
 | [010](research/010-secondme-endpoint-research.md) | SecondMe 深度技术评估：作为端侧 Agent 实现层 |
 | [011](research/011-wowok-business-technical-analysis.md) | WOWOK × 通爻技术商业深度分析 |
 | [012](research/012-global-similar-projects-scan.md) | 全球类似项目深度扫描（14 个先行者分析） |
+| [013](research/013-exp009-postmortem.md) | EXP-009 复盘：用户校准记录 + AI→真人实验转向决策 |
+| **[014](research/014-real-human-experiment-guide.md)** | **真人数据结晶实验指导（自包含，当前主线）** |
 
 实验数据：`tests/field_poc/results/`（模块一）、`tests/crystallization_poc/`（模块二）
+
+### 结晶实验基础设施
+
+| 文件 | 说明 |
+|------|------|
+| `tests/crystallization_poc/state.json` | 实验状态（单一真相源，跨 session 持久） |
+| `tests/crystallization_poc/simulations/real/run_real.py` | 通用运行脚本（读 config.json） |
+| `tests/crystallization_poc/prompts/` | Prompt 版本链（catalyst_v0~vN, endpoint_v0~vN） |
+| `.claude/skills/towow-crystal/SKILL.md` | 结晶实验管理 Skill |
+| `data/profiles/real/` | 真人 Profile 池 |
 
 ---
 

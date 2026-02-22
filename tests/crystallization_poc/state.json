@@ -1,0 +1,468 @@
+{
+  "schema_version": 1,
+  "phase": "ITERATE",
+  "profile_pool": {
+    "count": 8,
+    "profiles": [
+      {
+        "id": "P01",
+        "name": "枫丝语",
+        "file": "data/profiles/real/fengsiyu.md",
+        "domain": "全栈运营/教培/电竞/商务咨询",
+        "one_line": "INTJ跨界人，全栈运营+教培+电竞+AIGC，覆盖10+省份商务网络，自称人形AI",
+        "richness": "rich",
+        "char_count": 5200,
+        "capabilities": [
+          "商业分析与对策——为束手无策的甲方分析问题",
+          "知识梳理与SOP——立志CKO，机构内部术语/规则/SOP",
+          "AIGC应用与代运营——AGI赛道代运营业务"
+        ],
+        "tensions": [
+          "垂直领域大模型种子轮融资 CNY 60M",
+          "教培新物种种子轮 CNY 0.4M",
+          "需要桌游硬件工程师"
+        ]
+      },
+      {
+        "id": "P02",
+        "name": "Chrisccc",
+        "file": "data/profiles/real/chrisccc.md",
+        "domain": "数据产品/AI增长/营销云",
+        "one_line": "ENTJ，10年大厂DataPM(字节/滴滴)，正在建GrowthOS——AI驱动的增长操作系统",
+        "richness": "rich",
+        "char_count": 6800,
+        "capabilities": [
+          "数据平台从0到1——营销云/CDP/DMP搭建与商业化",
+          "增长系统设计——数据+AI+增长=确定性",
+          "高难度项目交付——快消/金融/汽车多行业头部客户"
+        ],
+        "tensions": [
+          "AI出海增长案例库——冷启动到规模化路径",
+          "增长期AI公司一手问题样本——愿意共创复盘的founder",
+          "ToB商业化资源——定价/打包/交付/生态合作真实复盘"
+        ]
+      },
+      {
+        "id": "P03",
+        "name": "西天取经的宝盖头",
+        "file": "data/profiles/real/pingdior.md",
+        "domain": "自我认知/AIoT产品/情绪分析",
+        "one_line": "用技术理解生命状态的AIoT产品人，做自我觉察软硬件",
+        "richness": "rich",
+        "char_count": 28588,
+        "capabilities": [
+          "全栈产品开发——iOS+Web+硬件+AI集成，独立完成概念到上线",
+          "AI应用落地——情绪分析、语音日记、多Agent模拟、Prompt工程",
+          "跨物种行为理解——动物姿态→摔倒检测→人类情绪，围绕理解行为"
+        ],
+        "tensions": [
+          "寻找技术伙伴——后端工程、iOS协作、硬件量产供应链",
+          "寻找内容伙伴——心理学/认知科学背景、多语言本地化",
+          "寻找运营伙伴——海外市场增长、社群运营、出海GTM"
+        ]
+      },
+      {
+        "id": "P04",
+        "name": "Mark Jin",
+        "file": "data/profiles/real/markjin.md",
+        "domain": "机器人工程/AI情感计算/学生领袖",
+        "one_line": "211机器人工程大四生，情感计算+AI产品，校科协副主席",
+        "richness": "rich",
+        "char_count": 5800,
+        "capabilities": [
+          "机器人全栈——人形/四足/轮式/自动驾驶，YOLO+ROS+视觉",
+          "AI情感计算——AIArt课题组核心成员，清华脑电实验，MemoMusic",
+          "组织管理——校科协副主席+院学生会主席，组织2000+人参赛"
+        ],
+        "tensions": [
+          "产品《心灵奇记》寻求落地——AI Hackathon情感体验赛道初赛第一",
+          "从学生到职业的身份转型——大四即将毕业",
+          "AI情感计算研究成果产品化"
+        ]
+      },
+      {
+        "id": "P05",
+        "name": "范晓宁",
+        "file": "data/profiles/real/fanxiaoning.md",
+        "domain": "Java开发/项目管理/企业OA",
+        "one_line": "9年Java工程师+PMP，深耕企业级OA/办公系统，神州数码高级工程师",
+        "richness": "rich",
+        "char_count": 10500,
+        "capabilities": [
+          "企业级OA系统全流程——蓝凌/中国移动OA，13大模块50+表单迁移",
+          "分布式架构与集成——HR→认证→OA跨系统Token+Redis方案",
+          "项目管理与团队统筹——PMP资质，DevSecOps平台项目经理"
+        ],
+        "tensions": [
+          "求职Java开发/项目经理——期望18-25K/月，周内到岗",
+          "从传统Java向云原生/低代码方向转型",
+          "技术博客沉淀与个人品牌建设"
+        ]
+      },
+      {
+        "id": "P06",
+        "name": "李默妹",
+        "file": "data/profiles/real/limomei.md",
+        "domain": "AI学习探索/科技写作/个人成长",
+        "one_line": "聋人创作者，ENTJ，用AI Agent从零探索星球/长寿/AI安全四领域",
+        "richness": "medium",
+        "char_count": 3800,
+        "capabilities": [
+          "AI Agent辅助学习框架——概念拆解→文献综述→项目驱动→跨领域连接",
+          "科技写作与博客——B4A平台博主，记录学习过程",
+          "跨领域连接思维——星球×长寿×AI安全×个人提升的交叉创新"
+        ],
+        "tensions": [
+          "零基础探索四个前沿领域——需要导师/伙伴/结构化学习路径",
+          "从吸收到输出的转化——每周博客+每月项目的执行力",
+          "作为聋人的独特视角如何转化为创作优势"
+        ]
+      },
+      {
+        "id": "P07",
+        "name": "张晨曦",
+        "file": "data/profiles/real/chenxizhang.md",
+        "domain": "AI创作工具/个人数据/数字自我",
+        "one_line": "工商管理大四生+WoWok实习，6个AI项目横跨自我认知/学术写作/隐私工具",
+        "richness": "rich",
+        "char_count": 699968,
+        "capabilities": [
+          "AI工具链深度使用——Cursor/Claude/Midjourney/Suno，prompt工程+自动化脚本",
+          "产品全流程——从概念到部署，技术文档+用户调研+原型设计+AI辅助开发",
+          "跨学科整合——认知语言学×计量文体学×AI，文本存在论理论框架"
+        ],
+        "tensions": [
+          "6个项目均为早期/开发中——GlimpseMe/Digital Desktop/论文系统/Prompt Atelier待完善",
+          "从学生到职业的身份转型——2026年毕业，方向在AI×人文交叉地带",
+          "个人数据与AI自我认知方向缺乏商业化路径"
+        ]
+      },
+      {
+        "id": "P08",
+        "name": "启凡",
+        "file": "data/profiles/real/qifan.md",
+        "domain": "内容创作/Web3探索/本地生活营销",
+        "one_line": "天津30+意识流写作者，从深圳床位到Web3线下活动，记录真实底层生活",
+        "richness": "rich",
+        "char_count": 80085,
+        "capabilities": [
+          "意识流内容创作——高密度情绪碎片写作，原始记录生活与思考",
+          "本地生活商业观察——实体店营销、小红书流量逻辑、抖音本地生活",
+          "Web3社群参与——5场线下活动经验，跨圈层人脉连接，加密货币科普"
+        ],
+        "tensions": [
+          "求职谋生——长期断收入+社保断缴2.5年，急需经济独立",
+          "Web3/加密货币从小白到实践——接触多年仍未入门，寻找学习路径",
+          "跨境电商冷启动——Temu选品上架，与沙总合作货盘，3个月目标人均3万"
+        ]
+      }
+    ]
+  },
+  "demand_pool": [
+    {
+      "id": "D01",
+      "source_profile": "P06",
+      "raw_intent": "我是聋人，艺名是李默妹，Entj射手座是一个没有基础「走向星球、长寿科技、人工智能安全性能管理体系及个人提升」的普通人，但是我想要普通人通过 AI Agent系统的学习四个方面领域整结创作新的有用技术发展未来科技，慢慢来研究和发现…..",
+      "one_line": "聋人普通人想通过AI Agent系统学习星球/长寿/AI安全/个人提升四领域，创作新技术",
+      "fuzziness": "fuzzy"
+    },
+    {
+      "id": "D02",
+      "source_profile": "P02",
+      "raw_intent": "我在和一个朋友合伙做增长社群。GrowthOS聚焦AI工具型产品/垂直行业/AI出海/AI infra。合伙人能力需求：用户增长×2/渠道分发×2/产品增长×2/海外增长×3/组织管理×1。第一年收入：顾问费+项目分润。三个战略问题：AI行业3年最大增长结构机会/增长能力在AI赛道的特殊性/没有GrowthOS机会会怎样。",
+      "one_line": "GrowthOS找合伙人（海外增长×3最重）+ 三个战略认知待外部校验",
+      "fuzziness": "clear"
+    }
+  ],
+  "runs": [
+    {
+      "id": "RUN-003",
+      "demand_id": "D01",
+      "participants": ["P03", "P04", "P07"],
+      "prompt_versions": {"formulation": "v1", "catalyst": "v2", "endpoint": "v1", "plan": "v0"},
+      "status": "completed",
+      "dir": "tests/crystallization_poc/simulations/real/run_003/",
+      "model": "claude-sonnet-4-6",
+      "rounds": 4,
+      "convergence": true,
+      "notes": "formulation_v1+endpoint_v1+catalyst_v2全流程。4轮自然收敛（R3相变检测首次触发，R4三人均称'无新信息'+催化确认收敛）。Task subagent模式执行（Agent Teams当时未启用）。",
+      "summary_200w": "4轮自然收敛。formulation_v1四参数编码(T/I/B/E)替代v0的800字心理画像，下游质量显著提升。R1催化发现3互补(元认知诊断/Prompt正反面/组织动员)+2对冲(项目定义不兼容/内容标准冲突)+3跨语义翻译。R2深化互补为两层(数据采集层vs解释防御层)、对冲找到交集(问题成熟度驱动)。R3相变检测首次触发'后者'——新发现转为讨论新问题。R4三个端侧Agent均独立判断'无新信息'，催化确认收敛，输出最终关系图谱。终态：4互补+3同向+2对冲(已有化解路径)+3缺口(领域专家=残余张力)。方案：认知过程可见性系统——宝盖头做数据采集层，Mark Jin做微周期协调，张晨曦做认知诊断+协作结构。问题成熟度驱动而非日历驱动。",
+      "evaluation": {
+        "user_verdict": "架构成立。4轮自然收敛、31条关系识别(27A级)、相变检测准确、对冲识别质量极高。所有问题都是优化级，不是架构级。三重投影模型、编码定理(T/I/B/E)、催化角色定义、相变检测——全部按设计工作。",
+        "diagnosis": "endpoint_v1得了formulation_v0的同一种病：膨胀。投影函数本质是压缩(Profile×张力→最小必要关系信号)，但无密度约束时LLM默认膨胀。因果链：膨胀→同质性→催化翻译退化+独特能力被淹没→催化注意力偏斜。",
+        "core_principle": "不是'压缩'(描述输出形态)，是'只说改变下游操作的东西'(定义输出函数)。信息瓶颈原理操作化：每句话的价值=对催化关系识别的边际贡献。",
+        "modifications": [
+          {
+            "priority": 1,
+            "target": "endpoint",
+            "change": "加核心不变量：'你输出的每句话，如果主持人没看到，他对关系的判断会不同吗？不会则删'",
+            "solves": "信息映射、松散同构、优先级缺失、同质性"
+          },
+          {
+            "priority": 2,
+            "target": "formulation",
+            "change": "输出格式中需求方匿名化，只保留编号(P06)，不保留名字",
+            "solves": "服务框架激活(名字具象化→'我能帮你做什么'心态)"
+          },
+          {
+            "priority": 3,
+            "target": "catalyst",
+            "change": "对N*(N-1)/2对参与者逐对检查，未发现则显式输出'未发现直接关系'",
+            "solves": "催化注意力偏斜(P04↔P03零直接双边关系)"
+          }
+        ],
+        "not_fixing": [
+          "推断性边界(P07的'知识戏剧性免疫→大概率退出'推断产出全轮最高价值对冲识别，不要约束正在产生价值的行为)",
+          "R1催化翻译质量偏低(信息动力学自然特征，R1广度轮→R2深度轮自然恢复)",
+          "P04方向投影个别连接推理偏弱(数据层问题，Profile结构清晰度，prompt改不了)"
+        ],
+        "analysis_files": [
+          "run_003/output/analysis/r1_final_diagnosis.md",
+          "run_003/output/analysis/r1_invariant_audit.md",
+          "run_003/output/analysis/catalyst_trajectory.md"
+        ]
+      }
+    },
+    {
+      "id": "RUN-002",
+      "demand_id": "D01",
+      "participants": ["P03", "P04", "P07"],
+      "prompt_versions": {"formulation": "v0", "catalyst": "v2", "endpoint": "v1", "plan": "v0"},
+      "status": "evaluating",
+      "dir": "tests/crystallization_poc/simulations/real/run_002/",
+      "model": "claude-sonnet-4-6",
+      "notes": "endpoint_v1(三重投影) + catalyst_v2(优先级+相变检测) + novelty诊断。3轮到顶。",
+      "summary_200w": "3轮未收敛。endpoint_v1消除cosplay——三维投影结构清晰，每条能力追溯Profile具体事实。催化v2优先级排序有效（互补→对冲→缺口→被忽略→同向）。Novelty数据：催化R2=0.109(低于阈值)说明R2催化已在重复；端侧R2~0.45/R3~0.38稳步衰减但仍有新信息。核心问题发现：formulation_v0是链条根部污染源——800字心理画像未解析需求本质，下游全部在回应画像而非需求。",
+      "evaluation": {
+        "user_verdict": "进行中。初步判断：endpoint_v1+catalyst_v2结构性改善明显（cosplay消除，三维投影有效），但formulation_v0是根部问题——需求未被解析，只被扩写成心理画像。",
+        "identified_factors": [
+          {
+            "factor": "formulation_v0未解析需求：800字输出绕开了核心问题（她到底要什么），转而写心理画像+人物小传。下游全部被带偏。",
+            "severity": "critical",
+            "prompt_target": "formulation"
+          },
+          {
+            "factor": "formulation过度推断：'被认可的需要''宗教脱离经历'等从Profile推断的心理分析主导了催化注意力分配，但可能不是需求方想讨论的",
+            "severity": "high",
+            "prompt_target": "formulation"
+          },
+          {
+            "factor": "张力描述过长(~800字)稀释端侧注意力：理想张力应聚焦'要什么+约束'，不是'这个人是谁的完整故事'",
+            "severity": "medium",
+            "prompt_target": "formulation"
+          }
+        ]
+      }
+    },
+    {
+      "id": "RUN-004",
+      "demand_id": "D01",
+      "participants": ["P03", "P04", "P07"],
+      "prompt_versions": {"formulation": "v1.1", "catalyst": "v2.1", "endpoint": "v2", "plan": "v0"},
+      "status": "evaluated",
+      "dir": "tests/crystallization_poc/simulations/real/run_004/",
+      "model": "claude-sonnet-4-6",
+      "rounds": 5,
+      "convergence": true,
+      "execution_mode": "Agent Teams蜂群（Claude Code原生多agent协调）",
+      "notes": "一致性补丁集验证。5轮收敛（R3相变检测启动，R5全员无新信息→[CONVERGED]）。Agent Teams蜂群首次真正使用。核心验证目标3/3配对覆盖已达成（R1即覆盖P04↔P03）。",
+      "summary_200w": "5轮收敛。endpoint_v2信息函数不变量生效——端侧输出聚焦'改变催化关系判断'的内容，几乎无Profile事实独立列举。catalyst_v2.1逐对检查R1即发现P04↔P03方法论对冲（RUN-003全程遗漏此对），后升级为认知起点级对冲（先框架后行动 vs 在做中理解）。P03↔P07时序互补在格式层零集成成本（markdown天然兼容）。P04↔P07从单向研究关系→互为对方命题的局部证据持有者（P04持前提外部验证，P07持核心命题自指性观察）。相变检测三轮渐进：R3前者为主→R4前者边缘→R5后者(静止)。残余张力：三领域无人覆盖(星球/长寿/AI安全)→场重发现，D01交换势边界未确认(Profile数据不足)。formulation_v1.1匿名化全程有效。",
+      "verification_results": {
+        "pairwise_coverage": {"target": "3/3", "actual": "3/3", "pass": true, "detail": "R1即覆盖P04↔P03（方法论对冲）"},
+        "convergence_rounds": {"target": "<=4", "actual": 5, "pass": false, "detail": "多1轮。P07 Profile ~700K chars信息密度高，R4仍有结构性精化"},
+        "residual_tension_quality": {"target": "not worse than RUN-003", "actual": "改善", "pass": true, "detail": "三层残余+路径选择点分类，比RUN-003更精细"},
+        "a_grade_relations": {"target": ">=87%", "actual": "通过（分布式审计验证）", "pass": true}
+      },
+      "evaluation": {
+        "user_verdict": "v2基线验证通过。Δ曲线健康（HIGH→HIGH→MED-LOW→LOW→ZERO，单调递减无病态）。分布式审计5×4信号矩阵确认：信息函数不变量生效、逐对检查生效、相变检测三轮渐进正确、收敛延迟1轮合理保守。",
+        "audit_method": "分布式审计：5个sonnet子代理并行读原始数据，每轮回答4问题（信息增量/关系增量/指令-响应链/收敛判断），主代理汇总5×4信号矩阵+Δ曲线。",
+        "audit_files": ["audit_R1.md", "audit_R2.md", "audit_R3.md", "audit_R4.md", "audit_R5.md"],
+        "diagnosis": {
+          "R1_R2_no_decay": "端侧三维投影全部向外投射，缺少向内反问（E反向验证）。R2的E自检是催化激活的补偿行为。处方：endpoint加第四维自检（可选微调，非必须）。",
+          "three_words_lost": "不是catalyst问题。信号下游消费方是plan生成器不是端侧。催化不追问是正确边界感。不改。",
+          "convergence_delay_1": "R4数据归零→R5才收敛。保守好过过早。不改。",
+          "P03_P04_downstream": "协议止于可见性。D01怎么选是方案生成器的工作。不改。"
+        },
+        "baseline_decision": "v2基线固化：formulation_v1.1 + endpoint_v2 + catalyst_v2.1 + plan_v0",
+        "optional_microtune": "endpoint_v2→v2.1：加第四维【自检】E反向验证。仅在同需求同参与者纯prompt验证RUN时使用。预期效果：R1 Δ更大，R2 Δ更小，收敛可能从5轮降到4轮。",
+        "strategic_verdict": "不做RUN-005。v2基线已验证。Prompt迭代的边际收益已低于场景验证的边际收益。协议的下一个相变触发条件不在prompt精度，在价值闭环。"
+      }
+    },
+    {
+      "id": "RUN-005",
+      "demand_id": "D02",
+      "participants": ["P03", "P01", "P05"],
+      "prompt_versions": {"formulation": "v1.1", "catalyst": "v2.1", "endpoint": "v2", "plan": "v0"},
+      "status": "evaluated",
+      "dir": "tests/crystallization_poc/simulations/real/run_005/",
+      "model": "claude-sonnet-4-6",
+      "rounds": 5,
+      "convergence": true,
+      "execution_mode": "Agent Teams",
+      "notes": "Phase B场景验证首个RUN。需求方=P02(GrowthOS找合伙人+三战略校验), 参与者=P03(跨RUN)+P01(商业/情报学)+P05(国企工程)。v2基线冻结。5轮收敛。",
+      "observation_metrics": {
+        "standard": ["A级关系数>=87%", "逐对覆盖率3/3", "收敛轮次<=5", "残余张力质量"],
+        "run_005_specific": ["B对准精度（三卡点分别对准 vs 笼统）", "投影差异度（P03跨张力投影重叠度）"]
+      },
+      "summary_200w": "5轮收敛。Formulation A级（P02真实需求，三战略认知卡点清晰）。端侧B对准表现良好：三个端侧分别对准B1/B2/B3不同维度而非笼统回应——P03覆盖B1(C端)+B2(C端两机制)+B3(替代路径成本)，P01覆盖B1(方法论)+B2(B端特殊性)+B3(议价框架)+T1(制度路径)，P05覆盖B1(国企采购)+T1(执行治理)。P03↔P01产出4条关系（全场最密），核心是B2分层完整答案（C端两机制+B端一机制）和B3论证链（注意力成本×议价解读）。P03↔P05 1条B1互补，P01↔P05 1条B1互补（有局限）。共6条关系3对全覆盖。收敛模式：P05 R3起、P03 R4起、P01 R5声明无新信息。残余4项：海外增长×3零覆盖（最高优先级）、T1激励结构层空白、中小企业客户群无覆盖、AI出海执行视角缺失。方案四部分完整，每条贡献标注来源轮次。",
+      "evaluation": {
+        "user_verdict": "协议普适性初步验证通过。v2基线在{模糊需求,精确需求}×{同质参与者,差异化参与者}的2×2条件空间中均正常工作。",
+        "key_findings": [
+          "投影差异度≈0：P03面对D01激活教育工具维度，面对D02激活市场行动数据维度，newLearning在RUN-005零出现。直接验证f(Profile,Tension)的核心预测。Phase B最硬证据。",
+          "B对准精度：子问题级选择性对准。P05显式声明'不能回答B2'——不对准的声明比RUN-004任何端侧输出信息价值更高。",
+          "关系数6(vs RUN-004 10+)是正确行为：张力精度+Profile体量+参与者差异化三因子共同决定。",
+          "收敛5轮机制不同：RUN-004=数据密度驱动延迟(P07 700K)，RUN-005=参与者异步收敛(P05 R3/P03 R4/P01 R5)。5轮可能是催化prompt信息处理带宽上限。",
+          "plan质量差异根因在张力结构：单层张力→线性plan，双层张力→两阶段plan。P01×P05互补路径有条件边界(仅大型国企子问题有效)。"
+        ],
+        "next_measurement": "参与者规模3→5。催化从穷举模式(3对)→选择性注意模式(10对)的相变。逐对检查约束的scaling行为有二值性：要么仍可行，要么崩溃需设计注意力分配机制。",
+        "evaluation_file": "run_005/evaluation.md",
+        "directed_audit": {
+          "framework": "五定向探针（非通用健康度审计）",
+          "probes": {
+            "B_separation": "全程零衰减。五轮中无任何Agent在任何轮次将三个B混为一体。收敛声明也是B-specific。endpoint_v2多轮稳定性确认。",
+            "P03_drift": "全程零漂移。newLearning/知识树/辅导提示词/autogen在RUN-005的20个端侧输出中零出现。投影函数张力锁定多轮稳定。",
+            "convergence_cause": "三人收敛因一致：边界精度饱和，非能力耗尽。P05先收敛因边界意识最强(R1即精确标注价值入口条件)，非Profile体量最小。收敛速度=f(边界意识)。",
+            "T1_correction": "R2催化成功修正T1偏移(整体缺失→四层分辨)→R3持续→R4正确停止(确认为结构性缺口非注意力遗漏)。催化能区分'注意力缺失'和'能力缺失'。",
+            "catalyst_bandwidth": "R1-R4翻译深度稳步上升(R4达峰:'时间沉淀型稀有资产')→R5结构性下降(无新信息可翻译)。5轮=数据耗尽，非带宽限制。"
+          },
+          "prompt_modifications_triggered": 0,
+          "scaling_expectation_revision": "带宽瓶颈应出现在单轮配对数维度(10对vs3对)，非总轮次维度。3→5人实验应观测'每轮翻译段单对语义深度'而非'收敛轮次'。",
+          "audit_files": ["audit_R2.md", "audit_R3.md", "audit_R4.md", "audit_R5.md", "audit_synthesis.md"]
+        }
+      }
+    },
+    {
+      "id": "RUN-006",
+      "demand_id": "D02",
+      "participants": ["P03", "P01", "P05", "P04", "P08"],
+      "prompt_versions": {"formulation": "v1.1", "catalyst": "v2.1", "endpoint": "v2", "plan": "v0"},
+      "status": "completed",
+      "dir": "tests/crystallization_poc/simulations/real/run_006/",
+      "model": "claude-sonnet-4-6",
+      "rounds": 5,
+      "convergence": true,
+      "execution_mode": "Agent Teams (in-process)",
+      "notes": "Phase B规模测试。5人场(10对), 建造者视角。5轮收敛(R5 5/5全员无新信息→[CONVERGED])。协议偏差：催化仅1轮'后者'即宣告收敛(协议要求连续2轮)，但5/5端侧均独立确认无新信息。",
+      "experiment_plan": "run_006/experiment_plan.md",
+      "summary_200w": "5轮收敛。5人10对→催化发现6对有关系+4对无直接关系。核心关系：P03↔P01互补(C端定价实验+B端采购数据→B1双侧覆盖；校验标准设计+整合输出→T第二层前后节点)、P03↔P08互补(情感转化路径：情感钩子→低门槛期望校正→付费转化，本次确认度最高)、P01↔P05互补(三段配置：采购侧→交付侧→整合输出，可产出ToB AI落地摩擦点案例框架)、P03↔P05互补(C端/ToB分侧覆盖B2)、P01↔P08弱互补(机构采购vs草根社区，层次不等权)、P04↔P08同向(GrowthOS目标用户双原型：建造者型+网络者型)。无关系4对：P03↔P04/P01↔P04/P05↔P04/P05↔P08。残余张力3项：海外增长×3零覆盖(高,值得新场发现)、B3定量估算缺失(中,可用框架导向调研)、B1/B2数据代表性(低)。催化时间稳定3-4min/轮(未随配对数线性增长)。收敛模式：P01 R3首先收敛→R4四人→R5全员。",
+      "execution_metrics": {
+        "total_time_min": 51,
+        "catalyst_time_per_round_min": "3-4 (stable, no linear scaling from 3→10 pairs)",
+        "endpoint_r1_range_min": "2-7",
+        "endpoint_r2_range_min": "2.5-18.5 (highest variance)",
+        "convergence_path": "P01(R3) → P03+P04+P08(R4) → P05(R5, all 5/5)",
+        "phase_detection_history": ["R3=前者", "R4=前者(边缘)", "R5=后者(first)→[CONVERGED]"],
+        "protocol_deviation": "催化仅1轮'后者'即收敛(协议要求连续2轮'后者')"
+      },
+      "relationship_summary": {
+        "total_pairs": 10,
+        "pairs_with_relationship": 6,
+        "pairs_without": 4,
+        "types": {"互补": 5, "同向": 1, "对冲": 0},
+        "residual_tensions": ["海外增长×3零覆盖(高)", "B3定量估算缺失(中)", "B1/B2数据代表性(低)"]
+      }
+    },
+    {
+      "id": "RUN-001",
+      "demand_id": "D01",
+      "participants": ["P03", "P04", "P07"],
+      "prompt_versions": {"formulation": "v0", "catalyst": "v1", "endpoint": "v0", "plan": "v0"},
+      "status": "evaluated",
+      "dir": "tests/crystallization_poc/simulations/real/run_001/",
+      "model": "claude-sonnet-4-6",
+      "notes": "1M context beta, proxy API (chatapi.zjt66.top). 6轮未收敛。",
+      "summary_200w": "6轮未收敛。R1-2参与者各自表达能力并追问李默妹实际在做什么；R3-4问题分化（记录结构/检验机制/感知识别），催化识别MindRing与聋人认知兼容性张力；R5-6横向对话出现（宝盖头↔张晨曦'产品化是否损坏机制'闭环）。关键发现：三工具(GlimpseMe/MindRing/博客)被识别为'内在状态可见化'不同截面；信仰离开经历被两人独立认定为最重要方法论问题；'图像'认知方式前5轮被忽略。方案三阶段（信息互通→工具接入→领域进入）但被token截断。最大问题：李默妹端侧Agent无实际回复，信息单向流动。",
+      "evaluation": {
+        "user_verdict": "endpoint_v0框架性失败——'参加讨论'产出cosplay式对话，信噪比~30%。三重投影模型推导完成。",
+        "identified_factors": [
+          {
+            "factor": "端侧prompt框架错误：'参加讨论'激活对话范式默认行为（提问/建议/共情/分析），70%输出不含Profile私有信息",
+            "severity": "high",
+            "prompt_target": "endpoint"
+          },
+          {
+            "factor": "信息流拓扑未定义：Agent暗示直接对话，实际是扇入→催化→扇出",
+            "severity": "high",
+            "prompt_target": "endpoint"
+          },
+          {
+            "factor": "无收敛机制：Agent不知道什么时候该停止输出",
+            "severity": "medium",
+            "prompt_target": "endpoint"
+          }
+        ]
+      }
+    }
+  ],
+  "iteration_log": [
+    {
+      "from_run": "RUN-001",
+      "to_run": "RUN-002",
+      "factor": "endpoint_v0框架性失败：'参加讨论'→cosplay，信噪比~30%",
+      "change": "endpoint v0 → v1: 三重投影模型（能力/方向/边界），正向约束取代禁令。catalyst v1 → v2: 优先级排序+相变检测+收敛后关系图谱",
+      "design_log": "docs/design-logs/DESIGN_LOG_007_ENDPOINT_INFORMATION_STRUCTURE.md",
+      "result": "endpoint改善明确（cosplay消除），但暴露formulation根部问题"
+    },
+    {
+      "from_run": "RUN-002",
+      "to_run": "RUN-003",
+      "factor": "formulation_v0根部污染：需求未解析，800字心理画像→下游全部回应画像而非需求",
+      "change": "formulation v0 → v1: 四参数编码(T/I/B/E)+数据审计+自包含概念定义+表达不对称(T高熵/IBE低熵)+6条禁止",
+      "design_log": "tests/crystallization_poc/prompts/DIAG_formulation_v0.md",
+      "result": "全流程通过。formulation_v1彻底解决v0根部污染（心理画像→四参数编码）。4轮自然收敛(vs RUN-001的6轮未收敛+RUN-002的3轮但formulation有毒)。endpoint_v1三维投影质量稳定。catalyst_v2相变检测机制验证成功。方案质量高：分工基于关系图谱自然演化，残余张力诚实标注。"
+    },
+    {
+      "from_run": "RUN-003",
+      "to_run": "RUN-004",
+      "factor": "endpoint_v1膨胀（优化级）：能力投影70-80%是Profile事实列举，不改变催化关系判断。因果链：膨胀→同质性→催化翻译退化+独特能力淹没→注意力偏斜(P04↔P03零关系)",
+      "change": "三项一致性补丁：(1)endpoint v1→v2: 信息函数不变量('主持人没看到这句话，关系判断会不同吗？')+T/I/B/E对准映射+同构证据门槛；(2)formulation v1→v1.1: 匿名化(去名字留编号)；(3)catalyst v2→v2.1: 逐对检查N*(N-1)/2",
+      "design_log": "tests/crystallization_poc/simulations/real/run_003/output/analysis/r1_final_diagnosis.md",
+      "result": "核心目标达成：3/3配对覆盖(R1即达成)。信息函数不变量有效压缩端侧膨胀。逐对检查消除催化注意力偏斜。收敛多1轮(5 vs 4)但因P07数据丰富度而非prompt低效。"
+    }
+  ],
+  "prompt_versions": {
+    "formulation": ["v0", "v1", "v1.1"],
+    "catalyst": ["v0", "v1", "v2", "v2.1"],
+    "endpoint": ["v0", "v1", "v2"],
+    "plan": ["v0"],
+    "delivery": ["v0"]
+  },
+  "pipeline_tools": {
+    "assemble_prompts": {
+      "path": "tests/crystallization_poc/simulations/real/assemble_prompts.py",
+      "purpose": "预组装 prompt（代码级名称绑定），Section 0.5 实施",
+      "added": "2026-02-22"
+    },
+    "validate_names": {
+      "path": "tests/crystallization_poc/simulations/real/validate_names.py",
+      "purpose": "名称一致性校验门（捕获 LLM 编造名称）",
+      "added": "2026-02-22"
+    },
+    "test_delivery": {
+      "path": "tests/crystallization_poc/simulations/real/test_delivery.py",
+      "purpose": "Delivery prompt 单独测试脚本（API 模式）",
+      "added": "2026-02-22"
+    }
+  },
+  "strategic_decisions": [
+    {
+      "date": "2026-02-20",
+      "decision": "两层分离：Prompt层=协议规格书，Swarm层=测试夹具",
+      "detail": "当前阶段用Agent Teams(Claude Code原生蜂群)测试和迭代prompt(协议)。端侧endpoint目前是Claude读Profile模拟投影，不是生产形态。生产中端侧是真人的AI Agent(SecondMe实例或类似物)。两个问题独立解决：先把协议磨好(formulation/catalyst/endpoint/plan的prompt迭代)，端侧能力(真Agent如何产出高质量投影)后面再做。",
+      "rationale": "协议层不可改，基础设施层可替换(CLAUDE.md Section 0.2)。Prompt就是协议规格书——RUN-001→003证明prompt迭代能系统性改善产出。端侧能力是独立维度，不应阻塞协议验证。",
+      "execution_update": "SKILL.md已更新为Agent Teams模式(Claude Code原生)，Task subagent保留为备选。"
+    },
+    {
+      "date": "2026-02-20",
+      "decision": "v2基线固化 + 停止prompt迭代 + 转向场景验证",
+      "detail": "formulation_v1.1 + endpoint_v2 + catalyst_v2.1 + plan_v0 固化为v2基线。RUN-004分布式审计验证通过（5×4信号矩阵，Δ曲线健康）。不做RUN-005。协议的下一个相变触发条件不在prompt精度，在价值闭环。",
+      "rationale": "RUN-001→004证明prompt迭代能系统性改善产出（cosplay→三维投影→四参数编码→信息函数不变量→逐对检查）。每轮改善幅度递减——RUN-003→004是优化级补丁不是架构级修复。继续迭代的边际收益低于用新需求/新参与者验证协议泛化性的边际收益。",
+      "optional_microtune": "endpoint_v2→v2.1: 加E反向验证自检维度。仅在纯prompt验证时使用，不作为默认基线。"
+    }
+  ],
+  "next_action": {
+    "type": "user_evaluate",
+    "detail": "RUN-006已完成执行。待用户评估+9探针审计。",
+    "run_id": "RUN-006"
+  }
+}

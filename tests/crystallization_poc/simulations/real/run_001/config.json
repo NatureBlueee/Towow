@@ -1,0 +1,51 @@
+{
+  "run_id": "RUN-001",
+  "demand": {
+    "id": "D01",
+    "source_profile": "data/profiles/real/limomei.md",
+    "raw_intent": "我是聋人，艺名是李默妹，Entj射手座是一个没有基础「走向星球、长寿科技、人工智能安全性能管理体系及个人提升」的普通人，但是我想要普通人通过 AI Agent系统的学习四个方面领域整结创作新的有用技术发展未来科技，慢慢来研究和发现…..",
+    "description": "聋人普通人想通过AI Agent系统学习星球/长寿/AI安全/个人提升四领域，创作新技术"
+  },
+  "participants": [
+    {
+      "name": "西天取经的宝盖头",
+      "profile_file": "data/profiles/real/pingdior.md",
+      "brief": "用技术理解生命状态的AIoT产品人，做自我觉察软硬件"
+    },
+    {
+      "name": "Mark Jin",
+      "profile_file": "data/profiles/real/markjin.md",
+      "brief": "211机器人工程大四生，情感计算+AI产品，校科协副主席"
+    },
+    {
+      "name": "张晨曦",
+      "profile_file": "data/profiles/real/chenxizhang.md",
+      "brief": "工商管理大四生+WoWok实习，6个AI项目横跨自我认知/学术写作/隐私工具"
+    }
+  ],
+  "prompts": {
+    "formulation": "tests/crystallization_poc/prompts/formulation_v0.md",
+    "catalyst": "tests/crystallization_poc/prompts/catalyst_v1.md",
+    "endpoint": "tests/crystallization_poc/prompts/endpoint_v0.md",
+    "plan_generator": "tests/crystallization_poc/prompts/plan_generator_v0.md"
+  },
+  "models": {
+    "formulation": "claude-sonnet-4-6",
+    "catalyst": "claude-sonnet-4-6",
+    "endpoint": "claude-sonnet-4-6",
+    "plan": "claude-sonnet-4-6"
+  },
+  "params": {
+    "max_rounds": 6,
+    "convergence_threshold": 2,
+    "max_tokens_formulation": 2048,
+    "max_tokens_catalyst": 6000,
+    "max_tokens_endpoint": 2048,
+    "max_tokens_plan": 4096
+  },
+  "api": {
+    "base_url": "https://chatapi.zjt66.top",
+    "api_key_env": "TOWOW_PROXY_API_KEY"
+  },
+  "manual_responses": null
+}

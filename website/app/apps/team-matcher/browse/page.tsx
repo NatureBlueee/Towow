@@ -1,5 +1,8 @@
+// [MAINTENANCE MODE] Backend is down — show maintenance banner
+// Original code: import { BrowsePageClient } from './BrowsePageClient';
+import { MaintenanceBanner } from '@/components/shared/MaintenanceBanner';
+
 import { Metadata } from 'next';
-import { BrowsePageClient } from './BrowsePageClient';
 
 export const metadata: Metadata = {
   title: 'Team Matcher - 浏览请求 | ToWow',
@@ -7,5 +10,6 @@ export const metadata: Metadata = {
 };
 
 export default function BrowsePage() {
-  return <BrowsePageClient />;
+  // return <BrowsePageClient />;
+  return <MaintenanceBanner pageName="Team Matcher" />;
 }
